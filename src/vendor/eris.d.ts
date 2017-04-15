@@ -116,7 +116,10 @@ declare module eris {
         on(event: "userUpdate", handler: (u: User, old: { username: string }) => void): void;
         on(event: "guildUpdate", handler: (g: Guild, old: { name: string }) => void): void;
         on(event: "messageCreate", handler: (m: Message) => void): void;
+        on(event: "messageDelete", handler: (m: Message) => void): void;
         on(event: "messageReactionAdd", handler: (message: eris.Message, emoji: { id: string | null, name: string }, userID: string) => void): void;
+
+        removeListener(event: string, handler: Function): void;
     }
 }
 

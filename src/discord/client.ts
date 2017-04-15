@@ -2,13 +2,16 @@ import Eris = require("eris");
 import debug = require("debug");
 import { Configuration } from "../index";
 import { DiscordServerModel, UserModel } from "../database";
+import MessageHandler from "./message-handler";
 
 export default class DiscordClient {
     public readonly bot: Eris;
     public readonly log = debug("orianna:discord");
+    private messageHandler: MessageHandler;
 
     constructor(public readonly config: Configuration) {
         this.bot = new Eris(config.discordToken);
+        this.messageHandler = new MessageHandler(this);
     }
 
     /**
@@ -26,7 +29,7 @@ export default class DiscordClient {
      */
     private onUserRename = async (user: eris.User, old: { username: string }) => {
         if (user && old && user.username !== old.username) {
-            this.log("User %s renamed to %s.", old.username, user.username);
+            this.log("User '%s' renamed to '%s'.", old.username, user.username);
 
             const u = await UserModel.findBy({ snowflake: user.id });
             if (u) {
@@ -41,7 +44,7 @@ export default class DiscordClient {
      */
     private onGuildRename = async (guild: eris.Guild, old: { name: string }) => {
         if (guild.name !== old.name) {
-            this.log("Server %s renamed to %s.", old.name, guild.name);
+            this.log("Server '%s' renamed to '%s'.", old.name, guild.name);
 
             const server = await DiscordServerModel.findBy({ snowflake: guild.id });
             if (server) {
