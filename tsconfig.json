@@ -4,6 +4,7 @@
     "strictNullChecks": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "alwaysStrict": true,
     "outDir": "dist",
     "module": "commonjs",
     "target": "es2015"

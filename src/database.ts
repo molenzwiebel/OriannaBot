@@ -52,6 +52,9 @@ export abstract class LeagueAccount extends Basie {
     region: string;
 
     @field
+    summonerId: number;
+
+    @field
     accountId: number;
 
     @field

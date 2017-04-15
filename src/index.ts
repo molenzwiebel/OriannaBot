@@ -3,6 +3,7 @@ import { UserModel, LeagueAccountModel, DiscordServerModel, RoleModel } from "./
 import * as fs from "fs";
 
 import debug = require("debug");
+import RiotAPI from "./riot/api";
 const info = debug("orianna");
 const error = debug("orianna:error");
 
@@ -38,4 +39,6 @@ interface Configuration {
     await LeagueAccountModel.createTable();
     await DiscordServerModel.createTable();
     await RoleModel.createTable();
+
+    const riotApi = new RiotAPI(config.riotApiKey);
 })();
