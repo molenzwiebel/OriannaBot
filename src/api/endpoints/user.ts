@@ -12,13 +12,11 @@ export async function userPut(req: express.Request, res: express.Response) {
     const user = await UserModel.findBy({ configCode: req.params.code });
     if (!user) throw new Error("User not found.");
 
-    const newAccount = new LeagueAccountModel();
-    newAccount.region = req.body.region;
-    newAccount.username = req.body.summonerName;
-    newAccount.summonerId = req.body.summonerId;
-    newAccount.accountId = req.body.accountId;
-    newAccount.owner = user.id;
-    await newAccount.save();
+    await user.addAccount(req.body.region, {
+        id: req.body.summonerId,
+        name: req.body.summonerName,
+        accountId: req.body.accountId
+    });
 
     res.send();
 }

@@ -27,12 +27,7 @@ export async function serverPost(req: express.Request, res: express.Response) {
     await server.save();
 
     for (const r of req.body.roles) {
-        const role = new RoleModel();
-        role.snowflake = "";
-        role.name = r.name;
-        role.range = r.range;
-        role.owner = server.id;
-        await role.save();
+        await server.addRole(r.name, r.range);
     }
 
     // TODO: Complete server setup, send messages via Discord.

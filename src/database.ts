@@ -26,6 +26,16 @@ export abstract class User extends Basie {
     @field
     optedOutOfReminding: boolean;
 
+    async addAccount(region: string, data: riot.Summoner) {
+        const acc = new LeagueAccountModel();
+        acc.owner = this.id;
+        acc.username = data.name;
+        acc.summonerId = data.id;
+        acc.accountId = data.accountId;
+        acc.region = region;
+        await acc.save();
+    }
+
     get lastUpdate(): Date {
         return new Date(this.lastUpdateTimestamp);
     }
@@ -92,6 +102,15 @@ export abstract class DiscordServer extends Basie {
 
     @field
     setupCompleted: boolean;
+
+    async addRole(name: string, range: string) {
+        const role = new RoleModel();
+        role.snowflake = "";
+        role.name = name;
+        role.range = range;
+        role.owner = this.id;
+        await role.save();
+    }
 
     set existingRoles(val: string[]) {
         this.existingRolesJson = JSON.stringify(val);

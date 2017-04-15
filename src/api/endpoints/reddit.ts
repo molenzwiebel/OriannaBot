@@ -54,13 +54,7 @@ export async function redditCallback(req: express.Request, res: express.Response
             // We need to fetch the account ID since championmains doesn't return it.
             const data = await this.riot.getSummonerByName(acc.region, acc.name);
 
-            const newAccount = new LeagueAccountModel();
-            newAccount.region = data.region;
-            newAccount.username = data.username;
-            newAccount.summonerId = data.id;
-            newAccount.accountId = data.accountId;
-            newAccount.owner = user.id;
-            await newAccount.save();
+            await user.addAccount(acc.region, data);
         }
     } catch (err) {
         redditStates[code] = { ok: false, error: err.message };
