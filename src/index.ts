@@ -5,6 +5,7 @@ import * as fs from "fs";
 import debug = require("debug");
 import RiotAPI from "./riot/api";
 import APIWebServer from "./api/server";
+import DiscordClient from "./discord/client";
 const info = debug("orianna");
 const error = debug("orianna:error");
 
@@ -46,4 +47,8 @@ export interface Configuration {
     info("Starting web server.");
     const webServer = new APIWebServer(config, riotApi);
     await webServer.listen(8001);
+
+    info("Connecting to Discord.");
+    const discord = new DiscordClient(config);
+    await discord.connect();
 })();
