@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "dist",
+    "module": "commonjs",
+    "target": "es2015"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
