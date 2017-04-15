@@ -112,4 +112,4 @@ export abstract class Role extends Basie {
     @field
     range: string;
 }
-export const RoleModel = Based(DiscordServer);
+export const RoleModel = Based(Role);

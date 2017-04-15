@@ -12,9 +12,9 @@ import RiotAPI from "../riot/api";
 
 export default class APIWebServer {
     private app: express.Application;
-    private log = debug("orianna:api");
+    public readonly log = debug("orianna:api");
 
-    constructor(private config: Configuration, private riot: RiotAPI) {
+    constructor(public readonly config: Configuration, public readonly riot: RiotAPI) {
         this.app = express();
         this.app.use(cors()); // allow cors for development
         this.app.use(bodyparser.json()); // automatically JSON.parse bodies.
@@ -34,7 +34,7 @@ export default class APIWebServer {
         this.app.get("/api/verify/:region/:id/:expected", this.wrapHandler(runePageVerify));
 
         // Reddit import endpoints.
-        this.app.get("/api/reddit_poll/:key", this.wrapHandler(redditPoll));
+        this.app.get("/api/reddit_poll/:code", this.wrapHandler(redditPoll));
         this.app.get("/api/reddit_confirm", this.wrapHandler(redditCallback));
     }
 
@@ -52,7 +52,8 @@ export default class APIWebServer {
      */
     private wrapHandler(method: (req: express.Request, res: express.Response) => any) {
         return (req: express.Request, res: express.Response) => {
-            method.call(this, req, res).catch((err: Error) => res.status(500).json({ message: err.message }));
+            const p = method.call(this, req, res);
+            p && p.catch((err: Error) => res.status(500).json({ message: err.message }));
         };
     }
 }
