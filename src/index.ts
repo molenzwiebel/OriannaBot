@@ -4,6 +4,7 @@ import * as fs from "fs";
 
 import debug = require("debug");
 import RiotAPI from "./riot/api";
+import APIWebServer from "./api/server";
 const info = debug("orianna");
 const error = debug("orianna:error");
 
@@ -11,7 +12,7 @@ process.on("unhandledRejection", (err: Error) => {
     error("Unhandled rejection: %O", err);
 });
 
-interface Configuration {
+export interface Configuration {
     regions: string[];
     riotApiKey: string;
 
@@ -41,4 +42,8 @@ interface Configuration {
     await RoleModel.createTable();
 
     const riotApi = new RiotAPI(config.riotApiKey);
+
+    info("Starting web server.");
+    const webServer = new APIWebServer(config, riotApi);
+    await webServer.listen(8001);
 })();
