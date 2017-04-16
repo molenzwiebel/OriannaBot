@@ -95,7 +95,7 @@ export abstract class DiscordServer extends Basie {
     existingRolesJson: string;
 
     @field
-    mainChannel: string;
+    announceChannelSnowflake: string; // "" if default channel or announcePromotions = false
 
     @children(model => RoleModel)
     roles: Role[];

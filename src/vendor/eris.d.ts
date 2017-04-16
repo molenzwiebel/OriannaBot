@@ -13,7 +13,7 @@ declare module eris {
         code: string;
     }
 
-    class GuildChannel {
+    class GuildChannel extends Channel {
         name: string;
         id: string;
     }
@@ -72,6 +72,7 @@ declare module eris {
 
     class Member {
         id: string;
+        status: "online" | "idle" | "offline";
         username: string;
         user: User;
         nick?: string;
@@ -113,10 +114,11 @@ declare module eris {
 
         on(event: "ready", handler: () => void): void;
         on(event: "guildCreate", handler: (g: Guild) => void): void;
+        on(event: "guildDelete", handler: (g: Guild) => void): void;
+        on(event: "guildUpdate", handler: (g: Guild, old: { name: string }) => void): void;
         on(event: "guildRoleUpdate", handler: (g: Guild, r: Role) => void): void;
         on(event: "guildMemberAdd", handler: (g: Guild, m: Member) => void): void;
         on(event: "userUpdate", handler: (u: User, old: { username: string }) => void): void;
-        on(event: "guildUpdate", handler: (g: Guild, old: { name: string }) => void): void;
         on(event: "messageCreate", handler: (m: Message) => void): void;
         on(event: "messageDelete", handler: (m: Message) => void): void;
         on(event: "messageReactionAdd", handler: (message: eris.Message, emoji: { id: string | null, name: string }, userID: string) => void): void;

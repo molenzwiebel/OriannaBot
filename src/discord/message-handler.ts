@@ -23,7 +23,7 @@ export default class MessageHandler {
     private responses: Response[] = [];
     private commands: Command[] = [];
 
-    constructor(private client: DiscordClient) {
+    constructor(public readonly client: DiscordClient) {
         this.client.bot.on("messageCreate", async message => {
             // Do not respond to bots.
             if (message.author.bot) return;
@@ -40,7 +40,7 @@ export default class MessageHandler {
             // Remove the Orianna bot mention.
             message.mentions = message.mentions.filter(x => x.id !== this.client.bot.user.id);
 
-            this.log("[%s: %s] %s", message.channel.id, handler.name, message.content);
+            this.log("[%s: %s] %s", message.channel.id, handler.name, message.cleanContent);
             handler.handler.call(this, message);
         });
 

@@ -34,7 +34,7 @@ export default class Response {
     }
 
     /**
-     * Sends the initial response.
+     * Sends the initial response. This method should only be called by MessageHandler.
      */
     async respond(responseColor: number, responseContent: EmbedOptions): Promise<void> {
         this.message = await this.trigger.channel.createMessage({
@@ -121,7 +121,7 @@ export default class Response {
         this.message = await this.trigger.channel.createMessage({ embed: this.buildEmbed(color, response) });
 
         // Add reactions again.
-        for (const [key, val] of this.reactions) {
+        for (const [key] of this.reactions) {
             await this.message.addReaction(key, "@me");
         }
     }
