@@ -9,12 +9,13 @@ import { userDelete, userGet, userPut } from "./endpoints/user";
 import { runePageVerify, summonerLookup } from "./endpoints/riot";
 import { redditCallback, redditPoll } from "./endpoints/reddit";
 import RiotAPI from "../riot/api";
+import DiscordClient from "../discord/client";
 
 export default class APIWebServer {
     private app: express.Application;
     public readonly log = debug("orianna:api");
 
-    constructor(public readonly config: Configuration, public readonly riot: RiotAPI) {
+    constructor(public readonly config: Configuration, public readonly riot: RiotAPI, public readonly discord: DiscordClient) {
         this.app = express();
         this.app.use(cors()); // allow cors for development
         this.app.use(bodyparser.json()); // automatically JSON.parse bodies.

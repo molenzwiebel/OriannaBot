@@ -23,6 +23,8 @@ export interface Configuration {
     redditClientId: string;
     redditClientSecret: string;
     redditRedirectUrl: string;
+
+    baseUrl: string;
 }
 
 (async () => {
@@ -44,11 +46,11 @@ export interface Configuration {
 
     const riotApi = new RiotAPI(config.riotApiKey);
 
-    info("Starting web server.");
-    const webServer = new APIWebServer(config, riotApi);
-    await webServer.listen(8001);
-
     info("Connecting to Discord.");
     const discord = new DiscordClient(config);
     await discord.connect();
+
+    info("Starting web server.");
+    const webServer = new APIWebServer(config, riotApi, discord);
+    await webServer.listen(8001);
 })();

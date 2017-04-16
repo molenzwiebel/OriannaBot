@@ -1,5 +1,5 @@
 import express = require("express");
-import { DiscordServerModel, RoleModel } from "../../database";
+import { DiscordServerModel } from "../../database";
 
 // GET '/api/server/:code'
 export async function serverGet(req: express.Request, res: express.Response) {

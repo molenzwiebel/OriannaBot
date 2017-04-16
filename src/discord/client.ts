@@ -35,11 +35,67 @@ export default class DiscordClient {
     }
 
     /**
+     * Sends a message to the specified user informing them of how Orianna works.
+     * Returns true if the user was already in the database, or if the message was sent successfully.
+     * Returns false if the message could not be sent because of the user's privacy settings.
+     */
+    async registerUser(member: eris.Member, messageTitle: string, messageFirstLine: string): Promise<boolean> {
+        let user = await UserModel.findBy({ snowflake: member.id });
+        if (user) return true;
+
+        user = new UserModel();
+        user.snowflake = member.id;
+        user.username = member.username;
+        user.configCode = Math.random().toString(36).substring(2);
+        user.lastUpdate = new Date(0);
+        user.latestPoints = {};
+        user.optedOutOfReminding = false;
+        await user.save();
+
+        const dmChannel = await this.bot.getDMChannel(member.id);
+
+        try {
+            await dmChannel.createMessage({
+                embed: {
+                    title: ":wave: " + messageTitle,
+                    url: `${this.config.baseUrl}/#/player/${user.configCode}`,
+                    color: 0x49bd1a,
+                    description:
+                    messageFirstLine + " If you register your League accounts with me, I will make sure that you receive appropriate roles in any Discord server that I am in. Since this is your first time using Orianna, you will need to add one or more League accounts. This is not required, but I will be able to assign you roles unless you add some :slight_smile:."
+                    + "\nYour accounts are globally stored. Should you ever join another server where I'm active, I will automagically give you the appropriate roles."
+                    + `\n\n:wrench: To add or edit the League accounts associated with you, visit this link: ${this.config.baseUrl}/#/player/${user.configCode}.`
+                    + `\n:warning: **Anyone with this link can configure your accounts!** Do not share it unless you completely trust the receiver!`
+                    + `\n\n:mag_right: If you ever lose this link, just mention me using \`@Orianna Bot, send me my edit link\` and I'll remind you.`
+                    + `\n:book: I can also do some other things, such as showing leaderboards! Mention me and click the :question: to see all of my commands.`
+                    + `\n\nIf you are unsure of how this works, or if you want to know more about me, check out the documentation! It is available online at ${this.config.baseUrl}/#/docs.`,
+                    timestamp: new Date(),
+                    footer: { text: member.username, icon_url: member.user.avatarURL },
+                    thumbnail: { url: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png" }
+                }
+            });
+
+            return true;
+        } catch (e) {
+            // Failed to send the message.
+            return false;
+        }
+    }
+
+    /**
+     * Fired when a user joins a server where Orianna is active. Makes sure that the user
+     * is added to the database and sends a PM if neccessary.
+     */
+    private onGuildMemberJoin = async (guild: eris.Guild, member: eris.Member) => {
+        const server = await DiscordServerModel.findBy({ snowflake: guild.id });
+        if (!server || !server.setupCompleted) return;
+
+        this.registerUser(member, "Welcome to " + guild.name + "!", `I'm Orianna, a bot that tracks champion mastery on Discord servers!`);
+    };
+
+    /**
      * Fired when Orianna is added to a server, messages the owner.
      */
     private onGuildJoin = async (guild: eris.Guild) => {
-        this.log("Added to server '%s'.", guild.name);
-
         // Add server to database.
         const server = new DiscordServerModel();
         server.snowflake = guild.id;
@@ -53,10 +109,12 @@ export default class DiscordClient {
         server.setupCompleted = false;
         await server.save();
 
+        this.log("Added to server '%s'. Config code is '%s'.", guild.name, server.configCode);
+
         const owner = guild.members.get(guild.ownerID)!;
         const dmChannel = await this.bot.getDMChannel(guild.ownerID);
 
-        // If owner is offline, most likely someone else added Orianna.
+        // If the owner is offline, most likely someone else added Orianna.
         // Send a message in the default channel to let them know the owner got instructions.
         if (owner.status === "offline") {
             await guild.defaultChannel.createMessage({
@@ -101,7 +159,7 @@ export default class DiscordClient {
             await role.destroy();
         }
 
-        server.destroy();
+        await server.destroy();
     };
 
     /**
@@ -125,11 +183,11 @@ export default class DiscordClient {
         await pm.createMessage({
             embed: {
                 title: ":tada: Almost done!",
-                url: `http://orianna.molenzwiebel.xyz/#/setup/${server.configCode}`,
+                url: `${this.config.baseUrl}/#/setup/${server.configCode}`,
                 color: 0x49bd1a,
-                description: `To complete the setup, please visit http://orianna.molenzwiebel.xyz/#/setup/${server.configCode}.`
+                description: `To complete the setup, please visit ${this.config.baseUrl}/#/setup/${server.configCode}.`
                 + `\n:warning: **Anyone with this link can configure Orianna!** Do not share it unless you completely trust the receiver!`
-                + `\n:question: Unsure of how this works? Check the documentation over at http://orianna.molenzwiebel.xyz/#/docs.`,
+                + `\n:question: Unsure of how this works? Check the documentation over at ${this.config.baseUrl}/#/docs.`,
                 timestamp: new Date(),
                 footer: { text: owner.username, icon_url: owner.user.avatarURL }
             }

@@ -91,7 +91,7 @@ export default class MessageHandler {
 
         const index: EmbedOptions = {
             title: ":bookmark: Orianna Help",
-            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand.",
+            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click :bookmark: to show this index.",
             fields: this.commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: sample(x.examples) }))
         };
 
