@@ -62,10 +62,6 @@
     "@types/form-data" "*"
     "@types/node" "*"
 
-"@types/riot-games-api@^0.0.27":
-  version "0.0.27"
-  resolved "https://registry.yarnpkg.com/@types/riot-games-api/-/riot-games-api-0.0.27.tgz#59113dfcc03232c08aff122e44f3e339c40ef91b"
-
 "@types/serve-static@*":
   version "1.7.31"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.7.31.tgz#15456de8d98d6b4cff31be6c6af7492ae63f521a"
@@ -138,7 +134,7 @@ balanced-match@^0.4.1:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-0.4.2.tgz#cb3f3e3c732dc0f01ee70b403f302e61d7709838"
 
-basie@^1.0.0:
+basie@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/basie/-/basie-1.1.0.tgz#31256391750a23e69812624ae17da1c7f69c668f"
   dependencies:

@@ -21,7 +21,6 @@
     "@types/node": "^7.0.12",
     "@types/request": "^0.0.42",
     "@types/request-promise": "^4.1.33",
-    "@types/riot-games-api": "^0.0.27",
     "typescript": "^2.2.2"
   },
   "dependencies": {

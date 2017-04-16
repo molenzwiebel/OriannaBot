@@ -9,6 +9,7 @@ export interface Command {
     keywords: string[];
     description: string;
     examples: string[];
+    hideFromHelp?: boolean;
     handler: (this: MessageHandler, message: eris.Message) => any;
 }
 
@@ -40,7 +41,7 @@ export default class MessageHandler {
             // Remove the Orianna bot mention.
             message.mentions = message.mentions.filter(x => x.id !== this.client.bot.user.id);
 
-            this.log("[%s: %s] %s", message.channel.id, handler.name, message.cleanContent);
+            this.log("[%s: %s] <%s> %s", message.channel.id, handler.name, message.author.username, message.cleanContent);
             handler.handler.call(this, message);
         });
 
@@ -89,16 +90,17 @@ export default class MessageHandler {
         // At this point we know the original author added a question mark to a message that mentioned us.
         // That doesn't yet give conclusive info that we had a question mark already, but it is good enough.
 
+        const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: EmbedOptions = {
             title: ":bookmark: Orianna Help",
             description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click :bookmark: to show this index.",
-            fields: this.commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: sample(x.examples) }))
+            fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: sample(x.examples) }))
         };
 
         const resp = await this.info(message, index);
         await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
 
-        for (const cmd of this.commands) {
+        for (const cmd of commands) {
             await resp.option(decodeURIComponent((this.commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
                     title: ":bookmark: Help for " + cmd.name,

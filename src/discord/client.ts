@@ -28,10 +28,13 @@ export default class DiscordClient {
         });
 
         this.bot.on("userUpdate", this.onUserRename);
+
         this.bot.on("guildCreate", this.onGuildJoin);
         this.bot.on("guildDelete", this.onGuildLeave);
         this.bot.on("guildUpdate", this.onGuildRename);
         this.bot.on("guildRoleUpdate", this.onGuildRoleUpdate);
+
+        this.bot.on("guildMemberAdd", this.onGuildMemberJoin);
     }
 
     /**

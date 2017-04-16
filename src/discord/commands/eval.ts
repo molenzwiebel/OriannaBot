@@ -8,6 +8,7 @@ export default (<Command>{
     keywords: ["eval"],
     description: "Evaluates the specified expression as Javascript",
     examples: ["<@me> eval 1 + 1", "<@me> eval (await UserModel.first()).name", "<@me> ```const foo = await DiscordServerModel.first();\nfoo.name```"],
+    hideFromHelp: true,
     async handler(msg: eris.Message) {
         if (msg.author.id !== this.client.config.ownerSnowflake) return this.error(msg, { title: "Only the bot owner can use this command." });
 

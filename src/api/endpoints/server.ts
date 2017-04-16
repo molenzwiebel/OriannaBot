@@ -26,6 +26,7 @@ export async function serverPost(req: express.Request, res: express.Response) {
     server.championId = req.body.championId;
     server.announcePromotions = req.body.announcePromotion;
     server.regionRoles = req.body.regionRanks;
+    server.announceChannelSnowflake = req.body.announceChannelSnowflake;
     server.setupCompleted = true;
     await server.save();
 
