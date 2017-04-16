@@ -51,6 +51,22 @@ export abstract class User extends Basie {
     set latestPoints(value: UserPoints) {
         this.latestPointsJson = JSON.stringify(value);
     }
+
+    /**
+     * @returns the config code for the newly created member.
+     */
+    static async create(member: eris.Member): Promise<string> {
+        const user = new UserModel();
+        user.snowflake = member.id;
+        user.username = member.username;
+        user.configCode = Math.random().toString(36).substring(2);
+        user.lastUpdate = new Date(0);
+        user.latestPoints = {};
+        user.optedOutOfReminding = false;
+        await user.save();
+
+        return user.configCode;
+    }
 }
 export const UserModel = Based(User);
 
@@ -91,9 +107,6 @@ export abstract class DiscordServer extends Basie {
     @field
     regionRoles: boolean;
 
-    @field("existingRoles")
-    existingRolesJson: string;
-
     @field
     announceChannelSnowflake: string; // "" if default channel or announcePromotions = false
 
@@ -110,10 +123,6 @@ export abstract class DiscordServer extends Basie {
         role.range = range;
         role.owner = this.id;
         await role.save();
-    }
-
-    set existingRoles(val: string[]) {
-        this.existingRolesJson = JSON.stringify(val);
     }
 }
 export const DiscordServerModel = Based(DiscordServer);

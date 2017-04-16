@@ -1,7 +1,7 @@
 import Eris = require("eris");
 import debug = require("debug");
 import { Configuration } from "../index";
-import { DiscordServerModel, UserModel } from "../database";
+import { DiscordServer, DiscordServerModel, RoleModel, User, UserModel } from "../database";
 import MessageHandler from "./message-handler";
 
 import EvalCommand from "./commands/eval";
@@ -43,27 +43,19 @@ export default class DiscordClient {
         let user = await UserModel.findBy({ snowflake: member.id });
         if (user) return true;
 
-        user = new UserModel();
-        user.snowflake = member.id;
-        user.username = member.username;
-        user.configCode = Math.random().toString(36).substring(2);
-        user.lastUpdate = new Date(0);
-        user.latestPoints = {};
-        user.optedOutOfReminding = false;
-        await user.save();
-
+        const code = await User.create(member);
         const dmChannel = await this.bot.getDMChannel(member.id);
 
         try {
             await dmChannel.createMessage({
                 embed: {
                     title: ":wave: " + messageTitle,
-                    url: `${this.config.baseUrl}/#/player/${user.configCode}`,
+                    url: `${this.config.baseUrl}/#/player/${code}`,
                     color: 0x49bd1a,
                     description:
                     messageFirstLine + " If you register your League accounts with me, I will make sure that you receive appropriate roles in any Discord server that I am in. Since this is your first time using Orianna, you will need to add one or more League accounts. This is not required, but I will be able to assign you roles unless you add some :slight_smile:."
                     + "\nYour accounts are globally stored. Should you ever join another server where I'm active, I will automagically give you the appropriate roles."
-                    + `\n\n:wrench: To add or edit the League accounts associated with you, visit this link: ${this.config.baseUrl}/#/player/${user.configCode}.`
+                    + `\n\n:wrench: To add or edit the League accounts associated with you, visit this link: ${this.config.baseUrl}/#/player/${code}.`
                     + `\n:warning: **Anyone with this link can configure your accounts!** Do not share it unless you completely trust the receiver!`
                     + `\n\n:mag_right: If you ever lose this link, just mention me using \`@Orianna Bot, send me my edit link\` and I'll remind you.`
                     + `\n:book: I can also do some other things, such as showing leaderboards! Mention me and click the :question: to see all of my commands.`
@@ -82,10 +74,58 @@ export default class DiscordClient {
     }
 
     /**
+     * Completes the Discord side of the server setup process. Creates the neccessary roles,
+     * and messages all members. After that notifies the owner of the edit link and some general
+     * things.
+     */
+    async finalizeServerSetup(server: DiscordServer) {
+        this.log("Finalizing server setup for '%s'.", server.name);
+
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) return;
+
+        const owner = guild.members.get(guild.ownerID)!;
+        const ownerName = owner.nick || owner.username;
+        const ownerUser = await UserModel.findBy({ snowflake: guild.ownerID });
+        const ownerConfigCode = ownerUser ? ownerUser.configCode : (await User.create(owner));
+
+        // Message members.
+        let failed = 0;
+        await Promise.all(guild.members.map(async member => {
+            if (member.bot) return;
+            if (member.id === owner.id) return;
+
+            if (!await this.registerUser(member, "Nice to meet you!", `Hi! I'm Orianna, a bot that tracks champion mastery on Discord servers! **${ownerName}** just added me to **${guild.name}**.`)) {
+                failed++;
+            }
+        }));
+
+        // Message owner.
+        const dmChannel = await this.bot.getDMChannel(owner.id);
+        await dmChannel.createMessage({
+            embed: {
+                title: ":tada: Done!",
+                url: `${this.config.baseUrl}/#/configure/${server.configCode}`,
+                color: 0x49bd1a,
+                description: `Setup is completed! I will assign roles to anyone that already has accounts linked, and I sent a message to everyone not yet familiar with me.${failed > 0 ? ` I couldn't deliver instructions to ${failed} members, because they have their DMs set to private.` : ""}`
+                + ` It is recommended that you make an announcement or similar in your server, to explain how Orianna works${failed > 0 ? ` and to inform anyone that couldn't receive the DM` : ""}. Otherwise, some people might interpret the message as spam.`
+                + `\n\nThe previously sent setup URL is now invalid. If you want to change some settings, you can do so via this URL: ${this.config.baseUrl}/#/configure/${server.configCode}. Should you ever lose this URL, I can remind you. Just ask me via \`@Orianna Bot, send me the server config url\`.`
+                + `\n\nYou can configure your own accounts if you haven't already done so at ${this.config.baseUrl}/#/player/${ownerConfigCode}. I can also remind you of this one, just use \`@Orianna Bot, send me my edit url\`.`,
+                timestamp: new Date(),
+                footer: { text: owner.username, icon_url: owner.user.avatarURL }
+            }
+        });
+
+        await this.setupDiscordRoles(server);
+    }
+
+    /**
      * Fired when a user joins a server where Orianna is active. Makes sure that the user
      * is added to the database and sends a PM if neccessary.
      */
     private onGuildMemberJoin = async (guild: eris.Guild, member: eris.Member) => {
+        if (member.bot) return;
+
         const server = await DiscordServerModel.findBy({ snowflake: guild.id });
         if (!server || !server.setupCompleted) return;
 
@@ -104,7 +144,6 @@ export default class DiscordClient {
         server.championId = -1;
         server.announcePromotions = false;
         server.regionRoles = false;
-        server.existingRoles = guild.roles.map(x => x.name);
         server.announceChannelSnowflake = "";
         server.setupCompleted = false;
         await server.save();
@@ -223,4 +262,38 @@ export default class DiscordClient {
             }
         }
     };
+
+    /**
+     * Adds the discord roles for the specified server. This will remove and re-add existing
+     * roles that are to be overwritten. This also creates region roles if neccessary.
+     */
+    private async setupDiscordRoles(server: DiscordServer) {
+        const managedRoleNames = (server.regionRoles ? this.config.regions : []).concat(server.roles.map(x => x.name)).reverse();
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) return;
+
+        for (const roleName of managedRoleNames) {
+            const existing = guild.roles.find(x => x.name === roleName);
+
+            let settings;
+            if (existing) {
+                // Delete old role, save settings.
+                settings = { name: roleName, color: existing.color, hoist: existing.hoist, permissions: existing.permissions.allow, mentionable: existing.mentionable };
+                this.log("Deleting existing role '%s'.", roleName);
+                await this.bot.deleteRole(guild.id, existing.id);
+            } else {
+                settings = { name: roleName, mentionable: true };
+            }
+
+            const role = await this.bot.createRole(guild.id, settings);
+            this.log("Added role '%s' with snowflake %s.", roleName, role.id);
+
+            // Save to database if needed.
+            const dbRole = await RoleModel.findBy({ owner: server.id, name: roleName });
+            if (dbRole) {
+                dbRole.snowflake = role.id;
+                await dbRole.save();
+            }
+        }
+    }
 }

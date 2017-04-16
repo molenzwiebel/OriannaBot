@@ -54,7 +54,10 @@ export default class APIWebServer {
     private wrapHandler(method: (req: express.Request, res: express.Response) => any) {
         return (req: express.Request, res: express.Response) => {
             const p = method.call(this, req, res);
-            p && p.catch((err: Error) => res.status(500).json({ message: err.message }));
+            p && p.catch((err: Error) => {
+                this.log("Error in handler for '%s': %s.", req.path, err.message);
+                res.status(500).json({ message: err.message });
+            });
         };
     }
 }

@@ -4,13 +4,16 @@ import { DiscordServerModel } from "../../database";
 // GET '/api/server/:code'
 export async function serverGet(req: express.Request, res: express.Response) {
     const server = await DiscordServerModel.findBy({ configCode: req.params.code });
-    if (server) {
-        return res.send({
-            ...server.__props,
-            existingRoles: server.existingRoles
-        });
-    }
-    res.status(404).send({});
+    if (!server) return res.status(404).send({});
+
+    const guild: eris.Guild = this.discord.bot.guilds.get(server.snowflake);
+    if (!guild) return res.status(404).send({});
+
+    res.send({
+        ...server.__props,
+        existingRoles: guild.roles.map(x => x.name),
+        channels: guild.channels.filter(x => x.type === 0).map(x => ({ name: x.name, snowflake: x.id }))
+    });
 }
 
 // POST '/api/server/:code'
@@ -21,8 +24,8 @@ export async function serverPost(req: express.Request, res: express.Response) {
     res.send(); // Do not make the user wait.
 
     server.championId = req.body.championId;
-    server.announcePromotions = req.body.announcePromotions;
-    server.regionRoles = req.body.regionRoles;
+    server.announcePromotions = req.body.announcePromotion;
+    server.regionRoles = req.body.regionRanks;
     server.setupCompleted = true;
     await server.save();
 
@@ -30,7 +33,7 @@ export async function serverPost(req: express.Request, res: express.Response) {
         await server.addRole(r.name, r.range);
     }
 
-    // TODO: Complete server setup, send messages via Discord.
+    await this.discord.finalizeServerSetup((await DiscordServerModel.find(server.id))!);
 }
 
 // PUT '/api/server/:code'

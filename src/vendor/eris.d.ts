@@ -6,6 +6,7 @@ declare module eris {
         defaultChannel: GuildChannel;
         roles: Collection<string, Role>;
         members: Collection<string, Member>;
+        channels: Collection<string, GuildChannel>;
         getInvites(): Promise<Invite[]>;
     }
 
@@ -15,6 +16,7 @@ declare module eris {
 
     class GuildChannel extends Channel {
         name: string;
+        type: 0 | 2; // 0: text, 2: voice
         id: string;
     }
 

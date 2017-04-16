@@ -1,6 +1,7 @@
 import { Command } from "../message-handler";
 import * as DB from "../../database";
 import util = require("util");
+import { Basie } from "basie";
 
 export default (<Command>{
     name: "Evaluate Expression",
@@ -28,7 +29,7 @@ export default (<Command>{
                 }
 
                 const res = await eval(`(async () => { ${exprBody} })()`);
-                if (typeof res !== "undefined") this.ok(msg, { title: "Result", description: "```javascript\n" + util.inspect(res, false, 2) + "```" });
+                if (typeof res !== "undefined") this.ok(msg, { title: "Result", description: "```javascript\n" + util.inspect(res instanceof Basie ? res.__props : res, false, 2) + "```" });
             } catch (e) {
                 return this.error(msg, { title: "Error evaluating", description: e.message });
             }
