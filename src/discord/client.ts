@@ -19,6 +19,9 @@ export default class DiscordClient {
      */
     async connect() {
         await this.bot.connect();
+        this.bot.on("ready", () => {
+            this.log("Connected as %s (%s)", this.bot.user.username, this.bot.user.id);
+        });
 
         this.bot.on("userUpdate", this.onUserRename);
         this.bot.on("guildUpdate", this.onGuildRename);

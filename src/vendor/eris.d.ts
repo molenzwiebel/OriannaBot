@@ -37,6 +37,7 @@ declare module eris {
     class Channel {
         id: string;
         guild: Guild;
+        recipient?: User; // only present in DM channels
         createMessage(content: string | { embed: Embed }): Promise<Message>;
         editMessage(msgId: string, content: string | { embed: Embed }): Promise<Message>;
     }
@@ -110,6 +111,7 @@ declare module eris {
         deleteRole(guildId: string, roleId: string): Promise<void>;
         getUserProfile(id: string): Promise<any>;
 
+        on(event: "ready", handler: () => void): void;
         on(event: "guildCreate", handler: (g: Guild) => void): void;
         on(event: "guildRoleUpdate", handler: (g: Guild, r: Role) => void): void;
         on(event: "guildMemberAdd", handler: (g: Guild, m: Member) => void): void;

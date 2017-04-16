@@ -141,7 +141,7 @@ export default class Response {
         }
 
         // Remove the reaction if we weren't in a PM.
-        if (!(<any>message.channel).recipient) {
+        if (!message.channel.recipient) {
             await message.removeReaction(emoji.name, userID);
         }
 
@@ -186,7 +186,7 @@ export default class Response {
         if (options.title) obj.title = this.replace(options.title);
         if (options.url) obj.url = options.url;
         if (options.description) obj.description = this.replace(options.description);
-        if (options.fields) obj.fields = options.fields.map(x => ({ name: this.replace(x.name), value: this.replace(x.value), inline: !!x.inline }));
+        if (options.fields) obj.fields = options.fields.map(x => ({ name: this.replace(x.name), value: this.replace(x.value), inline: x.inline }));
         if (options.image) obj.image = { url: options.image };
         if (options.thumbnail) obj.thumbnail = { url: options.thumbnail };
         if (options.author) obj.author = options.author;

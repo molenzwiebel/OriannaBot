@@ -28,8 +28,10 @@ export default class MessageHandler {
             // Do not respond to bots.
             if (message.author.bot) return;
 
-            // Only handle messages that contain a mention.
-            if (!message.mentions.find(x => x.id === this.client.bot.user.id)) return;
+            const isPM = !!message.channel.recipient;
+
+            // Only handle messages that contain a mention (messages are always handled in a PM).
+            if (!isPM && !message.mentions.find(x => x.id === this.client.bot.user.id)) return;
 
             const contents = message.cleanContent.toLowerCase();
             const handler = this.commands.find(x => x.keywords.some(x => contents.indexOf(x) !== -1));
