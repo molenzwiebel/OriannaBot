@@ -25,7 +25,7 @@
     "typescript": "^2.2.2"
   },
   "dependencies": {
-    "basie": "^1.0.0",
+    "basie": "^1.1.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.3",
     "debug": "^2.6.3",

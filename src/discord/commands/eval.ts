@@ -29,7 +29,9 @@ export default (<Command>{
                 }
 
                 const res = await eval(`(async () => { ${exprBody} })()`);
-                if (typeof res !== "undefined") this.ok(msg, { title: "Result", description: "```javascript\n" + util.inspect(res instanceof Basie ? res.__props : res, false, 2) + "```" });
+                let inspectedBody = util.inspect(res, false, 2);
+                if (inspectedBody.length > 2000) inspectedBody = inspectedBody.slice(0, 1900) + "...";
+                if (typeof res !== "undefined") this.ok(msg, { title: "Result", description: "```javascript\n" + inspectedBody + "```" });
             } catch (e) {
                 return this.error(msg, { title: "Error evaluating", description: e.message });
             }
