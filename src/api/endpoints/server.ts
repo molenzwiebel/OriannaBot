@@ -56,7 +56,9 @@ export async function serverPut(req: express.Request, res: express.Response) {
         for (const role of changes.roles) await server.addRole(role.name, role.range);
 
         // Add new roles in discord. Note that we do not await since this will block the request.
-        this.discord.setupDiscordRoles((await DiscordServerModel.find(server.id))!);
+        this.discord.setupDiscordRoles((await DiscordServerModel.find(server.id))!).then(() => {
+            this.discord.updater.refreshServer(server);
+        });
     }
 
     if (changes.regionRoles !== null) {
@@ -64,7 +66,9 @@ export async function serverPut(req: express.Request, res: express.Response) {
 
         // (Re-)Add region roles if they were enabled.
         if (changes.regionRoles) {
-            this.discord.setupDiscordRoles(server, this.config.regions);
+            this.discord.setupDiscordRoles(server, this.config.regions).then(() => {
+                this.discord.updater.refreshServer(server);
+            });
         }
     }
 

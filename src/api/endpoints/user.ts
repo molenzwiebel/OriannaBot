@@ -18,6 +18,10 @@ export async function userPut(req: express.Request, res: express.Response) {
         accountId: req.body.accountId
     });
 
+    // Do not wait for this to finish, since it delays the request.
+    // However, do update the user since they will expect their actions to have some result.
+    this.discord.updater.updateUser(user);
+
     res.send();
 }
 
@@ -30,5 +34,10 @@ export async function userDelete(req: express.Request, res: express.Response) {
     if (!account) throw new Error("Account not found.");
 
     await account.destroy();
+
+    // Do not wait for this to finish, since it delays the request.
+    // However, do update the user since they will expect their actions to have some result.
+    this.discord.updater.updateUser(user);
+
     res.send();
 }

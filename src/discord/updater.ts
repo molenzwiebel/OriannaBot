@@ -61,6 +61,27 @@ export default class Updater {
     }
 
     /**
+     * Refreshes everyone in the specified server, updating their region roles
+     * and rank, _without requesting new data_. Basically recomputes all roles,
+     * which is useful when the config is changed (compute which roles a user
+     * needs to have without suddenly causing a lot of requests).
+     */
+    async refreshServer(server: DiscordServer) {
+        const guild = this.discord.bot.guilds.get(server.snowflake);
+        if (!guild) return;
+
+        await Promise.all(guild.members.map(async member => {
+            const user = await UserModel.findBy({ snowflake: member.id });
+            if (!user) return;
+
+            await Promise.all([
+                this.updateUserOnGuild(user, guild, user.latestPoints, user.latestPoints),
+                this.updateRegionRolesOnGuild(user, guild)
+            ]);
+        }));
+    }
+
+    /**
      * The actual update loop that refreshes a set amount of users.
      * This is skipped if the previous loop is still in progress, to
      * ensure that we do not end up lagging behind and running out of

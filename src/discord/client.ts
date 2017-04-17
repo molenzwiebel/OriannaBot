@@ -13,7 +13,7 @@ export default class DiscordClient {
     public readonly log = debug("orianna:discord");
 
     private messageHandler: MessageHandler;
-    private updater: Updater;
+    public readonly updater: Updater;
     public championData: riot.ChampionData;
 
     constructor(public readonly config: Configuration, public readonly riotAPI: RiotAPI) {
