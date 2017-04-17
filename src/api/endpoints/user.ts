@@ -26,9 +26,9 @@ export async function userDelete(req: express.Request, res: express.Response) {
     const user = await UserModel.findBy({ configCode: req.params.code });
     if (!user) throw new Error("User not found.");
 
-    const role = await LeagueAccountModel.findBy({ owner: user.id, region: req.body.region, summonerId: req.body.summonerId, accountId: req.body.accountId });
-    if (!role) throw new Error("Role not found.");
+    const account = await LeagueAccountModel.findBy({ owner: user.id, region: req.body.region, summonerId: req.body.summonerId, accountId: req.body.accountId });
+    if (!account) throw new Error("Account not found.");
 
-    await role.destroy();
+    await account.destroy();
     res.send();
 }

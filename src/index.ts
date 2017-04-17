@@ -49,7 +49,7 @@ export interface Configuration {
     const riotApi = new RiotAPI(config.riotApiKey);
 
     info("Connecting to Discord.");
-    const discord = new DiscordClient(config);
+    const discord = new DiscordClient(config, riotApi);
     await discord.connect();
 
     info("Starting web server.");

@@ -1,6 +1,6 @@
 import express = require("express");
 import request = require("request-promise");
-import { UserModel, LeagueAccountModel } from "../../database";
+import { UserModel } from "../../database";
 
 // Storing this in-memory is fine, since the data should be short-lived anyway.
 const redditStates: { [key: string]: { ok: boolean, error?: string } } = {};

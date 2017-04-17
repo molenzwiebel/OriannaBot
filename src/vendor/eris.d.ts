@@ -40,12 +40,12 @@ declare module eris {
         id: string;
         guild: Guild;
         recipient?: User; // only present in DM channels
-        createMessage(content: string | { embed: Embed }): Promise<Message>;
-        editMessage(msgId: string, content: string | { embed: Embed }): Promise<Message>;
+        createMessage(content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;
+        editMessage(msgId: string, content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;
     }
 
     class PrivateChannel extends Channel {
-        createMessage(content: string | { embed: Embed }): Promise<Message>;
+        createMessage(content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;
     }
 
     class Message {
@@ -58,7 +58,7 @@ declare module eris {
         mentions: User[];
         embeds: Embed[];
         cleanContent: string;
-        edit(content: string | { embed: Embed }): Promise<Message>;
+        edit(content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;
         addReaction(reaction: string, user: string): Promise<void>;
         getReaction(reaction: string, limit?: number): Promise<User[]>;
         removeReaction(reaction: string, user: string): Promise<void>;

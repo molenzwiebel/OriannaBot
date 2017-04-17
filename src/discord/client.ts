@@ -5,17 +5,27 @@ import { DiscordServer, DiscordServerModel, RoleModel, User, UserModel } from ".
 import MessageHandler from "./message-handler";
 
 import EvalCommand from "./commands/eval";
+import RiotAPI from "../riot/api";
+import Updater from "./updater";
 
 export default class DiscordClient {
     public readonly bot: Eris;
     public readonly log = debug("orianna:discord");
+
     private messageHandler: MessageHandler;
+    private updater: Updater;
+    public championData: riot.ChampionData;
 
-    constructor(public readonly config: Configuration) {
+    constructor(public readonly config: Configuration, public readonly riotAPI: RiotAPI) {
         this.bot = new Eris(config.discordToken);
-        this.messageHandler = new MessageHandler(this);
 
+        this.messageHandler = new MessageHandler(this);
         this.messageHandler.registerCommand(EvalCommand);
+
+        this.updater = new Updater(this, riotAPI);
+
+        // Fetch static data. Needed for various commands and the promotion image.
+        this.riotAPI.getStaticChampionData("EUW").then(d => this.championData = d);
     }
 
     /**

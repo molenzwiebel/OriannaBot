@@ -63,7 +63,7 @@ export default class RiotAPI {
 
         return JSON.parse(await request.get({
             url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
-        }));
+        })).data;
     }
 
     /**
