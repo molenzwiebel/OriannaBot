@@ -25,6 +25,8 @@ export interface Configuration {
     redditRedirectUrl: string;
 
     baseUrl: string;
+    updateInterval: number;
+    updateAmount: number;
 }
 
 (async () => {
