@@ -55,10 +55,10 @@ export abstract class User extends Basie {
     /**
      * @returns the config code for the newly created member.
      */
-    static async create(member: eris.Member): Promise<string> {
+    static async create(erisUser: eris.User): Promise<string> {
         const user = new UserModel();
-        user.snowflake = member.id;
-        user.username = member.username;
+        user.snowflake = erisUser.id;
+        user.username = erisUser.username;
         user.configCode = Math.random().toString(36).substring(2);
         user.lastUpdate = new Date(0);
         user.latestPoints = {};

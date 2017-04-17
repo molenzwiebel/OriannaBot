@@ -9,6 +9,7 @@ import Updater from "./updater";
 
 import EvalCommand from "./commands/eval";
 import RefreshCommand from "./commands/refresh";
+import EditCommand from "./commands/edit";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -24,6 +25,7 @@ export default class DiscordClient {
         this.messageHandler = new MessageHandler(this);
         this.messageHandler.registerCommand(EvalCommand);
         this.messageHandler.registerCommand(RefreshCommand);
+        this.messageHandler.registerCommand(EditCommand);
 
         this.updater = new Updater(this, riotAPI);
 
@@ -55,12 +57,12 @@ export default class DiscordClient {
      * Returns true if the user was already in the database, or if the message was sent successfully.
      * Returns false if the message could not be sent because of the user's privacy settings.
      */
-    async registerUser(member: eris.Member, messageTitle: string, messageFirstLine: string): Promise<boolean> {
-        let user = await UserModel.findBy({ snowflake: member.id });
+    async registerUser(erisUser: eris.User, messageTitle: string, messageFirstLine: string): Promise<boolean> {
+        let user = await UserModel.findBy({ snowflake: erisUser.id });
         if (user) return true;
 
-        const code = await User.create(member);
-        const dmChannel = await this.bot.getDMChannel(member.id);
+        const code = await User.create(erisUser);
+        const dmChannel = await this.bot.getDMChannel(erisUser.id);
 
         try {
             await dmChannel.createMessage({
@@ -77,7 +79,7 @@ export default class DiscordClient {
                     + `\n:book: I can also do some other things, such as showing leaderboards! Mention me and click the :question: to see all of my commands.`
                     + `\n\nIf you are unsure of how this works, or if you want to know more about me, check out the documentation! It is available online at ${this.config.baseUrl}/#/docs.`,
                     timestamp: new Date(),
-                    footer: { text: member.username, icon_url: member.user.avatarURL },
+                    footer: { text: erisUser.username, icon_url: erisUser.avatarURL },
                     thumbnail: { url: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png" }
                 }
             });
@@ -103,7 +105,7 @@ export default class DiscordClient {
         const owner = guild.members.get(guild.ownerID)!;
         const ownerName = owner.nick || owner.username;
         const ownerUser = await UserModel.findBy({ snowflake: guild.ownerID });
-        const ownerConfigCode = ownerUser ? ownerUser.configCode : (await User.create(owner));
+        const ownerConfigCode = ownerUser ? ownerUser.configCode : (await User.create(owner.user));
 
         // Message members.
         let failed = 0;
@@ -111,7 +113,7 @@ export default class DiscordClient {
             if (member.bot) return;
             if (member.id === owner.id) return;
 
-            if (!await this.registerUser(member, "Nice to meet you!", `Hi! I'm Orianna, a bot that tracks champion mastery on Discord servers! **${ownerName}** just added me to **${guild.name}**.`)) {
+            if (!await this.registerUser(member.user, "Nice to meet you!", `Hi! I'm Orianna, a bot that tracks champion mastery on Discord servers! **${ownerName}** just added me to **${guild.name}**.`)) {
                 failed++;
             }
         }));
@@ -145,7 +147,7 @@ export default class DiscordClient {
         const server = await DiscordServerModel.findBy({ snowflake: guild.id });
         if (!server || !server.setupCompleted) return;
 
-        this.registerUser(member, "Welcome to " + guild.name + "!", `I'm Orianna, a bot that tracks champion mastery on Discord servers!`);
+        this.registerUser(member.user, "Welcome to " + guild.name + "!", `I'm Orianna, a bot that tracks champion mastery on Discord servers!`);
     };
 
     /**
