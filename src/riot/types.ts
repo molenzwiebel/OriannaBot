@@ -19,6 +19,7 @@ namespace riot {
 
     export type ChampionData = {
         [key: number]: {
+            id: number;
             key: string;
             name: string;
         };

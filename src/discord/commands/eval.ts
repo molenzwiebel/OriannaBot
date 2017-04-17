@@ -1,7 +1,6 @@
 import { Command } from "../message-handler";
 import * as DB from "../../database";
 import util = require("util");
-import { Basie } from "basie";
 
 export default (<Command>{
     name: "Evaluate Expression",

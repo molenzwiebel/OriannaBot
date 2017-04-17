@@ -173,6 +173,7 @@ export default class Response {
         return content
             .replace(/<user>/g, this.triggerName)
             .replace(/<@user>/g, "<@" + this.trigger.author.id + ">")
+            .replace(/<me>/g, this.bot.user.username)
             .replace(/<@me>/g, "<@" + this.bot.user.id + ">");
     }
 

@@ -69,6 +69,7 @@ declare module eris {
         id: string;
         bot: boolean;
         username: string;
+        mention: string;
         avatarURL: string;
     }
 
