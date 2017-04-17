@@ -73,6 +73,12 @@ declare module eris {
         avatarURL: string;
     }
 
+    class Permission {
+        allow: number;
+        deny: number;
+        has(permission: "manageMessages"): boolean;
+    }
+
     class Member {
         id: string;
         status: "online" | "idle" | "offline";
@@ -82,6 +88,7 @@ declare module eris {
         bot: boolean;
         guild: Guild;
         roles: string[];
+        permission: Permission;
     }
 
     interface Embed {

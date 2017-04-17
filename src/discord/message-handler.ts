@@ -3,7 +3,7 @@ import debug = require("debug");
 import Response, { EmbedOptions } from "./response";
 
 import sample = require("lodash.sample");
-import { expectChampion, expectServer, expectUser } from "./commands/util";
+import { expectChampion, expectServer, expectUser, expectManagePermission } from "./commands/util";
 
 export interface Command {
     name: string;
@@ -83,6 +83,7 @@ export default class MessageHandler {
     readonly expectUser = expectUser.bind(this);
     readonly expectServer = expectServer.bind(this);
     readonly expectChampion = expectChampion.bind(this);
+    readonly expectManagePermission = expectManagePermission.bind(this);
 
     /**
      * Handles reaction adding. If it was on a message we previously marked with a

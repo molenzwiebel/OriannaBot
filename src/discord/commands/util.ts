@@ -84,3 +84,29 @@ export async function expectChampion(this: MessageHandler, msg: eris.Message): P
 
     return guild.championId;
 }
+
+/**
+ * Checks to see if the invoker of the command has manage permissions on the current server.
+ * Returns false and replies with an error message if the user doesn't have the required permissions.
+ */
+export async function expectManagePermission(this: MessageHandler, msg: eris.Message): Promise<boolean> {
+    // If this wasn't sent in a guild, it should've been caught earlier.
+    // Abort the command, but don't send a message so it doesn't confuse the user.
+    if (!msg.channel.guild) return false;
+
+    // Bot owner can do anything.
+    if (msg.author.id === this.client.config.ownerSnowflake) return true;
+
+    // Server owner can do anything.
+    if (msg.author.id === msg.channel.guild.ownerID) return true;
+
+    // Users with Manage Messages can do anything.
+    if (msg.member.permission.has("manageMessages")) return true;
+
+    await this.error(msg, {
+        title: ":octagonal_sign: Stop right there!",
+        description: "You must be able to manage messages to use this feature. Sorry ;("
+    });
+
+    return false;
+}

@@ -4,9 +4,11 @@ import { Configuration } from "../index";
 import { DiscordServer, DiscordServerModel, RoleModel, User, UserModel } from "../database";
 import MessageHandler from "./message-handler";
 
-import EvalCommand from "./commands/eval";
 import RiotAPI from "../riot/api";
 import Updater from "./updater";
+
+import EvalCommand from "./commands/eval";
+import RefreshCommand from "./commands/refresh";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -21,6 +23,7 @@ export default class DiscordClient {
 
         this.messageHandler = new MessageHandler(this);
         this.messageHandler.registerCommand(EvalCommand);
+        this.messageHandler.registerCommand(RefreshCommand);
 
         this.updater = new Updater(this, riotAPI);
 
