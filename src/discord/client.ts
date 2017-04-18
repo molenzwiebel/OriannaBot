@@ -10,6 +10,7 @@ import Updater from "./updater";
 import EvalCommand from "./commands/eval";
 import RefreshCommand from "./commands/refresh";
 import EditCommand from "./commands/edit";
+import ListCommand from "./commands/list";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -26,6 +27,7 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(EvalCommand);
         this.messageHandler.registerCommand(RefreshCommand);
         this.messageHandler.registerCommand(EditCommand);
+        this.messageHandler.registerCommand(ListCommand);
 
         this.updater = new Updater(this, riotAPI);
 

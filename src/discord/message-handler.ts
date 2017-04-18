@@ -4,6 +4,7 @@ import Response, { EmbedOptions } from "./response";
 
 import sample = require("lodash.sample");
 import { expectChampion, expectServer, expectUser, expectManagePermission } from "./commands/util";
+import { DiscordServer, User } from "../database";
 
 export interface Command {
     name: string;
@@ -80,10 +81,10 @@ export default class MessageHandler {
     /**
      * Various utilities from ./commands/util.ts. See that file for more details.
      */
-    readonly expectUser = expectUser.bind(this);
-    readonly expectServer = expectServer.bind(this);
-    readonly expectChampion = expectChampion.bind(this);
-    readonly expectManagePermission = expectManagePermission.bind(this);
+    readonly expectUser: (msg: eris.Message) => Promise<User | undefined> = expectUser.bind(this);
+    readonly expectServer: (msg: eris.Message) => Promise<DiscordServer | undefined> = expectServer.bind(this);
+    readonly expectChampion: (msg: eris.Message) => Promise<number> = expectChampion.bind(this);
+    readonly expectManagePermission: (msg: eris.Message) => Promise<boolean> = expectManagePermission.bind(this);
 
     /**
      * Handles reaction adding. If it was on a message we previously marked with a
@@ -110,7 +111,7 @@ export default class MessageHandler {
         await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
 
         for (const cmd of commands) {
-            await resp.option(decodeURIComponent((this.commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
+            await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
                     title: ":bookmark: Help for " + cmd.name,
                     fields: [{
