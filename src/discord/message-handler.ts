@@ -47,7 +47,12 @@ export default class MessageHandler {
             handler.handler.call(this, message);
         });
 
+        // This is for handling questionmarks.
         this.client.bot.on("messageReactionAdd", this.onReactionAdd);
+
+        // This is for handling response reactions.
+        this.client.bot.on("messageReactionAdd", (m, e, u) => this.responses.forEach(r => r.onReactionAdd(m, e, u)));
+        this.client.bot.on("messageDelete", m => this.responses.forEach(r => r.onMessageDelete(m)));
     }
 
     /**
@@ -136,7 +141,6 @@ export default class MessageHandler {
         const response = new Response(this.client.bot, message);
         this.responses.push(response); // store it here so we can keep track of it
         setTimeout(() => {
-            response.destroy();
             this.responses.splice(this.responses.indexOf(response), 1);
         }, 1000 * 60 * 10); // Messages expire after 10 minutes. This is done to ensure that they can be garbage collected.
 

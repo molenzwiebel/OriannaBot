@@ -12,6 +12,7 @@ import RefreshCommand from "./commands/refresh";
 import EditCommand from "./commands/edit";
 import ListCommand from "./commands/list";
 import PointsCommand from "./commands/points";
+import RolesCommand from "./commands/roles";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -32,6 +33,7 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(EditCommand);
         this.messageHandler.registerCommand(ListCommand);
         this.messageHandler.registerCommand(PointsCommand);
+        this.messageHandler.registerCommand(RolesCommand);
 
         this.updater = new Updater(this, riotAPI);
 

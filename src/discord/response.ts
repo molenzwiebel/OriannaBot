@@ -40,17 +40,6 @@ export default class Response {
         this.message = await this.trigger.channel.createMessage({
             embed: this.buildEmbed(responseColor, responseContent)
         });
-
-        this.bot.on("messageDelete", this.onMessageDelete);
-        this.bot.on("messageReactionAdd", this.onReactionAdd);
-    }
-
-    /**
-     * Removes all listeners from the Eris object so that this object can be garbage collected.
-     */
-    destroy() {
-        this.bot.removeListener("messageDelete", this.onMessageDelete);
-        this.bot.removeListener("messageReactionAdd", this.onReactionAdd);
     }
 
     /**
@@ -129,7 +118,7 @@ export default class Response {
     /**
      * Handler for reaction adding that fires an event if the user added an existing reaction.
      */
-    private onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
+    public readonly onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
         if (userID === this.bot.user.id) return;
         if (!this.reactions.has(emoji.name)) return;
 
@@ -152,11 +141,10 @@ export default class Response {
     /**
      * Handler for message deletion that deletes the response if the trigger is deleted.
      */
-    private onMessageDelete = async (msg: eris.Message) => {
+    public readonly onMessageDelete = async (msg: eris.Message) => {
         if (msg.id !== this.trigger.id) return;
 
         await this.message.delete();
-        this.destroy();
     };
 
     /**
