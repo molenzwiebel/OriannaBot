@@ -1,5 +1,4 @@
 import { Command } from "../message-handler";
-import { User } from "../../database";
 
 const command: Command = {
     name: "List Accounts",

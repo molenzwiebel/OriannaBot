@@ -58,12 +58,12 @@ export default class RiotAPI {
     /**
      * @returns static champion data, in an { id: data } format.
      */
-    async getStaticChampionData(region: string): Promise<riot.ChampionData> {
+    async getStaticChampionData(region: string): Promise<{ data: riot.ChampionData, version: string }> {
         region = region.toLowerCase();
 
         return JSON.parse(await request.get({
             url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
-        })).data;
+        }));
     }
 
     /**

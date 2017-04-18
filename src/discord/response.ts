@@ -10,7 +10,7 @@ export interface EmbedOptions {
     fields?: { name: string, value: string, inline?: boolean }[];
     image?: string;
     thumbnail?: string;
-    author?: { icon?: string, name: string };
+    author?: { icon_url?: string, name: string };
 }
 
 /**

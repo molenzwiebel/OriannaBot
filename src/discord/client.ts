@@ -11,6 +11,7 @@ import EvalCommand from "./commands/eval";
 import RefreshCommand from "./commands/refresh";
 import EditCommand from "./commands/edit";
 import ListCommand from "./commands/list";
+import PointsCommand from "./commands/points";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -18,7 +19,9 @@ export default class DiscordClient {
 
     private messageHandler: MessageHandler;
     public readonly updater: Updater;
+
     public championData: riot.ChampionData;
+    public championDataVersion: string;
 
     constructor(public readonly config: Configuration, public readonly riotAPI: RiotAPI) {
         this.bot = new Eris(config.discordToken);
@@ -28,11 +31,15 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(RefreshCommand);
         this.messageHandler.registerCommand(EditCommand);
         this.messageHandler.registerCommand(ListCommand);
+        this.messageHandler.registerCommand(PointsCommand);
 
         this.updater = new Updater(this, riotAPI);
 
         // Fetch static data. Needed for various commands and the promotion image.
-        this.riotAPI.getStaticChampionData("EUW").then(d => this.championData = d);
+        this.riotAPI.getStaticChampionData("EUW").then(d => {
+            this.championData = d.data;
+            this.championDataVersion = d.version;
+        });
     }
 
     /**

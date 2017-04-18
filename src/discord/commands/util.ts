@@ -78,6 +78,17 @@ export async function expectChampion(this: MessageHandler, msg: eris.Message): P
     const match = names.find(c => content.indexOf(c.name) !== -1);
     if (match) return match.champ.id;
 
+    // Display a different error message if this was sent without a champion in DM.
+    // We do this here (even though there's also a check in expectServer) since the
+    // message sent in expectServer doesn't exactly show _why_ a server is needed.
+    if (!msg.channel.guild) {
+        await this.error(msg, {
+            title: ":question: Which champion?",
+            description: "I couldn't figure out which champion you were talking about, and you aren't sending this in a server where I am setup. Try specifying a champion name or running this in a server instead of DM."
+        });
+        return 0;
+    }
+
     // Try to find a guild.
     const guild = await this.expectServer(msg);
     if (!guild) return 0;
