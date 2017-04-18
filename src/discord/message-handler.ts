@@ -65,22 +65,22 @@ export default class MessageHandler {
     /**
      * Responds to the specified message with a green embed message.
      */
-    ok(message: eris.Message, content: EmbedOptions): Promise<Response> {
-        return this.createResponse(message, 0x49bd1a, content);
+    ok(message: eris.Message, content: EmbedOptions, responseChannel?: eris.Channel): Promise<Response> {
+        return this.createResponse(message, 0x49bd1a, content, responseChannel);
     }
 
     /**
      * Responds to the specified message with a blue embed message.
      */
-    info(message: eris.Message, content: EmbedOptions): Promise<Response> {
-        return this.createResponse(message, 0x0a96de, content);
+    info(message: eris.Message, content: EmbedOptions, responseChannel?: eris.Channel): Promise<Response> {
+        return this.createResponse(message, 0x0a96de, content, responseChannel);
     }
 
     /**
      * Responds to the specified message with a red embed message.
      */
-    error(message: eris.Message, content: EmbedOptions): Promise<Response> {
-        return this.createResponse(message, 0xfd5c5c, content);
+    error(message: eris.Message, content: EmbedOptions, responseChannel?: eris.Channel): Promise<Response> {
+        return this.createResponse(message, 0xfd5c5c, content, responseChannel);
     }
 
     /**
@@ -137,13 +137,13 @@ export default class MessageHandler {
     /**
      * Internal implementation for {@link ok}, {@link info} and {@link error}.
      */
-    private createResponse(message: eris.Message, color: number, content: EmbedOptions): Promise<Response> {
+    private createResponse(message: eris.Message, color: number, content: EmbedOptions, responseChannel?: eris.Channel): Promise<Response> {
         const response = new Response(this.client.bot, message);
         this.responses.push(response); // store it here so we can keep track of it
         setTimeout(() => {
             this.responses.splice(this.responses.indexOf(response), 1);
         }, 1000 * 60 * 10); // Messages expire after 10 minutes. This is done to ensure that they can be garbage collected.
 
-        return response.respond(color, content).then(x => response);
+        return response.respond(color, content, responseChannel).then(x => response);
     }
 }

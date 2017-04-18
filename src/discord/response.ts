@@ -36,8 +36,8 @@ export default class Response {
     /**
      * Sends the initial response. This method should only be called by MessageHandler.
      */
-    async respond(responseColor: number, responseContent: EmbedOptions): Promise<void> {
-        this.message = await this.trigger.channel.createMessage({
+    async respond(responseColor: number, responseContent: EmbedOptions, responseChannel = this.trigger.channel): Promise<void> {
+        this.message = await responseChannel.createMessage({
             embed: this.buildEmbed(responseColor, responseContent)
         });
     }
@@ -100,14 +100,14 @@ export default class Response {
      */
     private async update(color: number, response: EmbedOptions) {
         // If we weren't in a PM.
-        if (!(<any>this.trigger.channel).recipient) {
+        if (!(<any>this.message.channel).recipient) {
             this.message = await this.message.edit({ embed: this.buildEmbed(color, response) });
             return;
         }
 
         // Send the message, delete the old one.
         await this.message.delete();
-        this.message = await this.trigger.channel.createMessage({ embed: this.buildEmbed(color, response) });
+        this.message = await this.message.channel.createMessage({ embed: this.buildEmbed(color, response) });
 
         // Add reactions again.
         for (const [key] of this.reactions) {
