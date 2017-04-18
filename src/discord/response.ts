@@ -120,6 +120,7 @@ export default class Response {
      */
     public readonly onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
         if (userID === this.bot.user.id) return;
+        if (message.id !== this.message.id) return;
         if (!this.reactions.has(emoji.name)) return;
 
         // If this wasn't the one that triggered the message, and the reaction cannot be used by everyone, delete the reaction.
