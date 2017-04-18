@@ -14,6 +14,7 @@ import ListCommand from "./commands/list";
 import PointsCommand from "./commands/points";
 import RolesCommand from "./commands/roles";
 import RemindCommand from "./commands/remind";
+import TopCommand from "./commands/top";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -36,6 +37,7 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(PointsCommand);
         this.messageHandler.registerCommand(RolesCommand);
         this.messageHandler.registerCommand(RemindCommand);
+        this.messageHandler.registerCommand(TopCommand);
 
         this.updater = new Updater(this, riotAPI);
 

@@ -11,6 +11,7 @@ export interface EmbedOptions {
     image?: string;
     thumbnail?: string;
     author?: { icon_url?: string, name: string };
+    extraFooter?: string;
 }
 
 /**
@@ -169,7 +170,7 @@ export default class Response {
     private buildEmbed(color: number, options: EmbedOptions): eris.Embed {
         const obj: eris.Embed = {
             color,
-            footer: { icon_url: this.trigger.author.avatarURL, text: this.triggerName },
+            footer: { icon_url: this.trigger.author.avatarURL, text: (options.extraFooter ? options.extraFooter + " | " : "") + this.triggerName },
             timestamp: new Date()
         };
 

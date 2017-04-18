@@ -46,6 +46,28 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash.maxby":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@types/lodash.maxby/-/lodash.maxby-4.6.2.tgz#6cbd12732ead93c9fcadca3c98e30053dac38f60"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.sample":
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@types/lodash.sample/-/lodash.sample-4.2.2.tgz#19c0c608837595c1d4cbf4669f196ec47b468585"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.topairs":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@types/lodash.topairs/-/lodash.topairs-4.3.2.tgz#ec7e67f78b64c8a2b736273627a27a89b814b8d9"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.62"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.62.tgz#8674f9861582148a60b7a89cb260f11378d11683"
+
 "@types/mime@*":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-0.0.29.tgz#fbcfd330573b912ef59eeee14602bface630754b"
@@ -666,9 +688,17 @@ load-bmfont@^1.2.3:
     xhr "^2.0.1"
     xtend "^4.0.0"
 
+lodash.maxby:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.maxby/-/lodash.maxby-4.6.0.tgz#082240068f3c7a227aa00a8380e4f38cf0786e3d"
+
 lodash.sample@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/lodash.sample/-/lodash.sample-4.2.1.tgz#5e4291b0c753fa1abeb0aab8fb29df1b66f07f6d"
+
+lodash.topairs:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/lodash.topairs/-/lodash.topairs-4.3.0.tgz#3b6deaa37d60fb116713c46c5f17ea190ec48d64"
 
 lodash@^4.0.0, lodash@^4.13.1:
   version "4.17.4"
