@@ -54,5 +54,5 @@ export interface Configuration {
 
     info("Starting web server.");
     const webServer = new APIWebServer(config, riotApi, discord);
-    await webServer.listen(8001);
+    await webServer.listen(8008);
 })();

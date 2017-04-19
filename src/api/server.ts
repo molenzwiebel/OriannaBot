@@ -19,6 +19,7 @@ export default class APIWebServer {
         this.app = express();
         this.app.use(cors()); // allow cors for development
         this.app.use(bodyparser.json()); // automatically JSON.parse bodies.
+        this.app.use(express.static("./web")); // host all static content from the web folder
 
         // Server endpoints.
         this.app.get("/api/server/:code", this.wrapHandler(serverGet));

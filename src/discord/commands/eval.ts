@@ -18,7 +18,7 @@ export default (<Command>{
             const message = msg;
 
             try {
-                const rawContent = msg.content.replace("<@" + bot.user.id + ">", "").replace(/eval/gi, "").trim();
+                const rawContent = msg.content.replace("<@" + bot.user.id + ">", "").replace("<@!" + bot.user.id + ">", "").replace(/eval/gi, "").trim();
 
                 let exprBody;
                 if (rawContent.startsWith("```")) {

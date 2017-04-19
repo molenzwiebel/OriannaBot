@@ -98,6 +98,7 @@ const command: Command = {
         const scores = usersWithPoints
             .map(user => ({ user, points: user.latestPoints[champion] || 0 }))
             .filter(x => !serverOnly || message.channel.guild.members.has(x.user.snowflake))
+            .filter(x => x.points > 0)
             .sort((a, b) => b.points - a.points)
             .map(x => ({ name: x.user.username, value: x.points.toLocaleString() + " Points" }));
         return await showPaginatedTop(
