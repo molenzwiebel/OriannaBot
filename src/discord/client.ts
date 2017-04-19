@@ -35,9 +35,9 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(EditCommand);
         this.messageHandler.registerCommand(ListCommand);
         this.messageHandler.registerCommand(PointsCommand);
+        this.messageHandler.registerCommand(TopCommand);
         this.messageHandler.registerCommand(RolesCommand);
         this.messageHandler.registerCommand(RemindCommand);
-        this.messageHandler.registerCommand(TopCommand);
 
         this.updater = new Updater(this, riotAPI);
 

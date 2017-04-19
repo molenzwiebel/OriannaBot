@@ -27,6 +27,9 @@ export abstract class User extends Basie {
     optedOutOfReminding: boolean;
 
     async addAccount(region: string, data: riot.Summoner) {
+        // Do not allow the same account to be added multiple times.
+        if (this.accounts.find(x => x.region === region && x.summonerId === data.id)) return;
+
         const acc = new LeagueAccountModel();
         acc.owner = this.id;
         acc.username = data.name;

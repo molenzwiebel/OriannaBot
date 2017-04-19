@@ -1,6 +1,7 @@
 import { Command } from "../message-handler";
 import * as DB from "../../database";
 import util = require("util");
+import { Database as BasieDatabase } from "basie";
 
 export default (<Command>{
     name: "Evaluate Expression",
@@ -14,6 +15,7 @@ export default (<Command>{
         {
             // Expose useful variables to the eval() call.
             const { User, UserModel, LeagueAccount, LeagueAccountModel, Role, RoleModel, DiscordServer, DiscordServerModel } = DB;
+            const Database = BasieDatabase;
             const bot = this.client.bot;
             const message = msg;
 

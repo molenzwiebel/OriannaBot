@@ -121,6 +121,7 @@ export default class Response {
      */
     public readonly onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
         if (userID === this.bot.user.id) return;
+        if (!message) return;
         if (message.id !== this.message.id) return;
         if (!this.reactions.has(emoji.name)) return;
 
@@ -144,6 +145,7 @@ export default class Response {
      * Handler for message deletion that deletes the response if the trigger is deleted.
      */
     public readonly onMessageDelete = async (msg: eris.Message) => {
+        if (!msg) return;
         if (msg.id !== this.trigger.id) return;
 
         await this.message.delete();

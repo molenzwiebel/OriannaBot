@@ -43,7 +43,7 @@ export default class MessageHandler {
             // Remove the Orianna bot mention.
             message.mentions = message.mentions.filter(x => x.id !== this.client.bot.user.id);
 
-            this.log("[%s: %s] <%s> %s", message.channel.id, handler.name, message.author.username, message.cleanContent);
+            this.log("[%s: %s] <%s> %s", message.channel.guild ? message.channel.guild.name : "Direct Message", handler.name, message.author.username, message.cleanContent);
             handler.handler.call(this, message);
         });
 

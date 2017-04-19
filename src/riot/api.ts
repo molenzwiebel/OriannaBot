@@ -32,6 +32,22 @@ export default class RiotAPI {
     }
 
     /**
+     * @returns information about the specified summoner, or undefined if they do not exist.
+     */
+    async getSummonerById(region: string, summonerId: number): Promise<riot.Summoner | undefined> {
+        region = region.toLowerCase();
+        await this.rateLimit();
+
+        try {
+            return JSON.parse(await request.get({
+                url: `https://${platform(region)}.api.riotgames.com/lol/summoner/v3/summoners/${summonerId}?api_key=${this.apiKey}`
+            }));
+        } catch (e) {
+            return;
+        }
+    }
+
+    /**
      * @returns the rune pages for the specified summoner id
      */
     async getSummonerRunes(region: string, summonerId: number): Promise<riot.RunePages> {

@@ -11,6 +11,7 @@ export async function serverGet(req: express.Request, res: express.Response) {
 
     res.send({
         ...server.__props,
+        announceChannelSnowflake: server.announceChannelSnowflake || guild.defaultChannel.id,
         existingRoles: guild.roles.map(x => x.name),
         channels: guild.channels.filter(x => x.type === 0).map(x => ({ name: x.name, snowflake: x.id }))
     });
