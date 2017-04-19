@@ -78,7 +78,8 @@ export default class RiotAPI {
         region = region.toLowerCase();
 
         return JSON.parse(await request.get({
-            url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
+            url: `https://global.api.riotgames.com/api/lol/static-data/${region}/v1.2/champion?dataById=true&api_key=${this.apiKey}`
+            //url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
         }));
     }
 

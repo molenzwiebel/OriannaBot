@@ -14,6 +14,7 @@ const LOADING_BLURBS = [
     "Unleashing Dissonance",
     "Missing my shockwave",
     "Finishing my League game",
+    ":robot:",
     "QWRkIG1lIG9uIEVVVyAtIFlhaG9vIEFuc3dlcnMgOyk="
 ];
 

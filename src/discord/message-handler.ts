@@ -11,6 +11,7 @@ export interface Command {
     keywords: string[];
     description: string;
     examples: string[];
+    noMention?: boolean;
     hideFromHelp?: boolean;
     handler: (this: MessageHandler, message: eris.Message) => any;
 }
@@ -32,19 +33,23 @@ export default class MessageHandler {
             if (message.author.bot) return;
 
             const isPM = !!message.channel.recipient;
-
-            // Only handle messages that contain a mention (messages are always handled in a PM).
-            if (!isPM && !message.mentions.find(x => x.id === this.client.bot.user.id)) return;
-
+            const hasMention = message.mentions.find(x => x.id === this.client.bot.user.id);
             const contents = message.cleanContent.toLowerCase();
             const handler = this.commands.find(x => x.keywords.some(x => contents.indexOf(x) !== -1));
-            if (!handler) return await message.addReaction(HELP_REACTION, "@me");
 
-            // Remove the Orianna bot mention.
-            message.mentions = message.mentions.filter(x => x.id !== this.client.bot.user.id);
+            if (handler) {
+                // Remove the Orianna bot mention.
+                message.mentions = message.mentions.filter(x => x.id !== this.client.bot.user.id);
 
-            this.log("[%s: %s] <%s> %s", message.channel.guild ? message.channel.guild.name : "Direct Message", handler.name, message.author.username, message.cleanContent);
-            handler.handler.call(this, message);
+                if (isPM || handler.noMention) return handler.handler.call(this, message);
+                if (!hasMention) return;
+
+                this.log("[%s: %s] <%s> %s", message.channel.guild ? message.channel.guild.name : "Direct Message", handler.name, message.author.username, message.cleanContent);
+                return handler.handler.call(this, message);
+            } else {
+                // No handler, and we either had a mention or this was in a PM. Ask for help.
+                if (isPM || hasMention) return await message.addReaction(HELP_REACTION, "@me");
+            }
         });
 
         // This is for handling questionmarks.
