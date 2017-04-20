@@ -256,11 +256,10 @@ export default class Updater {
      * Finds the set of users to update. This sorts by not updated recently
      */
     private async getUsersToUpdate(): Promise<User[]> {
-        // We query using the Database class manually here, since
-        // basie does not expose advanced querying.
-        const users = await Database.all("SELECT * FROM user ORDER BY lastUpdateTimestamp ASC LIMIT ?", [this.discord.config.updateAmount]);
+        // We query using the Database class manually here, since basie does not expose advanced querying.
+        // We have to do some manual mumbo jumbo because basie will make N + 1 queries (where N is the amount of users updated at once).
+        const users = await Database.all("SELECT * FROM user WHERE NOT (latestPointsJson = '{}' AND (SELECT COUNT(*) FROM leagueaccount WHERE user_id = user.id) = 0) ORDER BY lastUpdateTimestamp ASC LIMIT ?", [this.discord.config.updateAmount]);
 
-        // Materialize users since the database call returns raw objects.
         return Promise.all(users.map(UserModel.materialize));
     }
 }
