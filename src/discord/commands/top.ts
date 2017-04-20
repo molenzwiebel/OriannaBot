@@ -1,6 +1,7 @@
 import MessageHandler, { Command, } from "../message-handler";
 import { EmbedOptions } from "../response";
-import { UserModel } from "../../database";
+import { User, UserModel } from "../../database";
+import { Database } from "basie";
 import maxBy = require("lodash.maxby");
 import toPairs = require("lodash.topairs");
 
@@ -39,6 +40,10 @@ async function showPaginatedTop(handler: MessageHandler, replyTo: eris.Message, 
             index++;
             response.ok(generateContents());
         });
+
+        await response.option("🗑", () => {
+            response.remove();
+        });
     }
 }
 
@@ -55,7 +60,8 @@ const command: Command = {
     ],
     async handler(message) {
         const normalizedContent = message.cleanContent.toLowerCase();
-        const usersWithPoints = (await UserModel.where("latestPointsJson != ?", "{}")); // filter only people that have scores.
+        // filter only people that have scores. We use a raw query to prevent account data from being loaded (since that isn't needed anyway).
+        const usersWithPoints = (await Database.all("SELECT * FROM user WHERE latestPointsJson != ?", ["{}"])).map(y => new UserModel(y));
 
         // On any champion, instead of a specific one.
         if (normalizedContent.indexOf(" any") !== -1 || normalizedContent.indexOf(" all") !== -1 || normalizedContent.indexOf(" every") !== -1) {

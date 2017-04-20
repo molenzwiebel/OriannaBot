@@ -137,6 +137,10 @@ export default class MessageHandler {
                 });
             });
         }
+
+        await resp.option("🗑", () => {
+            resp.remove();
+        });
     };
 
     /**
@@ -145,9 +149,14 @@ export default class MessageHandler {
     private createResponse(message: eris.Message, color: number, content: EmbedOptions, responseChannel?: eris.Channel): Promise<Response> {
         const response = new Response(this.client.bot, message);
         this.responses.push(response); // store it here so we can keep track of it
-        setTimeout(() => {
-            this.responses.splice(this.responses.indexOf(response), 1);
-        }, 1000 * 60 * 10); // Messages expire after 10 minutes. This is done to ensure that they can be garbage collected.
+
+        if (!content.noExpire) {
+            // Messages expire after an hour. This is done to ensure that they can be garbage collected.
+            // This does not happen for messages explicity marked noExpire.
+            setTimeout(() => {
+                this.responses.splice(this.responses.indexOf(response), 1);
+            }, 1000 * 60 * 60);
+        }
 
         return response.respond(color, content, responseChannel).then(x => response);
     }

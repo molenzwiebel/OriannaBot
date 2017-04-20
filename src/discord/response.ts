@@ -12,6 +12,7 @@ export interface EmbedOptions {
     thumbnail?: string;
     author?: { icon_url?: string, name: string };
     extraFooter?: string;
+    noExpire?: boolean;
 }
 
 /**
@@ -70,6 +71,14 @@ export default class Response {
         if (this.globalReactions.indexOf(emoji) !== -1) this.globalReactions.splice(this.globalReactions.indexOf(emoji), 1);
 
         this.message.removeReaction(emoji, "@me").catch(e => {}); // Ignore any errors
+    }
+
+    /**
+     * Removes both the trigger and the response message.
+     */
+    async remove() {
+        try { await this.trigger.delete(); } catch (e) {} // might not be able to delete (in a pm)
+        try { await this.message.delete(); } catch (e) {} // might not be able to delete (perms)
     }
 
     /**

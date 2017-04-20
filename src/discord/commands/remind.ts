@@ -31,7 +31,8 @@ const command: Command = {
                     description: `The owner of **${server.name}** has asked me to remind you that you still need to link your accounts with me. `
                     + `It will only take a brief moment, and you'll only have to do it once! If you are already using the Reddit flair system, it is even easier to link your accounts. `
                     + `As a reminder, you can go to ${this.client.config.baseUrl}/#/player/${user.configCode} to add accounts.\n\n`
-                    + `Don't want any more reminders? Click the :octagonal_sign: and I'll stop reminding you.`
+                    + `Don't want any more reminders? Click the :octagonal_sign: and I'll stop reminding you.`,
+                    noExpire: true
                 }, dmChannel);
 
                 // This needs to be global so that the receiver can click it (and not just the one that "triggered" this reply)
