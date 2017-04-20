@@ -7,7 +7,7 @@
     "type": "git"
   },
   "scripts": {
-    "run": "tsc -p . && node ./dist/index.js",
+    "run": "tsc -p . && node --harmony-async-await ./dist/index.js",
     "watch": "tsc -p . -w",
     "bundle": "tsc -p ."
   },
