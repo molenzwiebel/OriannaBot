@@ -1,0 +1,28 @@
+{
+  "regions": [
+    "EUW",
+    "NA",
+    "EUNE",
+    "BR",
+    "JP",
+    "KR",
+    "LAN",
+    "LAS",
+    "OCE",
+    "RU",
+    "TR"
+  ],
+  "riotApiKey": "<riot api key here>",
+
+  "baseUrl": "<base url prepended in front of all links here>",
+
+  "ownerSnowflake": "<snowflake of bot owner here>",
+  "discordToken": "<discord token here>",
+
+  "redditClientId": "<reddit application client id here>",
+  "redditClientSecret": "<reddit application client secret here>",
+  "redditRedirectUrl": "<reddit application redirect url here>",
+
+  "updateInterval": 60, "_": "The amount of time in seconds between refreshes.",
+  "updateAmount": 200, "_": "The amount of users to update in each update."
+}
