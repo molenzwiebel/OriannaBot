@@ -95,15 +95,13 @@ const command: Command = {
         const champion = await this.expectChampion(message);
         if (!champion) return;
 
+        // Server only will do nothing in pms.
         const serverOnly = normalizedContent.indexOf(" server") !== -1 || normalizedContent.indexOf(" here") !== -1;
-        if (serverOnly) {
-            // Check we actually have a server if we need to filter.
-            if (!await this.expectServer(message)) return;
-        }
+        const isMember = (snowflake: string) => message.channel.guild ? message.channel.guild.members.has(snowflake) : false;
 
         const scores = usersWithPoints
             .map(user => ({ user, points: user.latestPoints[champion] || 0 }))
-            .filter(x => !serverOnly || message.channel.guild.members.has(x.user.snowflake))
+            .filter(x => !serverOnly || isMember(x.user.snowflake))
             .filter(x => x.points > 0)
             .sort((a, b) => b.points - a.points)
             .map(x => ({ name: x.user.username, value: x.points.toLocaleString() + " Points" }));
