@@ -27,6 +27,7 @@ export async function serverPost(req: express.Request, res: express.Response) {
     server.championId = req.body.championId;
     server.announcePromotions = req.body.announcePromotion;
     server.regionRoles = req.body.regionRanks;
+    server.tierRoles = req.body.tierRoles;
     server.announceChannelSnowflake = req.body.announceChannelSnowflake;
     server.setupCompleted = true;
     await server.save();
@@ -73,6 +74,16 @@ export async function serverPut(req: express.Request, res: express.Response) {
         }
     }
 
+    if (changes.tierRoles !== null) {
+        server.tierRoles = changes.tierRoles;
+
+        if (changes.tierRoles) {
+            this.discord.setupDiscordRoles(server, this.config.tiers).then(() => {
+                this.discord.updater.refreshServer(server);
+            });
+        }
+    }
+
     await server.save();
     res.send();
 }
@@ -84,6 +95,7 @@ interface ServerConfigPayload {
     championId: number; // 0 if unchanged
     announcePromotions: boolean | null; // null if unchanged
     regionRoles: boolean | null; // null if unchanged
+    tierRoles: boolean | null; // null if unchanged
     announceChannelSnowflake: string | null; // null if unchanged
     rolesChanged: boolean; // if roles were changed
     roles: { name: string, range: string }[]; // roles. these are populated even if they didn't change

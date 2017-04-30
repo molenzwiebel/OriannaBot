@@ -7,6 +7,23 @@ export async function userGet(req: express.Request, res: express.Response) {
     res.status(user ? 200 : 404).send(user);
 }
 
+// PUT '/api/user/:code/settings'
+export async function userSettingsPut(req: express.Request, res: express.Response) {
+    const user = await UserModel.findBy({ configCode: req.params.code });
+    if (!user) throw new Error("User not found.");
+
+    user.optedOutOfTierRoles = req.body.optedOutOfTierRoles;
+    user.optedOutOfReminding = req.body.optedOutOfReminding;
+
+    await user.save();
+
+    // Do not wait for this to finish, since it delays the request.
+    // However, do update the user since they will expect their actions to have some result.
+    this.discord.updater.updateUser(user);
+
+    res.send();
+}
+
 // PUT '/api/user/:code/account'
 export async function userPut(req: express.Request, res: express.Response) {
     const user = await UserModel.findBy({ configCode: req.params.code });

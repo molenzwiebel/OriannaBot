@@ -78,9 +78,24 @@ export default class RiotAPI {
         region = region.toLowerCase();
 
         return JSON.parse(await request.get({
-            url: `https://global.api.riotgames.com/api/lol/static-data/${region}/v1.2/champion?dataById=true&api_key=${this.apiKey}`
-            //url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
+            url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
         }));
+    }
+
+    /**
+     * @returns all the leagues for the specified user, or an empty array if they aren't placed currently
+     */
+    async getLeagues(region: string, summonerId: number): Promise<riot.LeagueEntry[]> {
+        region = region.toLowerCase();
+        await this.rateLimit();
+
+        try {
+            return JSON.parse(await request.get({
+                url: `https://${region}.api.riotgames.com/api/lol/${region}/v2.5/league/by-summoner/${summonerId}/entry?api_key=${this.apiKey}`
+            }))[summonerId] || [];
+        } catch (e) {
+            return [];
+        }
     }
 
     /**

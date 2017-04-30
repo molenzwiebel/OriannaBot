@@ -46,11 +46,14 @@ export default class Updater {
             user.lastUpdate = new Date();
             await user.save();
 
+            const tier = user.optedOutOfTierRoles ? undefined : await this.getUserTier(user);
+
             // Update the user on all servers we share.
             await Promise.all(this.discord.bot.guilds.filter(x => x.members.has(user.snowflake)).map(guild => {
                 return Promise.all([
                     this.updateUserOnGuild(user, guild, oldTotals, newTotals),
-                    this.updateRegionRolesOnGuild(user, guild)
+                    this.updateRegionRolesOnGuild(user, guild),
+                    this.updateTierRolesOnGuild(user, guild, tier)
                 ]);
             }));
         } catch (e) {
@@ -231,6 +234,31 @@ export default class Updater {
     }
 
     /**
+     * Updates tier roles for the specified user on the specified guild.
+     */
+    private async updateTierRolesOnGuild(user: User, guild: eris.Guild, tier: string | undefined) {
+        const server = await DiscordServerModel.findBy({ snowflake: guild.id });
+        if (!server || !server.setupCompleted || !server.tierRoles) return;
+        const member = guild.members.get(user.snowflake);
+        if (!member) return;
+
+        const rankRoles = this.discord.config.tiers.map(name => guild.roles.find(x => x.name === name));
+        for (const role of rankRoles) {
+            if (!role) continue;
+
+            // Not the role they are supposed to have, but they have it. Remove.
+            if (role.name !== tier && member.roles.indexOf(role.id) !== -1) {
+                await this.discord.bot.removeGuildMemberRole(guild.id, member.id, role.id);
+            }
+
+            // Tier they are supposed to have, but they don't have it. Add
+            if (tier && role.name === tier && member.roles.indexOf(role.id) === -1) {
+                await this.discord.bot.addGuildMemberRole(guild.id, member.id, role.id);
+            }
+        }
+    }
+
+    /**
      * Finds and sums the champion mastery scores for all accounts associated
      * with the specified user.
      */
@@ -250,6 +278,17 @@ export default class Updater {
             x.forEach(y => p[y.championId] = (p[y.championId] || 0) + y.championPoints);
             return p;
         }, <UserPoints>{});
+    }
+
+    /**
+     * Finds the highest tier name for the specified user, or undefined if they are currently unranked.
+     */
+    private async getUserTier(user: User): Promise<string | undefined> {
+        const leagues = ([] as riot.LeagueEntry[]).concat(...await Promise.all(user.accounts.map(a => this.riotAPI.getLeagues(a.region, a.summonerId))));
+        if (!leagues.length) return;
+
+        const tierNames = this.discord.config.tiers.map(x => x.toLowerCase());
+        return leagues.reduce((p, c) => tierNames.indexOf(p.toLowerCase()) > tierNames.indexOf(c.tier.toLowerCase()) ? p : this.discord.config.tiers.find(x => x.toUpperCase() === c.tier)!, tierNames[0]);
     }
 
     /**

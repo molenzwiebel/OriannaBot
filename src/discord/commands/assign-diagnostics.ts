@@ -25,7 +25,7 @@ const command: Command = {
         if (normalizedContent.indexOf(".iam") !== 0 && normalizedContent.indexOf(".giveme") !== 0) return; // if it didn't start with the keyword
 
         const targetRole = normalizedContent.replace(".iam", "").replace(".giveme", "").replace(/"/g, "").trim();
-        const managedRoleNames = (server.regionRoles ? this.client.config.regions : []).concat(server.roles.map(x => x.name));
+        const managedRoleNames = ([] as string[]).concat(...[server.regionRoles ? this.client.config.regions : [], server.tierRoles ? this.client.config.tiers : [], server.roles.map(x => x.name)]);
 
         if (managedRoleNames.find(x => x.toLowerCase() === targetRole.toLowerCase())) {
             await this.info(message, {

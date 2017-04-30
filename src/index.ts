@@ -1,7 +1,6 @@
 import { Database } from "basie";
 import { UserModel, LeagueAccountModel, DiscordServerModel, RoleModel } from "./database";
 import * as fs from "fs";
-import profiler = require("v8-profiler");
 
 import debug = require("debug");
 import RiotAPI from "./riot/api";
@@ -16,6 +15,7 @@ process.on("unhandledRejection", (err: Error) => {
 
 export interface Configuration {
     regions: string[];
+    tiers: string[];
     riotApiKey: string;
 
     ownerSnowflake: string;
@@ -29,19 +29,6 @@ export interface Configuration {
     updateInterval: number;
     updateAmount: number;
 }
-
-// Make a heap snapshot every 30 minutes to debug a possible memory leak.
-if (!fs.existsSync("heap-snapshots")) fs.mkdirSync("heap-snapshots");
-setInterval(() => {
-    info("Creating Heap Snapshot.");
-    const snapshot = profiler.takeSnapshot();
-
-    // Write snapshot to file.
-    snapshot
-        .export()
-        .pipe(fs.createWriteStream("heap-snapshots/" + Date.now() + ".json"))
-        .on("finish", () => snapshot.delete());
-}, 1000 * 60 * 30);
 
 (async () => {
     info("Starting Orianna. Reading config...");

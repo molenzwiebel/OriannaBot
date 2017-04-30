@@ -179,6 +179,7 @@ export default class DiscordClient {
         server.championId = -1;
         server.announcePromotions = false;
         server.regionRoles = false;
+        server.tierRoles = false;
         server.announceChannelSnowflake = "";
         server.setupCompleted = false;
         await server.save();
@@ -300,9 +301,11 @@ export default class DiscordClient {
 
     /**
      * Adds the discord roles for the specified server. This will remove and re-add existing
-     * roles that are to be overwritten. This also creates region roles if neccessary.
+     * roles that are to be overwritten. This also creates region and tier roles if neccessary.
      */
-    async setupDiscordRoles(server: DiscordServer, managedRoleNames = (server.regionRoles ? this.config.regions : []).concat(server.roles.map(x => x.name)).reverse()) {
+    async setupDiscordRoles(
+        server: DiscordServer,
+        managedRoleNames = ([] as string[]).concat(...[server.regionRoles ? this.config.regions : [], server.tierRoles ? this.config.tiers : [], server.roles.map(x => x.name)]).reverse()) {
         const guild = this.bot.guilds.get(server.snowflake);
         if (!guild) return;
 

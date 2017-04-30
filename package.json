@@ -25,8 +25,7 @@
     "@types/request": "^0.0.42",
     "@types/request-promise": "^4.1.33",
     "@types/v8-profiler": "^0.0.5",
-    "typescript": "^2.2.2",
-    "v8-profiler": "^5.7.0"
+    "typescript": "^2.2.2"
   },
   "dependencies": {
     "@types/jimp": "^0.2.1",

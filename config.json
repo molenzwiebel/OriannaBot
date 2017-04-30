@@ -12,6 +12,15 @@
     "RU",
     "TR"
   ],
+  "tiers": [
+    "Bronze",
+    "Silver",
+    "Gold",
+    "Platinum",
+    "Diamond",
+    "Master",
+    "Challenger"
+  ],
   "riotApiKey": "<riot api key here>",
 
   "baseUrl": "<base url prepended in front of all links here>",

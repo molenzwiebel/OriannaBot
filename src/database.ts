@@ -26,6 +26,9 @@ export abstract class User extends Basie {
     @field
     optedOutOfReminding: boolean;
 
+    @field
+    optedOutOfTierRoles: boolean;
+
     async addAccount(region: string, data: riot.Summoner) {
         // Do not allow the same account to be added multiple times.
         if (this.accounts.find(x => x.region === region && x.summonerId === data.id)) return;
@@ -66,6 +69,7 @@ export abstract class User extends Basie {
         user.lastUpdate = new Date(0);
         user.latestPoints = {};
         user.optedOutOfReminding = false;
+        user.optedOutOfTierRoles = false;
         await user.save();
 
         return user.configCode;
@@ -109,6 +113,9 @@ export abstract class DiscordServer extends Basie {
 
     @field
     regionRoles: boolean;
+
+    @field
+    tierRoles: boolean;
 
     @field
     announceChannelSnowflake: string; // "" if default channel or announcePromotions = false

@@ -24,4 +24,8 @@ namespace riot {
             name: string;
         };
     }
+
+    export type LeagueEntry = {
+        tier: string;
+    }
 }
