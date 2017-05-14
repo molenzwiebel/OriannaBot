@@ -16,6 +16,7 @@ import RolesCommand from "./commands/roles";
 import RemindCommand from "./commands/remind";
 import TopCommand from "./commands/top";
 import AssignDiagnosticsCommand from "./commands/assign-diagnostics";
+import HelpCommand from "./commands/help";
 
 export default class DiscordClient {
     public readonly bot: Eris;
@@ -40,6 +41,7 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(RolesCommand);
         this.messageHandler.registerCommand(RemindCommand);
         this.messageHandler.registerCommand(AssignDiagnosticsCommand);
+        this.messageHandler.registerCommand(HelpCommand);
 
         this.updater = new Updater(this, riotAPI);
 
@@ -51,7 +53,7 @@ export default class DiscordClient {
     }
 
     /**
-     * Connects to Discord and adds the relevant event listeners.
+     * Connects to Discord and adds the relevant event listeners
      */
     async connect() {
         await this.bot.connect();

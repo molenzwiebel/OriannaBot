@@ -35,7 +35,8 @@ export default class MessageHandler {
             const isPM = !!message.channel.recipient;
             const hasMention = message.mentions.find(x => x.id === this.client.bot.user.id);
             const contents = message.cleanContent.toLowerCase();
-            const handler = this.commands.find(x => x.keywords.some(x => contents.indexOf(x) !== -1));
+            const words = contents.split(" ");
+            const handler = this.commands.find(x => x.keywords.some(x => words.indexOf(x) !== -1));
 
             if (handler) {
                 // Remove the Orianna bot mention.
@@ -97,19 +98,9 @@ export default class MessageHandler {
     readonly expectManagePermission: (msg: eris.Message) => Promise<boolean> = expectManagePermission.bind(this);
 
     /**
-     * Handles reaction adding. If it was on a message we previously marked with a
-     * question mark, display the help information.
+     * Displays help by replying to the specified message. Used in reaction help and the help command.
      */
-    private onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
-        if (userID === this.client.bot.user.id) return; // we added it, abort
-        if (!message.author) return; // message not cached, abort
-        if (userID !== message.author.id) return; // emoji not added by author, abort
-        if (emoji.name !== HELP_REACTION) return; // not help emoji, abort
-        if (!message.mentions.some(x => x.id === this.client.bot.user.id)) return; // we weren't mentioned, abort
-
-        // At this point we know the original author added a question mark to a message that mentioned us.
-        // That doesn't yet give conclusive info that we had a question mark already, but it is good enough.
-
+    async displayHelp(message: eris.Message) {
         const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: EmbedOptions = {
             title: ":bookmark: Orianna Help",
@@ -141,6 +132,22 @@ export default class MessageHandler {
         await resp.option("🗑", () => {
             resp.remove();
         });
+    }
+
+    /**
+     * Handles reaction adding. If it was on a message we previously marked with a
+     * question mark, display the help information.
+     */
+    private onReactionAdd = async (message: eris.Message, emoji: { name: string }, userID: string) => {
+        if (userID === this.client.bot.user.id) return; // we added it, abort
+        if (!message.author) return; // message not cached, abort
+        if (userID !== message.author.id) return; // emoji not added by author, abort
+        if (emoji.name !== HELP_REACTION) return; // not help emoji, abort
+        if (!message.mentions.some(x => x.id === this.client.bot.user.id)) return; // we weren't mentioned, abort
+
+        // At this point we know the original author added a question mark to a message that mentioned us.
+        // That doesn't yet give conclusive info that we had a question mark already, but it is good enough.
+        await this.displayHelp(message);
     };
 
     /**

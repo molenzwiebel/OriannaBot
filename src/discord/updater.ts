@@ -118,6 +118,9 @@ export default class Updater {
         const oldRoles = this.computeApplicableRoles(server, oldTotals);
         const newRoles = this.computeApplicableRoles(server, newTotals);
 
+        // Debug any missing roles.
+        server.roles.filter(x => !guild.roles.has(x.snowflake)).forEach(role => this.log("Warning: Guild " + guild.name + " (config code " + server.configCode + ") is missing role " + role.name));
+
         // Remove all existing roles managed by Orianna, except the ones included in newRoles.
         await Promise.all(
             server.roles

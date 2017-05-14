@@ -19,7 +19,7 @@ async function trySendDM(handler: MessageHandler, trigger: eris.Message, embed: 
 const command: Command = {
     name: "Edit",
     description: "Sends you your unique edit link for when you _accidentally_ lost yours. Server admins can include `server` to receive the server edit link instead.",
-    keywords: ["edit", "config", "add", "remove"],
+    keywords: ["edit", "config", "configure", "add", "remove"],
     examples: [
         "<@me>, I want to edit my accounts.",
         "<@me>, send me my edit link.",
