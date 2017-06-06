@@ -99,7 +99,14 @@ export default class Updater {
         this.isUpdating = true;
 
         const users = await this.getUsersToUpdate();
-        await users.map(x => this.updateUser(x));
+
+        // Spread out user updating over the time period.
+        const step = Math.ceil(((this.discord.config.updateInterval * 0.90) * 1000) / this.discord.config.updateAmount);
+        await users.map((user, i) => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                this.updateUser(user).then(() => resolve(), e => reject(e));
+            }, step * i);
+        }));
 
         this.isUpdating = false;
     };
