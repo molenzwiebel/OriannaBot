@@ -22,6 +22,7 @@ declare module eris {
 
     class Collection<K, V> extends Map<K, V> {
         map<T>(fn: (v: V) => T): T[];
+        remove(obj: { id: K }): V | null;
         filter(fn: (v: V) => boolean): V[];
         find(fn: (v: V) => boolean): V | undefined;
     }
@@ -39,6 +40,7 @@ declare module eris {
     class Channel {
         id: string;
         guild: Guild;
+        messages: Collection<string, Message>;
         recipient?: User; // only present in DM channels
         createMessage(content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;
         editMessage(msgId: string, content: string | { embed: Embed }, file?: { file: Buffer, name: string }): Promise<Message>;

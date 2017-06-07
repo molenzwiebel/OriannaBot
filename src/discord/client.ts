@@ -61,6 +61,15 @@ export default class DiscordClient {
             this.log("Connected as %s (%s)", this.bot.user.username, this.bot.user.id);
         });
 
+        // Eris never deletes messages on its own, which causes Orianna to eventually run out of memory.
+        // We delete messages from the cache after 1.5h to ensure that reactions still have access to
+        // the full message object (otherwise they are ignored).
+        this.bot.on("messageCreate", message => {
+            setTimeout(() => {
+                message.channel.messages.remove(message);
+            }, 90 * 60 * 1000);
+        });
+
         this.bot.on("userUpdate", this.onUserRename);
 
         this.bot.on("guildCreate", this.onGuildJoin);
