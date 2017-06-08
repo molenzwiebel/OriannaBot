@@ -29,7 +29,23 @@ export default class DiscordClient {
     public championDataVersion: string;
 
     constructor(public readonly config: Configuration, public readonly riotAPI: RiotAPI) {
-        this.bot = new Eris(config.discordToken);
+        this.bot = new Eris(config.discordToken, {
+            disableEvents: {
+                "VOICE_STATE_UPDATE": true, // don't need voice updates
+                "TYPING_START": true, // don't need typing notifications
+                "GUILD_BAN_ADD": true, // don't need bans
+                "GUILD_BAN_REMOVE": true, // ^
+                "CALL_CREATE": true, // don't need to monitor calls
+                "CALL_UPDATE": true, // ^
+                "CALL_DELETE": true, // ^
+                "CHANNEL_RECIPIENT_ADD": true, // no group chats
+                "CHANNEL_RECIPIENT_REMOVE": true, // ^
+                "FRIEND_SUGGESTION_CREATE": true, // don't need friends
+                "FRIEND_SUGGESTION_DELETE": true, // ^
+                "GUILD_EMOJIS_UPDATE": true, // don't use emojis
+                "CHANNEL_PINS_UPDATE": true, // don't mind pins
+            }
+        });
 
         this.messageHandler = new MessageHandler(this);
         this.messageHandler.registerCommand(EvalCommand);

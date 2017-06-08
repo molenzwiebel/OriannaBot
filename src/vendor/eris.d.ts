@@ -108,7 +108,7 @@ declare module eris {
     }
 
     class Eris {
-        constructor(key: string);
+        constructor(key: string, options?: { disableEvents?: { [key: string]: true } });
 
         guilds: Collection<string, Guild>;
         user: User;
