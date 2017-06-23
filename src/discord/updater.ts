@@ -5,6 +5,7 @@ import { DiscordServer, DiscordServerModel, Role, User, UserModel, UserPoints } 
 import RiotAPI from "../riot/api";
 import parseRange from "../util/ranges";
 import Jimp = require("jimp");
+import has = Reflect.has;
 
 /**
  * Handles updating user mastery scores every set interval.
@@ -282,13 +283,15 @@ export default class Updater {
         for (const role of rankRoles) {
             if (!role) continue;
 
+            const hasRole = member.roles.indexOf(role.id) !== -1;
+
             // Not the role they are supposed to have, but they have it. Remove.
-            if (role.name !== tier && member.roles.indexOf(role.id) !== -1) {
+            if (role.name !== tier && hasRole) {
                 await this.discord.bot.removeGuildMemberRole(guild.id, member.id, role.id);
             }
 
             // Tier they are supposed to have, but they don't have it. Add
-            if (tier && role.name === tier && member.roles.indexOf(role.id) === -1) {
+            if (tier && role.name === tier && !hasRole) {
                 await this.discord.bot.addGuildMemberRole(guild.id, member.id, role.id);
             }
         }
