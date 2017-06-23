@@ -160,6 +160,9 @@ export abstract class ScoreDelta extends Basie {
     championId: number;
 
     @field
+    timestamp: number;
+
+    @field
     newValue: number;
 
     @field

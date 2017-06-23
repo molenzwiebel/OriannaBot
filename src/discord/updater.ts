@@ -52,19 +52,19 @@ export default class Updater {
                 if (oldValue === newValue) return;
 
                 // We don't have to worry about SQL injection since this is never user provided.
-                values.push(`(${user.id}, ${champId}, ${newValue}, ${newValue - oldValue})`);
+                values.push(`(${user.id}, ${champId}, ${Date.now()}, ${newValue}, ${newValue - oldValue})`);
             });
 
             // If we didn't have scores for the champ before, do a diff of 0.
             Object.keys(newTotals).forEach(champId => {
                 if (typeof oldTotals[+champId] !== "undefined") return;
 
-                values.push(`(${user.id}, ${champId}, ${newTotals[+champId]}, ${newTotals[+champId]})`);
+                values.push(`(${user.id}, ${champId}, ${Date.now()}, ${newTotals[+champId]}, ${newTotals[+champId]})`);
             });
 
             // Insert if we had any differences.
             if (values.length) {
-                await Database.run(`INSERT INTO scoredelta (user, championId, newValue, delta) VALUES ${values.join(", ")}`);
+                await Database.run(`INSERT INTO scoredelta (user, championId, timestamp, newValue, delta) VALUES ${values.join(", ")}`);
             }
 
             // Write latest data to database.
