@@ -1,5 +1,5 @@
 import { Database } from "basie";
-import { UserModel, LeagueAccountModel, DiscordServerModel, RoleModel } from "./database";
+import { UserModel, LeagueAccountModel, DiscordServerModel, RoleModel, ScoreDeltaModel } from "./database";
 import * as fs from "fs";
 
 import debug = require("debug");
@@ -46,6 +46,7 @@ export interface Configuration {
     await LeagueAccountModel.createTable();
     await DiscordServerModel.createTable();
     await RoleModel.createTable();
+    await ScoreDeltaModel.createTable();
 
     const riotApi = new RiotAPI(config.riotApiKey);
 

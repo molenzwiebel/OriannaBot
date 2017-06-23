@@ -151,3 +151,18 @@ export abstract class Role extends Basie {
     range: string;
 }
 export const RoleModel = Based(Role);
+
+export abstract class ScoreDelta extends Basie {
+    @field
+    user: number;
+
+    @field
+    championId: number;
+
+    @field
+    newValue: number;
+
+    @field
+    delta: number;
+}
+export const ScoreDeltaModel = Based(ScoreDelta);

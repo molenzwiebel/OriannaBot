@@ -41,6 +41,32 @@ export default class Updater {
             const oldTotals = user.latestPoints;
             const newTotals = await this.getChampionTotals(user);
 
+            // Compute score diffs and optionally write difference to database.
+            // We aggregate the values clauses first, then do a single insert to optimize database usage.
+            const values: string[] = [];
+
+            Object.keys(oldTotals).forEach(champId => {
+                const oldValue = oldTotals[+champId] || 0;
+                const newValue = newTotals[+champId] || 0;
+
+                if (oldValue === newValue) return;
+
+                // We don't have to worry about SQL injection since this is never user provided.
+                values.push(`(${user.id}, ${champId}, ${newValue}, ${newValue - oldValue})`);
+            });
+
+            // If we didn't have scores for the champ before, do a diff of 0.
+            Object.keys(newTotals).forEach(champId => {
+                if (typeof oldTotals[+champId] !== "undefined") return;
+
+                values.push(`(${user.id}, ${champId}, ${newTotals[+champId]}, ${newTotals[+champId]})`);
+            });
+
+            // Insert if we had any differences.
+            if (values.length) {
+                await Database.run(`INSERT INTO scoredelta (user, championId, newValue, delta) VALUES ${values.join(", ")}`);
+            }
+
             // Write latest data to database.
             user.latestPoints = newTotals;
             user.lastUpdate = new Date();
