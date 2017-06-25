@@ -15,6 +15,7 @@ import PointsCommand from "./commands/points";
 import RolesCommand from "./commands/roles";
 import RemindCommand from "./commands/remind";
 import TopCommand from "./commands/top";
+import StatsCommand from "./commands/stats";
 import AssignDiagnosticsCommand from "./commands/assign-diagnostics";
 import HelpCommand from "./commands/help";
 
@@ -54,6 +55,7 @@ export default class DiscordClient {
         this.messageHandler.registerCommand(ListCommand);
         this.messageHandler.registerCommand(PointsCommand);
         this.messageHandler.registerCommand(TopCommand);
+        this.messageHandler.registerCommand(StatsCommand);
         this.messageHandler.registerCommand(RolesCommand);
         this.messageHandler.registerCommand(RemindCommand);
         this.messageHandler.registerCommand(AssignDiagnosticsCommand);
