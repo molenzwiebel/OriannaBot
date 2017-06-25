@@ -6,6 +6,7 @@ import { Configuration } from "../index";
 
 import { serverGet, serverPost, serverPut } from "./endpoints/server";
 import { userDelete, userGet, userPut, userSettingsPut } from "./endpoints/user";
+import { getStatChampions, getStats } from "./endpoints/stats"
 import { runePageVerify, summonerLookup } from "./endpoints/riot";
 import { redditCallback, redditPoll } from "./endpoints/reddit";
 import RiotAPI from "../riot/api";
@@ -31,6 +32,10 @@ export default class APIWebServer {
         this.app.put("/api/user/:code/settings", this.wrapHandler(userSettingsPut));
         this.app.put("/api/user/:code/account", this.wrapHandler(userPut));
         this.app.delete("/api/user/:code/account", this.wrapHandler(userDelete));
+
+        // Stat endpoints.
+        this.app.get("/api/stats/:id/list", this.wrapHandler(getStatChampions));
+        this.app.get("/api/stats/:id/:champId", this.wrapHandler(getStats));
 
         // Riot API endpoints.
         this.app.get("/api/lookup/:region/:name", this.wrapHandler(summonerLookup));

@@ -1,5 +1,6 @@
 import express = require("express");
-import { UserModel, LeagueAccountModel } from "../../database";
+import { UserModel, LeagueAccountModel, ScoreDeltaModel } from "../../database";
+import { Database } from "basie";
 
 // GET '/api/user/:code'
 export async function userGet(req: express.Request, res: express.Response) {
