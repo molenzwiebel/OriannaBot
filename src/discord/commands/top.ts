@@ -63,14 +63,18 @@ const command: Command = {
         // filter only people that have scores. We use a raw query to prevent account data from being loaded (since that isn't needed anyway).
         const usersWithPoints = (await Database.all("SELECT * FROM user WHERE latestPointsJson != ?", ["{}"])).map(y => new UserModel(y));
 
+        // Server only will do nothing in pms.
+        const serverOnly = normalizedContent.indexOf(" server") !== -1 || normalizedContent.indexOf(" here") !== -1;
+        const isMember = (snowflake: string) => message.channel.guild ? message.channel.guild.members.has(snowflake) : false;
+
         // On any champion, instead of a specific one.
         if (normalizedContent.indexOf(" any") !== -1 || normalizedContent.indexOf(" all") !== -1 || normalizedContent.indexOf(" every") !== -1) {
             // maxScores is of type { user: User, max: [string, number] }, with max being [champId, score].
-            const maxScores = usersWithPoints.map(u => ({ user: u, max: maxBy(toPairs(u.latestPoints), x => x[1]) }));
+            const maxScores = usersWithPoints.filter(x => !serverOnly || isMember(x.snowflake)).map(u => ({ user: u, max: maxBy(toPairs(u.latestPoints), x => x[1]) }));
             maxScores.sort((a, b) => b.max[1] - a.max[1]);
 
             const fields = maxScores.map(x => ({ name: x.user.username, value: this.client.championData[+x.max[0]].name + " - " + x.max[1].toLocaleString() }));
-            return await showPaginatedTop(this, message, fields, "Top Players");
+            return await showPaginatedTop(this, message, fields, "Top Players" + (serverOnly ? " On This Server" : ""));
         }
 
         // User mentioned someone, show their top.
@@ -94,10 +98,6 @@ const command: Command = {
         // Show normal champion top.
         const champion = await this.expectChampion(message);
         if (!champion) return;
-
-        // Server only will do nothing in pms.
-        const serverOnly = normalizedContent.indexOf(" server") !== -1 || normalizedContent.indexOf(" here") !== -1;
-        const isMember = (snowflake: string) => message.channel.guild ? message.channel.guild.members.has(snowflake) : false;
 
         const scores = usersWithPoints
             .map(user => ({ user, points: user.latestPoints[champion] || 0 }))
