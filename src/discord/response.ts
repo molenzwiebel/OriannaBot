@@ -74,6 +74,15 @@ export default class Response {
     }
 
     /**
+     * Removes all reactions from the current message. Does not touch reactions not added by us.
+     */
+    removeAllOptions() {
+        for (const [emoji] of this.reactions) {
+            this.removeOption(emoji);
+        }
+    }
+
+    /**
      * Removes both the trigger and the response message.
      */
     async remove() {

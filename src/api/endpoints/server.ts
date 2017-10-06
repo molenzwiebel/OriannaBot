@@ -9,9 +9,13 @@ export async function serverGet(req: express.Request, res: express.Response) {
     const guild: eris.Guild = this.discord.bot.guilds.get(server.snowflake);
     if (!guild) return res.status(404).send({});
 
+    let announceChannelSnowflake = server.announceChannelSnowflake;
+    if (!announceChannelSnowflake && guild.defaultChannel) announceChannelSnowflake = guild.defaultChannel.id;
+    if (!announceChannelSnowflake) announceChannelSnowflake = guild.channels.find(x => x.type === 0)!.id;
+
     res.send({
         ...server.__props,
-        announceChannelSnowflake: server.announceChannelSnowflake || guild.defaultChannel.id,
+        announceChannelSnowflake,
         existingRoles: guild.roles.map(x => x.name),
         channels: guild.channels.filter(x => x.type === 0).map(x => ({ name: x.name, snowflake: x.id }))
     });

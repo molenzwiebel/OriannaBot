@@ -91,8 +91,8 @@ export default class RiotAPI {
 
         try {
             return JSON.parse(await request.get({
-                url: `https://${region}.api.riotgames.com/api/lol/${region}/v2.5/league/by-summoner/${summonerId}/entry?api_key=${this.apiKey}`
-            }))[summonerId] || [];
+                url: `https://${platform(region)}.api.riotgames.com/lol/league/v3/leagues/by-summoner/${summonerId}?api_key=${this.apiKey}`
+            })) || [];
         } catch (e) {
             return [];
         }

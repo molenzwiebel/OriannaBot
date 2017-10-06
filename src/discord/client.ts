@@ -80,12 +80,10 @@ export default class DiscordClient {
         });
 
         // Eris never deletes messages on its own, which causes Orianna to eventually run out of memory.
-        // We delete messages from the cache after 1.5h to ensure that reactions still have access to
-        // the full message object (otherwise they are ignored).
+        // We just immediately remove the message from the cache, since we never query messages in a channel
+        // anyway and we only compare the ID of any message update events.
         this.bot.on("messageCreate", message => {
-            setTimeout(() => {
-                message.channel.messages.remove(message);
-            }, 90 * 60 * 1000);
+            message.channel.messages.remove(message);
         });
 
         this.bot.on("userUpdate", this.onUserRename);

@@ -5,7 +5,6 @@ import { DiscordServer, DiscordServerModel, Role, User, UserModel, UserPoints } 
 import RiotAPI from "../riot/api";
 import parseRange from "../util/ranges";
 import Jimp = require("jimp");
-import has = Reflect.has;
 
 /**
  * Handles updating user mastery scores every set interval.
@@ -73,14 +72,14 @@ export default class Updater {
             user.lastUpdate = new Date();
             await user.save();
 
-            const tier = user.optedOutOfTierRoles ? undefined : await this.getUserTier(user);
+            //const tier = user.optedOutOfTierRoles ? undefined : await this.getUserTier(user);
 
             // Update the user on all servers we share.
             await Promise.all(this.discord.bot.guilds.filter(x => x.members.has(user.snowflake)).map(guild => {
                 return Promise.all([
                     this.updateUserOnGuild(user, guild, oldTotals, newTotals),
                     this.updateRegionRolesOnGuild(user, guild),
-                    this.updateTierRolesOnGuild(user, guild, tier)
+                    //this.updateTierRolesOnGuild(user, guild, tier)
                 ]);
             }));
         } catch (e) {

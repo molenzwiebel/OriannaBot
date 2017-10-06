@@ -161,6 +161,7 @@ export default class MessageHandler {
             // Messages expire after an hour. This is done to ensure that they can be garbage collected.
             // This does not happen for messages explicity marked noExpire.
             setTimeout(() => {
+                response.removeAllOptions();
                 this.responses.splice(this.responses.indexOf(response), 1);
             }, 1000 * 60 * 60);
         }
