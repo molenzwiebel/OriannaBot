@@ -20,7 +20,7 @@ export async function userSettingsPut(req: express.Request, res: express.Respons
 
     // Do not wait for this to finish, since it delays the request.
     // However, do update the user since they will expect their actions to have some result.
-    this.discord.updater.updateUser(user);
+    this.discord.updater.updateUser(user, true);
 
     res.send();
 }
@@ -38,7 +38,7 @@ export async function userPut(req: express.Request, res: express.Response) {
 
     // Do not wait for this to finish, since it delays the request.
     // However, do update the user since they will expect their actions to have some result.
-    this.discord.updater.updateUser(user);
+    this.discord.updater.updateUser(user, true);
 
     res.send();
 }
@@ -55,7 +55,7 @@ export async function userDelete(req: express.Request, res: express.Response) {
 
     // Do not wait for this to finish, since it delays the request.
     // However, do update the user since they will expect their actions to have some result.
-    this.discord.updater.updateUser(user);
+    this.discord.updater.updateUser(user, true);
 
     res.send();
 }

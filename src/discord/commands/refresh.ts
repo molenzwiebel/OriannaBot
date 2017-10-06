@@ -61,7 +61,7 @@ const command: Command = {
         if (!user) return;
 
         const reply = await this.info(message, { title: `:hourglass_flowing_sand: ${sample(LOADING_BLURBS)}...` });
-        await this.client.updater.updateUser(user);
+        await this.client.updater.updateUser(user, true);
 
         await reply.ok({
             title: ":heavy_check_mark: All done!",
