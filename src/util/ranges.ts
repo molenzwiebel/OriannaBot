@@ -1,26 +1,29 @@
 /*
- * Represents a `< value` range.
+ * Represents a `(total) < value` range.
  */
 export interface LtRange {
     type: "lt";
     value: number;
+    total: boolean;
 }
 
 /**
- * Represents a `> value` range.
+ * Represents a `(total) > value` range.
  */
 export interface GtRange {
     type: "gt";
     value: number;
+    total: boolean;
 }
 
 /**
- * Represents a `minimum <= value < maximum` range.
+ * Represents a `(total) minimum <= value < maximum` range.
  */
 export interface Range {
     type: "range";
     minimum: number;
     maximum: number;
+    total: boolean;
 }
 
 /**
@@ -42,15 +45,15 @@ export type NumberRange = LtRange | GtRange | Range | TopRange;
  */
 export default function parseRange(range: string): NumberRange {
     // < xx.
-    let match = /^\s*(<\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/.exec(range);
+    let match = /^\s*(total)?\s*(<\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/i.exec(range);
     if (match) {
-        return { type: "lt", value: parseNumber(match[2]) };
+        return { type: "lt", value: parseNumber(match[3]), total: !!match[1] };
     }
 
     // > xx.
-    match = /^\s*(>\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/.exec(range);
+    match = /^\s*(total)?\s*(>\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/i.exec(range);
     if (match) {
-        return { type: "gt", value: parseNumber(match[2]) };
+        return { type: "gt", value: parseNumber(match[3]), total: !!match[1] };
     }
 
     // Top xx.
@@ -61,9 +64,9 @@ export default function parseRange(range: string): NumberRange {
     }
 
     // xx - yy.
-    match = /^\s*(?:((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?)\s*(?:-|to|until)\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/.exec(range);
+    match = /^\s*(total)?\s*(?:((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?)\s*(?:-|to|until)\s*((?:\d+)(?:\.\d+)?\s*(?:k|m|thousand|million)?))/i.exec(range);
     if (match) {
-        return { type: "range", minimum: parseNumber(match[1]), maximum: parseNumber(match[2]) };
+        return { type: "range", minimum: parseNumber(match[2]), maximum: parseNumber(match[3]), total: !!match[1] };
     }
 
     throw new Error("Don't know how to parse '" + range + "' as a range.");

@@ -11,6 +11,7 @@ import Jimp = require("jimp");
  */
 export default class Updater {
     private log = debug("orianna:updater");
+    private roleErrorLog = debug("orianna:updater:roles");
     private isUpdating = false;
     private largeFont: any; // jimp.Font is not exported, so we use any
     private smallFont: any; // ^^
@@ -30,7 +31,7 @@ export default class Updater {
      * user and Orianna share. This method is public since it can also be
      * invoked manually by users (via commands).
      */
-    async updateUser(user: User) {
+    async updateUser(user: User, updateRanked = false) {
         // If the user has no accounts, and had none before, we can safely skip updating them.
         if (user.accounts.length === 0 && user.latestPointsJson === "{}") {
             user.lastUpdate = new Date();
@@ -72,14 +73,14 @@ export default class Updater {
             user.lastUpdate = new Date();
             await user.save();
 
-            //const tier = user.optedOutOfTierRoles ? undefined : await this.getUserTier(user);
+            const tier = user.optedOutOfTierRoles || !updateRanked ? undefined : await this.getUserTier(user);
 
             // Update the user on all servers we share.
             await Promise.all(this.discord.bot.guilds.filter(x => x.members.has(user.snowflake)).map(guild => {
                 return Promise.all([
                     this.updateUserOnGuild(user, guild, oldTotals, newTotals),
                     this.updateRegionRolesOnGuild(user, guild),
-                    //this.updateTierRolesOnGuild(user, guild, tier)
+                    updateRanked ? this.updateTierRolesOnGuild(user, guild, tier) : Promise.resolve()
                 ]);
             }));
         } catch (e) {
@@ -152,13 +153,37 @@ export default class Updater {
         const newRoles = this.computeApplicableRoles(server, newTotals);
 
         // Debug any missing roles.
-        server.roles.filter(x => !guild.roles.has(x.snowflake)).forEach(role => this.log("Warning: Guild " + guild.name + " (config code " + server.configCode + ") is missing role " + role.name));
+        for (const role of server.roles.filter(x => !guild.roles.has(x.snowflake))) {
+            try {
+                this.roleErrorLog("Warning: Guild " + guild.name + " (config code " + server.configCode + ") is missing role " + role.name);
+
+                const similarName = guild.roles.find(x => x.name === role.name);
+                if (similarName) {
+                    this.roleErrorLog("Recovered: Reassigned role " + role.name + " in " + guild.name);
+                    role.snowflake = similarName.id;
+                    await role.save();
+                } else {
+                    /*this.log("Trying to recreate role " + role.name);
+                    const newRole = await this.discord.bot.createRole(guild.id, {
+                        name: role.name
+                    });
+                    if (newRole) {
+                        role.snowflake = newRole.id;
+                        await role.save();
+                        this.log("Role " + role.name + " recreated.");
+                    }*/
+                }
+            } catch (e) {
+                this.roleErrorLog("ERROR: Was unable to recreate role " + role.name + " in server " + guild.name);
+            }
+        }
 
         // Remove all existing roles managed by Orianna, except the ones included in newRoles.
         await Promise.all(
             server.roles
                 .filter(x => member.roles.indexOf(x.snowflake) !== -1) // Now contains all roles managed by Orianna that the user has.
                 .filter(x => newRoles.map(x => x.snowflake).indexOf(x.snowflake) === -1) // Now contains every role managed by Orianna not listed in newRoles.
+                .filter(x => guild.roles.has(x.snowflake)) // Now only contains roles that exist on the server
                 .map(r => this.discord.bot.removeGuildMemberRole(server.snowflake, user.snowflake, r.snowflake))
         );
 
@@ -176,6 +201,7 @@ export default class Updater {
         await Promise.all(
             newRoles
                 .filter(x => member.roles.indexOf(x.snowflake) === -1) // contains all roles that the user should have, but doesn't
+                .filter(x => guild.roles.has(x.snowflake)) // Now only contains roles that exist on the server
                 .map(x => this.discord.bot.addGuildMemberRole(server.snowflake, user.snowflake, x.snowflake))
         );
     }
@@ -185,15 +211,16 @@ export default class Updater {
      */
     private computeApplicableRoles(server: DiscordServer, points: UserPoints): Role[] {
         const val = points[server.championId] || 0;
+        const total = Object.keys(points).reduce((p, c) => p + points[+c]!, 0);
         const rolesWithRanges = server.roles.map(role => ({ role, range: parseRange(role.range) }));
         const champIdsSorted = Object.keys(points).sort((a, b) => (points[+b] || 0) - (points[+a] || 0)).map(x => +x); // champion ids sorted by points, for Top XX
 
         // Find all roles within the range.
         return rolesWithRanges.filter(r => {
-            if (r.range.type === "lt") return val < r.range.value;
-            if (r.range.type === "gt") return val > r.range.value;
+            if (r.range.type === "lt") return r.range.total ? total < r.range.value : val < r.range.value;
+            if (r.range.type === "gt") return r.range.total ? total > r.range.value : val > r.range.value;
             if (r.range.type === "top") return champIdsSorted.slice(0, r.range.value).indexOf(server.championId) !== -1;
-            return val >= r.range.minimum && val < r.range.maximum;
+            return r.range.total ? (total >= r.range.minimum && total < r.range.maximum) : (val >= r.range.minimum && val < r.range.maximum);
         }).map(x => x.role);
     }
 
