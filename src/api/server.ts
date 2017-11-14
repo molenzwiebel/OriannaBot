@@ -7,7 +7,7 @@ import { Configuration } from "../index";
 import { serverGet, serverPost, serverPut } from "./endpoints/server";
 import { userDelete, userGet, userPut, userSettingsPut } from "./endpoints/user";
 import { getStatChampions, getStats } from "./endpoints/stats"
-import { runePageVerify, summonerLookup } from "./endpoints/riot";
+import { summonerIconVerify, summonerLookup } from "./endpoints/riot";
 import { redditCallback, redditPoll } from "./endpoints/reddit";
 import RiotAPI from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -39,7 +39,7 @@ export default class APIWebServer {
 
         // Riot API endpoints.
         this.app.get("/api/lookup/:region/:name", this.wrapHandler(summonerLookup));
-        this.app.get("/api/verify/:region/:id/:expected", this.wrapHandler(runePageVerify));
+        this.app.get("/api/verify/:region/:id/:expected", this.wrapHandler(summonerIconVerify));
 
         // Reddit import endpoints.
         this.app.get("/api/reddit_poll/:code", this.wrapHandler(redditPoll));

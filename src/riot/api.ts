@@ -48,18 +48,6 @@ export default class RiotAPI {
     }
 
     /**
-     * @returns the rune pages for the specified summoner id
-     */
-    async getSummonerRunes(region: string, summonerId: number): Promise<riot.RunePages> {
-        region = region.toLowerCase();
-        await this.rateLimit();
-
-        return JSON.parse(await request.get({
-            url: `https://${platform(region)}.api.riotgames.com/lol/platform/v3/runes/by-summoner/${summonerId}?api_key=${this.apiKey}`
-        }));
-    }
-
-    /**
      * @returns the champion mastery for the specified summoner id
      */
     async getChampionMastery(region: string, summonerId: number): Promise<riot.ChampionMasteryInfo[]> {

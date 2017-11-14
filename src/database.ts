@@ -29,7 +29,7 @@ export abstract class User extends Basie {
     @field
     optedOutOfTierRoles: boolean;
 
-    async addAccount(region: string, data: riot.Summoner) {
+    async addAccount(region: string, data: { name: string, id: number, accountId: number }) {
         // Do not allow the same account to be added multiple times.
         if (this.accounts.find(x => x.region === region && x.summonerId === data.id)) return;
 

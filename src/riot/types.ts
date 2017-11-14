@@ -4,12 +4,7 @@ namespace riot {
         name: string;
         id: number;
         accountId: number;
-    }
-
-    export interface RunePages {
-        pages: {
-            name: string;
-        }[];
+        profileIconId: number;
     }
 
     export interface ChampionMasteryInfo {

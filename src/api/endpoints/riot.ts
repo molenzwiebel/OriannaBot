@@ -8,7 +8,7 @@ export async function summonerLookup(this: APIWebServer, req: express.Request, r
 }
 
 // GET '/api/verify/:region/:id/:expected'
-export async function runePageVerify(this: APIWebServer, req: express.Request, res: express.Response) {
-    const data = await this.riot.getSummonerRunes(req.params.region, req.params.id);
-    res.send(data.pages.some(x => x.name === req.params.expected));
+export async function summonerIconVerify(this: APIWebServer, req: express.Request, res: express.Response) {
+    const data = await this.riot.getSummonerById(req.params.region, req.params.id);
+    res.send(data && data.profileIconId === +req.params.expected);
 }
