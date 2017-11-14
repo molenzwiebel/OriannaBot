@@ -31,7 +31,7 @@ export default class Updater {
      * user and Orianna share. This method is public since it can also be
      * invoked manually by users (via commands).
      */
-    async updateUser(user: User, updateRanked = false) {
+    async updateUser(user: User, updateRanks = false) {
         // If the user has no accounts, and had none before, we can safely skip updating them.
         if (user.accounts.length === 0 && user.latestPointsJson === "{}") {
             user.lastUpdate = new Date();
@@ -73,14 +73,14 @@ export default class Updater {
             user.lastUpdate = new Date();
             await user.save();
 
-            const tier = user.optedOutOfTierRoles || !updateRanked ? undefined : await this.getUserTier(user);
+            const tier = user.optedOutOfTierRoles || !updateRanks ? undefined : await this.getUserTier(user);
 
             // Update the user on all servers we share.
             await Promise.all(this.discord.bot.guilds.filter(x => x.members.has(user.snowflake)).map(guild => {
                 return Promise.all([
                     this.updateUserOnGuild(user, guild, oldTotals, newTotals),
                     this.updateRegionRolesOnGuild(user, guild),
-                    updateRanked ? this.updateTierRolesOnGuild(user, guild, tier) : Promise.resolve()
+                    updateRanks ? this.updateTierRolesOnGuild(user, guild, tier) : Promise.resolve()
                 ]);
             }));
         } catch (e) {
@@ -163,6 +163,7 @@ export default class Updater {
                     role.snowflake = similarName.id;
                     await role.save();
                 } else {
+                    // We cannot do this here, the async might cause this to create multiple roles.
                     /*this.log("Trying to recreate role " + role.name);
                     const newRole = await this.discord.bot.createRole(guild.id, {
                         name: role.name
