@@ -1,49 +1,35 @@
-import { RateLimiter } from "limiter";
-import request = require("request-promise");
+import Teemo = require("teemojs");
 
 /**
  * A simple incomplete interface for the Riot Games API.
  * This only contains methods used in Orianna, and supports all platforms and rate limiting.
  */
 export default class RiotAPI {
-    // Rate limits for production key.
-    private perTenSec = new RateLimiter(3000, 1000 * 10);
-    private perTenMin = new RateLimiter(180000, 1000 * 10 * 60);
-    private readonly apiKey: string;
+    private readonly teemo: teemo.Teemo;
 
     constructor(key: string) {
-        this.apiKey = key;
+        this.teemo = Teemo(key);
     }
 
     /**
      * @returns information about the specified summoner, or undefined if they do not exist.
      */
-    async getSummonerByName(region: string, name: string): Promise<riot.Summoner | undefined> {
-        region = region.toLowerCase();
-        await this.rateLimit();
-
+    async getSummonerByName(region: string, name: string): Promise<riot.Summoner | null> {
         try {
-            return JSON.parse(await request.get({
-                url: `https://${platform(region)}.api.riotgames.com/lol/summoner/v3/summoners/by-name/${encodeURIComponent(name)}?api_key=${this.apiKey}`
-            }));
+            return await this.teemo.get(platform(region.toLowerCase()), "summoner.getBySummonerName", encodeURIComponent(name));
         } catch (e) {
-            return;
+            return null;
         }
     }
 
     /**
      * @returns information about the specified summoner, or undefined if they do not exist.
      */
-    async getSummonerById(region: string, summonerId: number): Promise<riot.Summoner | undefined> {
-        region = region.toLowerCase();
-        await this.rateLimit();
-
+    async getSummonerById(region: string, summonerId: number): Promise<riot.Summoner | null> {
         try {
-            return JSON.parse(await request.get({
-                url: `https://${platform(region)}.api.riotgames.com/lol/summoner/v3/summoners/${summonerId}?api_key=${this.apiKey}`
-            }));
+            return await this.teemo.get(platform(region.toLowerCase()), "summoner.getBySummonerId", "" + summonerId);
         } catch (e) {
-            return;
+            return null;
         }
     }
 
@@ -51,50 +37,29 @@ export default class RiotAPI {
      * @returns the champion mastery for the specified summoner id
      */
     async getChampionMastery(region: string, summonerId: number): Promise<riot.ChampionMasteryInfo[]> {
-        region = region.toLowerCase();
-        await this.rateLimit();
-
-        return JSON.parse(await request.get({
-            url: `https://${platform(region)}.api.riotgames.com/lol/champion-mastery/v3/champion-masteries/by-summoner/${summonerId}?api_key=${this.apiKey}`
-        }));
-    }
-
-    /**
-     * @returns static champion data, in an { id: data } format.
-     */
-    async getStaticChampionData(region: string): Promise<{ data: riot.ChampionData, version: string }> {
-        region = region.toLowerCase();
-
-        return JSON.parse(await request.get({
-            url: `https://${platform(region)}.api.riotgames.com/lol/static-data/v3/champions?dataById=true&api_key=${this.apiKey}`
-        }));
-    }
-
-    /**
-     * @returns all the leagues for the specified user, or an empty array if they aren't placed currently
-     */
-    async getLeagues(region: string, summonerId: number): Promise<riot.LeagueEntry[]> {
-        region = region.toLowerCase();
-        await this.rateLimit();
-
         try {
-            return JSON.parse(await request.get({
-                url: `https://${platform(region)}.api.riotgames.com/lol/league/v3/leagues/by-summoner/${summonerId}?api_key=${this.apiKey}`
-            })) || [];
+            return await this.teemo.get(platform(region.toLowerCase()), "championMastery.getChampionMastery", "" + summonerId);
         } catch (e) {
             return [];
         }
     }
 
     /**
-     * @returns a promise that resolves when a request can be made.
+     * @returns static champion data, in an { id: data } format.
      */
-    private async rateLimit(): Promise<void> {
-        return new Promise<void>(resolve => {
-            this.perTenSec.removeTokens(1, () => {
-                this.perTenMin.removeTokens(1, () => resolve());
-            });
-        });
+    async getStaticChampionData(region: string): Promise<{ data: riot.ChampionData, version: string }> {
+        return this.teemo.get(platform(region.toLowerCase()), "lolStaticData.getChampionList");
+    }
+
+    /**
+     * @returns all the leagues for the specified user, or an empty array if they aren't placed currently
+     */
+    async getLeagues(region: string, summonerId: number): Promise<riot.LeagueEntry[]> {
+        try {
+            return await this.teemo.get(platform(region.toLowerCase()), "league.getAllLeaguePositionsForSummoner", "" + summonerId);
+        } catch (e) {
+            return [];
+        }
     }
 }
 
