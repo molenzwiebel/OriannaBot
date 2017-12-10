@@ -115,7 +115,7 @@ export default class DiscordClient {
                     url: `${this.config.baseUrl}/#/player/${code}`,
                     color: 0x49bd1a,
                     description:
-                    messageFirstLine + " If you register your League accounts with me, I will make sure that you receive appropriate roles in any Discord server that I am in. Since this is your first time using Orianna, you will need to add one or more League accounts. This is not required, but I will be able to assign you roles unless you add some :slight_smile:."
+                    messageFirstLine + " If you register your League accounts with me, I will make sure that you receive appropriate roles in any Discord server that I am in. Since this is your first time using Orianna, you will need to add one or more League accounts. This is not required, but I will not be able to assign you roles unless you add some :slight_smile:."
                     + "\nYour accounts are globally stored. Should you ever join another server where I'm active, I will automagically give you the appropriate roles."
                     + `\n\n:wrench: To add or edit the League accounts associated with you, visit this link: ${this.config.baseUrl}/#/player/${code}.`
                     + `\n:warning: **Anyone with this link can configure your accounts!** Do not share it unless you completely trust the receiver!`
