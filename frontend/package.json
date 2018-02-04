@@ -1,0 +1,28 @@
+{
+  "name": "orianna-bot-frontend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "repository": "https://github.com/molenzwiebel/oriannabot.git",
+  "author": "Thijs Molendijk (molenzwiebel)",
+  "license": "MIT",
+  "scripts": {
+    "watch": "webpack-dev-server --host 0.0.0.0",
+    "bundle": "webpack --progress --colors --env=prod --optimize-minimize -p"
+  },
+  "dependencies": {
+    "css-loader": "^0.28.9",
+    "file-loader": "^1.1.6",
+    "style-loader": "^0.20.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "ts-loader": "^3.4.0",
+    "typescript": "^2.7.1",
+    "vue": "^2.5.13",
+    "vue-class-component": "^6.1.2",
+    "vue-loader": "^14.1.1",
+    "vue-property-decorator": "^6.0.0",
+    "vue-template-compiler": "^2.5.13",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
+  }
+}
