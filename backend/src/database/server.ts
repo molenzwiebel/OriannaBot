@@ -2,9 +2,8 @@ import { Model } from "objection";
 import * as decorators from "../util/objection";
 import Role from "./role";
 
-@decorators.hasMany("blacklisted_channels", () => BlacklistedChannel, "id", "server_id")
 @decorators.hasMany("roles", () => Role, "id", "server_id")
-@decorators.table("users")
+@decorators.table("servers")
 export default class Server extends Model {
     /**
      * Unique incremented ID for this server.
@@ -33,7 +32,7 @@ export default class Server extends Model {
      * The snowflake for the announcement channel for any role announcements.
      * Null if the feature is disabled.
      */
-    token: string | null;
+    announcement_channel: string | null;
 
     /**
      * The default champion to be used for commands executed in this server.
@@ -59,3 +58,5 @@ export class BlacklistedChannel extends Model {
      */
     snowflake: string;
 }
+
+decorators.hasMany("blacklisted_channels", () => BlacklistedChannel, "id", "server_id")(Server)

@@ -1,7 +1,6 @@
 import { Model } from "objection";
 import * as decorators from "../util/objection";
 
-@decorators.hasMany("conditions", () => RoleCondition, "id", "role_id")
 @decorators.table("roles")
 export default class Role extends Model {
     /**
@@ -49,3 +48,5 @@ export class RoleCondition extends Model {
      */
     metadata: any;
 }
+
+decorators.hasMany("conditions", () => RoleCondition, "id", "role_id")(RoleCondition)
