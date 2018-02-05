@@ -38,4 +38,41 @@ export default class User extends Model {
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
     accounts?: Partial<LeagueAccount>[];
+
+    /**
+     * Optionally eager-loaded stats, null if not specified in the query.
+     */
+    stats?: Partial<UserChampionStat>[];
 }
+
+@decorators.table("user_champion_stats")
+export class UserChampionStat extends Model {
+    /**
+     * Unique incremented ID for this stat.
+     */
+    readonly id: number;
+
+    /**
+     * The champion for this statistic entry.
+     */
+    champion_id: number;
+
+    /**
+     * The highest level the user has on this champion
+     * across all linked accounts.
+     */
+    level: number;
+
+    /**
+     * The total amount of points the user has on this champion.
+     */
+    points: number;
+
+    /**
+     * The total amount of ranked games this user has in the
+     * current ranked season.
+     */
+    games_played: number;
+}
+
+decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);
