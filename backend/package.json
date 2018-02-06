@@ -16,6 +16,7 @@
     "debug": "^3.1.0",
     "eris": "^0.8.4",
     "express": "^4.16.2",
+    "git-last-commit": "^0.3.0",
     "knex": "^0.14.2",
     "node-fetch": "^2.0.0",
     "objection": "^0.9.4",

@@ -29,6 +29,12 @@ export interface Command {
     keywords: string[];
 
     /**
+     * If this command should be hidden from the help index. True to hide,
+     * false or undefined to show it normally.
+     */
+    hideFromHelp?: boolean;
+
+    /**
      * Async method that is invoked when this command is invoked by a user.
      * This receives a CommandContext that it can use to communicate.
      */
@@ -64,6 +70,11 @@ export interface ResponseContext {
 }
 
 export interface CommandContext extends ResponseContext {
+    /**
+     * A reference to the current context, used to make destructuring easier.
+     */
+    ctx: CommandContext;
+
     /**
      * The global discordclient instance.
      */

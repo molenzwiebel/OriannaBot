@@ -3,11 +3,15 @@ import debug = require("debug");
 import config from "../config";
 import randomstring = require("randomstring");
 import { Command, ResponseContext } from "./command";
-import Response from "./response";
+import Response, { ResponseOptions } from "./response";
 import { Server, User, BlacklistedChannel } from "../database";
+import { EmbedOptions } from "eris";
 
 const info = debug("orianna:discord");
+const error = debug("orianna:discord:error");
+
 const HELP_REACTION = "❓";
+const HELP_INDEX_REACTION = "🔖";
 const MUTE_REACTION = "🔇";
 
 export default class DiscordClient {
@@ -34,6 +38,7 @@ export default class DiscordClient {
 
         this.bot.on("messageCreate", this.handleMessage);
         this.bot.on("messageReactionAdd", this.handleReaction);
+        this.bot.on("messageDelete", this.handleDelete);
     }
 
     /**
@@ -77,6 +82,41 @@ export default class DiscordClient {
     }
 
     /**
+     * Displays an interactive list of all commands in the specified channel.
+     */
+    public async displayHelp(channel: eris.Textable, user: eris.User, trigger: eris.Message) {
+        const commands = this.commands.filter(x => !x.hideFromHelp);
+        const index: ResponseOptions = {
+            color: 0x0a96de,
+            title: ":bookmark: Orianna Help",
+            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click :bookmark: to show this index.",
+            fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: x.smallDescription }))
+        };
+
+        const resp = await this.createResponse(channel, user, trigger).respond(index);
+        await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
+
+        for (const cmd of commands) {
+            await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
+                resp.info({
+                    title: ":bookmark: Help for " + cmd.name,
+                    fields: [{
+                        name: "Description",
+                        value: cmd.description
+                    }, {
+                        name: "Keywords",
+                        value: cmd.keywords.map(x => "`" + x + "`").join(", ")
+                    }]
+                });
+            });
+        }
+
+        await resp.option("🗑", () => {
+            resp.remove();
+        });
+    }
+
+    /**
      * Called by eris when a new message is received. Responsible for dispatching the message
      * to the user.
      */
@@ -99,8 +139,6 @@ export default class DiscordClient {
             .replace(new RegExp(`<@!?${this.bot.user.id}>`, "g"), "")
             .replace(/\s+/g, " ").trim();
         const words = content.toLowerCase().split(" ");
-
-        console.log(content);
 
         // Find a command that is matched.
         const matchedCommand = this.commands.find(command => {
@@ -146,26 +184,44 @@ export default class DiscordClient {
             msg,
             content,
             user: () => this.findOrCreateUser(msg.author.id),
+            ctx: <any>null
         };
-        if (isDM) {
-            matchedCommand.handler({
-                ...template,
-                guildChannel: <any>null,
-                privateChannel: <eris.PrivateChannel>msg.channel,
-                guild: <any>null,
-                server: () => Promise.reject("Message was not sent in a server.")
-            });
-        } else {
-            matchedCommand.handler({
-                ...template,
-                guildChannel: <eris.TextChannel>msg.channel,
-                privateChannel: <any>null,
-                guild: (<eris.TextChannel>msg.channel).guild,
-                server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
+        template.ctx = template;
+
+        const commandPromise = isDM ? matchedCommand.handler({
+            ...template,
+            guildChannel: <any>null,
+            privateChannel: <eris.PrivateChannel>msg.channel,
+            guild: <any>null,
+            server: () => Promise.reject("Message was not sent in a server.")
+        }) : matchedCommand.handler({
+            ...template,
+            guildChannel: <eris.TextChannel>msg.channel,
+            privateChannel: <any>null,
+            guild: (<eris.TextChannel>msg.channel).guild,
+            server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
+        });
+
+        try {
+            await commandPromise;
+        } catch (e) {
+            // Send a message to the user and log the error.
+            error("Error during execution of '%s' by '%s' in '%s': %s'", matchedCommand.name, msg.author.id, msg.channel.id, e.message);
+            error(e.stack);
+            error("%O", e);
+
+            await template.error({
+                title: "💥 Ouch!",
+                description: "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`).",
+                image: "https://i.imgur.com/SBpi54R.png"
             });
         }
     };
 
+    /**
+     * Handles a new reaction added to a message by a user. Responsible
+     * for dispatching to responses and for handling mute/help reacts.
+     */
     private handleReaction = async (msg: eris.Message, emoji: eris.Emoji, userID: string) => {
         msg = await this.bot.getMessage(msg.channel.id, msg.id);
         this.responses.forEach(x => x.onReactionAdd(msg, emoji, userID));
@@ -180,10 +236,16 @@ export default class DiscordClient {
 
                 this.handleMessage(msg, true);
             } else {
-                // TODO(molenzwiebel): Help
-                console.log("Question Mark clicked");
+                this.displayHelp(msg.channel, msg.author, msg);
             }
         }
+    };
+
+    /**
+     * Handles the deletion of a message. Simply delegates it to all responses.
+     */
+    private handleDelete = async (msg: eris.PossiblyUncachedMessage) => {
+        this.responses.forEach(x => x.onMessageDelete(msg));
     };
 
     /**

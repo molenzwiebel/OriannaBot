@@ -2,7 +2,6 @@ import { Model } from "objection";
 import Knex = require("knex");
 
 Model.knex(Knex({
-    debug: true,
     client: "sqlite3",
     connection: {
         filename: "./dev.sqlite3"
