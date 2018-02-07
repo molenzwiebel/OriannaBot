@@ -1,10 +1,9 @@
 import { Command } from "../command";
-import { join } from "path";
 import { getLastCommit, Commit } from "git-last-commit";
 
 const AboutCommand: Command = {
     name: "About",
-    keywords: ["about", "info", "author", "creator", "source", "github"],
+    keywords: ["about", "info", "author", "creator", "source", "github", "code"],
     smallDescription: "",
     description: "",
     hideFromHelp: true,

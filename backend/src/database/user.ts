@@ -43,6 +43,11 @@ export default class User extends Model {
      * Optionally eager-loaded stats, null if not specified in the query.
      */
     stats?: Partial<UserChampionStat>[];
+
+    /**
+     * Optionally eager-loaded ranks, null if not specified in the query.
+     */
+    ranks?: Partial<UserRank>[];
 }
 
 @decorators.table("user_champion_stats")
@@ -75,4 +80,24 @@ export class UserChampionStat extends Model {
     games_played: number;
 }
 
+@decorators.table("user_ranks")
+export class UserRank extends Model {
+    /**
+     * Unique incremented ID for this rank entry.
+     */
+    readonly id: number;
+
+    /**
+     * The queue for this rank
+     */
+    queue: string;
+
+    /**
+     * The tier for this rank.
+     */
+    tier: string;
+}
+
+
 decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);
+decorators.hasMany("ranks", () => UserRank, "id", "user_id")(User);
