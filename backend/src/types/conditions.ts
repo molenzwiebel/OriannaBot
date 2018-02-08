@@ -19,27 +19,26 @@ export function evaluateRangeCondition(cnd: RangeCondition<{}>, value: number): 
 
 export interface MasteryLevelCondition {
     type: "mastery_level";
-    metadata: {
-        level: number;
-        champion: number;
-    };
+    options: RangeCondition<{
+        champion: number
+    }>;
 }
 
 export interface MasteryScoreCondition {
     type: "mastery_score";
-    metadata: RangeCondition<{
+    options: RangeCondition<{
         champion: number
     }>;
 }
 
 export interface TotalMasteryScoreCondition {
     type: "total_mastery_score";
-    metadata: RangeCondition<{}>;
+    options: RangeCondition<{}>;
 }
 
 export interface RankedTierCondition {
     type: "ranked_tier";
-    metadata: {
+    options: {
         compare_type: "higher" | "lower" | "equal";
         tier: number;
         queue: string;
@@ -48,7 +47,7 @@ export interface RankedTierCondition {
 
 export interface ChampionPlayCountCondition {
     type: "champion_play_count";
-    metadata: {
+    options: {
         count: number;
         champion: number;
     };
@@ -56,7 +55,7 @@ export interface ChampionPlayCountCondition {
 
 export interface ServerCondition {
     type: "server";
-    metadata: {
+    options: {
         region: string;
     };
 }

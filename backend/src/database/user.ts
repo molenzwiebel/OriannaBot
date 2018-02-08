@@ -37,17 +37,17 @@ export default class User extends Model {
     /**
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
-    accounts?: Partial<LeagueAccount>[];
+    accounts?: LeagueAccount[];
 
     /**
      * Optionally eager-loaded stats, null if not specified in the query.
      */
-    stats?: Partial<UserChampionStat>[];
+    stats?: UserChampionStat[];
 
     /**
      * Optionally eager-loaded ranks, null if not specified in the query.
      */
-    ranks?: Partial<UserRank>[];
+    ranks?: UserRank[];
 }
 
 @decorators.table("user_champion_stats")
