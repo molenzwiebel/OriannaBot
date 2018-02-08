@@ -2,6 +2,7 @@ import { Model } from "objection";
 import * as decorators from "../util/objection";
 import { evaluateRangeCondition, TypedRoleCondition } from "../types/conditions";
 import User from "./user";
+import config from "../config";
 
 @decorators.table("roles")
 export default class Role extends Model {
@@ -40,8 +41,6 @@ export default class Role extends Model {
         return !this.conditions.some(x => !x.test(user));
     }
 }
-
-const TIERS = ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHALLENGER"];
 
 @decorators.table("role_conditions")
 export class RoleCondition extends Model {
@@ -91,7 +90,7 @@ export class RoleCondition extends Model {
             // If the user is unranked in the queue, only match if they had a condition set to `EQUAL UNRANKED` (e.g. don't include unranked in lt and gt).
             const tier = user.ranks.find(x => x.queue === condition.options.queue);
             if (!tier) return condition.options.compare_type === "equal" && condition.options.tier === 0;
-            const numeric = TIERS.indexOf(tier.tier);
+            const numeric = config.riot.tiers.indexOf(tier.tier);
             return condition.options.compare_type === "lower" ? condition.options.tier > numeric : condition.options.tier < numeric;
         } else if (condition.type === "champion_play_count") {
             return user.stats.some(x =>

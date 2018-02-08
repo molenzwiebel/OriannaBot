@@ -2,6 +2,7 @@
 interface Configuration {
     riot: {
         apiKey: string;
+        tiers: string[];
     };
     discord: {
         owner: string;
@@ -14,16 +15,3 @@ interface Configuration {
 
 const config: Configuration = require("../config.json");
 export default config;
-
-/*riotApiKey: string;
-
-    ownerSnowflake: string;
-    discordToken: string;
-
-    redditClientId: string;
-    redditClientSecret: string;
-    redditRedirectUrl: string;
-
-    baseUrl: string;
-    updateInterval: number;
-    updateAmount: number;*/

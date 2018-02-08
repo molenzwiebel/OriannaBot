@@ -77,7 +77,29 @@ export default class Updater {
      * updating the User instance. This will not recalculate roles.
      */
     private async fetchRanked(user: User) {
-        if (!user.ranks) user.ranks = await user.$relatedQuery<UserRank>("ranks");
+        if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+
+        // Figure out the highest rank in every queue for all the accounts combined.
+        const tiers = new Map<string, number>();
+        for (const account of user.accounts) {
+            const results = await this.riotAPI.getLeaguePositions(account.region, account.summoner_id);
+            for (const result of results) {
+                const old = tiers.get(result.queueType) || 0;
+                const val = config.riot.tiers.indexOf(result.tier);
+                tiers.set(result.queueType, old > val ? old : val);
+            }
+        }
+
+        // Nuke all old entries (since there might be a queue where we are no longer ranked),
+        // then append the new values.
+        await user.$relatedQuery<UserRank>("ranks").delete();
+        user.ranks = [];
+        for (const [queue, tier] of tiers) {
+            await user.$relatedQuery<UserRank>("ranks").insert({
+                queue,
+                tier: config.riot.tiers[tier]
+            });
+        }
 
         // TODO(molenzwiebel): Figure out a good way to pull amount of games played efficiently.
     }

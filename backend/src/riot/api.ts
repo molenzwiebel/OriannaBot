@@ -43,6 +43,17 @@ export default class RiotAPI {
             return [];
         }
     }
+
+    /**
+     * @returns all the league positions for the specified summoner id
+     */
+    async getLeaguePositions(region: string, summonerId: number): Promise<riot.LeagueEntry[]> {
+        try {
+            return await this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", "" + summonerId);
+        } catch (e) {
+            return [];
+        }
+    }
 }
 
 /**

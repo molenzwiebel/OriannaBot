@@ -21,6 +21,7 @@ namespace riot {
     }
 
     export interface LeagueEntry {
+        queueType: string;
         tier: string;
     }
 }
