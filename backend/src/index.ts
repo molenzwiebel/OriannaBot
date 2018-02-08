@@ -3,7 +3,8 @@ import DiscordClient from "./discord/client";
 
 import HelpCommand from "./discord/commands/help";
 import AboutCommand from "./discord/commands/about";
-import { RoleCondition } from "./database/role";
+import Updater from "./discord/updater";
+import { User } from "./database";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -15,10 +16,10 @@ process.on("unhandledRejection", (err: Error) => {
 (async() => {
     info("Starting Orianna Bot...");
 
-    console.dir(await RoleCondition.query().first());
-
     const discord = new DiscordClient();
     await discord.connect();
+
+    const updater = new Updater(discord);
 
     discord.registerCommand(HelpCommand);
     discord.registerCommand(AboutCommand);

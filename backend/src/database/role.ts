@@ -46,6 +46,11 @@ const TIERS = ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHA
 @decorators.table("role_conditions")
 export class RoleCondition extends Model {
     /**
+     * Make sure that Objection parses these as JSON objects.
+     */
+    static jsonAttributes = ["options"];
+
+    /**
      * Unique incremented ID for this condition.
      */
     readonly id: number;
@@ -97,26 +102,6 @@ export class RoleCondition extends Model {
         } else {
             throw new Error("Invalid RoleCondition type.");
         }
-    }
-
-    /**
-     * Internal objection method that converts options from
-     * a json string to a normal internal representation.
-     */
-    $parseDatabaseJson(json: object) {
-        const parsed = super.$parseDatabaseJson(json);
-        parsed.options = JSON.parse(parsed.options);
-        return parsed;
-    }
-
-    /**
-     * Internal objection method that converts options from
-     * a normal object to a json string to be stored in the db.
-     */
-    $formatDatabaseJson(json: object) {
-        const formatted = super.$formatDatabaseJson(json);
-        formatted.options = JSON.stringify(formatted.options);
-        return formatted;
     }
 }
 

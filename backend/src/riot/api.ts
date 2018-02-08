@@ -12,6 +12,28 @@ export default class RiotAPI {
     }
 
     /**
+     * @returns the summoner for the specified name in the specified region, or null if not found
+     */
+    async getSummonerByName(region: string, name: string): Promise<riot.Summoner | null> {
+        try {
+            return await this.teemo.get(platform(region), "summoner.getBySummonerName", encodeURIComponent(name));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
+     * @returns the summoner for the specified summoner id in the specified region, or null if not found
+     */
+    async getSummonerById(region: string, summonerId: number): Promise<riot.Summoner | null> {
+        try {
+            return await this.teemo.get(platform(region), "summoner.getBySummonerId", "" + summonerId);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
      * @returns the champion mastery for the specified summoner id
      */
     async getChampionMastery(region: string, summonerId: number): Promise<riot.ChampionMasteryInfo[]> {

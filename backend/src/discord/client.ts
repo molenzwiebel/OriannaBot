@@ -82,6 +82,23 @@ export default class DiscordClient {
     }
 
     /**
+     * Sends the specified message to the user with the specified ID, unless
+     * we do not share a server with them (in which case we silently fail). This
+     * should be used to notify users of things that don't neccessarily need interaction.
+     */
+    public async notify(id: string, embed: ResponseOptions) {
+        try {
+            if (!this.bot.users.has(id)) return;
+
+            const user = this.bot.users.get(id)!;
+            const dm = await this.bot.getDMChannel(id);
+            await this.createResponse(dm, user).respond(embed);
+        } catch (e) {
+            // Do nothing.
+        }
+    }
+
+    /**
      * Displays an interactive list of all commands in the specified channel.
      */
     public async displayHelp(channel: eris.Textable, user: eris.User, trigger: eris.Message) {

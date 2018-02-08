@@ -2,7 +2,6 @@ import { Model } from "objection";
 import LeagueAccount from "./league_account";
 import * as decorators from "../util/objection";
 
-@decorators.hasMany("accounts", () => LeagueAccount, "id", "user_id")
 @decorators.table("users")
 export default class User extends Model {
     /**
@@ -98,6 +97,6 @@ export class UserRank extends Model {
     tier: string;
 }
 
-
+decorators.hasMany("accounts", () => LeagueAccount, "id", "user_id")(User);
 decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);
 decorators.hasMany("ranks", () => UserRank, "id", "user_id")(User);
