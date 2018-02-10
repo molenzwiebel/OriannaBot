@@ -52,7 +52,7 @@ export default class DiscordClient {
         const guild = this.bot.guilds.get(id);
         if (!guild) throw new Error("No common server shared with server " + id);
 
-        return Server.query().insert({
+        return Server.query().insertAndFetch({
             snowflake: guild.id,
             name: guild.name,
             avatar: guild.icon || "none",
@@ -71,7 +71,7 @@ export default class DiscordClient {
         const discordUser = this.bot.users.get(id);
         if (!discordUser) throw new Error("No common server shared with server " + id);
 
-        return User.query().insert({
+        return User.query().insertAndFetch({
             snowflake: discordUser.id,
             username: discordUser.username,
             avatar: discordUser.avatar || "none",
@@ -118,10 +118,8 @@ export default class DiscordClient {
             await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
                     title: ":bookmark: Help for " + cmd.name,
+                    description: "**Description**\n" + cmd.description,
                     fields: [{
-                        name: "Description",
-                        value: cmd.description
-                    }, {
                         name: "Keywords",
                         value: cmd.keywords.map(x => "`" + x + "`").join(", ")
                     }]
@@ -156,6 +154,7 @@ export default class DiscordClient {
         const content = msg.content
             .replace(new RegExp(`<@!?${this.bot.user.id}>`, "g"), "")
             .replace(/\s+/g, " ").trim();
+        msg.mentions = msg.mentions.filter(x => x.id !== this.bot.user.id);
         const words = content.toLowerCase().split(" ");
 
         // Find a command that is matched.

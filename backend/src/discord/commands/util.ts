@@ -1,6 +1,7 @@
 import { CommandContext } from "../command";
 import { Server, User } from "../../database";
 import StaticData from "../../riot/static-data";
+import * as eris from "eris";
 import config from "../../config";
 import { ResponseOptions } from "../response";
 
@@ -104,4 +105,19 @@ export async function paginate({ info }: CommandContext, elements: { name: strin
     }
 
     return res;
+}
+
+/**
+ * Finds the emote with the specified name in one of the specified emote servers. If the
+ * emote cannot be found, Missing_Champion is returned instead. Supplying a number or champion
+ * instance will look for the emote belonging to the icon of that champion instead.
+ */
+export function emote({ bot }: CommandContext, name: string | riot.Champion) {
+    if (typeof name !== "string") name = name.name.replace(/\W/g, "");
+
+    const servers = config.discord.emoteServers.map(x => bot.guilds.get(x)!);
+    const allEmotes = (<eris.Emoji[]>[]).concat(...servers.map(x => x.emojis));
+
+    const emote = allEmotes.find(x => x.name === name) || allEmotes.find(x => x.name === "Missing_Champion")!;
+    return "<:" + emote.name + ":" + (<any>emote).id + ">";
 }

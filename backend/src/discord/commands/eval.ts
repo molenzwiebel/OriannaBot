@@ -2,6 +2,7 @@ import { Command } from "../command";
 import config from "../../config";
 import * as db from "../../database";
 import * as util from "util";
+import StaticData from "../../riot/static-data";
 
 const EvalCommand: Command = {
     name: "Evaluate Expression",
@@ -31,10 +32,10 @@ const EvalCommand: Command = {
             // We have to use a bit of a hack to get an async function though.
             const eval_context = {
                 ...ctx,
-                ...db
+                ...db,
+                StaticData
             };
-            const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-            const fun = new AsyncFunction(...Object.keys(eval_context), exprBody);
+            const fun = new Function(...Object.keys(eval_context), "return (async() => {" + exprBody + "})()");
             const res = fun(...Object.values(eval_context));
 
             let inspectedBody = util.inspect(res, false, 2);

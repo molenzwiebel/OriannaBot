@@ -144,10 +144,10 @@ class StaticData {
      * Returns a URL for the icon for the specified champion or champion id.
      */
     public async getChampionIcon(champion: riot.Champion | number) {
-        if (typeof champion !== "number") champion = +champion.key;
+        if (typeof champion === "number") champion = await this.championById(champion);
 
         await this.maybeFetch();
-        return `https://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${champion}.png`;
+        return `https://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${champion.id}.png`;
     }
 
     /**

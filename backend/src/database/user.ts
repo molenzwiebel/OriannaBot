@@ -77,6 +77,11 @@ export class UserChampionStat extends Model {
      * current ranked season.
      */
     games_played: number;
+
+    /**
+     * The eager-loaded user this stat belongs to, if it was specified in the query.
+     */
+    user?: User;
 }
 
 @decorators.table("user_ranks")
@@ -96,6 +101,8 @@ export class UserRank extends Model {
      */
     tier: string;
 }
+
+decorators.belongsTo("user", () => User, "user_id", "id")(UserChampionStat);
 
 decorators.hasMany("accounts", () => LeagueAccount, "id", "user_id")(User);
 decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);

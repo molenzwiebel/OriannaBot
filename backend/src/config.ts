@@ -7,6 +7,7 @@ interface Configuration {
     discord: {
         owner: string;
         token: string;
+        emoteServers: string[];
     };
     web: {
         url: string;
