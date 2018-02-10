@@ -1,5 +1,6 @@
 import { CommandContext } from "../command";
 import { Server, User } from "../../database";
+import StaticData from "../../riot/static-data";
 import config from "../../config";
 
 /**
@@ -50,38 +51,23 @@ export async function expectModerator({ msg, error, guild }: CommandContext): Pr
     return false;
 }
 
-// TODO(molenzwiebel): Implement this helper.
-// /**
-//  * Tries to find a champion name in the specified message. If a champion cannot be found,
-//  * an attempt is made to use the configured champion in the current discord. Returns the champion
-//  * id on success, or 0 on failure. An error reply will automatically be dispatched.
-//  */
-// export async function expectChampion(this: MessageHandler, msg: eris.Message): Promise<number> {
-//     // Normalize champion names.
-//     const names = Object.keys(this.client.championData).map(k => ({ champ: this.client.championData[+k], name: this.client.championData[+k].name.toLowerCase().replace(/\W/g, "") }));
-//
-//     // Normalize content.
-//     const content = msg.content.toLowerCase().replace(/\W/g, "");
-//
-//     // If we have a direct match, return that.
-//     const match = names.find(c => content.indexOf(c.name) !== -1);
-//     if (match) return match.champ.id;
-//
-//     // Display a different error message if this was sent without a champion in DM.
-//     // We do this here (even though there's also a check in expectServer) since the
-//     // message sent in expectServer doesn't exactly show _why_ a server is needed.
-//     const server = msg.channel.guild ? await DiscordServerModel.findBy({ snowflake: msg.channel.guild.id }) : null;
-//     if (!server || !server.setupCompleted) {
-//         await this.error(msg, {
-//             title: ":question: Which champion?",
-//             description: "I couldn't figure out which champion you were talking about, and you aren't sending this in a server where my setup is completed. Try specifying a champion name or running this in a server where I am configured."
-//         });
-//         return 0;
-//     }
-//
-//     // Try to find a guild.
-//     const guild = await this.expectServer(msg);
-//     if (!guild) return 0;
-//
-//     return guild.championId;
-// }
+/**
+ * Attempts to find a champion in the specified command context. If no champion name is found,
+ * the server default is used, if the message was sent in a server with a default champion set.
+ * If none of those are matched, sends a message and returns undefined instead.
+ */
+export async function expectChampion({ content, guild, server, error }: CommandContext): Promise<riot.Champion | undefined> {
+    const match = await StaticData.findChampion(content);
+    if (match) return match;
+
+    if (guild) {
+        const serverDefault = (await server()).default_champion;
+        if (serverDefault) return await StaticData.championById(serverDefault);
+    }
+
+    await error({
+        title: "🔎 Which Champion?",
+        description: "I tried to look for a champion name in your message, but I was unable to find one. Either you had a typo somewhere or you forgot to specify the name of a champion."
+    });
+    // Implicitly return undefined.
+}

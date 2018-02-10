@@ -136,7 +136,7 @@ export default class Updater {
      * Responsible for pulling new mastery score data from Riot and
      * updating the User instance. This will not recalculate roles.
      */
-    async fetchMasteryScores(user: User) {
+    private async fetchMasteryScores(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
         logMastery("Updating mastery for user %s (%s)", user.username, user.snowflake);
 
@@ -172,7 +172,7 @@ export default class Updater {
      * Responsible for pulling new ranked tiers and play counts and
      * updating the User instance. This will not recalculate roles.
      */
-    async fetchRanked(user: User) {
+    private async fetchRanked(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
         logRanked("Updating ranked stats for user %s (%s)", user.username, user.snowflake);
 
@@ -205,7 +205,7 @@ export default class Updater {
      * Responsible for refreshing summoner instances to check if the
      * user renamed or transferred. This will not recalculate roles.
      */
-    async fetchAccounts(user: User) {
+    private async fetchAccounts(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
         logAccounts("Updating accounts for user %s (%s)", user.username, user.snowflake);
 

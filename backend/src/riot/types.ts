@@ -13,16 +13,15 @@ namespace riot {
         championLevel: number;
     }
 
-    export interface ChampionData {
-        [key: number]: {
-            id: number;
-            key: string;
-            name: string;
-        };
-    }
-
     export interface LeagueEntry {
         queueType: string;
         tier: string;
+    }
+
+    export interface Champion {
+        id: string;
+        key: string;
+        name: string;
+        title: string;
     }
 }

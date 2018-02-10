@@ -4,6 +4,7 @@ import DiscordClient from "./discord/client";
 import HelpCommand from "./discord/commands/help";
 import AboutCommand from "./discord/commands/about";
 import RefreshCommand from "./discord/commands/refresh";
+import { expectChampion } from "./discord/commands/util";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -26,10 +27,11 @@ process.on("unhandledRejection", (err: Error) => {
         name: "Test",
         smallDescription: "This is a small description",
         description: "This is a big description **using markdown**\n and newlines!",
-        keywords: ["test"],
-        async handler({ ok }) {
-            ok({ title: "Hi there." });
-            throw "Oh noe";
+        keywords: ["a"],
+        async handler({ ok, ctx }) {
+            const c = await expectChampion(ctx);
+            if (!c) return;
+            ok({ title: c.name });
         }
     });
 

@@ -7,7 +7,7 @@
         "outDir": "dist",
         "module": "commonjs",
         "target": "es6",
-        "lib": ["es7"]
+        "lib": ["es2017"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

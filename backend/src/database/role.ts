@@ -82,9 +82,9 @@ export class RoleCondition extends Model {
         } else if (condition.type === "mastery_score") {
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion
-                && evaluateRangeCondition(condition.options, x.points));
+                && evaluateRangeCondition(condition.options, x.score));
         } else if (condition.type === "total_mastery_score") {
-            const total = user.stats.reduce((p, c) => p + c.points, 0);
+            const total = user.stats.reduce((p, c) => p + c.score, 0);
             return evaluateRangeCondition(condition.options, total);
         } else if (condition.type === "ranked_tier") {
             // If the user is unranked in the queue, only match if they had a condition set to `EQUAL UNRANKED` (e.g. don't include unranked in lt and gt).
