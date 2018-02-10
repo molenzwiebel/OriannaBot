@@ -43,12 +43,12 @@ export default class Server extends Model {
     /**
      * Optionally eager-loaded blacklisted channels.
      */
-    blacklisted_channels?: Partial<BlacklistedChannel>[];
+    blacklisted_channels?: BlacklistedChannel[];
 
     /**
      * Optionally eager-loaded roles for this server.
      */
-    roles?: Partial<Role>[];
+    roles?: Role[];
 }
 
 @decorators.table("blacklisted_channels")

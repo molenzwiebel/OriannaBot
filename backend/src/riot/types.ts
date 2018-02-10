@@ -10,6 +10,7 @@ namespace riot {
     export interface ChampionMasteryInfo {
         championPoints: number;
         championId: number;
+        championLevel: number;
     }
 
     export interface ChampionData {

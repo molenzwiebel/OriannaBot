@@ -1,5 +1,6 @@
 import RiotAPI from "../riot/api";
-import { User, LeagueAccount, UserRank, UserChampionStat } from "../database";
+import * as eris from "eris";
+import { Server, User, LeagueAccount, UserRank, UserChampionStat } from "../database";
 import config from "../config";
 import DiscordClient from "./client";
 
@@ -60,7 +61,50 @@ export default class Updater {
      * or whenever the role configuration for a specific server is updated.
      */
     private async updateUser(user: User) {
+        return Promise.all(this.client.bot.guilds.filter(x => x.members.has(user.snowflake)).map(server => {
+            return this.updateUserOnGuild(user, server);
+        }));
+    }
 
+    /**
+     * Recalculates all the roles for the specified user in the specified
+     * Discord guild. Does nothing if the guild is not registered in the database.
+     */
+    private async updateUserOnGuild(user: User, guild: eris.Guild) {
+        const server = await Server
+            .query()
+            .where("snowflake", guild.id)
+            .eager("[roles, roles.conditions]")
+            .first();
+        if (!server) return;
+
+        const member = guild.members.get(user.snowflake);
+        if (!member) return;
+
+        // TODO(molenzwiebel): Make sure that all roles still exist, just in case.
+        // Do we nuke the role, try to remake it or notify the owner and do nothing?
+
+        // Compute all roles that this server may assign, then compute all roles that the user should have.
+        // Subtract those two sets to figure out which roles the user should and shouldn't have, then make
+        // sure that that corresponds with the roles the user currently has on the server.
+        const allRoles = new Set(server.roles!.map(x => x.snowflake));
+        const shouldHave = new Set(server.roles!.filter(x => x.test(user)).map(x => x.snowflake));
+        const userHas = new Set(member.roles);
+
+        for (const role of allRoles) {
+            // TODO(molenzwiebel): Make sure that assigning succeeds, notify the owner if we lack permissions.
+
+            // User has the role, but should not have it.
+            if (userHas.has(role) && !shouldHave.has(role)) guild.removeMemberRole(user.snowflake, role);
+
+            // User does not have the role, but should have it.
+            if (!userHas.has(role) && shouldHave.has(role)) {
+                guild.addMemberRole(user.snowflake, role);
+                if (server.roles!.find(x => x.snowflake === role)!.announce) {
+                    // TODO(molenzwiebel): Announce that the user gained this role.
+                }
+            }
+        }
     }
 
     /**
@@ -68,8 +112,34 @@ export default class Updater {
      * updating the User instance. This will not recalculate roles.
      */
     private async fetchMasteryScores(user: User) {
-        if (!user.stats) user.stats = await user.$relatedQuery<UserChampionStat>("stats");
+        if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
 
+        // Sum scores and max levels for all accounts.
+        const scores = new Map<number, { score: number, level: number }>();
+        for (const account of user.accounts) {
+            const masteries = await this.riotAPI.getChampionMastery(account.region, account.summoner_id);
+            for (const mastery of masteries) {
+                const old = scores.get(mastery.championId) || { score: 0, level: 0 };
+                scores.set(mastery.championId, {
+                    score: old.score + mastery.championPoints,
+                    level: old.level > mastery.championLevel ? old.level : mastery.championLevel
+                });
+            }
+        }
+
+        // Nuke all old entries (in case the user removed an account) and append the new values.
+        await user.$relatedQuery<UserChampionStat>("stats").delete();
+        user.stats = [];
+        for (const [champion, score] of scores) {
+            await user.$relatedQuery<UserChampionStat>("stats").insert({
+                champion_id: champion,
+                level: score.level,
+                points: score.score,
+                games_played: 0 // TODO(molenzwiebel): Pull this amount from the old entry before we nuke them.
+                                // This might leave a score incorrect for a bit if the user removed an account where they
+                                // had previously played games, but its a lot easier to structure like this.
+            });
+        }
     }
 
     /**

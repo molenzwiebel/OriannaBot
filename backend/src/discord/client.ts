@@ -15,7 +15,7 @@ const HELP_INDEX_REACTION = "🔖";
 const MUTE_REACTION = "🔇";
 
 export default class DiscordClient {
-    private bot = new eris.Client(config.discord.token);
+    public readonly bot = new eris.Client(config.discord.token);
     private commands: Command[] = [];
     private responses: Response[] = [];
 
