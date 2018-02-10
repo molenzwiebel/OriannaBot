@@ -191,7 +191,7 @@ export default class Response {
         if (this.trigger) {
             obj = {
                 color: options.color,
-                footer: { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + " | " : "") + this.user.username },
+                footer: { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + " • " : "") + this.user.username },
                 timestamp: new Date(options.timestamp || Date.now()).toISOString()
             };
         } else {

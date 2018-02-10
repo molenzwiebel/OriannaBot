@@ -2,6 +2,7 @@ import { CommandContext } from "../command";
 import { Server, User } from "../../database";
 import StaticData from "../../riot/static-data";
 import config from "../../config";
+import { ResponseOptions } from "../response";
 
 /**
  * Utility method that takes a command context and either gets the current server or
@@ -70,4 +71,37 @@ export async function expectChampion({ content, guild, server, error }: CommandC
         description: "I tried to look for a champion name in your message, but I was unable to find one. Either you had a typo somewhere or you forgot to specify the name of a champion."
     });
     // Implicitly return undefined.
+}
+
+/**
+ * Utility method to paginate a list of `field` values. The specified template will be applied for every page,
+ * with only the fields swapped for every list element.
+ */
+export async function paginate({ info }: CommandContext, elements: { name: string, value: string, inline?: boolean }[], template: ResponseOptions, perPage = 10) {
+    const pages = Math.ceil(elements.length / perPage);
+    let curPage = 0;
+
+    const res = await info({
+        ...template,
+        fields: elements.slice(0, perPage),
+        footer: "Page 1 of " + pages
+    });
+
+    const showPage = (offset: number) => {
+        if (curPage + offset < 0 || curPage + offset >= pages) return;
+        curPage += offset;
+
+        res.info({
+            ...template,
+            fields: elements.slice(curPage * perPage, (curPage + 1) * perPage),
+            footer: "Page " + (curPage + 1) + " of " + pages
+        });
+    };
+
+    if (pages !== 1) {
+        await res.globalOption("⬅", () => showPage(-1));
+        await res.globalOption("➡", () => showPage(+1));
+    }
+
+    return res;
 }
