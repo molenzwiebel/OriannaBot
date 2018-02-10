@@ -68,9 +68,9 @@ export class UserChampionStat extends Model {
     level: number;
 
     /**
-     * The total amount of points the user has on this champion.
+     * The total amount of points (the score) the user has on this champion.
      */
-    points: number;
+    score: number;
 
     /**
      * The total amount of ranked games this user has in the

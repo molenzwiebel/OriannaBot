@@ -5,7 +5,7 @@ import randomstring = require("randomstring");
 import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
 import { Server, User, BlacklistedChannel } from "../database";
-import { EmbedOptions } from "eris";
+import Updater from "./updater";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -16,6 +16,7 @@ const MUTE_REACTION = "🔇";
 
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token);
+    public readonly updater = new Updater(this);
     private commands: Command[] = [];
     private responses: Response[] = [];
 
@@ -227,6 +228,7 @@ export default class DiscordClient {
             error(e.stack);
             error("%O", e);
 
+            // TODO(molenzwiebel): maybe nuke all responses that the command already sent?
             await template.error({
                 title: "💥 Ouch!",
                 description: "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`).",

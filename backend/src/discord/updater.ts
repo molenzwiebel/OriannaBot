@@ -3,6 +3,13 @@ import * as eris from "eris";
 import { Server, User, LeagueAccount, UserRank, UserChampionStat } from "../database";
 import config from "../config";
 import DiscordClient from "./client";
+import debug = require("debug");
+
+const logUpdate = debug("orianna:updater:update");
+const logFetch = debug("orianna:updater:fetch");
+const logMastery = debug("orianna:updater:fetch:mastery");
+const logRanked = debug("orianna:updater:fetch:ranked");
+const logAccounts = debug("orianna:updater:fetch:accounts");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
@@ -41,16 +48,22 @@ export default class Updater {
             if (!dbUser) throw new Error("User " + user + " not found.");
             user = dbUser;
         }
+        logFetch("Fetching and updating all for %s (%s)", user.username, user.snowflake);
 
-        // Run the account update first since it may alter the results
-        // of the other fetch queries (if a user transferred).
-        await this.fetchAccounts(user);
-        await Promise.all([
-            this.fetchMasteryScores(user),
-            this.fetchRanked(user)
-        ]);
+        try {
+            // Run the account update first since it may alter the results
+            // of the other fetch queries (if a user transferred).
+            await this.fetchAccounts(user);
+            await Promise.all([
+                this.fetchMasteryScores(user),
+                this.fetchRanked(user)
+            ]);
 
-        await this.updateUser(user);
+            await this.updateUser(user);
+        } catch (e) {
+            logFetch("Error fetching or updating for user %s (%s): %s", user.username, user.snowflake, e.message);
+            logFetch("%O", e);
+        }
     }
 
     /**
@@ -61,9 +74,19 @@ export default class Updater {
      * or whenever the role configuration for a specific server is updated.
      */
     private async updateUser(user: User) {
-        return Promise.all(this.client.bot.guilds.filter(x => x.members.has(user.snowflake)).map(server => {
-            return this.updateUserOnGuild(user, server);
-        }));
+        logUpdate("Updating roles for user %s (%s)", user.username, user.snowflake);
+
+        try {
+          await Promise.all(this.client.bot.guilds.filter(x => x.members.has(user.snowflake)).map(server => {
+              return this.updateUserOnGuild(user, server);
+          }));
+        } catch (e) {
+            logUpdate("Failed to update roles for user %s (%s): %s", user.username, user.snowflake, e.message);
+            logUpdate("%O", e);
+
+            // Rethrow, something else will catch it.
+            throw e;
+        }
     }
 
     /**
@@ -74,12 +97,14 @@ export default class Updater {
         const server = await Server
             .query()
             .where("snowflake", guild.id)
-            .eager("[roles, roles.conditions]")
+            .eager("roles.conditions")
             .first();
         if (!server) return;
 
         const member = guild.members.get(user.snowflake);
         if (!member) return;
+
+        logUpdate("Updating roles for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
 
         // TODO(molenzwiebel): Make sure that all roles still exist, just in case.
         // Do we nuke the role, try to remake it or notify the owner and do nothing?
@@ -111,8 +136,9 @@ export default class Updater {
      * Responsible for pulling new mastery score data from Riot and
      * updating the User instance. This will not recalculate roles.
      */
-    private async fetchMasteryScores(user: User) {
+    async fetchMasteryScores(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+        logMastery("Updating mastery for user %s (%s)", user.username, user.snowflake);
 
         // Sum scores and max levels for all accounts.
         const scores = new Map<number, { score: number, level: number }>();
@@ -134,7 +160,7 @@ export default class Updater {
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,
                 level: score.level,
-                points: score.score,
+                score: score.score,
                 games_played: 0 // TODO(molenzwiebel): Pull this amount from the old entry before we nuke them.
                                 // This might leave a score incorrect for a bit if the user removed an account where they
                                 // had previously played games, but its a lot easier to structure like this.
@@ -146,8 +172,9 @@ export default class Updater {
      * Responsible for pulling new ranked tiers and play counts and
      * updating the User instance. This will not recalculate roles.
      */
-    private async fetchRanked(user: User) {
+    async fetchRanked(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+        logRanked("Updating ranked stats for user %s (%s)", user.username, user.snowflake);
 
         // Figure out the highest rank in every queue for all the accounts combined.
         const tiers = new Map<string, number>();
@@ -178,8 +205,9 @@ export default class Updater {
      * Responsible for refreshing summoner instances to check if the
      * user renamed or transferred. This will not recalculate roles.
      */
-    private async fetchAccounts(user: User) {
+    async fetchAccounts(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+        logAccounts("Updating accounts for user %s (%s)", user.username, user.snowflake);
 
         // For every account, check if the account still exists and still has the same name.
         // If the name is different, just silently update. Else, remove the account and message
@@ -189,6 +217,8 @@ export default class Updater {
             const summoner = await this.riotAPI.getSummonerById(account.region, account.summoner_id);
 
             if (!summoner) {
+                logAccounts("User %s (%s) seems to have transferred account %s - %s (%i)", user.username, user.snowflake, account.region, account.username, account.summoner_id);
+
                 // Delete the account.
                 await account.$query().delete();
                 user.accounts.slice(user.accounts.indexOf(account), 1);
@@ -200,6 +230,8 @@ export default class Updater {
                     description: "You registered your League account **" + account.username + "** (" + account.region + ") with me a while ago. While checking up on it today, it seems that the account no longer exists. Did you transfer the account to another region?\n\nI have unlinked the League account from your Discord profile. If you have indeed transferred, you can simply add the account again in the new region."
                 });
             } else if (summoner.name !== account.username) {
+                logAccounts("User %s (%s) seems to have renamed account %s - %s to %s", user.username, user.snowflake, account.region, account.username, summoner.name);
+
                 account.username = summoner.name;
                 await account.$query().update({
                     username: summoner.name

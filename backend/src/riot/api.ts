@@ -38,7 +38,7 @@ export default class RiotAPI {
      */
     async getChampionMastery(region: string, summonerId: number): Promise<riot.ChampionMasteryInfo[]> {
         try {
-            return await this.teemo.get(platform(region), "championMastery.getChampionMastery", "" + summonerId);
+            return await this.teemo.get(platform(region), "championMastery.getAllChampionMasteries", "" + summonerId);
         } catch (e) {
             return [];
         }

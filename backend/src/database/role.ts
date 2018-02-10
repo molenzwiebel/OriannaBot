@@ -104,4 +104,4 @@ export class RoleCondition extends Model {
     }
 }
 
-decorators.hasMany("conditions", () => RoleCondition, "id", "role_id")(RoleCondition);
+decorators.hasMany("conditions", () => RoleCondition, "id", "role_id")(Role);

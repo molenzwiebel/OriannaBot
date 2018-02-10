@@ -3,8 +3,7 @@ import DiscordClient from "./discord/client";
 
 import HelpCommand from "./discord/commands/help";
 import AboutCommand from "./discord/commands/about";
-import Updater from "./discord/updater";
-import { User } from "./database";
+import RefreshCommand from "./discord/commands/refresh";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -19,10 +18,9 @@ process.on("unhandledRejection", (err: Error) => {
     const discord = new DiscordClient();
     await discord.connect();
 
-    const updater = new Updater(discord);
-
     discord.registerCommand(HelpCommand);
     discord.registerCommand(AboutCommand);
+    discord.registerCommand(RefreshCommand);
 
     discord.registerCommand({
         name: "Test",

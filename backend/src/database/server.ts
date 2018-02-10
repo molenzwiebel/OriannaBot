@@ -2,7 +2,6 @@ import { Model } from "objection";
 import * as decorators from "../util/objection";
 import Role from "./role";
 
-@decorators.hasMany("roles", () => Role, "id", "server_id")
 @decorators.table("servers")
 export default class Server extends Model {
     /**
@@ -59,4 +58,5 @@ export class BlacklistedChannel extends Model {
     snowflake: string;
 }
 
-decorators.hasMany("blacklisted_channels", () => BlacklistedChannel, "id", "server_id")(Server)
+decorators.hasMany("roles", () => Role, "id", "server_id")(Server);
+decorators.hasMany("blacklisted_channels", () => BlacklistedChannel, "id", "server_id")(Server);
