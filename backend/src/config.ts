@@ -3,6 +3,7 @@ interface Configuration {
     riot: {
         apiKey: string;
         tiers: string[];
+        rankedQueues: { [key: string]: string };
     };
     discord: {
         owner: string;

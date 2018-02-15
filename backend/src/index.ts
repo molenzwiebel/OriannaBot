@@ -8,6 +8,7 @@ import EvalCommand from "./discord/commands/eval";
 import TopCommand from "./discord/commands/top";
 import ListCommand from "./discord/commands/list";
 import PointsCommand from "./discord/commands/points";
+import RolesCommand from "./discord/commands/roles";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -29,6 +30,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(TopCommand);
     discord.registerCommand(ListCommand);
     discord.registerCommand(PointsCommand);
+    discord.registerCommand(RolesCommand);
 
     info("Orianna is running!");
 })();

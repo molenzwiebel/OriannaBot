@@ -1,7 +1,6 @@
 
 import { Command } from "../command";
 import { emote, expectChampion, expectUser } from "./util";
-import StaticData from "../../riot/static-data";
 
 const PointsCommand: Command = {
     name: "Show Mastery Points",
