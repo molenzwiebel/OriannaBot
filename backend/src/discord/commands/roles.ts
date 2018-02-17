@@ -49,14 +49,14 @@ Note that the same role might appear twice in the list with different requiremen
             return (cond.options.compare_type === "equal" ? "of " + tier : cond.options.compare_type + " than " + tier) + " in " + queue;
         };
 
-        const formatCondition = async (cond: TypedRoleCondition) => {
+        const formatCondition = async (cond: TypedRoleCondition): Promise<string> => {
             if (cond.type === "mastery_level") return "Have a mastery level of " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
             if (cond.type === "mastery_score") return "Have a mastery score of " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
             if (cond.type === "total_mastery_score") return "Have a total mastery score of " + formatRange(cond.options);
             if (cond.type === "ranked_tier") return "Have a ranked tier " + formatRanked(cond);
             if (cond.type === "champion_play_count") return "Have played at least " + cond.options.count.toLocaleString() + " games on " + await formatChampion(cond.options.champion);
             if (cond.type === "server") return "Have an active account on " + cond.options.region;
-            return "Unknown condition type?";
+            return "Unknown condition type?"; // TODO(molenzwiebel): Should probably error out here or something.
         };
 
         const roleFields = await Promise.all(server.roles!.map(async x => ({

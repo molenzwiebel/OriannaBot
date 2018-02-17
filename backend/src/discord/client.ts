@@ -40,6 +40,8 @@ export default class DiscordClient {
         this.bot.on("messageCreate", this.handleMessage);
         this.bot.on("messageReactionAdd", this.handleReaction);
         this.bot.on("messageDelete", this.handleDelete);
+        this.bot.on("guildUpdate", this.handleGuildUpdate);
+        this.bot.on("userUpdate", this.handleUserUpdate);
     }
 
     /**
@@ -264,6 +266,34 @@ export default class DiscordClient {
      */
     private handleDelete = async (msg: eris.PossiblyUncachedMessage) => {
         this.responses.forEach(x => x.onMessageDelete(msg));
+    };
+
+    /**
+     * Updates the database representation of the guild when it changes settings.
+     */
+    private handleGuildUpdate = async (guild: eris.Guild, old: eris.GuildOptions) => {
+        await Server
+            .query()
+            .where("snowflake", guild.id)
+            .update({
+                name: guild.name,
+                avatar: guild.icon || "none"
+            })
+        .execute();
+    };
+
+    /**
+     * Updates the database representation of the user when it changes settings.
+     */
+    private handleUserUpdate = async (user: eris.User) => {
+        await User
+            .query()
+            .where("snowflake", user.id)
+            .update({
+                username: user.username,
+                avatar: user.avatar || "none"
+            })
+        .execute();
     };
 
     /**
