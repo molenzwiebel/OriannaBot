@@ -11,7 +11,8 @@
     "bundle": "tsc -p ."
   },
   "dependencies": {
-    "@types/randomstring": "^1.1.6",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
     "eris": "^0.8.4",
@@ -25,11 +26,14 @@
     "teemojs": "^1.2.0"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.16.8",
+    "@types/cookie-parser": "^1.4.1",
     "@types/cors": "^2.8.3",
     "@types/debug": "^0.0.30",
     "@types/express": "^4.11.1",
     "@types/knex": "^0.14.5",
     "@types/node-fetch": "^1.6.7",
+    "@types/randomstring": "^1.1.6",
     "typescript": "^2.7.1"
   }
 }
