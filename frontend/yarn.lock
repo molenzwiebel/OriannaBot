@@ -2883,6 +2883,10 @@ pkg-dir@^2.0.0:
   dependencies:
     find-up "^2.1.0"
 
+popper.js@^1.12.9, popper.js@^1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.13.0.tgz#e1e7ff65cc43f7cf9cf16f1510a75e81f84f4565"
+
 portfinder@^1.0.9:
   version "1.0.13"
   resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.13.tgz#bb32ecd87c27104ae6ee44b5a3ccbf0ebb1aede9"
@@ -3993,6 +3997,12 @@ timers-browserify@^2.0.4:
   dependencies:
     setimmediate "^1.0.4"
 
+tippy.js@^2.1.1:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/tippy.js/-/tippy.js-2.2.3.tgz#ae2aa54763a86d38682de199ef7f6442c2926413"
+  dependencies:
+    popper.js "^1.12.9"
+
 to-arraybuffer@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/to-arraybuffer/-/to-arraybuffer-1.0.1.tgz#7d229b1fcc637e466ca081180836a7aabff83f43"
@@ -4235,6 +4245,10 @@ vue-property-decorator@^6.0.0:
     reflect-metadata "^0.1.10"
     vue-class-component "^6.0.0"
 
+vue-router@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.1.tgz#d9b05ad9c7420ba0f626d6500d693e60092cc1e9"
+
 vue-style-loader@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/vue-style-loader/-/vue-style-loader-4.0.1.tgz#252300d32eb97e83c1a1cb5b2029e2d8c3adcf9f"
@@ -4252,6 +4266,13 @@ vue-template-compiler@^2.5.13:
 vue-template-es2015-compiler@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.6.0.tgz#dc42697133302ce3017524356a6c61b7b69b4a18"
+
+vue-tippy@^2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/vue-tippy/-/vue-tippy-2.0.8.tgz#941bd7f17d1962385fcb2fe2a4c9365d48cc44c5"
+  dependencies:
+    popper.js "^1.13.0"
+    tippy.js "^2.1.1"
 
 vue@^2.5.13:
   version "2.5.13"
