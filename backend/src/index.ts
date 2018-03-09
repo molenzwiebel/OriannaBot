@@ -9,6 +9,8 @@ import TopCommand from "./discord/commands/top";
 import ListCommand from "./discord/commands/list";
 import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
+import createApplication from "./web/web";
+import config from "./config";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -31,6 +33,10 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(ListCommand);
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
+
+    const app = createApplication(discord.bot);
+    app.listen(config.web.port);
+    info("Hosting web interface on 0.0.0.0:%i...", config.web.port);
 
     info("Orianna is running!");
 })();

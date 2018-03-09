@@ -1,6 +1,6 @@
 import express = require("express");
 import debug = require("debug");
-import { User } from "../database";
+import * as db from "../database";
 
 const swallowErrorLog = debug("orianna:web:error");
 
@@ -8,21 +8,31 @@ export type ExpressRouteHandler = (req: express.Request, res: express.Response) 
 
 declare module "express" {
     interface Request {
-        user: User;
+        user: db.User;
     }
 }
+
+// There seems to be a typescript miscompilation bug that prevents it from emitting the database
+// import if we only reference it inside an async function expression. Useless reference here:
+db.User;
 
 /**
  * Simple decorator that requires that the user has a valid cookie specifying a token.
  * If there is no cookie, 401 Unauthorized is returned. If the token does not resolve to
  * a valid user, 403 Forbidden is returned.
  */
-function requireAuth(fn: ExpressRouteHandler) {
+export function requireAuth(fn: ExpressRouteHandler) {
     return async (req: express.Request, res: express.Response) => {
-        if (!req.cookies.token) return res.status(401).send();
+        if (!req.cookies.token) return res.status(401).json({
+            error: "Unauthenticated",
+            code: 401
+        });
 
-        const user = await User.query().where("token", req.cookies.token).first();
-        if (!user) return res.status(403).send();
+        const user = await db.User.query().where("token", req.cookies.token).first();
+        if (!user) return res.status(403).json({
+            error: "Authentication Failed",
+            code: 403
+        });
 
         req.user = user;
 
@@ -35,7 +45,7 @@ function requireAuth(fn: ExpressRouteHandler) {
  * still always return a value.
  * @param {ExpressRouteHandler} fn
  */
-function swallowErrors(fn: ExpressRouteHandler) {
+export function swallowErrors(fn: ExpressRouteHandler) {
     return async (req: express.Request, res: express.Response) => {
         try {
             await Promise.resolve(fn(req, res));

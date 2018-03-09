@@ -1,5 +1,6 @@
-import { Model } from "objection";
+import { Model, Pojo } from "objection";
 import LeagueAccount from "./league_account";
+import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 
 @decorators.table("users")
@@ -47,6 +48,21 @@ export default class User extends Model {
      * Optionally eager-loaded ranks, null if not specified in the query.
      */
     ranks?: UserRank[];
+
+    /**
+     * Returns the fully qualified URL to the avatar for this user.
+     */
+    get avatarURL(): string {
+        if (this.avatar === "none") return "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";
+        return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.png`;
+    }
+
+    /**
+     * Omit user id and token from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id", "token"]);
+    }
 }
 
 @decorators.table("user_champion_stats")
@@ -82,6 +98,13 @@ export class UserChampionStat extends Model {
      * The eager-loaded user this stat belongs to, if it was specified in the query.
      */
     user?: User;
+
+    /**
+     * Omit user and id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id", "user"]);
+    }
 }
 
 @decorators.table("user_ranks")
@@ -100,6 +123,13 @@ export class UserRank extends Model {
      * The tier for this rank.
      */
     tier: string;
+
+    /**
+     * Omit id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id"]);
+    }
 }
 
 decorators.belongsTo("user", () => User, "user_id", "id")(UserChampionStat);

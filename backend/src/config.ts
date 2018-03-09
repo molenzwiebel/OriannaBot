@@ -12,6 +12,7 @@ interface Configuration {
     };
     web: {
         url: string;
+        port: number;
     };
 }
 

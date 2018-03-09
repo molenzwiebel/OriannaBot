@@ -1,5 +1,6 @@
-import { Model } from "objection";
+import { Model, Pojo } from "objection";
 import * as decorators from "../util/objection";
+import omit = require("lodash.omit");
 
 @decorators.table("league_accounts")
 export default class LeagueAccount extends Model {
@@ -29,4 +30,11 @@ export default class LeagueAccount extends Model {
      * The account id for this league account.
      */
     account_id: number;
+
+    /**
+     * Omit id and user_id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id", "user_id"]);
+    }
 }
