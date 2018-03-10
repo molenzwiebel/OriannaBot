@@ -10,23 +10,6 @@ interface ErrorDetails {
     showLogin: boolean;
 }
 
-interface UserDetails {
-    snowflake: string;
-    username: string;
-    avatar: string;
-    accounts: {
-        username: string,
-        region: string,
-        account_id: number,
-        summoner_id: number
-    }[];
-    guilds: {
-        id: string,
-        name: string,
-        icon: string
-    }[];
-}
-
 const ERRORS: { [key: number]: ErrorDetails } = {
     401: {
         title: "Not Authenticated",
@@ -51,8 +34,8 @@ const ERRORS: { [key: number]: ErrorDetails } = {
     }
 })
 export default class App extends Vue {
-    error: null | ErrorDetails = null;
-    user: UserDetails | null = null;
+    private error: null | ErrorDetails = null;
+    private user: object | null = null;
 
     async mounted() {
         // We use fetch instead of the GET helper because we don't want to error if the user isn't logged in.
