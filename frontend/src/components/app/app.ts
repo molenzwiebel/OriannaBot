@@ -10,6 +10,23 @@ interface ErrorDetails {
     showLogin: boolean;
 }
 
+interface UserDetails {
+    snowflake: string;
+    username: string;
+    avatar: string;
+    accounts: {
+        username: string,
+        region: string,
+        account_id: number,
+        summoner_id: number
+    }[];
+    guilds: {
+        id: string,
+        name: string,
+        icon: string
+    }[];
+}
+
 const ERRORS: { [key: number]: ErrorDetails } = {
     401: {
         title: "Not Authenticated",
@@ -35,6 +52,13 @@ const ERRORS: { [key: number]: ErrorDetails } = {
 })
 export default class App extends Vue {
     error: null | ErrorDetails = null;
+    user: UserDetails | null = null;
+
+    async mounted() {
+        // We use fetch instead of the GET helper because we don't want to error if the user isn't logged in.
+        const req = await fetch(API_HOST + "/api/v1/user", { credentials: "include" });
+        this.user = req.status === 200 ? await req.json() : null;
+    }
 
     /**
      * Makes a GET request to the specified API endpoint. If the endpoint returns
@@ -42,7 +66,7 @@ export default class App extends Vue {
      * Else, the returned JSON is cast to the specified generic type.
      */
     public async get<T>(url: string): Promise<T | null> {
-        const req = await fetch(API_HOST + url);
+        const req = await fetch(API_HOST + url, { credentials: "include" });
 
         if (ERRORS[req.status]) {
             this.error = ERRORS[req.status];
@@ -56,9 +80,10 @@ export default class App extends Vue {
      * Makes a POST/PUT/PATCH/DELETE request to the specified API endpoint. If
      * the endpoint returns an error, it is handled here.
      */
-    public async submit(url: string, method: string, data: any): Promise<void> {
+    public async submit<T = void>(url: string, method: string, data: any): Promise<null | T> {
         const req = await fetch(API_HOST + url, {
             method,
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -68,5 +93,7 @@ export default class App extends Vue {
         if (ERRORS[req.status]) {
             this.error = ERRORS[req.status];
         }
+
+        return await req.json();
     }
 }

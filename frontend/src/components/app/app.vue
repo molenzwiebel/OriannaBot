@@ -28,10 +28,24 @@
 
             <div class="divider section"></div>
 
-            <router-link to="/sign-in" class="discord-sign-in">
+            <router-link v-if="!user" to="/sign-in" class="discord-sign-in">
                 Sign In With
                 <img src="https://discordapp.com/assets/e4923594e694a21542a489471ecffa50.svg">
             </router-link>
+
+            <template v-if="user">
+                <router-link to="/me">
+                    <img class="avatar" :src="user.avatar">
+                    {{ user.username }}
+                </router-link>
+
+                <div class="divider section"></div>
+
+                <router-link v-for="guild in user.guilds" :to="'/server/' + guild.id" :key="guild.id">
+                    <img class="avatar" :src="guild.icon">
+                    {{ guild.name }}
+                </router-link>
+            </template>
         </div>
 
         <div class="view">
@@ -75,10 +89,19 @@
             position relative
             font-family Roboto
             font-size 20px
+            display flex
+            align-items center
             color navbar-text-color
 
-            & > icon
+            & > .icon
+                width 24px
+
+            & > img.avatar
                 width 20px
+                height 20px
+                border-radius 50%
+                display inline-block
+                margin-right 5px
 
             &:hover
                 background-color darken(navbar-background, 5%)
@@ -102,7 +125,7 @@
         & > .home-logo
             padding-top 15px
             font-family Mina
-            text-align center
+            align-self center
             letter-spacing 0.5px
             font-size 30px
 
