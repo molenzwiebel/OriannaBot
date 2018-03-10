@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 
+import Sidebar from "../sidebar/sidebar.vue";
 import Error from "../error/error.vue";
 import { API_HOST } from "../../config";
 
@@ -30,7 +31,8 @@ const ERRORS: { [key: number]: ErrorDetails } = {
 
 @Component({
     components: {
-        Error
+        Error,
+        Sidebar
     }
 })
 export default class App extends Vue {
