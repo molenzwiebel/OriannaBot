@@ -34,7 +34,7 @@ export default class WebAPIClient {
 
         res.json({
             ...req.user.toJSON(),
-            avatar: req.user.avatarURL,
+            avatar: req.user.avatarURL || "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png",
             guilds
         });
     });

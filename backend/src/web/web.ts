@@ -13,7 +13,10 @@ import WebAPIClient from "./api-client";
 export default function createApplication(bot: eris.Client) {
     const app = express();
 
-    app.use(cors());
+    app.use(cors({
+        origin: (host, cb) => cb(null, true),
+        credentials: true
+    }));
     app.use(cookieParser());
     app.use(bodyParser.json());
 
