@@ -35,7 +35,8 @@
         </div>
 
         <div class="view">
-            <router-view></router-view>
+            <error v-if="error" :title="error.title" :details="error.details" :show-login="error.showLogin"></error>
+            <router-view v-else></router-view>
         </div>
     </div>
 </template>
@@ -127,5 +128,8 @@
     .view
         margin-left navbar-width
         height 100%
+        display flex
+        align-items center
+        justify-content center
         background-color #f5f5f5
 </style>
