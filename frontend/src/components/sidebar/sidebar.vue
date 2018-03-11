@@ -125,6 +125,8 @@
             font-size 16px
             text-transform uppercase
             color #898989
+            display flex
+            flex-direction column
 
             & > img
                 width 160px
