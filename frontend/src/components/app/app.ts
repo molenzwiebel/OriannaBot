@@ -2,7 +2,8 @@ import Vue from "vue";
 import Component from "vue-class-component";
 
 import Sidebar from "../sidebar/sidebar.vue";
-import Error from "../error/error.vue";
+import ErrorComponent from "../error/error.vue";
+import Profile from "../profile/profile.vue";
 import { API_HOST } from "../../config";
 
 interface ErrorDetails {
@@ -31,7 +32,7 @@ const ERRORS: { [key: number]: ErrorDetails } = {
 
 @Component({
     components: {
-        Error,
+        Error: ErrorComponent,
         Sidebar
     }
 })
@@ -39,7 +40,21 @@ export default class App extends Vue {
     private error: null | ErrorDetails = null;
     private user: object | null = null;
 
+    private modal: {
+        component: any,
+        props: any,
+        resolve: Function
+    } | null = null;
+
     async mounted() {
+        // No need to delete this, since we never unmount app.
+        document.addEventListener("keydown", event => {
+            if (event.keyCode === 27 && this.modal) {
+                this.modal.resolve(null);
+                this.modal = null;
+            }
+        });
+
         // We use fetch instead of the GET helper because we don't want to error if the user isn't logged in.
         const req = await fetch(API_HOST + "/api/v1/user", { credentials: "include" });
         this.user = req.status === 200 ? await req.json() : null;
@@ -80,5 +95,21 @@ export default class App extends Vue {
         }
 
         return await req.json();
+    }
+
+    /**
+     * Displays the specified component as a fullscreen modal with the specified props.
+     * When the modal is closed, the specified return value of the component is returned.
+     * If the modal is closed early (using esc or clicking outside of the modal), null is
+     * returned instead.
+     */
+    public async displayModal<T>(component: any, props: any = {}): Promise<T | null> {
+        if (this.modal) throw new Error("Already displaying a modal.");
+
+        return new Promise<T | null>(resolve => {
+            this.modal = {
+                component, props, resolve
+            };
+        });
     }
 }

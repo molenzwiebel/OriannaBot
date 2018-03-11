@@ -100,8 +100,10 @@
         transform translate(100px, 200px)
 
     .textfield
-        top 119px
+        top 121px
         left 198px
+        font-family Roboto
+        font-size 14px
         color white
 
     .replay
