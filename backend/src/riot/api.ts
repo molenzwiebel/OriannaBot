@@ -1,5 +1,7 @@
 import Teemo = require("teemojs");
 
+export const REGIONS = ["BR", "EUNE", "EUW", "JP", "KR", "LAN", "LAS", "NA", "OCE", "TR", "RU"];
+
 /**
  * A simple incomplete interface for the Riot Games API.
  * This only contains methods used in Orianna, and supports all platforms and rate limiting.
@@ -16,7 +18,7 @@ export default class RiotAPI {
      */
     async getSummonerByName(region: string, name: string): Promise<riot.Summoner | null> {
         try {
-            return await this.teemo.get(platform(region), "summoner.getBySummonerName", encodeURIComponent(name));
+            return await this.teemo.get(platform(region), "summoner.getBySummonerName", name);
         } catch (e) {
             return null;
         }
@@ -52,6 +54,18 @@ export default class RiotAPI {
             return await this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", "" + summonerId);
         } catch (e) {
             return [];
+        }
+    }
+
+    /**
+     * Checks if the specified summoner has the specified code as their third party code.
+     */
+    async isThirdPartyCode(region: string, summonerId: number, code: string): Promise<boolean> {
+        try {
+            const currentCode = await this.teemo.get(platform(region), "thirdPartyCode.getThirdPartyCodeBySummonerId", "" + summonerId);
+            return currentCode.toLowerCase() === code.toLowerCase();
+        } catch (e) {
+            return false;
         }
     }
 }

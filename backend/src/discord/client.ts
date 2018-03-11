@@ -6,6 +6,7 @@ import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
 import { Server, User, BlacklistedChannel } from "../database";
 import Updater from "./updater";
+import RiotAPI from "../riot/api";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -16,9 +17,11 @@ const MUTE_REACTION = "🔇";
 
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token);
-    public readonly updater = new Updater(this);
+    public readonly updater = new Updater(this, this.riotAPI);
     private commands: Command[] = [];
     private responses: Response[] = [];
+
+    constructor(public readonly riotAPI: RiotAPI) {}
 
     /**
      * Adds a new command to this DiscordClient instance.

@@ -11,6 +11,7 @@ import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
 import createApplication from "./web/web";
 import config from "./config";
+import RiotAPI from "./riot/api";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -22,7 +23,9 @@ process.on("unhandledRejection", (err: Error) => {
 (async() => {
     info("Starting Orianna Bot...");
 
-    const discord = new DiscordClient();
+    const riotAPI = new RiotAPI(config.riot.apiKey);
+
+    const discord = new DiscordClient(riotAPI);
     await discord.connect();
 
     discord.registerCommand(HelpCommand);
@@ -34,7 +37,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
 
-    const app = createApplication(discord.bot);
+    const app = createApplication(discord);
     app.listen(config.web.port);
     info("Hosting web interface on 0.0.0.0:%i...", config.web.port);
 

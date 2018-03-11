@@ -29,9 +29,7 @@ const logAccounts = debug("orianna:updater:fetch:accounts");
  *           was previously fetched (and thus might have new data)
  */
 export default class Updater {
-    private riotAPI = new RiotAPI(config.riot.apiKey);
-
-    constructor(private client: DiscordClient) {}
+    constructor(private client: DiscordClient, private riotAPI: RiotAPI) {}
 
     /**
      * Updates everything for the specified user instance or snowflake. This
