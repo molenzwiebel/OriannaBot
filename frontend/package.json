@@ -19,6 +19,7 @@
     "typescript": "^2.7.1",
     "vue": "^2.5.13",
     "vue-class-component": "^6.1.2",
+    "vue-form-wizard": "^0.8.4",
     "vue-loader": "^14.1.1",
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",

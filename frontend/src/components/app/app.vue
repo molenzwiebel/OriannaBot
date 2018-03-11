@@ -45,5 +45,5 @@
         background-color rgba(0, 0, 0, 0.6)
         display flex
         justify-content center
-        align-items center
+        padding-top 40px
 </style>

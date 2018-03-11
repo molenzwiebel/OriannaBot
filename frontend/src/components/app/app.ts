@@ -3,7 +3,7 @@ import Component from "vue-class-component";
 
 import Sidebar from "../sidebar/sidebar.vue";
 import ErrorComponent from "../error/error.vue";
-import Profile from "../profile/profile.vue";
+import AddAccount from "../add-account/add-account.vue";
 import { API_HOST } from "../../config";
 
 interface ErrorDetails {
@@ -13,6 +13,11 @@ interface ErrorDetails {
 }
 
 const ERRORS: { [key: number]: ErrorDetails } = {
+    400: {
+        title: "Invalid Request",
+        details: "The server rejected a request because it believed it to be malformed.",
+        showLogin: false
+    },
     401: {
         title: "Not Authenticated",
         details: "To perform this action, you need to be logged in. Log in, then try what you were doing again.",
@@ -44,7 +49,7 @@ export default class App extends Vue {
         component: any,
         props: any,
         resolve: Function
-    } | null = null;
+    } | null = { component: AddAccount, props: {}, resolve() {} };
 
     async mounted() {
         // No need to delete this, since we never unmount app.

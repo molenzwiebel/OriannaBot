@@ -64,3 +64,33 @@
 
 .fade-enter, .fade-leave-to
     opacity 0
+
+input[type=text], input[type=number], input[type=date], select, textarea
+    box-sizing border-box
+    height 40px
+    width 100%
+    vertical-align middle
+    display inline-block
+    outline none
+    border 1px solid #c1c1c1
+    padding 0 10px
+    background #fff
+    color #666
+    font-family Roboto
+    transition border-color 0.2s ease
+
+    &::-webkit-input-placeholder
+        color #c7c7c7
+        font-family Roboto
+        font-weight 300
+
+    &:focus
+        border-color #1f9fde
+        outline none
+
+select
+    border-radius 0
+    -webkit-appearance none
+    background-image url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2224%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%2212%201%209%206%2015%206%22%3E%3C%2Fpolygon%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%2212%2013%209%208%2015%208%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E%0A")
+    background-repeat no-repeat
+    background-position 100% 50%
