@@ -16,7 +16,7 @@ export default class AddAccountWizard extends Vue {
 
     nextButton = "Next";
     detailsError = "";
-    _dirty = false;
+    verificationError = "";
 
     name: string = "";
     region: string = "disabled";
@@ -27,6 +27,7 @@ export default class AddAccountWizard extends Vue {
      */
     handleTabChange(oldIndex: number, newIndex: number) {
         if (newIndex === 0 && this.summoner) {
+            // Make sure that we can't go to step 1, change stuff, then navigate to step 2 without checking.
             this.summoner = <any>null;
             (<any>this.$refs["wizard"]).reset();
         }
@@ -40,10 +41,10 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        const summ = /*await this.$root.submit("/api/v1/summoner", "POST", {
+        const summ = await this.$root.submit("/api/v1/summoner", "POST", {
             username: this.name,
             region: this.region
-        });*/{ name: "Test", code: "abcdef" };
+        });
 
         if (!summ) {
             this.detailsError = "Summoner not found. Use your summoner name, not login name.";
@@ -51,6 +52,19 @@ export default class AddAccountWizard extends Vue {
         }
 
         this.summoner = summ;
+        return true;
+    }
+
+    async verifySummoner() {
+        const req = await this.$root.submit<{ ok: boolean }>("/api/v1/user/accounts", "POST", {
+            code: this.summoner.code
+        });
+
+        if (!req || !req.ok) {
+            this.verificationError = "Failed to verify. It may take a moment for the code to update. Try restarting the League client if the code doesn't work.";
+            throw new Error("");
+        }
+
         return true;
     }
 }

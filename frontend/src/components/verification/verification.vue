@@ -25,6 +25,7 @@
                 const { cursor, img1, img2, img3, textfield } = this.$refs;
 
                 cursor.style.transition = "1.7s ease";
+                await delay(10); // chrome seems to skip the initial animation if this isn't here
                 cursor.style.transform = "translate(544px, 16px)";
 
                 await delay(1800);
@@ -48,7 +49,7 @@
                 await delay(1800);
 
                 for (let i = 0; i <= this.code.length; i++) {
-                    textfield.innerText = this.code.substring(0, i) + "|";
+                    textfield.innerText = this.code.substring(0, i) + (i !== this.code.length ? "|" : "");
                     await delay(70);
                 }
 

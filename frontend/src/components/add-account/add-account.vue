@@ -5,7 +5,7 @@
         </div>
 
         <div class="step-body">
-            <form-wizard ref="wizard" shape="tab" color="#3380e5" error-color="red" :next-button-text="nextButton" @on-change="handleTabChange">
+            <form-wizard ref="wizard" shape="tab" color="#3380e5" error-color="red" :next-button-text="nextButton" @on-change="handleTabChange" @on-complete="$emit('close', summoner)">
                 <tab-content title="Account" :before-change="requestSummoner">
                     <div class="details">
                         <select :class="detailsError && 'errored'" v-model="region">
@@ -18,7 +18,7 @@
 
                     <span class="details-error">{{ detailsError }}</span>
                 </tab-content>
-                <tab-content title="Verification">
+                <tab-content title="Verification" :before-change="verifySummoner">
                     <div class="verification-step" v-if="summoner">
                         <p>
                             To verify that you own <b>{{ summoner.name }}</b>, please change your third-party verification code to <code>{{ summoner.code }}</code>.
@@ -26,12 +26,14 @@
                             <small>Note: The third-party code feature is unstable at this time. It may take a few tries before the change gets detected.</small>
                         </p>
                         <verification v-if="summoner" :code="summoner.code"></verification>
+                        <span class="details-error">{{ verificationError }}</span>
                     </div>
                 </tab-content>
                 <tab-content title="Done!">
-                    <template v-if="summoner">
-
-                    </template>
+                    <div class="verified" v-if="summoner">
+                        <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-coolguy.png">
+                        <p><b>Account verified!</b> Your stats and roles will update momentarily.</p>
+                    </div>
                 </tab-content>
             </form-wizard>
         </div>
@@ -74,6 +76,18 @@
             .verification
                 align-self center
                 margin 10px
+
+        .verified
+            display flex
+            flex-direction column
+            align-items center
+
+            img
+                width 200px
+
+            p
+                margin 10px
+                text-align center
 
     .step-body
         padding-top 10px
