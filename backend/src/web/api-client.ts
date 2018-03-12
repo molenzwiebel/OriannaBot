@@ -64,16 +64,17 @@ export default class WebAPIClient {
         if (!summ) return res.status(404).json(null);
 
         const key = randomstring.generate({
-            length: 16,
+            length: 8,
             readable: true
         });
-        this.summoners.set(key, {
+        const data = {
             ...summ,
             region: req.body.region
-        });
+        };
 
+        this.summoners.set(key, data);
         return res.json({
-            ...summ,
+            ...data,
             code: key
         });
     };
