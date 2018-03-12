@@ -35,6 +35,9 @@ export default class AddAccountWizard extends Vue {
         this.nextButton = newIndex === 1 ? "Validate" : "Next";
     }
 
+    /**
+     * Checks if the summoner entered exists, and loads the code needed to verify.
+     */
     async requestSummoner() {
         if (!this.name || !this.region || this.region === "disabled") {
             this.detailsError = "Please enter your summoner name and region.";
@@ -55,13 +58,16 @@ export default class AddAccountWizard extends Vue {
         return true;
     }
 
+    /**
+     * Checks if the user has changed their code to the given token.
+     */
     async verifySummoner() {
         const req = await this.$root.submit<{ ok: boolean }>("/api/v1/user/accounts", "POST", {
             code: this.summoner.code
         });
 
         if (!req || !req.ok) {
-            this.verificationError = "Failed to verify. It may take a moment for the code to update. Try restarting the League client if the code doesn't work.";
+            this.verificationError = "Failed to verify. Note that it may take a moment for the code to update.";
             throw new Error("");
         }
 

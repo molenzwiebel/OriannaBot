@@ -13,7 +13,7 @@
                 <h2>League Accounts</h2>
 
                 <div class="actions" v-if="user.accounts.length">
-                    <a class="small-button" href="#">Add New</a>
+                    <a class="small-button" @click="addAccount" href="#">Add New</a>
                     <a class="small-button" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                 </div>
             </div>

@@ -11,7 +11,6 @@ import Verification from "./components/verification/verification.vue";
 import Error from "./components/error/error.vue";
 
 Vue.use(VueRouter);
-console.dir(VueFormWizard);
 Vue.use(VueFormWizard);
 
 const router = new VueRouter({
