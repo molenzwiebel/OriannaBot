@@ -21,7 +21,7 @@
                 <tab-content title="Verification" :before-change="verifySummoner">
                     <div class="verification-step" v-if="summoner">
                         <p>
-                            To verify that you own <b>{{ summoner.name }}</b>, please change your third-party verification code to <code>{{ summoner.code }}</code>.
+                            To verify that you own <b>{{ summoner.username }}</b>, please change your third-party verification code to <code>{{ summoner.code }}</code>.
                             To change your third-party code, go to your <b>settings</b> inside the League client, followed by selecting <b>Verification</b> and entering the code. Click <b>Verify</b> after you've saved.
                             <br><br>
                             Note: The third-party code feature is unstable at this time. It may take a few tries before the change gets detected. You may also need to restart your League client for it to work. Riot is aware of the issues and is working on a fix.

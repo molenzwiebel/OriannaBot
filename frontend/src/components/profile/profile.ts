@@ -3,16 +3,18 @@ import Component from "vue-class-component";
 import App from "../app/app";
 import AddAccountComponent from "../add-account/add-account.vue";
 
+interface UserAccount {
+    username: string;
+    region: string;
+    account_id: number;
+    summoner_id: number;
+}
+
 interface UserDetails {
     snowflake: string;
     username: string;
     avatar: string;
-    accounts: {
-        username: string,
-        region: string,
-        account_id: number,
-        summoner_id: number
-    }[];
+    accounts: UserAccount[];
     guilds: {
         id: string,
         name: string,
@@ -36,17 +38,21 @@ export default class UserProfile extends Vue {
      * list of accounts (without refreshing) if an account was added.
      */
     async addAccount() {
-        const result = await this.$root.displayModal<{ name: string, region: string, id: number, accountId: number }>(AddAccountComponent, {});
+        const result = await this.$root.displayModal<UserAccount>(AddAccountComponent, {});
         if (!result) return;
 
         // Don't add if the user already added an account.
-        if (this.user.accounts.some(x => x.region === result.region && x.username === result.name)) return;
+        if (this.user.accounts.some(x => x.region === result.region && x.username === result.username)) return;
 
-        this.user.accounts.push({
-            username: result.name,
-            region: result.region,
-            account_id: result.accountId,
-            summoner_id: result.id
-        });
+        this.user.accounts.push(result);
+    }
+
+    /**
+     * Deletes the specified account.
+     */
+    async deleteAccount(account: UserAccount) {
+        // TODO: Should probably ask for verification. :)
+        await this.$root.submit("/api/v1/user/accounts", "DELETE", account);
+        this.user.accounts.splice(this.user.accounts.indexOf(account), 1);
     }
 }

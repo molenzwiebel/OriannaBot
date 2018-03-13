@@ -4,7 +4,7 @@ import Verification from "../verification/verification.vue";
 import App from "../app/app";
 
 interface Summoner {
-    name: string;
+    username: string;
     code: string;
 }
 

@@ -24,7 +24,7 @@
                     <span class="username">{{ account.username }}</span>
                     <span class="region">{{ account.region }}</span>
                     <span class="actions">
-                        <a href="#"><i class="ion-ios-trash-outline"></i></a>
+                        <a href="#" @click="deleteAccount(account)"><i class="ion-ios-trash-outline"></i></a>
                     </span>
                 </div>
 
@@ -32,7 +32,7 @@
                     <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
                     <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score:</p>
                     <div class="actions">
-                        <a class="small-button" href="#">Add New</a>
+                        <a class="small-button" @click="addAccount" href="#">Add New</a>
                         <a class="small-button" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                     </div>
                 </div>
