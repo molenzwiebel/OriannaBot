@@ -24,6 +24,7 @@
     "node-fetch": "^2.0.0",
     "objection": "^0.9.4",
     "randomstring": "^1.1.5",
+    "snoowrap": "^1.15.2",
     "sqlite3": "^3.1.13",
     "teemojs": "^1.2.0"
   },
@@ -38,6 +39,7 @@
     "@types/lodash.omit": "^4.5.3",
     "@types/node-fetch": "^1.6.7",
     "@types/randomstring": "^1.1.6",
+    "@types/snoowrap": "^1.14.3",
     "typescript": "^2.7.1"
   }
 }

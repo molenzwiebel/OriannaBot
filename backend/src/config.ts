@@ -10,6 +10,10 @@ interface Configuration {
         token: string;
         emoteServers: string[];
     };
+    reddit: {
+        clientId: string;
+        clientSecret: string;
+    };
     web: {
         url: string;
         port: number;

@@ -1,7 +1,7 @@
 import { Model, Pojo } from "objection";
 import LeagueAccount from "./league_account";
-import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
+import omit = require("lodash.omit");
 
 @decorators.table("users")
 export default class User extends Model {
@@ -62,6 +62,21 @@ export default class User extends Model {
      */
     $formatJson(json: Pojo) {
         return omit(super.$formatJson(json), ["id", "token"]);
+    }
+
+    /**
+     * Adds a new league account to this user, provided they do not have it registered already.
+     */
+    async addAccount(region: string, summ: riot.Summoner) {
+        await this.$loadRelated("accounts");
+        if (this.accounts!.some(x => x.region === region && x.summoner_id === summ.id)) return;
+
+        await this.$relatedQuery<LeagueAccount>("accounts").insert({
+            username: summ.name,
+            region: region,
+            summoner_id: summ.id,
+            account_id: summ.accountId
+        });
     }
 }
 

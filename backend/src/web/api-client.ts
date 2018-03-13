@@ -95,16 +95,8 @@ export default class WebAPIClient {
         const summoner = this.summoners.get(req.body.code)!;
         if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, summoner.id, req.body.code)) return res.json({ ok: false });
 
-        // If the user didn't already have this account added...
-        await req.user.$loadRelated("accounts");
-        if (!req.user.accounts!.some(x => x.region === summoner.region && x.summoner_id === summoner.id)) {
-            await req.user.$relatedQuery<any>("accounts").insert( {
-                username: summoner.name,
-                region: summoner.region,
-                summoner_id: summoner.id,
-                account_id: summoner.accountId
-            });
-        }
+        // Add the user..
+        await req.user.addAccount(summoner.region, summoner);
 
         return res.json({ ok: true });
     });

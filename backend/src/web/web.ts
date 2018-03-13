@@ -2,9 +2,9 @@ import express = require("express");
 import cors = require("cors");
 import cookieParser = require("cookie-parser");
 import bodyParser = require("body-parser");
-import * as eris from "eris";
 import WebAPIClient from "./api-client";
 import DiscordClient from "../discord/client";
+import register from "./reddit-client";
 
 /**
  * Creates a new Express instance for serving the web panel. This application
@@ -26,6 +26,7 @@ export default function createApplication(client: DiscordClient) {
 
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);
+    register(app, client.riotAPI);
 
     // Then, default to index for anything we do not recognize, that way
     // our vue-router can catch the problem and render the appropriate page.
