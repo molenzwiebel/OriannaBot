@@ -17,6 +17,7 @@ export default class WebAPIClient {
         app.get("/api/v1/user", swallowErrors(this.serveUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
+        app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
     }
 
     /**
@@ -67,14 +68,17 @@ export default class WebAPIClient {
             length: 8,
             readable: true
         });
-        const data = {
+
+        this.summoners.set(key,  {
             ...summ,
             region: req.body.region
-        };
+        });
 
-        this.summoners.set(key, data);
         return res.json({
-            ...data,
+            region: req.body.region,
+            username: summ.name,
+            account_id: summ.accountId,
+            summoner_id: summ.id,
             code: key
         });
     };
@@ -101,6 +105,25 @@ export default class WebAPIClient {
                 account_id: summoner.accountId
             });
         }
+
+        return res.json({ ok: true });
+    });
+
+    /**
+     * Deletes the specified account from the user's profile.
+     */
+    private deleteUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
+        if (Joi.validate(req.body, Joi.object({
+            summoner_id: Joi.number(),
+            region: Joi.any().valid(REGIONS)
+        }).unknown(true)).error) return res.status(400).json(null);
+
+        await req.user.$loadRelated("accounts");
+
+        const toDelete = req.user.accounts!.find(x => x.region === req.body.region && x.summoner_id === req.body.summoner_id);
+        if (!toDelete) return res.status(400).json(null);
+
+        await toDelete.$query().delete();
 
         return res.json({ ok: true });
     });
