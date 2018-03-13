@@ -3,7 +3,6 @@ import Component from "vue-class-component";
 
 import Sidebar from "../sidebar/sidebar.vue";
 import ErrorComponent from "../error/error.vue";
-import AddAccount from "../add-account/add-account.vue";
 import { API_HOST } from "../../config";
 
 interface ErrorDetails {

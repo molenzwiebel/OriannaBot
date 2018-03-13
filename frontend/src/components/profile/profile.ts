@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import App from "../app/app";
+import Dialog from "../dialog/dialog.vue";
 import AddAccountComponent from "../add-account/add-account.vue";
 
 interface UserAccount {
@@ -51,7 +52,17 @@ export default class UserProfile extends Vue {
      * Deletes the specified account.
      */
     async deleteAccount(account: UserAccount) {
-        // TODO: Should probably ask for verification. :)
+        const response = await this.$root.displayModal<boolean | null>(Dialog, {
+            title: "Are you sure?",
+            details: "Do you really want to remove <b>" + account.username + "</b>? You will have to reverify your account should you decide to add it again.",
+            buttons: [{
+                value: false, text: "Cancel", bg: "white", fg: "#333"
+            }, {
+                value: true, text: "Remove", bg: "red", fg: "white", border: "red"
+            }]
+        });
+        if (!response) return;
+
         await this.$root.submit("/api/v1/user/accounts", "DELETE", account);
         this.user.accounts.splice(this.user.accounts.indexOf(account), 1);
     }
