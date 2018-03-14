@@ -10,11 +10,10 @@ export default function register(app: express.Application, riot: RiotAPI) {
 
     app.get("/api/v1/reddit", requireAuth((req, res) => {
         res.redirect(`https://www.reddit.com/api/v1/authorize?client_id=${config.reddit.clientId}&response_type=code&redirect_uri=${redirectUrl}&duration=temporary&scope=identity&state=abc`);
-
     }));
 
     app.get("/api/v1/reddit/callback", requireAuth(async (req, res) => {
-        const ret = (resp: any) => res.send("<head><script>window.postMessage({ type: 'reddit', result: " + JSON.stringify(resp) + " }, '*')</script>");
+        const ret = (resp: any) => res.send("<head><script>window.opener.postMessage({ type: 'reddit', result: " + JSON.stringify(resp) + " }, '*')</script>");
 
         if (!req.query.code || req.query.error) return ret({ ok: false, error: req.query.error });
         try {
