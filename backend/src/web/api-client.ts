@@ -2,7 +2,7 @@ import express = require("express");
 import * as eris from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server, BlacklistedChannel } from "../database";
+import { Server, User } from "../database";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -20,6 +20,7 @@ export default class WebAPIClient {
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
 
         app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
+        app.patch("/api/v1/server/:id", swallowErrors(this.patchServer));
     }
 
     /**
@@ -58,10 +59,10 @@ export default class WebAPIClient {
      * Returns null and 404 if the summoner cannot be found.
      */
     private lookupSummoner = async (req: express.Request, res: express.Response) => {
-        if (Joi.validate(req.body, {
+        if (!this.validate( {
             username: Joi.string().required(),
             region: Joi.any().valid(REGIONS)
-        }).error) return res.status(400).json(null);
+        }, req, res)) return;
 
         const summ = await this.client.riotAPI.getSummonerByName(req.body.region, req.body.username);
         if (!summ) return res.status(404).json(null);
@@ -89,9 +90,9 @@ export default class WebAPIClient {
      * Adds the specified summoner with the specified code to the currently logged in user.
      */
     private addUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
-        if (Joi.validate(req.body, {
+        if (!this.validate({
             code: Joi.any().valid(...this.summoners.keys()) // must be a valid code
-        }).error) return res.status(400).json(null);
+        }, req, res)) return;
 
         // Make sure that the code is valid.
         const summoner = this.summoners.get(req.body.code)!;
@@ -107,10 +108,10 @@ export default class WebAPIClient {
      * Deletes the specified account from the user's profile.
      */
     private deleteUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
-        if (Joi.validate(req.body, Joi.object({
+        if (!this.validate(Joi.object({
             summoner_id: Joi.number(),
             region: Joi.any().valid(REGIONS)
-        }).unknown(true)).error) return res.status(400).json(null);
+        }), req, res)) return;
 
         await req.user.$loadRelated("accounts");
 
@@ -133,8 +134,7 @@ export default class WebAPIClient {
         if (!guild) return res.status(400).send();
 
         // Check if the current user has access.
-        if (!guild.members.has(req.user.snowflake)) return res.status(403).send();
-        if (!guild.members.get(req.user.snowflake)!.permission.has("manageMessages")) return res.status(403).send();
+        if (!this.hasAccess(req.user, server)) return res.status(403).send();
 
         await server.$loadRelated("roles.*");
         await server.$loadRelated("blacklisted_channels");
@@ -150,4 +150,55 @@ export default class WebAPIClient {
             }
         });
     });
+
+    /**
+     * Handles a simple diff change patch for the specified server.
+     */
+    private patchServer = requireAuth(async (req: express.Request, res: express.Response) => {
+        const server = await Server.query().where("snowflake", req.params.id).first();
+        if (!server) return res.status(400).send();
+
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) return res.status(400).send();
+
+        if (!this.hasAccess(req.user, server)) return res.status(403).send();
+
+        // Check payload.
+        if (!this.validate({
+            // Announcement channel must be null or a valid channnel. Optional.
+            announcement_channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id)).optional(),
+
+            // Default champion must be a number or null. Optional.
+            default_champion: Joi.number().allow(null).optional()
+        }, req, res)) return;
+
+        await server.$query().update(req.body);
+        return res.json({ ok: true });
+    });
+
+    /**
+     * Validates the post contents of the specified request with the specified schema. Returns
+     * true if the request is valid, false otherwise. This will close the request if the request
+     * was invalid.
+     */
+    private validate(schema: any, req: express.Request, res: express.Response): boolean {
+        const result = Joi.validate(req.body, schema);
+        if (result.error) {
+            res.status(400).json({ ok: false, error: result.error.message });
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the specified user has permissions to edit the specified server.
+     */
+    private hasAccess(user: User, server: Server): boolean {
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) return false;
+
+        // Check if the current user has access.
+        return guild.members.has(user.snowflake) && guild.members.get(user.snowflake)!.permission.has("manageMessages");
+    }
 }
