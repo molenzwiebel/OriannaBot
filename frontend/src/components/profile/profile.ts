@@ -3,6 +3,7 @@ import Component from "vue-class-component";
 import App from "../app/app";
 import Dialog from "../dialog/dialog.vue";
 import AddAccountComponent from "../add-account/add-account.vue";
+import ImportAccountsWizard from "../import-accounts/import-accounts.vue";
 
 interface UserAccount {
     username: string;
@@ -46,6 +47,17 @@ export default class UserProfile extends Vue {
         if (this.user.accounts.some(x => x.region === result.region && x.username === result.username)) return;
 
         this.user.accounts.push(result);
+    }
+
+    /**
+     * Prompts for the user to add accounts using the reddit championmains flair system.
+     */
+    async importAccounts() {
+        const result = await this.$root.displayModal<boolean | null>(ImportAccountsWizard, {});
+        if (!result) return;
+
+        // Reload user data to show the new accounts.
+        this.user = (await this.$root.get<UserDetails>("/api/v1/user"))!;
     }
 
     /**

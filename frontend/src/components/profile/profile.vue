@@ -4,7 +4,7 @@
         <div class="box">
             <div class="header"><h2>Configure {{ user.username }}</h2></div>
             <div class="body">
-
+                <i>This will eventually show opt-out options for stuff like region roles, rank roles and just roles in general. Maybe also opt out for graphs, depending if I want to make graphs public for everyone and display averages n shit.</i>
             </div>
         </div>
 
@@ -14,7 +14,7 @@
 
                 <div class="actions" v-if="user.accounts.length">
                     <a class="small-button" @click="addAccount" href="#">Add New</a>
-                    <a class="small-button" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
+                    <a class="small-button" @click="importAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                 </div>
             </div>
 
@@ -33,7 +33,7 @@
                     <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score:</p>
                     <div class="actions">
                         <a class="small-button" @click="addAccount" href="#">Add New</a>
-                        <a class="small-button" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
+                        <a class="small-button" @click="importAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                     </div>
                 </div>
             </div>

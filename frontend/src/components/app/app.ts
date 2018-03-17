@@ -4,7 +4,6 @@ import Component from "vue-class-component";
 import Sidebar from "../sidebar/sidebar.vue";
 import ErrorComponent from "../error/error.vue";
 import { API_HOST } from "../../config";
-import ImportAccountsWizard from "../import-accounts/import-accounts.vue";
 
 interface ErrorDetails {
     title: string;

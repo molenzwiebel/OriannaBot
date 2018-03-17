@@ -7,7 +7,7 @@ import "vue-form-wizard/dist/vue-form-wizard.min.css";
 
 import App from "./components/app/app.vue";
 import UserProfile from "./components/profile/profile.vue";
-import Verification from "./components/verification/verification.vue";
+import DocsComponent from "./components/docs/docs.vue";
 import Error from "./components/error/error.vue";
 
 Vue.use(VueRouter);
@@ -16,8 +16,7 @@ Vue.use(VueFormWizard);
 const router = new VueRouter({
     routes: [
         { path: "/", component: { render(x) { return x("p") } } },
-        { path: "/docs", component: { render(x) { return x("i") } } },
-        { path: "/invite", component: Verification, props: { code: "Test" } },
+        { path: "/docs", component: DocsComponent },
         { path: "/me", component: UserProfile },
 
         // 404 Route
