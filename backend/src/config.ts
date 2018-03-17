@@ -6,6 +6,8 @@ interface Configuration {
         rankedQueues: { [key: string]: string };
     };
     discord: {
+        clientId: string;
+        clientSecret: string;
         owner: string;
         token: string;
         emoteServers: string[];
