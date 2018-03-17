@@ -33,7 +33,7 @@
         computed: {
             image() {
                 // The "no ban icon"
-                if (!this.value) return "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png";
+                if (!this.value || !this.champions.length) return "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png";
 
                 const champ = this.champions.find((x: Champion) => x.key === this.value);
                 return "http://ddragon.leagueoflegends.com/cdn/" + ddragon() + "/img/champion/" + champ.id + ".png";

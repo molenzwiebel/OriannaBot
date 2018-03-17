@@ -5,7 +5,8 @@
         <div class="view">
             <error v-if="error" :title="error.title" :details="error.details" :show-login="error.showLogin"></error>
             <transition name="fade" v-else>
-                <router-view></router-view>
+                <!-- We attach a key here to prevent vue from reusing components -->
+                <router-view :key="$route.path"></router-view>
             </transition>
         </div>
 

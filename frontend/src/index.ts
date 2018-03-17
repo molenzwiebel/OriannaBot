@@ -7,6 +7,7 @@ import "vue-form-wizard/dist/vue-form-wizard.min.css";
 
 import App from "./components/app/app.vue";
 import UserProfile from "./components/profile/profile.vue";
+import ServerProfile from "./components/server/server.vue";
 import DocsComponent from "./components/docs/docs.vue";
 import Error from "./components/error/error.vue";
 
@@ -18,6 +19,7 @@ const router = new VueRouter({
         { path: "/", component: { render(x) { return x("p") } } },
         { path: "/docs", component: DocsComponent },
         { path: "/me", component: UserProfile },
+        { path: "/server/:id", component: ServerProfile },
 
         // 404 Route
         { path: "*", component: Error, props: { title: "Not Found", details: "Looks like the page you requested does not exist. Double-check your URL for spelling mistakes.", showLogin: false } }

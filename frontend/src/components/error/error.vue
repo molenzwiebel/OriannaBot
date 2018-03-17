@@ -4,15 +4,22 @@
         <div class="details">
             <span>{{ title }}</span>
             <p>{{ details }}</p>
-            <router-link to="/sign-in" v-if="showLogin">Sign In With Discord</router-link>
+            <a :href="signInLink" v-if="showLogin">Sign In With Discord</a>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+    import { API_HOST } from "../../config";
+
     export default {
-        props: ["title", "details", "showLogin"]
-    }
+        props: ["title", "details", "showLogin"],
+        computed: {
+            signInLink: function() {
+                return API_HOST + "/api/v1/discord";
+            }
+        }
+    };
 </script>
 
 <style lang="stylus" scoped>
