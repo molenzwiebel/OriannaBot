@@ -2,7 +2,7 @@ import express = require("express");
 import * as eris from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server } from "../database";
+import { Server, BlacklistedChannel } from "../database";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -18,6 +18,8 @@ export default class WebAPIClient {
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
+
+        app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
     }
 
     /**
@@ -118,5 +120,34 @@ export default class WebAPIClient {
         await toDelete.$query().delete();
 
         return res.json({ ok: true });
+    });
+
+    /**
+     * Serves the settings and roles for the specified discord server id.
+     */
+    private serveServer = requireAuth(async (req: express.Request, res: express.Response) => {
+        const server = await Server.query().where("snowflake", req.params.id).first();
+        if (!server) return res.status(400).send();
+
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) return res.status(400).send();
+
+        // Check if the current user has access.
+        if (!guild.members.has(req.user.snowflake)) return res.status(403).send();
+        if (!guild.members.get(req.user.snowflake)!.permission.has("manageMessages")) return res.status(403).send();
+
+        await server.$loadRelated("roles.*");
+        await server.$loadRelated("blacklisted_channels");
+
+        const channels = guild.channels.filter(x => x.type === 0).map(x => ({ id: x.id, name: x.name }));
+        const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({ id: x.id, name: x.name }));
+
+        return res.json({
+            ...server.toJSON(),
+            discord: {
+                channels,
+                roles
+            }
+        });
     });
 }

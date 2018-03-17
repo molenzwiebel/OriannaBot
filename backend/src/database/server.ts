@@ -1,4 +1,5 @@
-import { Model } from "objection";
+import { Model, Pojo } from "objection";
+import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 import Role from "./role";
 
@@ -48,6 +49,13 @@ export default class Server extends Model {
      * Optionally eager-loaded roles for this server.
      */
     roles?: Role[];
+
+    /**
+     * Omit id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id"]);
+    }
 }
 
 @decorators.table("blacklisted_channels")
@@ -56,6 +64,13 @@ export class BlacklistedChannel extends Model {
      * The Discord ID of the blacklisted channel.
      */
     snowflake: string;
+
+    /**
+     * Only return the string snowflake as the json representation.
+     */
+    $formatJson(json: Pojo) {
+        return <any>this.snowflake;
+    }
 }
 
 decorators.hasMany("roles", () => Role, "id", "server_id")(Server);

@@ -1,4 +1,5 @@
-import { Model } from "objection";
+import { Model, Pojo } from "objection";
+import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 import { evaluateRangeCondition, TypedRoleCondition } from "../types/conditions";
 import User from "./user";
@@ -39,6 +40,13 @@ export default class Role extends Model {
     test(user: User): boolean {
         if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
         return !this.conditions.some(x => !x.test(user));
+    }
+
+    /**
+     * Omit id and server_id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id", "server_id"]);
     }
 }
 
@@ -101,6 +109,13 @@ export class RoleCondition extends Model {
         } else {
             throw new Error("Invalid RoleCondition type.");
         }
+    }
+
+    /**
+     * Omit id and role_id from the JSON object.
+     */
+    $formatJson(json: Pojo) {
+        return omit(super.$formatJson(json), ["id", "role_id"]);
     }
 }
 
