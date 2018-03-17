@@ -7,8 +7,9 @@
             </template>
 
             <template v-else>
-                <option value="disabled" disabled :selected="!value">Select A Champion</option>
-                <option :value="champ.id" v-for="champ in champions" :selected="value && value === champ.key">{{ champ.name }}</option>
+                <option value="disabled" :disabled="!allowNull" :selected="!value">{{ allowNull ? 'None' : 'Select A Champion' }}</option>
+                <option v-if="allowNull" disabled>──────────</option>
+                <option :value="champ.id" v-for="champ in champions" :selected="value && value == champ.key">{{ champ.name }}</option>
             </template>
         </select>
     </div>
@@ -18,13 +19,17 @@
     import { Champion, champions, ddragon } from "../../config";
 
     export default {
-        props: ["value"],
+        props: {
+            value: null,
+            allowNull: { default: false, type: Boolean }
+        },
         data() {
             return { champions: [] };
         },
         methods: {
             update() {
-                this.$emit("input", this.champions.find((x: Champion) => x.id === this.$refs.select.value).key);
+                const champ = this.champions.find((x: Champion) => x.id === this.$refs.select.value);
+                this.$emit("input", champ ? champ.key : null);
             }
         },
         async created() {
@@ -35,7 +40,7 @@
                 // The "no ban icon"
                 if (!this.value || !this.champions.length) return "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png";
 
-                const champ = this.champions.find((x: Champion) => x.key === this.value);
+                const champ = this.champions.find((x: Champion) => x.key == this.value);
                 return "http://ddragon.leagueoflegends.com/cdn/" + ddragon() + "/img/champion/" + champ.id + ".png";
             }
         }
