@@ -27,10 +27,10 @@
 
         <div class="divider section"></div>
 
-        <router-link v-if="!user" to="/sign-in" class="discord-sign-in">
+        <a v-if="!user" :href="signInLink" class="discord-sign-in">
             Sign In With
             <img src="https://discordapp.com/assets/e4923594e694a21542a489471ecffa50.svg">
-        </router-link>
+        </a>
 
         <template v-if="user">
             <router-link to="/me">
@@ -49,8 +49,15 @@
 </template>
 
 <script>
+    import { API_HOST } from "../../config";
+
     export default {
-        props: ["user"]
+        props: ["user"],
+        computed: {
+            signInLink: function() {
+                return API_HOST + "/api/v1/discord";
+            }
+        }
     };
 </script>
 

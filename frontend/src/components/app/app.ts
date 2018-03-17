@@ -49,7 +49,7 @@ export default class App extends Vue {
         component: any,
         props: any,
         resolve: Function
-    } | null = { component: ImportAccountsWizard, props: {}, resolve() {} };
+    } | null = null;
 
     async mounted() {
         // No need to delete this, since we never unmount app.
