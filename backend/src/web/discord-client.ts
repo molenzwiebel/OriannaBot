@@ -30,15 +30,15 @@ export default function register(app: express.Application, client: DiscordClient
                     Authorization: "Bearer " + tokenRes.access_token
                 }
             });
-            const me: { id: string } = await meReq.json();
+            const me: { id: string, username: string, avatar?: string } = await meReq.json();
 
-            const user = await client.findOrCreateUser(me.id);
+            const user = await client.findOrCreateUser(me.id, me);
             if (!user) throw new Error("Missing user.");
 
             res.cookie("token", user.token);
             return res.redirect("/");
         } catch (err) {
-            return res.status(500).send();
+            return res.status(500).send("We're sorry, something went wrong processing your request.");
         }
     });
 }

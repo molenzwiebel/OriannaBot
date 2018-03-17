@@ -69,15 +69,15 @@ export default class DiscordClient {
     /**
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
-    public async findOrCreateUser(id: string): Promise<User> {
+    public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string }): Promise<User> {
         const user = await User.query().where("snowflake", "=", id).first();
         if (user) return user;
 
-        const discordUser = this.bot.users.get(id);
+        discordUser = discordUser || this.bot.users.get(id);
         if (!discordUser) throw new Error("No common server shared with server " + id);
 
         return User.query().insertAndFetch({
-            snowflake: discordUser.id,
+            snowflake: id,
             username: discordUser.username,
             avatar: discordUser.avatar || "none",
             token: randomstring.generate({
