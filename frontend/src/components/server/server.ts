@@ -18,7 +18,7 @@ interface ServerDetails {
             options: any;
         };
     }[];
-    blacklisted_channnels: string[];
+    blacklisted_channels: string[];
     discord: {
         channels: { id: string, name: string }[];
         roles: { id: string, name: string }[];
@@ -31,6 +31,7 @@ interface ServerDetails {
 export default class ServerProfile extends Vue {
     $root: App;
     server: ServerDetails = <any>null; // required for vue to register the binding
+    blacklistChannel = "disabled";
 
     async mounted() {
         // Load user details. Will error if the user is not logged in.
@@ -55,5 +56,40 @@ export default class ServerProfile extends Vue {
         this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
             default_champion: champ
         });
+    }
+
+    /**
+     * Marks the currently selected blacklist channel as being blacklisted.
+     */
+    private addBlacklistedChannel() {
+        if (this.blacklistChannel === "disabled") return;
+
+        // TODO: Server request.
+        this.server.blacklisted_channels.push(this.blacklistChannel);
+        this.blacklistChannel = "undefined";
+    }
+
+    /**
+     * Removes the specified channel ID from the blacklist.
+     */
+    private removeBlacklist(id: string) {
+        // TODO: Server request.
+        this.server.blacklisted_channels.splice(this.server.blacklisted_channels.indexOf(id), 1);
+    }
+
+    /**
+     * Returns all the blacklisted channels in the server.
+     */
+    get blacklistedChannels() {
+        if (!this.server) return [];
+        return this.server.discord.channels.filter(x => this.server.blacklisted_channels.indexOf(x.id) !== -1);
+    }
+
+    /**
+     * Returns all the channels that are _not_ blacklisted in the server.
+     */
+    get unblacklistedChannels() {
+        if (!this.server) return [];
+        return this.server.discord.channels.filter(x => this.server.blacklisted_channels.indexOf(x.id) === -1);
     }
 }
