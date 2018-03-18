@@ -2,7 +2,7 @@ import express = require("express");
 import * as eris from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server, User } from "../database";
+import { Server, User, BlacklistedChannel } from "../database";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -21,6 +21,9 @@ export default class WebAPIClient {
 
         app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
         app.patch("/api/v1/server/:id", swallowErrors(this.patchServer));
+
+        app.post("/api/v1/server/:id/blacklisted_channels", swallowErrors(this.addBlacklistedChannel));
+        app.delete("/api/v1/server/:id/blacklisted_channels", swallowErrors(this.deleteBlacklistedChannel));
     }
 
     /**
@@ -127,14 +130,8 @@ export default class WebAPIClient {
      * Serves the settings and roles for the specified discord server id.
      */
     private serveServer = requireAuth(async (req: express.Request, res: express.Response) => {
-        const server = await Server.query().where("snowflake", req.params.id).first();
-        if (!server) return res.status(400).send();
-
-        const guild = this.bot.guilds.get(server.snowflake);
-        if (!guild) return res.status(400).send();
-
-        // Check if the current user has access.
-        if (!this.hasAccess(req.user, server)) return res.status(403).send();
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
 
         await server.$loadRelated("roles.*");
         await server.$loadRelated("blacklisted_channels");
@@ -155,13 +152,8 @@ export default class WebAPIClient {
      * Handles a simple diff change patch for the specified server.
      */
     private patchServer = requireAuth(async (req: express.Request, res: express.Response) => {
-        const server = await Server.query().where("snowflake", req.params.id).first();
-        if (!server) return res.status(400).send();
-
-        const guild = this.bot.guilds.get(server.snowflake);
-        if (!guild) return res.status(400).send();
-
-        if (!this.hasAccess(req.user, server)) return res.status(403).send();
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
 
         // Check payload.
         if (!this.validate({
@@ -177,6 +169,51 @@ export default class WebAPIClient {
     });
 
     /**
+     * Adds a new blacklisted channel to the specified server.
+     */
+    private addBlacklistedChannel = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check payload.
+        if (!this.validate({
+            channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id))
+        }, req, res)) return;
+
+        // If the channel hasn't been marked as blacklisted already, add it.
+        await server.$loadRelated("blacklisted_channels");
+        if (!server.blacklisted_channels!.some(x => x.snowflake === req.body.channel)) {
+            await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").insert({
+                snowflake: req.body.channel
+            });
+        }
+
+        return res.json({ ok: true });
+    });
+
+    /**
+     * Removes a blacklisted channel from the specified server.
+     */
+    private deleteBlacklistedChannel = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check payload.
+        if (!this.validate({
+                channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id))
+            }, req, res)) return;
+
+        // If the channel was marked as blacklisted, remove it.
+        await server.$loadRelated("blacklisted_channels");
+        const blacklistedChannel = server.blacklisted_channels!.find(x => x.snowflake === req.body.channel);
+        if (blacklistedChannel) {
+            await blacklistedChannel.$query().delete();
+        }
+
+        return res.json({ ok: true });
+    });
+
+        /**
      * Validates the post contents of the specified request with the specified schema. Returns
      * true if the request is valid, false otherwise. This will close the request if the request
      * was invalid.
@@ -189,6 +226,31 @@ export default class WebAPIClient {
         }
 
         return true;
+    }
+
+    /**
+     * Checks that the requested server exists and that the current user has access. Returns a null
+     * server if something went wrong, valid values otherwise.
+     */
+    private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: eris.Guild }> {
+        const server = await Server.query().where("snowflake", req.params.id).first();
+        if (!server) {
+            res.status(400).send();
+            return { server: null, guild: <any>null };
+        }
+
+        const guild = this.bot.guilds.get(server.snowflake);
+        if (!guild) {
+            res.status(400).send();
+            return { server: null, guild: <any>null };
+        }
+
+        if (!this.hasAccess(req.user, server)) {
+            res.status(403).send();
+            return { server: null, guild: <any>null };
+        }
+
+        return { server, guild };
     }
 
     /**
