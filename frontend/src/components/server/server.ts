@@ -64,7 +64,10 @@ export default class ServerProfile extends Vue {
     private addBlacklistedChannel() {
         if (this.blacklistChannel === "disabled") return;
 
-        // TODO: Server request.
+        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "POST", {
+            channel: this.blacklistChannel
+        });
+
         this.server.blacklisted_channels.push(this.blacklistChannel);
         this.blacklistChannel = "undefined";
     }
@@ -73,7 +76,10 @@ export default class ServerProfile extends Vue {
      * Removes the specified channel ID from the blacklist.
      */
     private removeBlacklist(id: string) {
-        // TODO: Server request.
+        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "DELETE", {
+            channel: id
+        });
+
         this.server.blacklisted_channels.splice(this.server.blacklisted_channels.indexOf(id), 1);
     }
 
