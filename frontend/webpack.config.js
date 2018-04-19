@@ -1,5 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
+const GitRevisionPlugin = require("git-revision-webpack-plugin");
+const gitRevision = new GitRevisionPlugin({ branch: true });
 
 module.exports = env => ({
     entry: env === "prod" ? ["./src/index.ts"] : [
@@ -37,6 +39,10 @@ module.exports = env => ({
         port: 8081
     },
     plugins: [
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            GIT_BRANCH: JSON.stringify(gitRevision.branch()),
+            GIT_COMMITHASH: JSON.stringify(gitRevision.commithash())
+        })
     ]
 });

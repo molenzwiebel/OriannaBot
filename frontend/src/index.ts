@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import VueFormWizard from "vue-form-wizard";
+import VueTippy from "vue-tippy";
 
 import "./common.styl";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";
@@ -11,6 +12,7 @@ import ServerProfile from "./components/server/server.vue";
 import DocsComponent from "./components/docs/docs.vue";
 import Error from "./components/error/error.vue";
 
+Vue.use(VueTippy);
 Vue.use(VueRouter);
 Vue.use(VueFormWizard);
 
