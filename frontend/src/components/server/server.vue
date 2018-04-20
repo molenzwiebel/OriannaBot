@@ -51,7 +51,7 @@
                     <a class="button" @click="addRole">Add Role</a>
                 </div>
 
-                <a class="button">Presets</a>
+                <a class="button" @click="openPresetsModal">Presets</a>
             </div>
         </div>
 

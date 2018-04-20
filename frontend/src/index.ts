@@ -3,7 +3,7 @@ import VueRouter from "vue-router";
 import VueFormWizard from "vue-form-wizard";
 import VueTippy from "vue-tippy";
 import VueTextMask from "vue-text-mask";
-import VueSimpleSuggest from "vue-simple-suggest";
+import VueSimpleSuggest from "vue-simple-suggest/dist/cjs";
 
 import "./common.styl";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";

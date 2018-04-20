@@ -3,6 +3,7 @@ import Component from "vue-class-component";
 import App from "../app/app";
 import ChampionDropdown from "../champion-dropdown/champion-dropdown.vue";
 import RoleConditions from "../role-tree/role-conditions.vue";
+import PresetsModal from "../presets/presets.vue";
 
 export interface Role {
     id: number;
@@ -113,6 +114,17 @@ export default class ServerProfile extends Vue {
 
         this.server.roles.push(role);
         this.roleName = "";
+    }
+
+    /**
+     * Opens the presets modal.
+     */
+    private async openPresetsModal() {
+        const res = await this.$root.displayModal<boolean | null>(PresetsModal, { id: this.$route.params.id });
+        if (!res) return;
+
+        // Reload roles, since we don't know what the user added.
+        this.server = (await this.$root.get<ServerDetails>("/api/v1/server/" + this.$route.params.id))!;
     }
 
     /**

@@ -13,10 +13,10 @@
                 </i>
             </div>
 
-            <div v-show="expanded">
-                <a href="#" class="small-button" v-if="!matchingDiscord" @click.prevent="linkRole">Create Discord Role</a>
-                <a href="#" class="small-button" @click.prevent="addCondition">Add Condition</a>
-                <a href="#" class="small-button" :title="valid ? '' : 'Some of your conditions are not complete. Check them before trying to save.'" :disabled="!(dirty && valid)" v-tippy @click.prevent="save">Save</a>
+            <div>
+                <a v-show="expanded" href="#" class="small-button" v-if="!matchingDiscord" @click.prevent="linkRole">Create Discord Role</a>
+                <a v-show="expanded" href="#" class="small-button" @click.prevent="addCondition">Add Condition</a>
+                <a v-show="expanded" href="#" class="small-button" :title="valid ? '' : 'Some of your conditions are not complete. Check them before trying to save.'" :disabled="!(dirty && valid)" v-tippy @click.prevent="save">Save</a>
                 <a href="#" class="small-button" @click.prevent="deleteRole">Delete</a>
             </div>
         </div>

@@ -19,7 +19,7 @@ export default class RoleConditions extends Vue {
     conditions: { valid: boolean, opts: any }[] = [];
 
     discordRoles: DiscordRole[];
-    expanded = true;
+    expanded = false;
     dirty = false; // if we received a change event and haven't saved yet
 
     mounted() {

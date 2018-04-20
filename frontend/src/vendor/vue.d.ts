@@ -23,7 +23,7 @@ declare module "text-mask-addons/dist/createNumberMask" {
     export default create;
 }
 
-declare module "vue-simple-suggest" {
+declare module "vue-simple-suggest/dist/cjs" {
     const exp: any;
     export default exp;
 }

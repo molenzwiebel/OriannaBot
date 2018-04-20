@@ -4,7 +4,7 @@
     <div class="tree">
         <span>The player </span>
         <select v-model="state.type">
-            <option value="mastery_level">is at least mastery level</option>
+            <option value="mastery_level">has a mastery level of</option>
             <option value="mastery_score">has a mastery score of</option>
             <option value="total_mastery_score">has a total mastery score of</option>
             <option value="ranked_tier">has a ranked tier</option>
@@ -13,9 +13,30 @@
         </select>
 
         <template v-if="state.type === 'mastery_level'">
-            <masked-input :mask="numberMask" v-model="state.value" placeholder="level"></masked-input>
-            <span> on </span>
-            <champion-dropdown v-model="state.champion"></champion-dropdown>
+            <select v-model="state.compare_type">
+                <option value="at_least">at least</option>
+                <option value="at_most">at most</option>
+                <option value="between">between</option>
+                <option value="exactly">exactly</option>
+            </select>
+
+            <!-- 1 -->
+            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most' || state.compare_type === 'exactly'">
+                <span> level </span>
+                <masked-input :mask="numberMask" v-model="state.value" placeholder="5"></masked-input>
+                <span> on </span>
+                <champion-dropdown v-model="state.champion"></champion-dropdown>
+            </template>
+
+            <!-- 2 -->
+            <template v-if="state.compare_type === 'between'">
+                <span> level </span>
+                <masked-input :mask="numberMask" v-model="state.min" placeholder="1"></masked-input>
+                <span> and level </span>
+                <masked-input :mask="numberMask" v-model="state.max" placeholder="5"></masked-input>
+                <span> on </span>
+                <champion-dropdown v-model="state.champion"></champion-dropdown>
+            </template>
         </template>
 
         <template v-if="state.type === 'mastery_score'">
@@ -23,14 +44,17 @@
                 <option value="at_least">at least</option>
                 <option value="at_most">at most</option>
                 <option value="between">between</option>
+                <option value="exactly">exactly</option>
             </select>
 
-            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most'">
+            <!-- 3 -->
+            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most' || state.compare_type === 'exactly'">
                 <masked-input :mask="numberMask" v-model="state.value" placeholder="100,000"></masked-input>
                 <span> points on </span>
                 <champion-dropdown v-model="state.champion"></champion-dropdown>
             </template>
 
+            <!-- 4 -->
             <template v-if="state.compare_type === 'between'">
                 <masked-input :mask="numberMask" v-model="state.min" placeholder="50,000"></masked-input>
                 <span> and </span>
@@ -45,9 +69,10 @@
                 <option value="at_least">at least</option>
                 <option value="at_most">at most</option>
                 <option value="between">between</option>
+                <option value="exactly">exactly</option>
             </select>
 
-            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most'">
+            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most' || state.compare_type === 'exactly'">
                 <masked-input :mask="numberMask" v-model="state.value" placeholder="100,000"></masked-input>
                 <span> points total</span>
             </template>
@@ -105,6 +130,7 @@
                 <option value="BR">BR</option>
                 <option value="LAN">LAN</option>
                 <option value="LAS">LAS</option>
+                <option value="JP">JP</option>
                 <option value="TR">TR</option>
                 <option value="RU">RU</option>
             </select>
@@ -117,7 +143,7 @@
     import createNumberMask from "text-mask-addons/dist/createNumberMask";
 
     const KEYS: { [key: string]: string[] | ((data: any) => string[]) } = {
-        mastery_level: ["value", "champion"],
+        mastery_level: d => d.compare_type === "between" ? ["compare_type", "champion", "min", "max"] : ["compare_type", "champion", "value"],
         mastery_score: d => d.compare_type === "between" ? ["compare_type", "champion", "min", "max"] : ["compare_type", "champion", "value"],
         total_mastery_score: d => d.compare_type === "between" ? ["compare_type", "min", "max"] : ["compare_type", "value"],
         ranked_tier: ["compare_type", "tier", "queue"],
@@ -164,7 +190,7 @@
 
                 const ret: { [key: string]: any } = { type: this.state.type };
                 for (const key of typeof keys === "function" ? keys(this.state) : keys) {
-                    ret[key] = NUMBERS.indexOf(key) !== -1 ? +this.state[key].replace(/,./g, "") : this.state[key];
+                    ret[key] = NUMBERS.indexOf(key) !== -1 && typeof this.state[key] !== "number" ? +this.state[key].replace(/,\./g, "") : this.state[key];
                 }
 
                 return ret;
