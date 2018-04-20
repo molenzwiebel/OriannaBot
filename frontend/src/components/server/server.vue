@@ -23,8 +23,35 @@
 
         <div class="box">
             <div class="header"><h2>Roles</h2></div>
-            <div>
-                <role-conditions v-for="role in server.roles" :role="role" :discord-roles="server.discord.roles" :key="role.id"></role-conditions>
+
+            <div v-if="server.roles.length">
+                <role-conditions
+                        v-for="role in server.roles"
+                        :role="role"
+                        :discord-roles="server.discord.roles"
+                        :key="role.id"
+                        @delete="deleteRole(role)"
+                ></role-conditions>
+            </div>
+
+            <div class="no-roles" v-if="!server.roles.length">
+                <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
+                <p><b>There are no roles configured.</b> Add your own or import a preset below!</p>
+            </div>
+
+            <div class="add-role">
+                <div class="input">
+                    <vue-suggest
+                            placeholder="Role Name..."
+                            v-model="roleName"
+                            :list="roleNames"
+                            :filter-by-query="true">
+                    </vue-suggest>
+
+                    <a class="button" @click="addRole">Add Role</a>
+                </div>
+
+                <a class="button">Presets</a>
             </div>
         </div>
 
@@ -43,7 +70,7 @@
                         <option value="disabled" disabled>Choose Channel...</option>
                         <option v-for="channel in unblacklistedChannels" :key="channel.id" :value="channel.id">#{{ channel.name }}</option>
                     </select>
-                    <a @click="addBlacklistedChannel">
+                    <a class="button" @click="addBlacklistedChannel">
                         Blacklist Channel
                     </a>
                 </div>
@@ -77,6 +104,69 @@
         .setting + .setting
             margin-top 20px
 
+        .no-roles
+            padding 20px
+            display flex
+            flex-direction column
+            align-items center
+            jusitify-content center
+            color #333
+            border-bottom 1px solid #d5d5d5
+
+            img
+                filter grayscale()
+                opacity 0.6
+                width 160px
+
+            p
+                max-width 300px
+                text-align center
+
+        .add-role
+            display flex
+            align-items center
+            justify-content space-between
+            margin 10px
+
+            .button
+                width auto
+                height 35px
+                line-height 35px
+                padding 0 10px
+
+            .input
+                display flex
+                align-items center
+
+            .vue-simple-suggest.designed
+                position relative
+
+                .suggestions
+                    position absolute
+                    background-color white
+                    border 1px solid #c1c1c1
+                    width 100%
+
+                .suggest-item
+                    cursor pointer
+                    font-size 14px
+                    padding 5px
+                    transition 0.1s ease
+
+                .suggest-item.selected, .suggest-item.hover
+                    color white
+                    background-color #20afef
+
+            .vue-simple-suggest.designed input
+                height 35px
+                padding 0 10px
+                border 1px solid #c1c1c1
+                transition 0.2s ease
+
+                &:focus
+                    outline none
+                    border-color #1f9fde
+
         .channels p
             margin 0
             padding 8px
@@ -101,7 +191,7 @@
             padding 20px
             display flex
 
-        .blacklist a
+        .button
             height 40px
             line-height 40px
             text-align center

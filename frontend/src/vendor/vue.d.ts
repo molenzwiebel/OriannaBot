@@ -22,3 +22,8 @@ declare module "text-mask-addons/dist/createNumberMask" {
     function create(opts: any): any;
     export default create;
 }
+
+declare module "vue-simple-suggest" {
+    const exp: any;
+    export default exp;
+}

@@ -31,8 +31,8 @@
             text-transform uppercase
             margin 0 4px
             padding 4px 6px
-            letter-spacing 0.8px
-            font-size 18px
+            letter-spacing 0.5px
+            font-size 16px
             font-weight 300
             border 1px solid transparent
             cursor pointer

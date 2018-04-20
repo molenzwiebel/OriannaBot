@@ -42,6 +42,7 @@ export default class ServerProfile extends Vue {
     $root: App;
     server: ServerDetails = <any>null; // required for vue to register the binding
     blacklistChannel = "disabled";
+    roleName = "";
 
     async mounted() {
         // Load user details. Will error if the user is not logged in.
@@ -94,6 +95,27 @@ export default class ServerProfile extends Vue {
     }
 
     /**
+     * Deletes the specified role.
+     */
+    private deleteRole(role: Role) {
+        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + role.id, "DELETE", {});
+        this.server.roles.splice(this.server.roles.indexOf(role), 1);
+    }
+
+    /**
+     * Adds a new role.
+     */
+    private async addRole() {
+        const role = await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role", "POST", {
+            name: this.roleName
+        });
+        if (!role) return;
+
+        this.server.roles.push(role);
+        this.roleName = "";
+    }
+
+    /**
      * Returns all the blacklisted channels in the server.
      */
     get blacklistedChannels() {
@@ -107,5 +129,12 @@ export default class ServerProfile extends Vue {
     get unblacklistedChannels() {
         if (!this.server) return [];
         return this.server.discord.channels.filter(x => this.server.blacklisted_channels.indexOf(x.id) === -1);
+    }
+
+    /**
+     * @returns all currently known discord role names
+     */
+    get roleNames() {
+        return this.server.discord.roles.map(x => x.name);
     }
 }

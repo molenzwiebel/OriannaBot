@@ -14,9 +14,10 @@
             </div>
 
             <div v-show="expanded">
-                <a href="#" class="small-button" v-if="!matchingDiscord">Create Discord Role</a>
-                <a href="#" class="small-button" @click="addCondition">Add Condition</a>
-                <a href="#" class="small-button" :disabled="!dirty">Save</a>
+                <a href="#" class="small-button" v-if="!matchingDiscord" @click.prevent="linkRole">Create Discord Role</a>
+                <a href="#" class="small-button" @click.prevent="addCondition">Add Condition</a>
+                <a href="#" class="small-button" :title="valid ? '' : 'Some of your conditions are not complete. Check them before trying to save.'" :disabled="!(dirty && valid)" v-tippy @click.prevent="save">Save</a>
+                <a href="#" class="small-button" @click.prevent="deleteRole">Delete</a>
             </div>
         </div>
 
@@ -31,7 +32,7 @@
 
             <span class="body-header">Settings</span>
             <div class="settings">
-                <label><input type="checkbox"> <b>Announce Promotions</b></label>
+                <label><input type="checkbox" v-model="role.announce" @change="dirty = true"> <b>Announce Promotions</b></label>
                 <p>If this is checked, a promotion message will be sent in the configured announcement channel whenever a member receives the roles. Use this if you'd like to announce milestones.</p>
             </div>
         </div>
@@ -92,6 +93,8 @@
                 border-color #b2b2b2
 
         .body
+            border-bottom 1px solid #d5d5d5
+
             .body-header
                 font-size 18px
                 padding 10px 5px

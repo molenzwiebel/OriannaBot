@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import VueFormWizard from "vue-form-wizard";
 import VueTippy from "vue-tippy";
 import VueTextMask from "vue-text-mask";
+import VueSimpleSuggest from "vue-simple-suggest";
 
 import "./common.styl";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";
@@ -14,6 +15,7 @@ import Tree from "./components/role-tree/tree.vue";
 import Error from "./components/error/error.vue";
 
 Vue.component("masked-input", VueTextMask);
+Vue.component("vue-suggest", VueSimpleSuggest);
 Vue.use(VueTippy);
 Vue.use(VueRouter);
 Vue.use(VueFormWizard);

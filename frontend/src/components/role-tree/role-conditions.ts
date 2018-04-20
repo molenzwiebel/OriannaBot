@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import App from "../app/app";
+import Dialog from "../dialog/dialog.vue";
 import { Role, DiscordRole } from "../server/server";
 import Tree from "./tree.vue";
 
@@ -34,8 +35,62 @@ export default class RoleConditions extends Vue {
         condition.opts = state.options;
     }
 
+    /**
+     * Adds a new empty condition.
+     */
     private addCondition() {
         this.conditions.push({ valid: false, opts: {} });
+    }
+
+    /**
+     * Removes the specified condition.
+     */
+    private removeCondition(cond: any) {
+        this.conditions.splice(this.conditions.indexOf(cond), 1);
+    }
+
+    /**
+     * Finds or creates a discord role belonging to this Orianna role.
+     */
+    private async linkRole() {
+        const res = await this.$root.submit<DiscordRole>("/api/v1/server/" + this.$route.params.id + "/role/" + this.role.id + "/link", "POST", {});
+        if (!res) return;
+
+        if (!this.discordRoles.some(x => x.id === res.id)) this.discordRoles.push(res);
+        this.role.snowflake = res.id;
+    }
+
+    /**
+     * Ask for confirmation, then emit delete event if accepted.
+     */
+    private async deleteRole() {
+        const res = await this.$root.displayModal<boolean | null>(Dialog, {
+            title: "Are you sure?",
+            details: "Do you really want to delete <b>" + this.role.name + "</b>? This will not delete the associated Discord role.",
+            buttons: [{
+                value: false, text: "Cancel", bg: "white", fg: "#333"
+            }, {
+                value: true, text: "Delete Role", bg: "red", fg: "white", border: "red"
+            }]
+        });
+
+        if (res) this.$emit("delete");
+    }
+
+    /**
+     * Saves the role.
+     */
+    private async save() {
+        if (!this.valid || !this.dirty) return;
+
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + this.role.id, "POST", {
+            announce: this.role.announce,
+            conditions: this.conditions.map(x => ({
+                type: x.opts.type,
+                options: { ...x.opts, type: undefined }
+            }))
+        });
+        this.dirty = false;
     }
 
     /**
