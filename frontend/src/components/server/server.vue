@@ -23,8 +23,8 @@
 
         <div class="box">
             <div class="header"><h2>Roles</h2></div>
-            <div class="body">
-                <i>TODO</i>
+            <div>
+                <role-conditions v-for="role in server.roles" :role="role" :discord-roles="server.discord.roles" :key="role.id"></role-conditions>
             </div>
         </div>
 

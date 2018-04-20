@@ -3987,6 +3987,10 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
+text-mask-addons@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/text-mask-addons/-/text-mask-addons-3.7.2.tgz#56d34780c94f2ee593a77de6e79b55d56f8a8bb8"
+
 thunky@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/thunky/-/thunky-1.0.2.tgz#a862e018e3fb1ea2ec3fce5d55605cf57f247371"
@@ -4274,6 +4278,10 @@ vue-template-compiler@^2.5.13:
 vue-template-es2015-compiler@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.6.0.tgz#dc42697133302ce3017524356a6c61b7b69b4a18"
+
+vue-text-mask@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/vue-text-mask/-/vue-text-mask-6.0.0.tgz#0f092fff2c12aae1705ba1adb9b9c51c0c2faa19"
 
 vue-tippy@^2.0.8:
   version "2.0.8"

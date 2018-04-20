@@ -12,3 +12,13 @@ declare module "vue-tippy" {
     const exp: any;
     export default exp;
 }
+
+declare module "vue-text-mask" {
+    const exp: any;
+    export default exp;
+}
+
+declare module "text-mask-addons/dist/createNumberMask" {
+    function create(opts: any): any;
+    export default create;
+}

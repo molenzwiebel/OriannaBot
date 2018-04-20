@@ -2,6 +2,24 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import App from "../app/app";
 import ChampionDropdown from "../champion-dropdown/champion-dropdown.vue";
+import RoleConditions from "../role-tree/role-conditions.vue";
+
+export interface Role {
+    id: number;
+    name: string;
+    snowflake: string;
+    announce: boolean;
+    conditions: {
+        type: string;
+        options: any;
+    }[];
+}
+
+export interface DiscordRole {
+    id: string;
+    name: string;
+    color: string;
+}
 
 interface ServerDetails {
     snowflake: string;
@@ -9,24 +27,16 @@ interface ServerDetails {
     avatar: string;
     announcement_channel: string | null;
     default_champion: number | null;
-    roles: {
-        name: string;
-        snowflake: string;
-        announce: number;
-        conditions: {
-            type: string;
-            options: any;
-        };
-    }[];
+    roles: Role[];
     blacklisted_channels: string[];
     discord: {
         channels: { id: string, name: string }[];
-        roles: { id: string, name: string }[];
+        roles: DiscordRole[];
     }
 }
 
 @Component({
-    components: { ChampionDropdown }
+    components: { ChampionDropdown, RoleConditions }
 })
 export default class ServerProfile extends Vue {
     $root: App;

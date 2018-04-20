@@ -16,6 +16,7 @@
     "style-loader": "^0.20.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
+    "text-mask-addons": "^3.7.2",
     "ts-loader": "^3.4.0",
     "typescript": "^2.7.1",
     "vue": "^2.5.13",
@@ -25,6 +26,7 @@
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",
     "vue-template-compiler": "^2.5.13",
+    "vue-text-mask": "^6.0.0",
     "vue-tippy": "^2.0.8",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
