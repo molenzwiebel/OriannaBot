@@ -104,9 +104,6 @@ export default class Updater {
 
         logUpdate("Updating roles for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
 
-        // TODO(molenzwiebel): Make sure that all roles still exist, just in case.
-        // Do we nuke the role, try to remake it or notify the owner and do nothing?
-
         // Compute all roles that this server may assign, then compute all roles that the user should have.
         // Subtract those two sets to figure out which roles the user should and shouldn't have, then make
         // sure that that corresponds with the roles the user currently has on the server.
@@ -115,6 +112,7 @@ export default class Updater {
         const userHas = new Set(member.roles);
 
         for (const role of allRoles) {
+            if (!guild.roles.has(role)) continue;
             // TODO(molenzwiebel): Make sure that assigning succeeds, notify the owner if we lack permissions.
 
             // User has the role, but should not have it.

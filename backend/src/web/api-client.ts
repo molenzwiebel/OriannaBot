@@ -2,10 +2,11 @@ import express = require("express");
 import * as eris from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server, User, BlacklistedChannel } from "../database";
+import { Server, User, BlacklistedChannel, Role, RoleCondition } from "../database";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
+import config from "../config";
 
 export default class WebAPIClient {
     private bot: eris.Client;
@@ -24,6 +25,12 @@ export default class WebAPIClient {
 
         app.post("/api/v1/server/:id/blacklisted_channels", swallowErrors(this.addBlacklistedChannel));
         app.delete("/api/v1/server/:id/blacklisted_channels", swallowErrors(this.deleteBlacklistedChannel));
+
+        app.post("/api/v1/server/:id/role", swallowErrors(this.addRole));
+        app.post("/api/v1/server/:id/role/preset/:name", swallowErrors(this.addRolePreset));
+        app.post("/api/v1/server/:id/role/:role", swallowErrors(this.updateRole));
+        app.delete("/api/v1/server/:id/role/:role", swallowErrors(this.deleteRole));
+        app.post("/api/v1/server/:id/role/:role/link", swallowErrors(this.linkRoleWithDiscord));
     }
 
     /**
@@ -137,7 +144,7 @@ export default class WebAPIClient {
         await server.$loadRelated("blacklisted_channels");
 
         const channels = guild.channels.filter(x => x.type === 0).map(x => ({ id: x.id, name: x.name }));
-        const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({ id: x.id, name: x.name }));
+        const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({ id: x.id, name: x.name, color: "#" + x.color.toString(16) }));
 
         return res.json({
             ...server.toJSON(),
@@ -200,8 +207,8 @@ export default class WebAPIClient {
 
         // Check payload.
         if (!this.validate({
-                channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id))
-            }, req, res)) return;
+            channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id))
+        }, req, res)) return;
 
         // If the channel was marked as blacklisted, remove it.
         await server.$loadRelated("blacklisted_channels");
@@ -213,7 +220,192 @@ export default class WebAPIClient {
         return res.json({ ok: true });
     });
 
-        /**
+    /**
+     * Adds a new role with the specified name and no conditions.
+     */
+    private addRole = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check payload.
+        if (!this.validate({
+            name: Joi.string()
+        }, req, res)) return;
+
+        const discordRole = guild.roles.find(x => x.name === req.body.name);
+        const role = await server.$relatedQuery<Role>("roles").insertAndFetch({
+            name: req.body.name,
+            announce: false,
+            snowflake: discordRole ? discordRole.id : ""
+        });
+
+        res.json({
+            ...role.toJSON(),
+            conditions: []
+        });
+    });
+
+    /**
+     * Adds a new preset of roles to the specified server.
+     */
+    private addRolePreset = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        const roleId = (name: string) => guild.roles.find(x => x.name === name) ? guild.roles.find(x => x.name === name)!.id : "";
+
+        if (req.params.name === "region") {
+            for (const region of REGIONS) {
+                await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                    name: region,
+                    announce: false,
+                    snowflake: roleId(region),
+                    conditions: [{
+                        type: "server",
+                        options: { region }
+                    }]
+                });
+            }
+        } else if (req.params.name === "rank") {
+            for (let i = 0; i <= config.riot.tiers.length; i++) {
+                const name = i === 0 ? "Unranked" : (config.riot.tiers[i - 1].charAt(0) + config.riot.tiers[i - 1].toLowerCase().slice(1));
+                await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                    name,
+                    announce: false,
+                    snowflake: roleId(name),
+                    conditions: [{
+                        type: "ranked_tier",
+                        options: {
+                            compare_type: "equal",
+                            tier: i,
+                            queue: req.body.queue
+                        }
+                    }]
+                });
+            }
+        } else if (req.params.name === "mastery") {
+            for (let i = 1; i <= 7; i++) {
+                await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                    name: "Level " + i,
+                    announce: false,
+                    snowflake: roleId("Level " + i),
+                    conditions: [{
+                        type: "mastery_level",
+                        options: {
+                            compare_type: "exactly",
+                            value: i,
+                            champion: +req.body.champion
+                        }
+                    }]
+                });
+            }
+        } else if (req.params.name === "step") {
+            const formatNumber = (x: number) => x > 1000000 ? (x / 1000000).toFixed(1) + "m" : (x / 1000).toFixed(0) + "k";
+            for (let i = req.body.start; i <= req.body.end; i += req.body.step) {
+                await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                    name: formatNumber(i),
+                    announce: false,
+                    snowflake: roleId(formatNumber(i)),
+                    conditions: [{
+                        type: "mastery_score",
+                        options: {
+                            compare_type: "between",
+                            min: i,
+                            max: i + req.body.step,
+                            champion: +req.body.champion
+                        }
+                    }]
+                });
+            }
+        } else {
+            res.status(400).json({ ok: false, error: "Invalid preset name" });
+        }
+
+        res.json({ ok: true });
+    });
+
+    /**
+     * Updates the specified role and role conditions.
+     */
+    private updateRole = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check that role exists and belongs to server.
+        const role = await server.$relatedQuery<Role>("roles").findById(req.params.role);
+        if (!role) return;
+
+        // Check payload.
+        if (!this.validate({
+            announce: Joi.boolean(),
+            conditions: Joi.array().items({
+                type: Joi.string(),
+                options: Joi.object()
+            })
+        }, req, res)) return;
+
+        // Update role announce.
+        await role.$query().update({ announce: req.body.announce });
+
+        // Drop all old conditions.
+        await role.$relatedQuery("conditions").delete();
+
+        // Insert new conditions.
+        for (const condition of req.body.conditions) {
+            await role.$relatedQuery<RoleCondition>("conditions").insert({
+                type: condition.type,
+                options: condition.options
+            });
+        }
+
+        res.json({ ok: true });
+    });
+
+    /**
+     * Deletes the specified role.
+     */
+    private deleteRole = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check that role exists and belongs to server.
+        const role = await server.$relatedQuery<Role>("roles").findById(req.params.role);
+        if (!role) return;
+
+        await role.$query().delete();
+
+        res.json({ ok: true });
+    });
+
+    /**
+     * Either finds or creates a discord role for the specified Orianna role, then returns the created role.
+     */
+    private linkRoleWithDiscord = requireAuth(async (req: express.Request, res: express.Response) => {
+        const { server, guild } = await this.verifyServerRequest(req, res);
+        if (!server) return;
+
+        // Check that role exists and belongs to server.
+        const role = await server.$relatedQuery<Role>("roles").findById(req.params.role);
+        if (!role) return;
+
+        // Find or create discord role.
+        let discordRole = guild.roles.find(x => x.name === role.name);
+        if (!discordRole) {
+            discordRole = (await guild.createRole({
+                name: role.name
+            }, "Linked to Orianna Bot role " + role.name))!;
+        }
+
+        // Write to database, return new/found discord role.
+        await role.$query().update({ snowflake: discordRole.id });
+        res.json({
+            id: discordRole.id,
+            name: discordRole.name,
+            color: discordRole.color.toString(16)
+        });
+    });
+
+    /**
      * Validates the post contents of the specified request with the specified schema. Returns
      * true if the request is valid, false otherwise. This will close the request if the request
      * was invalid.
@@ -235,18 +427,18 @@ export default class WebAPIClient {
     private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: eris.Guild }> {
         const server = await Server.query().where("snowflake", req.params.id).first();
         if (!server) {
-            res.status(400).send();
+            res.status(400).send({ ok: false, error: "Invalid server" });
             return { server: null, guild: <any>null };
         }
 
         const guild = this.bot.guilds.get(server.snowflake);
         if (!guild) {
-            res.status(400).send();
+            res.status(400).send({ ok: false, error: "Server missing guild" });
             return { server: null, guild: <any>null };
         }
 
         if (!this.hasAccess(req.user, server)) {
-            res.status(403).send();
+            res.status(403).send({ ok: false, error: "No permissions" });
             return { server: null, guild: <any>null };
         }
 

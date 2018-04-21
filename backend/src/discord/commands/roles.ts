@@ -36,7 +36,8 @@ Note that the same role might appear twice in the list with different requiremen
 
         const formatRange = (range: RangeCondition<any>) => {
             if (range.compare_type === "at_least") return "at least " + range.value.toLocaleString();
-            if (range.compare_type === "at_most") return "at most" + range.value.toLocaleString();
+            if (range.compare_type === "at_most") return "at most " + range.value.toLocaleString();
+            if (range.compare_type === "exactly") return "exactly " + range.value.toLocaleString();
             return "between " + range.min.toLocaleString() + " and " + range.max.toLocaleString()
         };
         const formatChampion = async (id: number) => {
@@ -44,7 +45,7 @@ Note that the same role might appear twice in the list with different requiremen
             return emote(ctx, champ) + " " + champ.name;
         };
         const formatRanked = (cond: RankedTierCondition) => {
-            const tier = cond.options.tier === 0 ? "Unranked" : capitalize(config.riot.tiers[cond.options.tier].toLowerCase());
+            const tier = cond.options.tier === 0 ? "Unranked" : capitalize(config.riot.tiers[cond.options.tier - 1].toLowerCase());
             const queue = config.riot.rankedQueues[cond.options.queue];
             return (cond.options.compare_type === "equal" ? "of " + tier : cond.options.compare_type + " than " + tier) + " in " + queue;
         };

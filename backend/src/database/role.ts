@@ -43,10 +43,10 @@ export default class Role extends Model {
     }
 
     /**
-     * Omit id and server_id from the JSON object.
+     * Omit server_id from the JSON object.
      */
     $formatJson(json: Pojo) {
-        return omit(super.$formatJson(json), ["id", "server_id"]);
+        return omit({ ...super.$formatJson(json), announce: !!this.announce }, ["server_id"]);
     }
 }
 

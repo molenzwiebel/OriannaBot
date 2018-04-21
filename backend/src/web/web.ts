@@ -6,6 +6,7 @@ import WebAPIClient from "./api-client";
 import DiscordClient from "../discord/client";
 import { default as registerReddit } from "./reddit-client";
 import { default as registerDiscord } from "./discord-client";
+import * as path from "path";
 
 /**
  * Creates a new Express instance for serving the web panel. This application
@@ -23,7 +24,7 @@ export default function createApplication(client: DiscordClient) {
     app.use(bodyParser.json());
 
     // First try static data.
-    app.use(express.static("../../frontend/dist"));
+    app.use(express.static(path.join(__dirname, "../../../frontend/dist")));
 
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);
@@ -33,7 +34,7 @@ export default function createApplication(client: DiscordClient) {
     // Then, default to index for anything we do not recognize, that way
     // our vue-router can catch the problem and render the appropriate page.
     app.use((req, res) => {
-        res.sendFile("../../frontend/dist/index.html");
+        res.sendFile(path.join(__dirname, "../../../frontend/dist/index.html"));
     });
 
     return app;

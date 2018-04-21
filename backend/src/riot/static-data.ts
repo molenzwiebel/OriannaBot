@@ -4,6 +4,8 @@ import { LeagueAccount } from "../database";
 const ABBREVIATIONS: { [key: string]: string } = {
     "mumu": "Amumu",
     "ali": "Alistar",
+    "sol": "AurelionSol",
+    "aurelion": "AurelionSol",
     "asol": "AurelionSol",
     "blitz": "Blitzcrank",
     "cait": "Caitlyn",
@@ -16,6 +18,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "fish": "Fizz",
     "gp": "Gangplank",
     "heca": "Hecarim",
+    "heim": "Heimerdinger",
     "heimer": "Heimerdinger",
     "j4": "JarvanIV",
     "jarvan": "JarvanIV",
@@ -40,6 +43,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "hue": "Mordekaiser", // :^)
     "morg": "Morgana",
     "naut": "Nautilus",
+    "nauti": "Nautilus",
     "nid": "Nidalee",
     "nida": "Nidalee",
     "noc": "Nocturne",
@@ -63,6 +67,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "tali": "Taliyah",
     "teeto": "Teemo",
     "devil": "Teemo", // :^)
+    "satan": "Teemo", // :^)
     "trist": "Tristana",
     "trund": "Trundle",
     "trynd": "Tryndamere",
