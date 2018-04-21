@@ -32,7 +32,7 @@
                 </tab-content>
                 <tab-content title="Done!">
                     <div class="verified" v-if="summoner">
-                        <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-coolguy.png">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-coolguy.png">
                         <p><b>Account verified!</b> Your stats and roles will update momentarily.</p>
                     </div>
                 </tab-content>

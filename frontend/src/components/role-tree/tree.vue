@@ -150,7 +150,7 @@
         champion_play_count: ["count", "champion"],
         server: ["region"]
     };
-    const NUMBERS = ["value", "champion", "min", "max", "count"];
+    const NUMBERS = ["value", "champion", "min", "max", "count", "tier"];
 
     export default {
         props: { options: Object },
@@ -190,7 +190,7 @@
 
                 const ret: { [key: string]: any } = { type: this.state.type };
                 for (const key of typeof keys === "function" ? keys(this.state) : keys) {
-                    ret[key] = NUMBERS.indexOf(key) !== -1 && typeof this.state[key] !== "number" ? +this.state[key].replace(/,\./g, "") : this.state[key];
+                    ret[key] = NUMBERS.indexOf(key) !== -1 && typeof this.state[key] !== "number" ? +this.state[key].replace(/[,.]/g, "") : this.state[key];
                 }
 
                 return ret;

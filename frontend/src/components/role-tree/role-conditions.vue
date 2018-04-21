@@ -4,13 +4,14 @@
             <div class="left">
                 <a :class="expanded ? 'ion-minus' : 'ion-plus'" class="expand" @click="expanded = !expanded"></a>
 
-                <span :style="'color: ' + color">{{ role.name }}</span>
                 <i
                         class="ion-alert-circled"
                         v-if="!matchingDiscord"
                         title="There is no Discord role with the specified name detected. This role will not be assigned to players until there is a matching Discord role."
                         v-tippy>
                 </i>
+                <span :style="'color: ' + color">{{ role.name }}</span>
+                <i v-if="expanded" class="ion-edit" title="Rename Role" v-tippy @click="renameRole"></i>
             </div>
 
             <div>
@@ -49,7 +50,7 @@
             display flex
             align-items center
             padding-left 5px
-            background-color #fdfdfd
+            background-color #f6f6f6
             border-bottom 1px solid #d5d5d5
 
             span
@@ -64,6 +65,7 @@
                 font-size 22px
                 text-align center
                 cursor pointer
+                margin-right 5px
 
                 &::before
                     line-height 45px
@@ -77,6 +79,7 @@
 
             .small-button
                 border 1px solid #dcdcdc
+                background-color white
                 text-decoration none
                 text-transform uppercase
                 margin 0 4px

@@ -1,6 +1,6 @@
 <template>
     <div class="error-dialog">
-        <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-shock.png">
+        <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-shock.png">
         <div class="details">
             <span>{{ title }}</span>
             <p>{{ details }}</p>

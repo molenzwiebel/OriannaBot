@@ -35,7 +35,7 @@
             </div>
 
             <div class="no-roles" v-if="!server.roles.length">
-                <img src="http://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
+                <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
                 <p><b>There are no roles configured.</b> Add your own or import a preset below!</p>
             </div>
 

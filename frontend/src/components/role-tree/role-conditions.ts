@@ -2,6 +2,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import App from "../app/app";
 import Dialog from "../dialog/dialog.vue";
+import RenameModal from "./rename-modal.vue";
 import { Role, DiscordRole } from "../server/server";
 import Tree from "./tree.vue";
 
@@ -33,6 +34,14 @@ export default class RoleConditions extends Vue {
         this.dirty = true;
         condition.valid = state.valid;
         condition.opts = state.options;
+    }
+
+    /**
+     * Opens up a simple dialog to rename this role.
+     */
+    private async renameRole() {
+        await this.$root.displayModal(RenameModal, { role: this.role });
+        this.dirty = true;
     }
 
     /**
@@ -84,6 +93,7 @@ export default class RoleConditions extends Vue {
         if (!this.valid || !this.dirty) return;
 
         await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + this.role.id, "POST", {
+            name: this.role.name,
             announce: this.role.announce,
             conditions: this.conditions.map(x => ({
                 type: x.opts.type,
