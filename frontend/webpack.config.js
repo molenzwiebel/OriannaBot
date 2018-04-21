@@ -40,7 +40,6 @@ module.exports = env => ({
         port: 8081
     },
     plugins: [
-        new webpack.AutomaticPrefetchPlugin(),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
             GIT_BRANCH: JSON.stringify(gitRevision.branch()),
