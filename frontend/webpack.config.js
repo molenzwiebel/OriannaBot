@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
 const GitRevisionPlugin = require("git-revision-webpack-plugin");
 const gitRevision = new GitRevisionPlugin({ branch: true });
 
@@ -11,7 +12,7 @@ module.exports = env => ({
     ],
     output: {
         filename: "bundle.js",
-        path: path.resolve(__dirname, "src")
+        path: path.resolve(__dirname, "dist")
     },
     module: {
         rules: [{
@@ -43,6 +44,17 @@ module.exports = env => ({
         new webpack.DefinePlugin({
             GIT_BRANCH: JSON.stringify(gitRevision.branch()),
             GIT_COMMITHASH: JSON.stringify(gitRevision.commithash())
+        }),
+        new HTMLWebpackPlugin({
+            filename: "index.html",
+            template: path.resolve(__dirname, "src/index.html"),
+            inject: true,
+            hash: true,
+            minify: {
+                removeComments: env === "prod",
+                collapseWhitespace: env === "prod",
+                removeAttributeQuotes: env === "prod"
+            }
         })
     ]
 });
