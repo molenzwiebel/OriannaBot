@@ -5,7 +5,8 @@ import bodyParser = require("body-parser");
 import WebAPIClient from "./api-client";
 import DiscordClient from "../discord/client";
 import { default as registerReddit } from "./reddit-client";
-import { default as registerDiscord } from "./discord-client";
+import { default as registerDiscordAuth } from "./discord-auth-client";
+import { default as registerDiscordLink } from "./discord-link-client";
 import * as path from "path";
 
 /**
@@ -29,7 +30,8 @@ export default function createApplication(client: DiscordClient) {
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);
     registerReddit(app, client.riotAPI);
-    registerDiscord(app, client);
+    registerDiscordAuth(app, client);
+    registerDiscordLink(app, client);
 
     // Then, default to index for anything we do not recognize, that way
     // our vue-router can catch the problem and render the appropriate page.

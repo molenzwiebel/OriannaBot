@@ -121,7 +121,7 @@ export default class WebAPIClient {
         if (!this.validate(Joi.object({
             summoner_id: Joi.number(),
             region: Joi.any().valid(REGIONS)
-        }), req, res)) return;
+        }).unknown(true), req, res)) return;
 
         await req.user.$loadRelated("accounts");
 
