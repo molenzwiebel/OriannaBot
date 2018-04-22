@@ -20,12 +20,12 @@ export default class ImportAccountsWizard extends Vue {
 
         const listener = (ev: MessageEvent) => {
             if (!ev.data.type || ev.data.type !== "reddit" || !ev.data.result) return;
-            document.removeEventListener("message", listener);
+            window.removeEventListener("message", listener);
 
             // TODO: Maybe display the error if there was one?
             this.popup!.close();
             this.$emit("close", ev.data.result.ok);
         };
-        document.addEventListener("message", listener);
+        window.addEventListener("message", listener);
     }
 }

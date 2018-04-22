@@ -67,16 +67,16 @@ League of Legends and Riot Games are trademarks or registered trademarks of Riot
     export default {
         props: ["user"],
         computed: {
-            signInLink: function() {
+            signInLink() {
                 return API_HOST + "/api/v1/discord";
             },
-            gitCommitUrl: function() {
+            gitCommitUrl() {
                 return "https://github.com/molenzwiebel/OriannaBot/commit/" + GIT_COMMITHASH;
             },
-            gitCommit: function() {
+            gitCommit() {
                 return GIT_COMMITHASH.substr(0, 7);
             },
-            gitBranch: function() {
+            gitBranch() {
                 return GIT_BRANCH;
             }
         }

@@ -13,8 +13,9 @@
                 <h2>League Accounts</h2>
 
                 <div class="actions" v-if="user.accounts.length">
-                    <a class="small-button" @click="addAccount" href="#">Add New</a>
-                    <a class="small-button" @click="importAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
+                    <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
+                    <a class="small-button" @click.prevent="importDiscordAccounts" href="#">Import From <i class="discord-logo"></i></a>
+                    <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                 </div>
             </div>
 
@@ -24,7 +25,7 @@
                     <span class="username">{{ account.username }}</span>
                     <span class="region">{{ account.region }}</span>
                     <span class="actions">
-                        <a href="#" @click="deleteAccount(account)"><i class="ion-ios-trash-outline"></i></a>
+                        <a href="#" @click.prevent="deleteAccount(account)"><i class="ion-ios-trash-outline"></i></a>
                     </span>
                 </div>
 
@@ -32,8 +33,9 @@
                     <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
                     <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score:</p>
                     <div class="actions">
-                        <a class="small-button" @click="addAccount" href="#">Add New</a>
-                        <a class="small-button" @click="importAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
+                        <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
+                        <a class="small-button" @click.prevent="importDiscordAccounts" href="#">Import From <i class="discord-logo"></i></a>
+                        <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                     </div>
                 </div>
             </div>
@@ -51,6 +53,9 @@
         display flex
         flex-direction column
 
+        .actions
+            display flex
+
         .small-button
             border 1px solid #dcdcdc
             text-decoration none
@@ -58,7 +63,19 @@
             margin 0 4px
             padding 4px 6px
             color #333
+            display flex
+            align-items center
             transition 0.2s ease
+
+            & i
+                margin-left 3px
+
+        .discord-logo
+            display inline-block
+            width 20px
+            height 20px
+            background-image url(https://discordapp.com/assets/41484d92c876f76b20c7f746221e8151.svg)
+            background-size cover
 
         .small-button:hover
             border-color #b2b2b2
