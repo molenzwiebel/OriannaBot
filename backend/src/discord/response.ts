@@ -197,6 +197,7 @@ export default class Response {
         } else {
             obj = { color: options.color };
             if (options.footer) obj.footer = { text: options.footer };
+            if (options.timestamp) obj.timestamp = new Date(options.timestamp).toISOString();
         }
 
         if (options.title) obj.title = options.title;

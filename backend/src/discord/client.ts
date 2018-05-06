@@ -4,10 +4,11 @@ import config from "../config";
 import randomstring = require("randomstring");
 import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
-import { Server, User, BlacklistedChannel } from "../database";
+import { Server, User, BlacklistedChannel, UserAuthKey } from "../database";
 import Updater from "./updater";
 import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
+import { randomBytes } from "crypto";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -71,13 +72,13 @@ export default class DiscordClient {
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
     public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string }): Promise<User> {
-        const user = await User.query().where("snowflake", "=", id).first();
+        let user = await User.query().where("snowflake", "=", id).first();
         if (user) return user;
 
         discordUser = discordUser || this.bot.users.get(id);
         if (!discordUser) throw new Error("No common server shared with server " + id);
 
-        return User.query().insertAndFetch({
+        user = await User.query().insertAndFetch({
             snowflake: id,
             username: discordUser.username,
             avatar: discordUser.avatar || "none",
@@ -86,6 +87,29 @@ export default class DiscordClient {
                 readable: true
             })
         });
+
+        const key = await UserAuthKey.query().insertAndFetch({
+            user_id: user.id,
+            created_at: "2100-01-01 10:10:10", // have this one never expire, just for a bit more user friendliness
+            key: randomBytes(21).toString("base64").replace(/\//g, "-")
+        });
+        const link = config.web.url + "/login/" + key.key;
+
+        // Try send them a message since this is the first time we met them.
+        await this.notify(id, {
+            title: "👋 Hey " + discordUser.username + "!",
+            url: link,
+            color: 0x49bd1a,
+            description: `Since you just used a command of mine for the first time, I figured I'd introduce myself. I'm **Orianna Bot**, and I'm a pretty cool bot that keeps track of League accounts, mostly for the purpose of showing cool stats and assigning Discord roles.`
+            + `\n\nIf you'd like me to track you and give you all the roles you deserve, you can add your League account using the [online configuration panel](${link}). You can also import your League accounts from Discord and the Reddit [ChampionMains Flairs](https://flairs.championmains.com) system.`
+            + `\n\nTo get started, click the link below!\n${link}`
+            + `\n\nConfused, intrigued, angry, happy? Check out all my available commands using \`@Orianna Bot help\` and contact my creator using \`@Orianna Bot about\`.`,
+            timestamp: new Date().getTime(),
+            thumbnail: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png",
+            footer: "Orianna Bot v2"
+        });
+
+        return user;
     }
 
     /**
