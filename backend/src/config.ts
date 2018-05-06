@@ -20,6 +20,7 @@ interface Configuration {
         url: string;
         port: number;
     };
+    ffmpeg: string;
 }
 
 const config: Configuration = require("../config.json");

@@ -1,5 +1,6 @@
 node_modules/
 .idea/
 dist/
+temp/
 dev.sqlite3
 config.json

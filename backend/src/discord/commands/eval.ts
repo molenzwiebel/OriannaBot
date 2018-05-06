@@ -37,6 +37,7 @@ const EvalCommand: Command = {
             };
             const fun = new Function(...Object.keys(eval_context), "return (async() => {" + exprBody + "})()");
             const res = fun(...Object.values(eval_context));
+            if (res.then) await res;
 
             let inspectedBody = util.inspect(res, false, 2);
             if (inspectedBody.length > 2000) inspectedBody = inspectedBody.slice(0, 1900) + "...";

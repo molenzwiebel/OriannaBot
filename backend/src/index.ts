@@ -1,5 +1,4 @@
 import debug = require("debug");
-import DiscordClient from "./discord/client";
 
 import HelpCommand from "./discord/commands/help";
 import AboutCommand from "./discord/commands/about";
@@ -9,9 +8,13 @@ import TopCommand from "./discord/commands/top";
 import ListCommand from "./discord/commands/list";
 import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
+
 import createApplication from "./web/web";
+
 import config from "./config";
 import RiotAPI from "./riot/api";
+import PuppeteerController from "./puppeteer";
+import DiscordClient from "./discord/client";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -25,7 +28,10 @@ process.on("unhandledRejection", (err: Error) => {
 
     const riotAPI = new RiotAPI(config.riot.apiKey);
 
-    const discord = new DiscordClient(riotAPI);
+    const puppeteer = new PuppeteerController();
+    await puppeteer.initialize();
+
+    const discord = new DiscordClient(riotAPI, puppeteer);
     await discord.connect();
 
     discord.registerCommand(HelpCommand);

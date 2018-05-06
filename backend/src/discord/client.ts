@@ -7,6 +7,7 @@ import Response, { ResponseOptions } from "./response";
 import { Server, User, BlacklistedChannel } from "../database";
 import Updater from "./updater";
 import RiotAPI from "../riot/api";
+import PuppeteerController from "../puppeteer";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -21,7 +22,7 @@ export default class DiscordClient {
     private commands: Command[] = [];
     private responses: Response[] = [];
 
-    constructor(public readonly riotAPI: RiotAPI) {}
+    constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {}
 
     /**
      * Adds a new command to this DiscordClient instance.
