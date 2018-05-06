@@ -12,6 +12,7 @@ module.exports = env => ({
     ],
     output: {
         filename: "bundle.js",
+        publicPath: "/",
         path: path.resolve(__dirname, "dist")
     },
     module: {
@@ -43,7 +44,8 @@ module.exports = env => ({
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
             GIT_BRANCH: JSON.stringify(gitRevision.branch()),
-            GIT_COMMITHASH: JSON.stringify(gitRevision.commithash())
+            GIT_COMMITHASH: JSON.stringify(gitRevision.commithash()),
+            ENV: JSON.stringify(env)
         }),
         new HTMLWebpackPlugin({
             filename: "index.html",
