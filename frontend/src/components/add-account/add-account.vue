@@ -11,6 +11,15 @@
                         <select :class="detailsError && 'errored'" v-model="region">
                             <option value="disabled">Region</option>
                             <option value="EUW">EUW</option>
+                            <option value="EUNE">EUNE</option>
+                            <option value="NA">NA</option>
+                            <option value="OCE">OCE</option>
+                            <option value="BR">BR</option>
+                            <option value="LAN">LAN</option>
+                            <option value="LAS">LAS</option>
+                            <option value="JP">JP</option>
+                            <option value="TR">TR</option>
+                            <option value="RU">RU</option>
                         </select>
 
                         <input :class="detailsError && 'errored'" type="text" v-model="name" placeholder="Summoner Name">
