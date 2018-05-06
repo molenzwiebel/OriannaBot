@@ -36,7 +36,7 @@ export default function register(app: express.Application, client: DiscordClient
             if (!user) throw new Error("Missing user.");
 
             res.cookie("token", user.token);
-            return res.redirect("/");
+            return res.redirect("/me");
         } catch (err) {
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }

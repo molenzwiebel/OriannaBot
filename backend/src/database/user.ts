@@ -147,7 +147,31 @@ export class UserRank extends Model {
     }
 }
 
+@decorators.table("user_auth_keys")
+export class UserAuthKey extends Model {
+    /**
+     * Unique incremented ID for this auth key.
+     */
+    readonly id: number;
+
+    /**
+     * The actual auth key.
+     */
+    key: string;
+
+    /**
+     * The timestamp at which this auth key was generated. ISO string.
+     */
+    created_at: string;
+
+    /**
+     * The user this auth key belongs to.
+     */
+    user: User;
+}
+
 decorators.belongsTo("user", () => User, "user_id", "id")(UserChampionStat);
+decorators.belongsTo("user", () => User, "user_id", "id")(UserAuthKey);
 
 decorators.hasMany("accounts", () => LeagueAccount, "id", "user_id")(User);
 decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);
