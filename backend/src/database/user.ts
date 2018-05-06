@@ -155,6 +155,11 @@ export class UserAuthKey extends Model {
     readonly id: number;
 
     /**
+     * Column for the user property below.
+     */
+    user_id: number;
+
+    /**
      * The actual auth key.
      */
     key: string;

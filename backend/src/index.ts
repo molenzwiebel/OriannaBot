@@ -8,6 +8,7 @@ import TopCommand from "./discord/commands/top";
 import ListCommand from "./discord/commands/list";
 import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
+import EditCommand from "./discord/commands/edit";
 
 import createApplication from "./web/web";
 
@@ -42,6 +43,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(ListCommand);
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
+    discord.registerCommand(EditCommand);
 
     const app = createApplication(discord);
     app.listen(config.web.port);
