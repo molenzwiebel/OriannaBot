@@ -4,6 +4,8 @@ interface Configuration {
         apiKey: string;
         tiers: string[];
         rankedQueues: { [key: string]: string };
+        rankedGameCountSeasons: number[];
+        rankedGameCountQueues: number[];
     };
     discord: {
         clientId: string;

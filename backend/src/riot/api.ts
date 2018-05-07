@@ -1,4 +1,5 @@
 import Teemo = require("teemojs");
+import config from "../config";
 
 export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU"];
 
@@ -66,6 +67,32 @@ export default class RiotAPI {
             return currentCode.toLowerCase() === code.toLowerCase();
         } catch (e) {
             return false;
+        }
+    }
+
+    /**
+     * Finds all the ranked games for the specified account that were played after the
+     * specified timestamp. Games are determined to be ranked based on the settings in
+     * the config. Note that this returns an array with the most recent game in index 0.
+     */
+    async findRankedGamesAfter(region: string, accountId: number, timestamp: number): Promise<riot.MatchEntry[]> {
+        const rankedGames = [];
+        for (let i = 0; true; i += 100) {
+            // Load games 100 at a time until we have all games.
+            const games = await this.teemo.get(platform(region), "match.getMatchlist", "" + accountId, {
+                beginIndex: i
+            });
+
+            if (!games.matches.length) return rankedGames;
+            for (const game of games.matches) {
+                // If we only have stale games left, stop.
+                if (game.timestamp < timestamp) return rankedGames;
+
+                // If this is a valid game, add it to the list.
+                if (config.riot.rankedGameCountQueues.includes(game.queue) && config.riot.rankedGameCountSeasons.includes(game.season)) {
+                    rankedGames.push(game);
+                }
+            }
         }
     }
 }

@@ -24,4 +24,15 @@ namespace riot {
         name: string;
         title: string;
     }
+
+    export interface MatchEntry {
+        lane: string;
+        gameId: number;
+        champion: number;
+        platformId: string;
+        timestamp: number;
+        queue: number;
+        role: string;
+        season: number;
+    }
 }
