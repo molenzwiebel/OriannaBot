@@ -77,6 +77,8 @@ export default class RiotAPI {
      */
     async findRankedGamesAfter(region: string, accountId: number, timestamp: number): Promise<riot.MatchEntry[]> {
         const rankedGames = [];
+        const minSeason = Math.min(...config.riot.rankedGameCountSeasons);
+
         for (let i = 0; true; i += 100) {
             // Load games 100 at a time until we have all games.
             const games = await this.teemo.get(platform(region), "match.getMatchlist", "" + accountId, {
@@ -86,7 +88,7 @@ export default class RiotAPI {
             if (!games.matches.length) return rankedGames;
             for (const game of games.matches) {
                 // If we only have stale games left, stop.
-                if (game.timestamp < timestamp) return rankedGames;
+                if (game.timestamp < timestamp || game.season < minSeason) return rankedGames;
 
                 // If this is a valid game, add it to the list.
                 if (config.riot.rankedGameCountQueues.includes(game.queue) && config.riot.rankedGameCountSeasons.includes(game.season)) {

@@ -10,6 +10,7 @@ const logFetch = debug("orianna:updater:fetch");
 const logMastery = debug("orianna:updater:fetch:mastery");
 const logRanked = debug("orianna:updater:fetch:ranked");
 const logAccounts = debug("orianna:updater:fetch:accounts");
+const logGames = debug("orianna:updater:fetch:games");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
@@ -49,9 +50,11 @@ export default class Updater {
         logFetch("Fetching and updating all for %s (%s)", user.username, user.snowflake);
 
         try {
-            // Run the account update first since it may alter the results
+            // Run the account update and games count first since it may alter the results
             // of the other fetch queries (if a user transferred).
             await this.fetchAccounts(user);
+            await this.fetchGamesPlayed(user);
+
             await Promise.all([
                 this.fetchMasteryScores(user),
                 this.fetchRanked(user)
@@ -134,6 +137,7 @@ export default class Updater {
      */
     private async fetchMasteryScores(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+        if (!user.stats) user.stats = await user.$relatedQuery<UserChampionStat>("stats");
         logMastery("Updating mastery for user %s (%s)", user.username, user.snowflake);
 
         // Sum scores and max levels for all accounts.
@@ -150,18 +154,23 @@ export default class Updater {
         }
 
         // Nuke all old entries (in case the user removed an account) and append the new values.
-        await user.$relatedQuery<UserChampionStat>("stats").delete();
-        user.stats = [];
         for (const [champion, score] of scores) {
+            // Carry over the old games played. Don't update anything if we have no need to.
+            const oldScore = user.stats.find(x => x.champion_id === champion);
+            if (oldScore && score.level === oldScore.level && score.score === oldScore.score) continue;
+            if (oldScore) await oldScore.$query().delete();
+
+            const oldGamesPlayed = oldScore ? oldScore.games_played : 0;
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,
                 level: score.level,
                 score: score.score,
-                games_played: 0 // TODO(molenzwiebel): Pull this amount from the old entry before we nuke them.
-                                // This might leave a score incorrect for a bit if the user removed an account where they
-                                // had previously played games, but its a lot easier to structure like this.
+                games_played: oldGamesPlayed
             });
         }
+
+        // Refetch stats now that we updated stuff.
+        user.stats = await user.$relatedQuery<UserChampionStat>("stats");
     }
 
     /**
@@ -193,8 +202,49 @@ export default class Updater {
                 tier: config.riot.tiers[tier]
             });
         }
+    }
 
-        // TODO(molenzwiebel): Figure out a good way to pull amount of games played efficiently.
+    /**
+     * Loads the amount of ranked games played across all champions and all regions
+     * for the specified user. Note that this will update even if it was updated recently.
+     */
+    private async fetchGamesPlayed(user: User) {
+        if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
+        if (!user.stats) user.stats = await user.$relatedQuery<UserChampionStat>("stats");
+        logGames("Updating ranked games played for user %s (%s)", user.username, user.snowflake);
+
+        const gamesPlayed = new Map<number, number>();
+        for (const account of user.accounts) {
+            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, 0); // TODO: Update timestamp.
+
+            for (const game of games) {
+                // Increment the amount of games played by one.
+                gamesPlayed.set(game.champion, (gamesPlayed.get(game.champion) || 0) + 1);
+            }
+        }
+
+        // Now, update the database totals.
+        const incremental = false; // TODO: Either completely refetch if an account was removed or add up if we had an old timestamp.
+        for (const [champion, games] of gamesPlayed) {
+            const oldValue = user.stats.find(x => x.champion_id === champion);
+
+            // Weird, but it can happen I guess.
+            if (!oldValue) {
+                await user.$relatedQuery<UserChampionStat>("stats").insert({
+                    champion_id: champion,
+                    level: 0,
+                    score: 0,
+                    games_played: games
+                });
+            } else {
+                await oldValue.$query().update({
+                    games_played: incremental ? oldValue.games_played + games : games
+                });
+            }
+        }
+
+        // Refetch stats now that we updated stuff,
+        user.stats = await user.$relatedQuery<UserChampionStat>("stats");
     }
 
     /**

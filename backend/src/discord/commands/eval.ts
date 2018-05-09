@@ -35,13 +35,14 @@ const EvalCommand: Command = {
                 ...db,
                 StaticData
             };
+
             const fun = new Function(...Object.keys(eval_context), "return (async() => {" + exprBody + "})()");
-            const res = fun(...Object.values(eval_context));
-            if (res.then) await res;
+            let res = fun(...Object.values(eval_context));
+            while (res && res.then) res = await res;
 
             let inspectedBody = util.inspect(res, false, 2);
             if (inspectedBody.length > 2000) inspectedBody = inspectedBody.slice(0, 1900) + "...";
-            if (typeof res !== "undefined") return ok({
+            return ok({
                 title: "Result",
                 description: "```js\n" + inspectedBody + "```"
             });
