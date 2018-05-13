@@ -228,6 +228,9 @@ export default class Updater {
         for (const [champion, games] of gamesPlayed) {
             const oldValue = user.stats.find(x => x.champion_id === champion);
 
+            // Skip updating this if the value we have is already the most recent. Saves us a database call.
+            if (oldValue && (incremental ? games === 0 : oldValue.games_played === games)) continue;
+
             // Weird, but it can happen I guess.
             if (!oldValue) {
                 await user.$relatedQuery<UserChampionStat>("stats").insert({

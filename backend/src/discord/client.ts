@@ -219,8 +219,8 @@ export default class DiscordClient {
         const targetChannel = fromMute ? await this.bot.getDMChannel(msg.author.id) : msg.channel;
         const responseContext = this.createResponseContext(targetChannel, msg.author, msg);
 
-        // Send typing during computing time.
-        await targetChannel.sendTyping();
+        // Send typing during computing time, unless disabled for this specific command.
+        if (!matchedCommand.noTyping) await targetChannel.sendTyping();
 
         // Do things a bit differently depending on if the message was sent in a server or not.
         const template = {
@@ -257,7 +257,7 @@ export default class DiscordClient {
             error(e.stack);
             error("%O", e);
 
-            // TODO(molenzwiebel): maybe nuke all responses that the command already sent?
+            // TODO(molenzwiebel): generate an id, send it to elk, attach the ID to the message.
             await template.error({
                 title: "💥 Ouch!",
                 description: "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`).",

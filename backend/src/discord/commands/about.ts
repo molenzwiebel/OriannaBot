@@ -8,7 +8,7 @@ const AboutCommand: Command = {
     description: "",
     hideFromHelp: true,
     async handler({ info, bot }) {
-        const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
+        const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r), { splitChar: '|' }));
 
         info({
             title: "🤖 About",

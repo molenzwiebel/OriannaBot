@@ -1,5 +1,5 @@
 import { Command } from "../command";
-import { expectUser } from "./util";
+import { emote, expectUser } from "./util";
 
 const RefreshCommand: Command = {
     name: "Refresh",
@@ -14,37 +14,26 @@ After refreshing all of your data, Orianna will recalculate all of your roles ac
 
 You are also periodically refreshed automatically by Orianna (usually once every 30-45 minutes). Use this command if you want to see new changes immediately.
 `.trim(),
+    noTyping: true,
     keywords: ["refresh", "reload", "update", "recalculate"],
-    async handler({ client, info, ctx }) {
-        // TODO(molenzwiebel): refresh everyone?
+    async handler({ client, ctx, msg, content, info }) {
+        if (content.toLowerCase().includes("everyone")) {
+            return info({
+                title: "ℹ Refresh Everyone Was Removed",
+                description: "With the introduction of Orianna Bot v2, the refresh everyone command was removed. I refresh every user approximately once an hour, so the command did fairly little while at the same time causing a large amount of work in a short time. If you've recently made changes and want to see them in action, simply wait until I've refreshed everyone.\n\nIf your roles are misbehaving and you figured that a refresh everyone would work, considering contacting my creator for help. See `@Orianna Bot about` for more info."
+            });
+        }
+
         const user = await expectUser(ctx);
         if (!user) return;
 
-        // TODO(molenzwiebel): neat loading blurbs
-        const reply = await info({
-            title: `⏳ Refreshing...`
-        });
+        const loadingEmoji = emote(ctx, "Refreshing").replace("<:", "").replace(">", "");
+
+        await msg.addReaction(loadingEmoji);
         await client.updater.fetchAndUpdateAll(user);
 
-        await reply.ok({
-            title: "✅ All done!",
-            description: "My knowledge on " + user.username + " has been thoroughly refreshed!"
-        });
+        msg.removeReaction(loadingEmoji);
+        msg.addReaction("✅");
     }
 };
 export default RefreshCommand;
-
-/*const LOADING_BLURBS = [
-    "Contacting Rito HQ",
-    "Bribing Riot employees",
-    "Doing some fairly hard math",
-    "Figuring out where I left my ball",
-    "Searching where exactly I left the data",
-    "Seeing if I can still count",
-    "<beep> <boop> *<beep*>",
-    "Unleashing Dissonance",
-    "Missing my shockwave",
-    "Finishing my League game",
-    ":robot:",
-    "QWRkIG1lIG9uIEVVVyAtIFlhaG9vIEFuc3dlcnMgOyk="
-];*/

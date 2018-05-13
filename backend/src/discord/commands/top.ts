@@ -60,6 +60,7 @@ If you want to know the top champions for a specific user, you can do so too. Si
             });
 
             const fields = await Promise.all(user.stats!
+                .sort((a, b) => b.score - a.score)
                 .map(async (x, i) => {
                     const champion = await StaticData.championById(x.champion_id);
 

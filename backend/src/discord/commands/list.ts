@@ -1,8 +1,6 @@
-
 import { Command } from "../command";
 import { expectUser } from "./util";
 import StaticData from "../../riot/static-data";
-import LeagueAccount from "../../database/league_account";
 
 const ListCommand: Command = {
     name: "List Accounts",
@@ -22,7 +20,7 @@ If you want to view someone else's accounts, you can simply include them in the 
 
         if (!target.accounts!.length) return error({
             title: "🔎 No Accounts Found",
-            description: (isAuthor ? "You have" : target.username + " has") + " no accounts configured with me. " + (isAuthor ? "you" : "they") + " can add some using `@Orianna Bot configure`."
+            description: (isAuthor ? "You have" : target.username + " has") + " no accounts configured with me. " + (isAuthor ? "You" : "They") + " can add some using `@Orianna Bot configure`."
         });
 
         if (target.accounts!.length === 1) {

@@ -21,6 +21,7 @@ declare module "git-last-commit" {
     }
 
     export function getLastCommit(cb: (err: Error | undefined, result: Commit) => any, options?: {
-        dst?: string
+        dst?: string,
+        splitChar?: string
     }): void;
 }

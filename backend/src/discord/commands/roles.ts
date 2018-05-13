@@ -57,7 +57,9 @@ Note that the same role might appear twice in the list with different requiremen
             if (cond.type === "ranked_tier") return "Have a ranked tier " + formatRanked(cond);
             if (cond.type === "champion_play_count") return "Have played at least " + cond.options.count.toLocaleString() + " games on " + await formatChampion(cond.options.champion);
             if (cond.type === "server") return "Have an active account on " + cond.options.region;
-            return "Unknown condition type?"; // TODO(molenzwiebel): Should probably error out here or something.
+
+            // Error out since we don't have a valid role here. It'll be caught and reported to ELK so we end up seeing it.
+            throw new Error("Unknown condition type: " + JSON.stringify(cond));
         };
 
         const roleFields = await Promise.all(server.roles!.map(async x => ({

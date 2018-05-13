@@ -25,6 +25,8 @@ This command will send you a single-use link to effortlessly log in and access [
                 title: "🔗 Authentication Link",
                 description: `To edit accounts, configure your personal servers and more, you can access your profile page on the [Orianna Web Panel](${link}). Clicking the link below will automatically log you in. You can only use this link _once_ before it expires. It will also expire if you do not use it within 24 hours.\n\n${link}\n\n**:warning: Do not share this link unless you're absolutely sure what you're doing!** Anyone with this link will have access to your profile.`
             });
+
+            await msg.addReaction("✅");
         } catch (e) {
             // DMs are probably off.
             error({

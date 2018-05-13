@@ -28,7 +28,7 @@ Examples:
         });
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
-        const text = points ? emote(ctx, "Level_" + points.level) + " **" + points.score.toLocaleString() : "**0";
+        const text = points && points.score ? emote(ctx, "Level_" + points.level) + " **" + points.score.toLocaleString() : "**0";
 
         return ok({
             title: "📖 Mastery Points",

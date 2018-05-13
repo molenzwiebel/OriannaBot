@@ -35,6 +35,11 @@ export interface Command {
     hideFromHelp?: boolean;
 
     /**
+     * If this command should not show the bot as typing.
+     */
+    noTyping?: boolean;
+
+    /**
      * Async method that is invoked when this command is invoked by a user.
      * This receives a CommandContext that it can use to communicate.
      */
