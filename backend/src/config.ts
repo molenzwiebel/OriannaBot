@@ -23,6 +23,11 @@ interface Configuration {
         url: string;
         port: number;
     };
+    elastic: {
+        enabled: boolean;
+        host: string;
+        auth: string;
+    };
     db: ConnectionConfig;
     ffmpeg: string;
 }

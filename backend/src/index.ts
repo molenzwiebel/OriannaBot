@@ -1,3 +1,5 @@
+// THIS NEEDS TO BE THE FIRST LINE SO IT CAN HIJACK OTHER MODULES
+import elastic from "./elastic";
 import debug = require("debug");
 
 import HelpCommand from "./discord/commands/help";
@@ -22,6 +24,7 @@ const error = debug("orianna:error");
 
 process.on("unhandledRejection", (err: Error) => {
     error("Unhandled rejection: %O", err);
+    elastic.reportError(err);
 });
 
 (async() => {

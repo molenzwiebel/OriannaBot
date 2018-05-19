@@ -9,6 +9,7 @@ import Updater from "./updater";
 import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
 import { randomBytes } from "crypto";
+import elastic from "../elastic";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -202,6 +203,7 @@ export default class DiscordClient {
         }
 
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, content);
+        await elastic.logCommand(matchedCommand.name, msg);
 
         // If this is in a server, we need to check if the channel is blacklisted.
         if (!isDM && !fromMute) {
@@ -235,34 +237,42 @@ export default class DiscordClient {
         };
         template.ctx = template;
 
-        const commandPromise = isDM ? matchedCommand.handler({
-            ...template,
-            guildChannel: <any>null,
-            privateChannel: <eris.PrivateChannel>msg.channel,
-            guild: <any>null,
-            server: () => Promise.reject("Message was not sent in a server.")
-        }) : matchedCommand.handler({
-            ...template,
-            guildChannel: <eris.TextChannel>msg.channel,
-            privateChannel: <any>null,
-            guild: (<eris.TextChannel>msg.channel).guild,
-            server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
-        });
-
+        const transaction = elastic.startCommandTransaction(matchedCommand.name);
         try {
-            await commandPromise;
+            await matchedCommand.handler(isDM ? {
+                ...template,
+                guildChannel: <any>null,
+                privateChannel: <eris.PrivateChannel>msg.channel,
+                guild: <any>null,
+                server: () => Promise.reject("Message was not sent in a server.")
+            } : {
+                ...template,
+                guildChannel: <eris.TextChannel>msg.channel,
+                privateChannel: <any>null,
+                guild: (<eris.TextChannel>msg.channel).guild,
+                server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
+            });
+            if (transaction) transaction.result = 200;
         } catch (e) {
             // Send a message to the user and log the error.
             error("Error during execution of '%s' by '%s' in '%s': %s'", matchedCommand.name, msg.author.id, msg.channel.id, e.message);
             error(e.stack);
             error("%O", e);
 
+            // Report to elastic, if enabled.
+            const incident = await elastic.reportError(e);
+            if (transaction) transaction.result = 404;
+
             // TODO(molenzwiebel): generate an id, send it to elk, attach the ID to the message.
             await template.error({
                 title: "💥 Ouch!",
-                description: "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`).",
+                description:
+                    "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`)"
+                    + (incident ? " and give him the following code: `" + incident + "`." : "."),
                 image: "https://i.imgur.com/SBpi54R.png"
             });
+        } finally {
+            if (transaction) transaction.end();
         }
     };
 
