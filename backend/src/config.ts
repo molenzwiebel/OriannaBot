@@ -1,3 +1,4 @@
+import { ConnectionConfig } from "knex";
 
 interface Configuration {
     riot: {
@@ -22,6 +23,7 @@ interface Configuration {
         url: string;
         port: number;
     };
+    db: ConnectionConfig;
     ffmpeg: string;
 }
 

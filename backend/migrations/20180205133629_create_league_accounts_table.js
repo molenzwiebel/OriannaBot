@@ -6,6 +6,7 @@ exports.up = knex => knex.schema.createTable("league_accounts", table => {
     table.string("region").notNullable();
     table.integer("summoner_id");
     table.integer("account_id");
+    table.index(["user_id"]);
 });
 
 exports.down = knex => knex.schema.dropTableIfExists("league_accounts");

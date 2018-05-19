@@ -1,8 +1,8 @@
 import { Command } from "../command";
-import { UserChampionStat } from "../../database";
+import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
 import StaticData from "../../riot/static-data";
-import { emote, expectChampion, paginate } from "./util";
+import { advancedPaginate, emote, expectChampion, paginate } from "./util";
 
 const TopCommand: Command = {
     name: "Show Leaderboards",
@@ -22,31 +22,46 @@ If you want to know the top champions for a specific user, you can do so too. Si
     async handler({ content, guild, ctx, msg, client, error }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
-        const shouldShow = (id: string) => guild ? !serverOnly || guild.members.has(id) : true;
+        // If we filter on server only, collect the user ids of everyone in the server.
+        // This is fairly expensive, but less expensive than filtering post-query.
+        const serverIds = serverOnly ? (await User
+            .query()
+            .select("id")
+            .whereIn("snowflake", guild.members.map(x => x.id))).map(x => x.id) : [];
 
         // Show the leaderboard for any champion.
         if (normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every")) {
-            const stats = await UserChampionStat
+            const stats: { user_id: number, level: number, score: number, champion_id: number }[] = <any>await UserChampionStat
                 .query()
-                .groupBy("user_id")
-                .orderBy(raw("MAX(score)"), "DESC")
-                .eager("user");
+                .select("user_id", "level", "score", "champion_id")              // limit how much data is transfered over socket
+                .where(x => serverOnly ? x.whereIn("user_id", serverIds) : true) // filter on server only if needed
+                .groupBy("user_id", "level", "score", "champion_id")             // group by user_id, the others are just there for completeness
+                .orderBy("score", "DESC")                                        // obviously sort by score
+                .limit(500);                                                // limit to the first 500 entries, otherwise this query is too expensive
 
-            const fields = await Promise.all(stats
-                .filter(x => shouldShow(x.user!.snowflake))
-                .map(async (x, i) => {
-                    const champion = await StaticData.championById(x.champion_id);
-
-                    return {
-                        name: `#${i + 1} - ${x.user!.username}`,
-                        value: `${emote(ctx, champion)} ${champion.name} - ${emote(ctx, "Level_" + x.level)} ${x.score.toLocaleString()}`,
-                        inline: true
-                    };
-                }));
-
-            return paginate(ctx, fields, {
+            // Interesting pagination tricks here for the 3-columns table-esque layout.
+            return advancedPaginate(ctx, Array.from(Array(150)), {
                 title: "📊 Top Players" + (serverOnly ? " On This Server" : "")
-            });
+            }, async (_, pageOffset) => {
+                // Lazily load the users, and only the username.
+                const offset = pageOffset / 3 * 10;
+                const entries = stats.slice(offset, offset + 10);
+                const users = await User.query().select("id", "username").whereIn("id", entries.map(x => x.user_id));
+
+                return [{
+                    name: "User",
+                    value: entries.map((x, i) => (offset + i + 1) + " - " + users.find(y => y.id === x.user_id)!.username + emote(ctx, "__")).join("\n"),
+                    inline: true
+                }, {
+                    name: "Champion",
+                    value: (await Promise.all(entries.map(async x => `${emote(ctx, await StaticData.championById(x.champion_id))} ${(await StaticData.championById(x.champion_id)).name}`))).join("\n"),
+                    inline: true
+                }, {
+                    name: "Score",
+                    value: entries.map(x => `${emote(ctx, "Level_" + x.level)} ${x.score.toLocaleString()}`).join("\n"),
+                    inline: true
+                }];
+            }, 3);
         }
 
         // A player was mentioned, show their top.
@@ -80,23 +95,33 @@ If you want to know the top champions for a specific user, you can do so too. Si
         const champ = await expectChampion(ctx);
         if (!champ) return;
 
-        const stats = await UserChampionStat
+        // This is a manual select to get fast database queries (ab)using postgres' index-only scan.
+        // This command is used in over 50% of average command usages so it better be fast, not 12-20s as
+        // in Orianna v1. We only query for the user_id and then lazily load those once the actual page
+        // is requested, so our initial response (which is the most interesting) comes faster.
+        const stats: { level: number, score: number, user_id: number }[] = <any>await UserChampionStat
             .query()
-            .where("champion_id", +champ.key)
-            .orderBy("score", "DESC")
-            .eager("user");
+            .select(raw(`
+                "user_champion_stats"."user_id" as user_id,
+                "user_champion_stats"."level" as level,
+                "user_champion_stats"."score" as score
+            `.replace(/\n\s+/g, "").trim()))            // only select what is needed
+            .where("champion_id", +champ.key)                                 // filter on selected champion
+            .where(x => serverOnly ? x.whereIn("user_id", serverIds) : true)  // filter on server members if needed
+            .orderBy("score", "DESC");                                        // order by score
 
-        const fields = stats
-            .filter(x => shouldShow(x.user!.snowflake))
-            .map((x, i) => ({
-                name: `${i + 1} - ${x.user!.username}`,
-                value: `${emote(ctx, "Level_" + x.level)} ${x.score.toLocaleString()} Points`,
-                inline: true
-            }));
-
-        return paginate(ctx, fields, {
+        return advancedPaginate(ctx, stats, {
             title: "📊 Top " + champ.name + " Players" + (serverOnly ? " On This Server" : ""),
             thumbnail: await StaticData.getChampionIcon(champ)
+        }, async (entries, offset) => {
+            // Lazily load the users, and only the username and id, all in the name of speed.
+            const users = await User.query().select("id", "username").whereIn("id", entries.map(x => x.user_id));
+
+            return entries.map((entry, i) => ({
+                name: `${offset + i + 1} - ${users.find(x => x.id === entry.user_id)!.username}`,
+                value: `${emote(ctx, "Level_" + entry.level)} ${entry.score.toLocaleString()} Points`,
+                inline: true
+            }));
         });
     }
 };

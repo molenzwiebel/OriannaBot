@@ -94,13 +94,13 @@ const ABBREVIATIONS: { [key: string]: string } = {
 class StaticData {
     private data: riot.Champion[];
     private version: string;
+    private dataPromise = this.fetchData();
 
     /**
      * Tries to find a champion name in the specified string. Returns
      * null if no champion could be find, returns the champion otherwise.
      */
     public async findChampion(content: string) {
-        await this.maybeFetch();
         const normalized = content.toLowerCase().replace(/\W/g, "");
 
         // Try normal names first.
@@ -125,7 +125,7 @@ class StaticData {
      * Finds the champion with the specified name.
      */
     public async championByName(name: string) {
-        await this.maybeFetch();
+        await this.dataPromise;
         return this.data.find(x => x.name === name)!;
     }
 
@@ -133,7 +133,7 @@ class StaticData {
      * Finds the champion with the specified internal name (MonkeyKing, not Wukong).
      */
     public async championByInternalName(name: string) {
-        await this.maybeFetch();
+        await this.dataPromise;
         return this.data.find(x => x.id === name)!;
     }
 
@@ -141,7 +141,7 @@ class StaticData {
      * Finds the champion with the specified numeric id.
      */
     public async championById(id: number | string) {
-        await this.maybeFetch();
+        await this.dataPromise;
         return this.data.find(x => x.key == id)!;
     }
 
@@ -151,7 +151,7 @@ class StaticData {
     public async getChampionIcon(champion: riot.Champion | number) {
         if (typeof champion === "number") champion = await this.championById(champion);
 
-        await this.maybeFetch();
+        await this.dataPromise;
         return `https://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${champion.id}.png`;
     }
 
@@ -165,9 +165,7 @@ class StaticData {
     /**
      * Loads the champion data if it is not already loaded.
      */
-    private async maybeFetch() {
-        if (this.data) return;
-
+    private async fetchData() {
         const versionReq = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
         const versions = await versionReq.json();
 

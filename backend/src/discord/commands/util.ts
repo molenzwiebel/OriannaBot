@@ -76,25 +76,26 @@ export async function expectChampion({ content, guild, server, error }: CommandC
 
 /**
  * Utility method to paginate a list of `field` values. The specified template will be applied for every page,
- * with only the fields swapped for every list element.
+ * with only the fields swapped for every list element. The process function is used to lazily compute the contents on
+ * every page.
  */
-export async function paginate({ info }: CommandContext, elements: { name: string, value: string, inline?: boolean }[], template: ResponseOptions, perPage = 10) {
+export async function advancedPaginate<T>({ info }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
 
     const res = await info({
         ...template,
-        fields: elements.slice(0, perPage),
+        fields: await process(elements.slice(0, perPage), 0),
         footer: "Page 1 of " + pages
     });
 
-    const showPage = (offset: number) => {
+    const showPage = async (offset: number) => {
         if (curPage + offset < 0 || curPage + offset >= pages) return;
         curPage += offset;
 
         res.info({
             ...template,
-            fields: elements.slice(curPage * perPage, (curPage + 1) * perPage),
+            fields: await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage),
             footer: "Page " + (curPage + 1) + " of " + pages
         });
     };
@@ -105,6 +106,13 @@ export async function paginate({ info }: CommandContext, elements: { name: strin
     }
 
     return res;
+}
+
+/**
+ * Shortcut function for advancedPaginate that simply uses the supplied fields without lazily computing values.
+ */
+export async function paginate(ctx: CommandContext, elements: { name: string, value: string, inline?: boolean }[], template: ResponseOptions, perPage = 10) {
+    return advancedPaginate(ctx, elements, template, args => Promise.resolve(args), perPage);
 }
 
 /**

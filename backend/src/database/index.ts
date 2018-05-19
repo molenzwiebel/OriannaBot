@@ -1,12 +1,10 @@
 import { Model } from "objection";
 import Knex = require("knex");
+import config from "../config";
 
 const knex = Knex({
-    client: "sqlite3",
-    connection: {
-        filename: "./dev.sqlite3"
-    },
-    useNullAsDefault: true
+    client: "postgres",
+    connection: config.db
 });
 knex.migrate.latest();
 

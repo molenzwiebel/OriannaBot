@@ -5,6 +5,7 @@ exports.up = knex => knex.schema.createTable("roles", table => {
     table.string("name").notNullable();
     table.string("snowflake").notNullable();
     table.boolean("announce").notNullable();
+    table.index(["server_id"]);
 });
 
 exports.down = knex => knex.schema.dropTableIfExists("roles");
