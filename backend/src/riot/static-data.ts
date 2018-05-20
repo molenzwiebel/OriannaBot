@@ -156,6 +156,18 @@ class StaticData {
     }
 
     /**
+     * Returns a URL for a random centered splash for one of the skins of the specified champion.
+     */
+    public async getRandomCenteredSplash(champion: riot.Champion | number) {
+        if (typeof champion === "number") champion = await this.championById(champion);
+
+        await this.dataPromise;
+        const skin = champion.skins[Math.floor(Math.random() * champion.skins.length)];
+
+        return `https://cdn.communitydragon.org/latest/champion/${champion.key}/splash-art/centered/skin/${skin.num}`;
+    }
+
+    /**
      * Returns a URL for the summoner icon for the specified LeagueAccount.
      */
     public async getUserIcon(account: LeagueAccount) {
@@ -169,7 +181,7 @@ class StaticData {
         const versionReq = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
         const versions = await versionReq.json();
 
-        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/en_US/champion.json`);
+        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/en_US/championFull.json`);
         const data = await dataReq.json();
 
         this.version = data.version;

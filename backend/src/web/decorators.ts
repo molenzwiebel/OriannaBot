@@ -1,6 +1,7 @@
 import express = require("express");
 import debug = require("debug");
 import * as db from "../database";
+import elastic from "../elastic";
 
 const swallowErrorLog = debug("orianna:web:error");
 
@@ -52,6 +53,8 @@ export function swallowErrors(fn: ExpressRouteHandler) {
         } catch (e) {
             swallowErrorLog("Error handling %s %s: %s", req.method, req.url, e.message);
             swallowErrorLog("%o", e);
+            elastic.reportError(e);
+
             try {
                 res.status(500).send();
             } catch (ignored) { /* The response was already sent. */ }

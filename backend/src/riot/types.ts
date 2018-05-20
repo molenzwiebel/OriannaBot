@@ -23,6 +23,7 @@ namespace riot {
         key: string;
         name: string;
         title: string;
+        skins: { num: number }[];
     }
 
     export interface MatchEntry {

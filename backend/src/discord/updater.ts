@@ -1,9 +1,11 @@
 import RiotAPI from "../riot/api";
 import * as eris from "eris";
-import { Server, User, LeagueAccount, UserRank, UserChampionStat } from "../database";
+import { Server, User, LeagueAccount, UserRank, UserChampionStat, Role } from "../database";
 import config from "../config";
 import DiscordClient from "./client";
+import StaticData from "../riot/static-data";
 import debug = require("debug");
+import elastic from "../elastic";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -64,6 +66,8 @@ export default class Updater {
         } catch (e) {
             logFetch("Error fetching or updating for user %s (%s): %s", user.username, user.snowflake, e.message);
             logFetch("%O", e);
+
+            elastic.reportError(e);
         }
     }
 
@@ -119,14 +123,13 @@ export default class Updater {
             // TODO(molenzwiebel): Make sure that assigning succeeds, notify the owner if we lack permissions.
 
             // User has the role, but should not have it.
-            if (userHas.has(role) && !shouldHave.has(role)) guild.removeMemberRole(user.snowflake, role);
+            if (userHas.has(role) && !shouldHave.has(role)) guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.");
 
             // User does not have the role, but should have it.
             if (!userHas.has(role) && shouldHave.has(role)) {
-                guild.addMemberRole(user.snowflake, role);
-                if (server.roles!.find(x => x.snowflake === role)!.announce) {
-                    // TODO(molenzwiebel): Announce that the user gained this role.
-                }
+                guild.addMemberRole(user.snowflake, role, "Orianna - User meets requirements for role.");
+
+                this.announcePromotion(user, server.roles!.find(x => x.snowflake === role)!, guild);
             }
         }
     }
@@ -287,5 +290,60 @@ export default class Updater {
                 });
             }
         }
+    }
+
+    /**
+     * Announces promotion for the specified user and the specified role on the
+     * specified guild, if enabled.
+     */
+    private async announcePromotion(user: User, role: Role, guild: eris.Guild) {
+        if (!role.announce) return;
+
+        // Find announcement channel ID.
+        const server = await Server.query().where("id", role.server_id).first();
+        if (!server) return;
+        const announceChannelId = server.announcement_channel;
+        if (!announceChannelId) return;
+
+        // Ensure that that channel exists.
+        const announceChannel = guild.channels.get(announceChannelId);
+        if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
+
+        logUpdate("Announcing promotion for %s (%s) to %s on %s (%s)", user.username, user.snowflake, role.name, guild.name, guild.id);
+
+        // Figure out what images to show for the promotion.
+        const champion = role.findChampion();
+        const championIcon = champion ? await StaticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
+        const championBg = champion ? await StaticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
+
+        // Enqueue rendering of the gif.
+        const image = await this.client.puppeteer.render("./graphics/promotion.html", {
+            gif: {
+                width: 800,
+                height: 220,
+                length: 2.4,
+                fpsScale: 1.4
+            },
+            args: {
+                name: user.username,
+                title: role.name,
+                icon: user.avatarURL,
+                champion: championIcon,
+                background: championBg
+            }
+        });
+
+        // Send image!
+        announceChannel.createMessage({
+            embed: {
+                color: 0x49bd1a,
+                timestamp: new Date().toISOString(),
+                image: { url: "attachment://promotion.gif" },
+                author: {
+                    name: user.username + " just got promoted to " + role.name + "!",
+                    icon_url: user.avatarURL
+                }
+            }
+        }, { file: image, name: "promotion.gif" });
     }
 }

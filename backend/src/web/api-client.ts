@@ -337,6 +337,7 @@ export default class WebAPIClient {
 
         // Check payload.
         if (!this.validate({
+            name: Joi.string(),
             announce: Joi.boolean(),
             conditions: Joi.array().items({
                 type: Joi.string(),
@@ -345,7 +346,10 @@ export default class WebAPIClient {
         }, req, res)) return;
 
         // Update role announce.
-        await role.$query().update({ announce: req.body.announce });
+        await role.$query().update({
+            announce: req.body.announce,
+            name: req.body.name
+        });
 
         // Drop all old conditions.
         await role.$relatedQuery("conditions").delete();

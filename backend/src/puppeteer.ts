@@ -123,7 +123,7 @@ export default class PuppeteerController extends EventEmitter {
         const ffmpeg = child_process.spawn(config.ffmpeg, ["-y", "-f", "image2pipe", "-r", fps.toString(), "-i", "-", "./temp/gif-out.mp4"]);
 
         // Have the last frame also as the first frame as a "placeholder" for non-autoplay/mobile.
-        await write(ffmpeg.stdin, Buffer.from(screenshots[screenshots.length - 1].args.snapshot, "base64"));
+        for (let i = 0; i < 2; i++) await write(ffmpeg.stdin, Buffer.from(screenshots[screenshots.length - 1].args.snapshot, "base64"));
 
         // Write the rest of the screenshots.
         for (const screenshot of screenshots) {

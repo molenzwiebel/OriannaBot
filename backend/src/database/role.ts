@@ -2,8 +2,9 @@ import { Model, Pojo } from "objection";
 import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 import { evaluateRangeCondition, TypedRoleCondition } from "../types/conditions";
-import User from "./user";
+import User, { UserChampionStat } from "./user";
 import config from "../config";
+import Server from "./server";
 
 @decorators.table("roles")
 export default class Role extends Model {
@@ -29,6 +30,11 @@ export default class Role extends Model {
     announce: boolean;
 
     /**
+     * ID of the server this role belongs to.
+     */
+    server_id: number;
+
+    /**
      * Optionally eager-loaded conditions.
      */
     conditions?: RoleCondition[];
@@ -40,6 +46,17 @@ export default class Role extends Model {
     test(user: User): boolean {
         if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
         return !this.conditions.some(x => !x.test(user));
+    }
+
+    /**
+     * Finds a champion in the set of requirements for this role, to be displayed
+     * in the promotion image, _if_ one exists.
+     */
+    findChampion(): number | null {
+        if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
+
+        const cond = this.conditions.find(x => !!x.options.champion);
+        return cond ? cond.options.champion : null;
     }
 
     /**
