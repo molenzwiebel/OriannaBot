@@ -1,10 +1,9 @@
 import { Model, Pojo } from "objection";
-import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 import { evaluateRangeCondition, TypedRoleCondition } from "../types/conditions";
-import User, { UserChampionStat } from "./user";
+import User from "./user";
 import config from "../config";
-import Server from "./server";
+import omit = require("lodash.omit");
 
 @decorators.table("roles")
 export default class Role extends Model {
@@ -63,7 +62,7 @@ export default class Role extends Model {
      * Omit server_id from the JSON object.
      */
     $formatJson(json: Pojo) {
-        return omit({ ...super.$formatJson(json), announce: !!this.announce }, ["server_id"]);
+        return omit({...super.$formatJson(json), announce: !!this.announce}, ["server_id"]);
     }
 }
 

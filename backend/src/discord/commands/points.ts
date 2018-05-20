@@ -1,4 +1,3 @@
-
 import { Command } from "../command";
 import { emote, expectChampion, expectUser } from "./util";
 

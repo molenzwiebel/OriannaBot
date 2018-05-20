@@ -1,4 +1,3 @@
-
 import { Command } from "../command";
 import { RangeCondition, RankedTierCondition, TypedRoleCondition } from "../../types/conditions";
 import StaticData from "../../riot/static-data";
