@@ -33,11 +33,16 @@ export default class PuppeteerController extends EventEmitter {
     private queue: { file: string, options: RenderArgs, resolve: Function, reject: Function }[] = [];
 
     public async initialize() {
-        this.browser = await puppeteer.launch();
-        this.page = await this.browser.newPage();
-        this.page.exposeFunction("ready", () => {
-            this.emit("ready");
-        });
+        await this.createBrowser();
+
+        // Restart chrome every 5 minutes to prevent memory leaks.
+        setInterval(async () => {
+            // Don't restart if we're currently processing jobs.
+            if (this.queue.length) return;
+
+            await this.browser.close();
+            await this.createBrowser();
+        }, 5 * 60 * 1000);
     }
 
     /**
@@ -58,6 +63,18 @@ export default class PuppeteerController extends EventEmitter {
                 }
             }
             this.working = false;
+        });
+    }
+
+    /**
+     * Constructs the chrome instance and creates a new page available for use.
+     */
+    private async createBrowser() {
+        this.browser = await puppeteer.launch();
+
+        this.page = await this.browser.newPage();
+        this.page.exposeFunction("ready", () => {
+            this.emit("ready");
         });
     }
 
