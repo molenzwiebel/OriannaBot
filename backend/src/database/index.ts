@@ -6,6 +6,7 @@ const knex = Knex({
     client: "postgres",
     connection: config.db
 });
+// knex.migrate.rollback();
 knex.migrate.latest();
 
 Model.knex(knex);

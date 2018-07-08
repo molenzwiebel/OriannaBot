@@ -1,4 +1,6 @@
 import * as eris from "eris";
+// Typescript somehow doesn't compile the import unless we add this.
+const _eris = eris;
 
 /**
  * All extra options that can be supplied to the response edit/delete features.
@@ -170,7 +172,9 @@ export default class Response {
         }
 
         // Remove the reaction if we weren't in a PM.
-        await message.removeReaction(emoji.name, userID);
+        if (!(this.message.channel instanceof _eris.PrivateChannel)) {
+            await message.removeReaction(emoji.name, userID);
+        }
 
         // Call the callback
         this.reactions.get(emoji.name)!();

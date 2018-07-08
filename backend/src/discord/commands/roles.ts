@@ -34,9 +34,9 @@ Note that the same role might appear twice in the list with different requiremen
         });
 
         const formatRange = (range: RangeCondition<any>) => {
-            if (range.compare_type === "at_least") return "at least " + range.value.toLocaleString();
-            if (range.compare_type === "at_most") return "at most " + range.value.toLocaleString();
-            if (range.compare_type === "exactly") return "exactly " + range.value.toLocaleString();
+            if (range.compare_type === "at_least") return "of at least " + range.value.toLocaleString();
+            if (range.compare_type === "at_most") return "of at most " + range.value.toLocaleString();
+            if (range.compare_type === "exactly") return "of exactly " + range.value.toLocaleString();
             return "between " + range.min.toLocaleString() + " and " + range.max.toLocaleString()
         };
         const formatChampion = async (id: number) => {
@@ -50,9 +50,9 @@ Note that the same role might appear twice in the list with different requiremen
         };
 
         const formatCondition = async (cond: TypedRoleCondition): Promise<string> => {
-            if (cond.type === "mastery_level") return "Have a mastery level of " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
-            if (cond.type === "mastery_score") return "Have a mastery score of " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
-            if (cond.type === "total_mastery_score") return "Have a total mastery score of " + formatRange(cond.options);
+            if (cond.type === "mastery_level") return "Have a mastery level " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
+            if (cond.type === "mastery_score") return "Have a mastery score " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
+            if (cond.type === "total_mastery_score") return "Have a total mastery score " + formatRange(cond.options);
             if (cond.type === "ranked_tier") return "Have a ranked tier " + formatRanked(cond);
             if (cond.type === "champion_play_count") return "Have played at least " + cond.options.count.toLocaleString() + " games on " + await formatChampion(cond.options.champion);
             if (cond.type === "server") return "Have an active account on " + cond.options.region;
@@ -63,7 +63,7 @@ Note that the same role might appear twice in the list with different requiremen
 
         const roleFields = await Promise.all(server.roles!.map(async x => ({
             name: x.name,
-            value: (await Promise.all(x.conditions!.map(async x => sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x)))).join("\n")
+            value: (await Promise.all(x.conditions!.map(async x => sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x)))).join("\n") || "_No Conditions_"
         })));
 
         return paginate(ctx, roleFields, {

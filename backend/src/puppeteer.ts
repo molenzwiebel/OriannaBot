@@ -73,7 +73,7 @@ export default class PuppeteerController extends EventEmitter {
         this.browser = await puppeteer.launch();
 
         this.page = await this.browser.newPage();
-        this.page.exposeFunction("ready", () => {
+        await this.page.exposeFunction("ready", () => {
             this.emit("ready");
         });
     }

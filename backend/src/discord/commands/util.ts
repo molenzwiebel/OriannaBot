@@ -79,7 +79,7 @@ export async function expectChampion({ content, guild, server, error }: CommandC
  * with only the fields swapped for every list element. The process function is used to lazily compute the contents on
  * every page.
  */
-export async function advancedPaginate<T>({ info }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
+export async function advancedPaginate<T>({ info, msg }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
 
@@ -104,6 +104,8 @@ export async function advancedPaginate<T>({ info }: CommandContext, elements: T[
         await res.globalOption("⬅", () => showPage(-1));
         await res.globalOption("➡", () => showPage(+1));
     }
+
+    await res.option("🗑", () => msg.delete("Deleted By User"));
 
     return res;
 }

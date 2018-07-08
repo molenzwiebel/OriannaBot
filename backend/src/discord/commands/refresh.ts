@@ -29,7 +29,7 @@ You are also periodically refreshed automatically by Orianna (usually once every
 
         const loadingEmoji = emote(ctx, "Refreshing").replace("<:", "").replace(">", "");
 
-        await msg.addReaction(loadingEmoji);
+        msg.addReaction(loadingEmoji);
         await client.updater.fetchAndUpdateAll(user);
 
         msg.removeReaction(loadingEmoji);
