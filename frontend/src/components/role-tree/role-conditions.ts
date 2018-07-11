@@ -32,6 +32,7 @@ export default class RoleConditions extends Vue {
 
     private handleChange(state: { valid: boolean, options: any }, condition: { valid: boolean, opts: any }) {
         this.dirty = true;
+        this.$emit("dirty");
         condition.valid = state.valid;
         condition.opts = state.options;
     }
@@ -42,6 +43,7 @@ export default class RoleConditions extends Vue {
     private async renameRole() {
         await this.$root.displayModal(RenameModal, { role: this.role });
         this.dirty = true;
+        this.$emit("dirty");
     }
 
     /**
@@ -89,7 +91,7 @@ export default class RoleConditions extends Vue {
     /**
      * Saves the role.
      */
-    private async save() {
+    public async save() {
         if (!this.valid || !this.dirty) return;
 
         await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + this.role.id, "POST", {
@@ -101,6 +103,7 @@ export default class RoleConditions extends Vue {
             }))
         });
         this.dirty = false;
+        this.$emit("dirty");
     }
 
     /**

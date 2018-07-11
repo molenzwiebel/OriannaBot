@@ -3,6 +3,7 @@ import Component from "vue-class-component";
 import App from "../app/app";
 import ChampionDropdown from "../champion-dropdown/champion-dropdown.vue";
 import RoleConditions from "../role-tree/role-conditions.vue";
+import { default as RoleConditionsTy } from "../role-tree/role-conditions";
 import PresetsModal from "../presets/presets.vue";
 
 export interface Role {
@@ -44,6 +45,10 @@ export default class ServerProfile extends Vue {
     server: ServerDetails = <any>null; // required for vue to register the binding
     blacklistChannel = "disabled";
     roleName = "";
+    message = "";
+    rolesDirty = false;
+    timeoutID: number = 0;
+    $refs: { roleElements: RoleConditionsTy[] };
 
     async mounted() {
         // Load user details. Will error if the user is not logged in.
@@ -53,32 +58,44 @@ export default class ServerProfile extends Vue {
     /**
      * Updates the selected announcement channel with the server.
      */
-    private updateAnnouncementChannel(evt: Event) {
-        this.server.announcement_channel = (<HTMLSelectElement>evt.target).value;
-        this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
-            announcement_channel: (<HTMLSelectElement>evt.target).value
+    private async updateAnnouncementChannel(evt: Event) {
+        let val: string | null = (<HTMLSelectElement>evt.target).value;
+        if (val === "null") val = null;
+
+        this.server.announcement_channel = val;
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
+            announcement_channel: val
         });
+
+        if (val) {
+            this.showMessage(`Announcements will now be sent in #${this.getChannelName(val)}!`);
+        } else {
+            this.showMessage("Announcements are now turned off.");
+        }
     }
 
     /**
      * Updates the selected default champion with the server.
      */
-    private updateDefaultChampion(champ: number) {
+    private async updateDefaultChampion(champ: number) {
         this.server.default_champion = champ;
-        this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
             default_champion: champ
         });
+
+        this.showMessage(champ ? "Updated default server champion!" : "Default champion removed. All commands will now require a champion name.");
     }
 
     /**
      * Marks the currently selected blacklist channel as being blacklisted.
      */
-    private addBlacklistedChannel() {
+    private async addBlacklistedChannel() {
         if (this.blacklistChannel === "disabled") return;
 
-        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "POST", {
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "POST", {
             channel: this.blacklistChannel
         });
+        this.showMessage(`Will now ignore all commands sent in #${this.getChannelName(this.blacklistChannel)}.`);
 
         this.server.blacklisted_channels.push(this.blacklistChannel);
         this.blacklistChannel = "undefined";
@@ -87,10 +104,11 @@ export default class ServerProfile extends Vue {
     /**
      * Removes the specified channel ID from the blacklist.
      */
-    private removeBlacklist(id: string) {
-        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "DELETE", {
+    private async removeBlacklist(id: string) {
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/blacklisted_channels", "DELETE", {
             channel: id
         });
+        this.showMessage(`Will no longer ignore commands sent in #${this.getChannelName(id)}.`);
 
         this.server.blacklisted_channels.splice(this.server.blacklisted_channels.indexOf(id), 1);
     }
@@ -98,8 +116,9 @@ export default class ServerProfile extends Vue {
     /**
      * Deletes the specified role.
      */
-    private deleteRole(role: Role) {
-        this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + role.id, "DELETE", {});
+    private async deleteRole(role: Role) {
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + role.id, "DELETE", {});
+        this.showMessage(`Removed ${role.name}.`);
         this.server.roles.splice(this.server.roles.indexOf(role), 1);
     }
 
@@ -107,10 +126,12 @@ export default class ServerProfile extends Vue {
      * Adds a new role.
      */
     private async addRole() {
+        if (!this.roleName) return;
         const role = await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role", "POST", {
             name: this.roleName
         });
         if (!role) return;
+        this.showMessage(`Added ${this.roleName}!`);
 
         this.server.roles.push(role);
         this.roleName = "";
@@ -125,6 +146,39 @@ export default class ServerProfile extends Vue {
 
         // Reload roles, since we don't know what the user added.
         this.server = (await this.$root.get<ServerDetails>("/api/v1/server/" + this.$route.params.id))!;
+    }
+
+    /**
+     * Saves all dirty roles.
+     */
+    private async saveUnsavedRoles() {
+        await Promise.all(this.$refs.roleElements.filter(x => x.dirty).map(x => x.save()));
+        this.showMessage("All roles saved!");
+    }
+
+    /**
+     * Recomputes if any roles are dirty.
+     */
+    private updateDirty() {
+        this.rolesDirty = this.$refs.roleElements.some(x => x.dirty);
+    }
+
+    /**
+     * Shows a small message at the bottom.
+     */
+    private showMessage(msg: string) {
+        this.message = msg;
+        if (this.timeoutID) clearTimeout(this.timeoutID);
+        this.timeoutID = setTimeout(() => {
+            this.message = "";
+        }, 2000);
+    }
+
+    /**
+     * Finds the channel name for the specified ID. Assumes the channel exists.
+     */
+    private getChannelName(id: string) {
+        return this.server.discord.channels.find(x => x.id === id)!.name;
     }
 
     /**

@@ -27,9 +27,11 @@
             <div v-if="server.roles.length">
                 <role-conditions
                         v-for="role in server.roles"
+                        ref="roleElements"
                         :role="role"
                         :discord-roles="server.discord.roles"
                         :key="role.id"
+                        @dirty="updateDirty"
                         @delete="deleteRole(role)"
                 ></role-conditions>
             </div>
@@ -76,6 +78,22 @@
                 </div>
             </div>
         </div>
+
+        <transition name="slide">
+            <div class="box unsaved" v-if="rolesDirty">
+                <span>
+                    <span style="color: red">Warning: </span>
+                    You have unsaved role changes!
+                </span>
+                <a href="#" @click.prevent="saveUnsavedRoles" class="button save">Save Now</a>
+            </div>
+        </transition>
+
+        <transition name="slide">
+            <div class="box unsaved" v-if="message">
+                {{ message }}
+            </div>
+        </transition>
     </div>
 
     <div v-else class="loader">Loading...</div>
@@ -182,7 +200,7 @@
                 font-size 17px
                 flex 1
 
-            .actions  > a
+            .actions > a
                 text-decoration none
                 color #1e87f0
                 font-size 30px
@@ -190,6 +208,29 @@
         .blacklist
             padding 20px
             display flex
+
+        .unsaved
+            font-size 18px
+            height 50px
+            position fixed
+            bottom 20px
+            width 700px
+            max-width 700px
+            align-self center
+            padding 5px 10px
+            display flex
+            align-items center
+            justify-content space-between
+            box-shadow 0 2px 10px 0 rgba(0,0,0,.2)
+
+            .button
+                width auto
+                height 30px
+                line-height 30px
+                padding 0 10px
+                text-decoration none
+                font-size 14px
+                text-transform uppercase
 
         .button
             height 40px
@@ -204,4 +245,17 @@
 
             &:hover
                 border-color #1f9fde
+
+    // Animation for unsaved roles.
+    .slide-enter-active
+        animation slide-up .5s
+
+    .slide-leave-active
+        animation slide-up .5s reverse
+
+    @keyframes slide-up
+        0%
+            transform translateY(200px)
+        100%
+            transform translateY(0)
 </style>

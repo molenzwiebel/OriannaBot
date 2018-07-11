@@ -31,14 +31,14 @@
 
     .view
         margin-left navbar-width
-        height 100%
+        min-height 100%
         display flex
         align-items center
         justify-content center
         background-color #fafafa
 
     .modal
-        position absolute
+        position fixed
         top 0
         left 0
         bottom 0
