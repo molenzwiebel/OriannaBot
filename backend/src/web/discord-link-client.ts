@@ -79,6 +79,9 @@ export default function register(app: express.Application, client: DiscordClient
                 } catch { /* ignored */ }
             }
 
+            // Update data for the user after they fetched their accounts.
+            client.updater.fetchAndUpdateAll(req.user);
+
             res.send(`<head><script>window.opener.postMessage({ type: 'discord' }, '*')</script></head>`);
         } catch (err) {
             return res.status(500).send("We're sorry, something went wrong processing your request.");

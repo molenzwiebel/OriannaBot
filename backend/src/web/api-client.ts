@@ -110,6 +110,7 @@ export default class WebAPIClient {
 
         // Add the user..
         await req.user.addAccount(summoner.region, summoner);
+        this.client.updater.fetchAndUpdateAll(req.user);
 
         return res.json({ ok: true });
     });
@@ -129,6 +130,7 @@ export default class WebAPIClient {
         if (!toDelete) return res.status(400).json(null);
 
         await toDelete.$query().delete();
+        this.client.updater.fetchAndUpdateAll(req.user);
 
         return res.json({ ok: true });
     });

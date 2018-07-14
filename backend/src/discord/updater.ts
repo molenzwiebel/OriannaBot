@@ -16,10 +16,11 @@ const logGames = debug("orianna:updater:fetch:games");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
- * This updater actually runs 3 different updating loops, each at different intervals.
+ * This updater actually runs 4 different updating loops, each at different intervals.
  * From ran most often to ran least often:
  * - Update Mastery Scores (level, score)
- * - Update Ranked Information (amount of games, ranked tier)
+ * - Update Ranked Information (amount of games)
+ * - Update Ranked Information (ranked tier)
  * - Update Summoners (check if the summoner was renamed, transferred)
  * These different intervals are mostly because of the rate limits imposed on us by
  * the Riot API. Do note that a manual refresh will do all of these at the same time.
@@ -78,7 +79,7 @@ export default class Updater {
      * update appropriately. Thus, this should be called after a fetch
      * or whenever the role configuration for a specific server is updated.
      */
-    private async updateUser(user: User) {
+    public async updateUser(user: User) {
         logUpdate("Updating roles for user %s (%s)", user.username, user.snowflake);
 
         try {
@@ -120,7 +121,6 @@ export default class Updater {
 
         for (const role of allRoles) {
             if (!guild.roles.has(role)) continue;
-            // TODO(molenzwiebel): Make sure that assigning succeeds, notify the owner if we lack permissions.
 
             // User has the role, but should not have it.
             if (userHas.has(role) && !shouldHave.has(role)) guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.");

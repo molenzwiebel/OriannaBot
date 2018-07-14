@@ -31,7 +31,7 @@ export default function createApplication(client: DiscordClient) {
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);
     registerAuth(app);
-    registerReddit(app, client.riotAPI);
+    registerReddit(app, client.riotAPI, client.updater);
     registerDiscordAuth(app, client);
     registerDiscordLink(app, client);
 

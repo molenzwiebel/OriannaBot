@@ -48,6 +48,7 @@ export default class DiscordClient {
         this.bot.on("messageDelete", this.handleDelete);
         this.bot.on("guildUpdate", this.handleGuildUpdate);
         this.bot.on("userUpdate", this.handleUserUpdate);
+        this.bot.on("guildMemberAdd", this.handleGuildMemberAdd);
     }
 
     /**
@@ -263,7 +264,6 @@ export default class DiscordClient {
             const incident = await elastic.reportError(e);
             if (transaction) transaction.result = 404;
 
-            // TODO(molenzwiebel): generate an id, send it to elk, attach the ID to the message.
             await template.error({
                 title: "💥 Ouch!",
                 description:
@@ -332,6 +332,20 @@ export default class DiscordClient {
                 avatar: user.avatar || "none"
             })
         .execute();
+    };
+
+    /**
+     * Ensures that a user receives their appropriate roles when they join a server while
+     * already having accounts set up.
+     */
+    private handleGuildMemberAdd = async (guild: eris.Guild, member: eris.Member) => {
+        // Don't use findOrCreateUser since it will message the user.
+        const user = await User.query().where("snowflake", "=", member.id).first();
+        if (!user) return;
+
+        // Only update, do not fetch new data for the user.
+        // This should assign new roles, if appropriate.
+        this.updater.updateUser(user);
     };
 
     /**
