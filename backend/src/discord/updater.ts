@@ -137,6 +137,8 @@ export default class Updater {
     /**
      * Responsible for pulling new mastery score data from Riot and
      * updating the User instance. This will not recalculate roles.
+     *
+     * @returns whether or not the mastery score changed since the last refresh
      */
     private async fetchMasteryScores(user: User) {
         if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
@@ -157,11 +159,13 @@ export default class Updater {
         }
 
         // Nuke all old entries (in case the user removed an account) and append the new values.
+        let changed = false;
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
             const oldScore = user.stats.find(x => x.champion_id === champion);
             if (oldScore && score.level === oldScore.level && score.score === oldScore.score) continue;
             if (oldScore) await oldScore.$query().delete();
+            changed = true;
 
             const oldGamesPlayed = oldScore ? oldScore.games_played : 0;
             await user.$relatedQuery<UserChampionStat>("stats").insert({
@@ -174,6 +178,7 @@ export default class Updater {
 
         // Refetch stats now that we updated stuff.
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
+        return changed;
     }
 
     /**

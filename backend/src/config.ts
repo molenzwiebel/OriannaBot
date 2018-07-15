@@ -28,6 +28,16 @@ interface Configuration {
         host: string;
         auth: string;
     };
+    updater: {
+        masteryGamesInterval: number;
+        masteryGamesAmount: number;
+
+        rankedTierInterval: number;
+        rankedTierAmount: number;
+
+        accountInterval: number;
+        accountAmount: number;
+    };
     db: ConnectionConfig;
     ffmpeg: string;
 }
