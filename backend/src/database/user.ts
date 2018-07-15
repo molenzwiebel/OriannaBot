@@ -35,6 +35,24 @@ export default class User extends Model {
     token: string;
 
     /**
+     * Epoch timestamp of when we last updated this users scores and games played.
+     * Stored as a string since knex returns bigint values as strings.
+     */
+    last_score_update_timestamp: string;
+
+    /**
+     * Epoch timestamp of when we last updated this users ranked tier.
+     * Stored as a string since knex returns bigint values as strings.
+     */
+    last_rank_update_timestamp: string;
+
+    /**
+     * Epoch timestamp of when we last updated this users accounts.
+     * Stored as a string since knex returns bigint values as strings.
+     */
+    last_account_update_timestamp: string;
+
+    /**
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
     accounts?: LeagueAccount[];
