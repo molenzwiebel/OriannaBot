@@ -7,6 +7,7 @@ import StaticData from "../riot/static-data";
 import debug = require("debug");
 import elastic from "../elastic";
 import scheduleUpdateLoop from "../util/update-loop";
+import formatName from "../util/format-name";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -382,7 +383,7 @@ export default class Updater {
                 fpsScale: 1.4
             },
             args: {
-                name: user.username,
+                name: formatName(user, true),
                 title: role.name,
                 icon: user.avatarURL,
                 champion: championIcon,
@@ -397,7 +398,7 @@ export default class Updater {
                 timestamp: new Date().toISOString(),
                 image: { url: "attachment://promotion.gif" },
                 author: {
-                    name: user.username + " just got promoted to " + role.name + "!",
+                    name: formatName(user, true) + " just got promoted to " + role.name + "!",
                     icon_url: user.avatarURL
                 }
             }

@@ -38,6 +38,10 @@ interface Configuration {
         accountInterval: number;
         accountAmount: number;
     };
+    badges: { [key: string]: {
+        small: string;
+        big: string;
+    } };
     db: ConnectionConfig;
     ffmpeg: string;
 }

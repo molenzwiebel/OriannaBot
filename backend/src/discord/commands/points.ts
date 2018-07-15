@@ -1,5 +1,6 @@
 import { Command } from "../command";
 import { emote, expectChampion, expectUser } from "./util";
+import formatName, { badge } from "../../util/format-name";
 
 const PointsCommand: Command = {
     name: "Show Mastery Points",
@@ -22,8 +23,8 @@ Examples:
         if (!champ) return;
 
         if (!user.accounts!.length) return error({
-            title: `🔍 ${user.username} Has No Accounts`,
-            description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${user.username} has no accounts setup with me. ${msg.author.id === user.snowflake ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
+            title: `🔍 ${formatName(user)} Has No Accounts`,
+            description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${formatName(user)} has no accounts setup with me. ${msg.author.id === user.snowflake ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
         });
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
@@ -31,7 +32,7 @@ Examples:
 
         return ok({
             title: "📖 Mastery Points",
-            description: "<@!" + user.snowflake + "> has " + text + " points** on " + emote(ctx, champ) + " " + champ.name + "."
+            description: `<@!${user.snowflake}>${badge(user)} has ${text} points** on ${emote(ctx, champ)} ${champ.name}.`
         });
     }
 };

@@ -1,4 +1,6 @@
 import * as eris from "eris";
+import formatName from "../util/format-name";
+
 // Typescript somehow doesn't compile the import unless we add this.
 const _eris = eris;
 
@@ -195,7 +197,7 @@ export default class Response {
         if (this.trigger) {
             obj = {
                 color: options.color,
-                footer: { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + " • " : "") + this.user.username },
+                footer: { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + " • " : "") + formatName(this.user, true) },
                 timestamp: new Date(options.timestamp || Date.now()).toISOString()
             };
         } else {

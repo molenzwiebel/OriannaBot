@@ -3,6 +3,7 @@ import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
 import StaticData from "../../riot/static-data";
 import { advancedPaginate, emote, expectChampion, paginate } from "./util";
+import formatName from "../../util/format-name";
 
 const TopCommand: Command = {
     name: "Show Leaderboards",
@@ -46,11 +47,11 @@ If you want to know the top champions for a specific user, you can do so too. Si
                 // Lazily load the users, and only the username.
                 const offset = pageOffset / 3 * 10;
                 const entries = stats.slice(offset, offset + 10);
-                const users = await User.query().select("id", "username").whereIn("id", entries.map(x => x.user_id));
+                const users = await User.query().select("id", "username", "snowflake").whereIn("id", entries.map(x => x.user_id));
 
                 return [{
                     name: "User",
-                    value: entries.map((x, i) => (offset + i + 1) + " - " + users.find(y => y.id === x.user_id)!.username + emote(ctx, "__")).join("\n"),
+                    value: entries.map((x, i) => (offset + i + 1) + " - " + formatName(users.find(y => y.id === x.user_id)!) + emote(ctx, "__")).join("\n"),
                     inline: true
                 }, {
                     name: "Champion",
@@ -70,8 +71,8 @@ If you want to know the top champions for a specific user, you can do so too. Si
             await user.$loadRelated("[accounts, stats]");
 
             if (!user.accounts!.length) return error({
-                title: `🔍 ${user.username} has no accounts configured.`,
-                description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${user.username} has no accounts setup with me. ${msg.author.id === user.snowflake ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
+                title: `🔍 ${formatName(user)} has no accounts configured.`,
+                description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${formatName(user)} has no accounts setup with me. ${msg.author.id === user.snowflake ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
             });
 
             const fields = await Promise.all(user.stats!
@@ -87,7 +88,7 @@ If you want to know the top champions for a specific user, you can do so too. Si
                 }));
 
             return paginate(ctx, fields, {
-                title: "📊 Top Champions For " + user.username,
+                title: "📊 Top Champions For " + formatName(user),
             }, 12);
         }
 
@@ -115,10 +116,10 @@ If you want to know the top champions for a specific user, you can do so too. Si
             thumbnail: await StaticData.getChampionIcon(champ)
         }, async (entries, offset) => {
             // Lazily load the users, and only the username and id, all in the name of speed.
-            const users = await User.query().select("id", "username").whereIn("id", entries.map(x => x.user_id));
+            const users = await User.query().select("id", "username", "snowflake").whereIn("id", entries.map(x => x.user_id));
 
             return entries.map((entry, i) => ({
-                name: `${offset + i + 1} - ${users.find(x => x.id === entry.user_id)!.username}`,
+                name: `${offset + i + 1} - ${formatName(users.find(x => x.id === entry.user_id)!)}`,
                 value: `${emote(ctx, "Level_" + entry.level)} ${entry.score.toLocaleString()} Points`,
                 inline: true
             }));

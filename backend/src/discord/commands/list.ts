@@ -1,6 +1,7 @@
 import { Command } from "../command";
 import { expectUser } from "./util";
 import StaticData from "../../riot/static-data";
+import formatName from "../../util/format-name";
 
 const ListCommand: Command = {
     name: "List Accounts",
@@ -20,13 +21,13 @@ If you want to view someone else's accounts, you can simply include them in the 
 
         if (!target.accounts!.length) return error({
             title: "🔎 No Accounts Found",
-            description: (isAuthor ? "You have" : target.username + " has") + " no accounts configured with me. " + (isAuthor ? "You" : "They") + " can add some using `@Orianna Bot configure`."
+            description: `${isAuthor ? "You have" : formatName(target) + " has"} no accounts configured with me. ${isAuthor ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
         });
 
         if (target.accounts!.length === 1) {
             const account = target.accounts![0];
             return info({
-                title: "🔎 " + target.username + "'s Account",
+                title: "🔎 " + formatName(target) + "'s Account",
                 thumbnail: await StaticData.getUserIcon(account),
                 fields: [{ name: account.region, value: "- " + account.username }]
             });
@@ -38,7 +39,7 @@ If you want to view someone else's accounts, you can simply include them in the 
         }, new Map<string, string[]>());
 
         return info({
-            title: "🔎 " + target.username + "'s Accounts",
+            title: "🔎 " + formatName(target) + "'s Accounts",
             fields: [...perRegion.entries()].map(x => ({ name: x[0], value: x[1].join("\n") }))
         });
     }
