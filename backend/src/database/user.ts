@@ -76,6 +76,13 @@ export default class User extends Model {
     }
 
     /**
+     * @returns if the amount of games played for this user needs to be computed from the start, instead of incrementally
+     */
+    get needsGamesPlayedReset(): boolean {
+        return this.last_account_update_timestamp === "0";
+    }
+
+    /**
      * Omit user id and token from the JSON object.
      */
     $formatJson(json: Pojo) {

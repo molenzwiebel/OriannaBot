@@ -20,7 +20,7 @@ You are also periodically refreshed automatically by Orianna (usually once every
         if (content.toLowerCase().includes("everyone")) {
             return info({
                 title: "ℹ Refresh Everyone Was Removed",
-                description: "With the introduction of Orianna Bot v2, the refresh everyone command was removed. I refresh every user approximately once an hour, so the command did fairly little while at the same time causing a large amount of work in a short time. If you've recently made changes and want to see them in action, simply wait until I've refreshed everyone.\n\nIf your roles are misbehaving and you figured that a refresh everyone would work, considering contacting my creator for help. See `@Orianna Bot about` for more info."
+                description: "With the introduction of Orianna Bot v2, the refresh everyone command was removed. I refresh every user approximately once an hour automatically, so the command did fairly little while at the same time causing a large amount of work in a short timespan. If you've recently made changes and want to see them in action, simply wait until I've refreshed everyone.\n\nIf your roles are misbehaving and you figured that a refresh everyone would work, consider contacting my creator for help. See `@Orianna Bot about` for more info."
             });
         }
 

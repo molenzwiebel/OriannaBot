@@ -6,6 +6,7 @@ import DiscordClient from "./client";
 import StaticData from "../riot/static-data";
 import debug = require("debug");
 import elastic from "../elastic";
+import scheduleUpdateLoop from "../util/update-loop";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -33,7 +34,9 @@ const logGames = debug("orianna:updater:fetch:games");
  *           was previously fetched (and thus might have new data)
  */
 export default class Updater {
-    constructor(private client: DiscordClient, private riotAPI: RiotAPI) {}
+    constructor(private client: DiscordClient, private riotAPI: RiotAPI) {
+        this.startUpdateLoops();
+    }
 
     /**
      * Updates everything for the specified user instance or snowflake. This
@@ -93,6 +96,55 @@ export default class Updater {
             // Rethrow, something else will catch it.
             throw e;
         }
+    }
+
+    /**
+     * Starts the 3 different update loops.
+     */
+    private startUpdateLoops() {
+        const selectLeastRecentlyUpdated = (field: string) => (amount: number) => User
+            .query()
+            .whereRaw(`(select count(*) from "league_accounts" as "accounts" where "accounts"."user_id" = "users"."id") > 0`)
+            .orderBy(field, "ASC")
+            .eager("[accounts, stats, ranks]")
+            .limit(amount);
+
+        // Loop 1: Update stats and games played.
+        scheduleUpdateLoop(async user => {
+            // Update mastery values.
+            const hasChanged = await this.fetchMasteryScores(user);
+
+            // If mastery changed or we need a full reset, update games played.
+            if (hasChanged || user.needsGamesPlayedReset) await this.fetchGamesPlayed(user);
+
+            // Now recompute roles.
+            await this.updateUser(user);
+
+            await user.$query().patch({
+                last_score_update_timestamp: "" + Date.now()
+            });
+        }, selectLeastRecentlyUpdated("last_score_update_timestamp"), config.updater.masteryGamesInterval, config.updater.masteryGamesAmount);
+
+        // Loop 2: Update ranked tiers.
+        scheduleUpdateLoop(async user => {
+            // Fetch ranked tier and recompute roles.
+            await this.fetchRanked(user);
+            await this.updateUser(user);
+
+            await user.$query().patch({
+                last_rank_update_timestamp: "" + Date.now()
+            });
+        }, selectLeastRecentlyUpdated("last_rank_update_timestamp"), config.updater.rankedTierInterval, config.updater.rankedTierAmount);
+
+        // Loop 3: Update account state.
+        scheduleUpdateLoop(async user => {
+            // No need to recompute roles here. Thatll happen soon enough.
+            await this.fetchAccounts(user);
+
+            await user.$query().patch({
+                last_account_update_timestamp: "" + Date.now()
+            });
+        }, selectLeastRecentlyUpdated("last_account_update_timestamp"), config.updater.accountInterval, config.updater.accountAmount);
     }
 
     /**
@@ -223,7 +275,7 @@ export default class Updater {
 
         const gamesPlayed = new Map<number, number>();
         for (const account of user.accounts) {
-            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, 0); // TODO: Update timestamp.
+            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, +user.last_score_update_timestamp);
 
             for (const game of games) {
                 // Increment the amount of games played by one.
@@ -232,12 +284,12 @@ export default class Updater {
         }
 
         // Now, update the database totals.
-        const incremental = false; // TODO: Either completely refetch if an account was removed or add up if we had an old timestamp.
+        const incremental = !user.needsGamesPlayedReset;
         for (const [champion, games] of gamesPlayed) {
             const oldValue = user.stats.find(x => x.champion_id === champion);
 
             // Skip updating this if the value we have is already the most recent. Saves us a database call.
-            if (oldValue && (incremental ? games === 0 : oldValue.games_played === games)) continue;
+            if (incremental && oldValue && oldValue.games_played === games) continue;
 
             // Weird, but it can happen I guess.
             if (!oldValue) {
@@ -254,7 +306,7 @@ export default class Updater {
             }
         }
 
-        // Refetch stats now that we updated stuff,
+        // Refetch stats now that we updated stuff
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
     }
 

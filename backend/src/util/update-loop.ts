@@ -33,6 +33,9 @@ export default function scheduleUpdateLoop<T>(handler: (item: T) => Promise<any>
             // Something happened that errored.
             // We can't really do anything here, so just report it to elastic.
             elastic.reportError(e);
+
+            log("Error running update loop: %s", e.message);
+            log("%O", e);
         } finally {
             running = false;
         }

@@ -130,6 +130,12 @@ export default class WebAPIClient {
         if (!toDelete) return res.status(400).json(null);
 
         await toDelete.$query().delete();
+
+        // Mark last account update timestamp as 0 to force a complete recalculation of games played, instead
+        // of running an incremental check (which would include the games on the deleted account as well).
+        await req.user.$query().update({
+            last_account_update_timestamp: "0"
+        });
         this.client.updater.fetchAndUpdateAll(req.user);
 
         return res.json({ ok: true });
