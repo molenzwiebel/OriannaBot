@@ -9,8 +9,8 @@ import { API_HOST } from "../../config";
 interface UserAccount {
     username: string;
     region: string;
-    account_id: number;
-    summoner_id: number;
+    account_id: string;
+    summoner_id: string;
 }
 
 interface UserDetails {
