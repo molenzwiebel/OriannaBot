@@ -106,7 +106,7 @@ export default class WebAPIClient {
 
         // Make sure that the code is valid.
         const summoner = this.summoners.get(req.body.code)!;
-        if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, summoner.id, req.body.code)) return res.json({ ok: false });
+        if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, "" + summoner.id, req.body.code)) return res.json({ ok: false });
 
         // Add the user..
         await req.user.addAccount(summoner.region, summoner);
@@ -120,7 +120,7 @@ export default class WebAPIClient {
      */
     private deleteUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
         if (!this.validate(Joi.object({
-            summoner_id: Joi.number(),
+            summoner_id: Joi.string(),
             region: Joi.any().valid(REGIONS)
         }).unknown(true), req, res)) return;
 

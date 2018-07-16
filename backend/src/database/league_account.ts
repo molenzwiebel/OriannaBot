@@ -22,14 +22,16 @@ export default class LeagueAccount extends Model {
     region: string;
 
     /**
-     * The summoner id for this league account.
+     * The summoner id for this league account. Stored as a string
+     * since it is a big integer internally.
      */
-    summoner_id: number;
+    summoner_id: string;
 
     /**
-     * The account id for this league account.
+     * The account id for this league account. Stored as a string
+     * since it is a big integer internally.
      */
-    account_id: number;
+    account_id: string;
 
     /**
      * Omit id and user_id from the JSON object.

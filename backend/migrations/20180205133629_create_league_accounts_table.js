@@ -4,8 +4,8 @@ exports.up = knex => knex.schema.createTable("league_accounts", table => {
     table.integer("user_id").unsigned().references("id").inTable("users").onDelete("cascade");
     table.string("username").notNullable();
     table.string("region").notNullable();
-    table.integer("summoner_id");
-    table.integer("account_id");
+    table.bigInteger("summoner_id");
+    table.bigInteger("account_id");
     table.index(["user_id"]);
 });
 

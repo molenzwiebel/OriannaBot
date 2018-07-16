@@ -94,13 +94,13 @@ export default class User extends Model {
      */
     async addAccount(region: string, summ: riot.Summoner) {
         await this.$loadRelated("accounts");
-        if (this.accounts!.some(x => x.region === region && x.summoner_id === summ.id)) return;
+        if (this.accounts!.some(x => x.region === region && x.summoner_id === "" + summ.id)) return;
 
         await this.$relatedQuery<LeagueAccount>("accounts").insert({
             username: summ.name,
             region: region,
-            summoner_id: summ.id,
-            account_id: summ.accountId
+            summoner_id: "" + summ.id,
+            account_id: "" + summ.accountId
         });
     }
 }

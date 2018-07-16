@@ -72,7 +72,7 @@ export default function register(app: express.Application, client: DiscordClient
 
                 try {
                     const region = regions.get(parts[0].toLowerCase())!;
-                    const summ = await client.riotAPI.getSummonerById(region, +parts[1]);
+                    const summ = await client.riotAPI.getSummonerById(region, parts[1]);
                     if (!summ) continue;
 
                     await req.user.addAccount(region, summ);

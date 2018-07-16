@@ -28,7 +28,7 @@ export default class RiotAPI {
     /**
      * @returns the summoner for the specified summoner id in the specified region, or null if not found
      */
-    async getSummonerById(region: string, summonerId: number): Promise<riot.Summoner | null> {
+    async getSummonerById(region: string, summonerId: string): Promise<riot.Summoner | null> {
         try {
             return await this.teemo.get(platform(region), "summoner.getBySummonerId", "" + summonerId);
         } catch (e) {
@@ -39,7 +39,7 @@ export default class RiotAPI {
     /**
      * @returns the champion mastery for the specified summoner id
      */
-    async getChampionMastery(region: string, summonerId: number): Promise<riot.ChampionMasteryInfo[]> {
+    async getChampionMastery(region: string, summonerId: string): Promise<riot.ChampionMasteryInfo[]> {
         try {
             return await this.teemo.get(platform(region), "championMastery.getAllChampionMasteries", "" + summonerId);
         } catch (e) {
@@ -50,7 +50,7 @@ export default class RiotAPI {
     /**
      * @returns all the league positions for the specified summoner id
      */
-    async getLeaguePositions(region: string, summonerId: number): Promise<riot.LeagueEntry[]> {
+    async getLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
         try {
             return await this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", "" + summonerId);
         } catch (e) {
@@ -61,7 +61,7 @@ export default class RiotAPI {
     /**
      * Checks if the specified summoner has the specified code as their third party code.
      */
-    async isThirdPartyCode(region: string, summonerId: number, code: string): Promise<boolean> {
+    async isThirdPartyCode(region: string, summonerId: string, code: string): Promise<boolean> {
         try {
             const currentCode = await this.teemo.get(platform(region), "thirdPartyCode.getThirdPartyCodeBySummonerId", "" + summonerId);
             return currentCode.toLowerCase() === code.toLowerCase();
@@ -75,7 +75,7 @@ export default class RiotAPI {
      * specified timestamp. Games are determined to be ranked based on the settings in
      * the config. Note that this returns an array with the most recent game in index 0.
      */
-    async findRankedGamesAfter(region: string, accountId: number, timestamp: number): Promise<riot.MatchEntry[]> {
+    async findRankedGamesAfter(region: string, accountId: string, timestamp: number): Promise<riot.MatchEntry[]> {
         const rankedGames = [];
         const minSeason = Math.min(...config.riot.rankedGameCountSeasons);
 
