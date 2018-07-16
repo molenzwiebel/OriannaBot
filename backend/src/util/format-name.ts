@@ -12,9 +12,7 @@ export default function formatName(subject: eris.Member | eris.User | User, smal
     let id = subject.id;
     if (subject instanceof User) id = subject.snowflake;
 
-    console.log(id + " : " + config.badges[id] + " " + small);
     const username = subject.username;
-
     const badge = config.badges[id];
     if (badge) return username + " " + (small ? badge.small : badge.big);
 

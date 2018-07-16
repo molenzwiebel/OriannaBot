@@ -38,7 +38,7 @@ export default class PuppeteerController extends EventEmitter {
         // Restart chrome every 5 minutes to prevent memory leaks.
         setInterval(async () => {
             // Don't restart if we're currently processing jobs.
-            if (this.queue.length) return;
+            if (this.queue.length || this.working) return;
 
             await this.browser.close();
             await this.createBrowser();
@@ -70,7 +70,8 @@ export default class PuppeteerController extends EventEmitter {
      * Constructs the chrome instance and creates a new page available for use.
      */
     private async createBrowser() {
-        this.browser = await puppeteer.launch();
+        // Include no-sandbox so we can run as root in CI environments and docker containers.
+        this.browser = await puppeteer.launch({ args: ["--no-sandbox"] });
 
         this.page = await this.browser.newPage();
         await this.page.exposeFunction("ready", () => {

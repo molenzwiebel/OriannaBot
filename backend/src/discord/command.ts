@@ -40,6 +40,11 @@ export interface Command {
     noTyping?: boolean;
 
     /**
+     * If this command doesn't require a mention to trigger.
+     */
+    noMention?: boolean;
+
+    /**
      * Async method that is invoked when this command is invoked by a user.
      * This receives a CommandContext that it can use to communicate.
      */

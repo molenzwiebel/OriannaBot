@@ -179,9 +179,6 @@ export default class DiscordClient {
         // Don't respond to ourselves.
         if (msg.author.id === this.bot.user.id) return;
 
-        // We don't require mentions in DMs, we do anywhere else.
-        if (!isDM && !hasMention) return;
-
         // Clean content.
         const content = msg.content
             .replace(new RegExp(`<@!?${this.bot.user.id}>`, "g"), "")
@@ -198,10 +195,16 @@ export default class DiscordClient {
         // We need to readd to the messages collection so we get a full
         // Message object instead of an uncached one in the reaction handler.
         if (!matchedCommand) {
-            await msg.addReaction(HELP_REACTION, "@me");
-            msg.channel.messages.add(msg);
+            if (isDM || hasMention) {
+                await msg.addReaction(HELP_REACTION, "@me");
+                msg.channel.messages.add(msg);
+            }
+
             return;
         }
+
+        // If this matched command requires a mention, but we have none, abort.
+        if (!isDM && !hasMention && !matchedCommand.noTyping) return;
 
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, content);
         await elastic.logCommand(matchedCommand.name, msg);

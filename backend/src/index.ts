@@ -11,6 +11,8 @@ import ListCommand from "./discord/commands/list";
 import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
 import EditCommand from "./discord/commands/edit";
+import OtherBotsHelpfulCommand from "./discord/commands/other-bots";
+import StatsCommand from "./discord/commands/stats";
 
 import createApplication from "./web/web";
 
@@ -47,6 +49,8 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
     discord.registerCommand(EditCommand);
+    discord.registerCommand(OtherBotsHelpfulCommand);
+    discord.registerCommand(StatsCommand);
 
     const app = createApplication(discord);
     app.listen(config.web.port);
