@@ -41,8 +41,8 @@ export default class WebAPIClient {
         for (const guild of this.bot.guilds.filter(x => x.members.has(req.user.snowflake))) {
             const member = guild.members.get(req.user.snowflake)!;
 
-            // Make sure the user can manage messages.
-            if (!member.permission.has("manageMessages")) continue;
+            // Make sure the user can manage messages (or is the owner).
+            if (!member.permission.has("manageMessages") && member.id !== config.discord.owner) continue;
 
             // Make sure that the server is configured with ori (should always be the case).
             if (!(await Server.query().where("snowflake", guild.id).first())) continue;
@@ -463,6 +463,9 @@ export default class WebAPIClient {
     private hasAccess(user: User, server: Server): boolean {
         const guild = this.bot.guilds.get(server.snowflake);
         if (!guild) return false;
+
+        // Owner always has access to server configs.
+        if (user.snowflake === config.discord.owner) return true;
 
         // Check if the current user has access.
         return guild.members.has(user.snowflake) && guild.members.get(user.snowflake)!.permission.has("manageMessages");
