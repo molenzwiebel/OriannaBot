@@ -243,7 +243,7 @@ export default class WebAPIClient {
         const discordRole = guild.roles.find(x => x.name === req.body.name);
         const role = await server.$relatedQuery<Role>("roles").insertAndFetch({
             name: req.body.name,
-            announce: false,
+            announce: !!server.announcement_channel, // turn on announce based on whether or not we have an announcement channel set
             snowflake: discordRole ? discordRole.id : ""
         });
 

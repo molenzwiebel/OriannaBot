@@ -86,6 +86,11 @@ export default class Updater {
     public async updateUser(user: User) {
         logUpdate("Updating roles for user %s (%s)", user.username, user.snowflake);
 
+        // Load data if not already loaded.
+        if (!user.accounts) await user.$loadRelated("accounts");
+        if (!user.stats) await user.$loadRelated("stats");
+        if (!user.ranks) await user.$loadRelated("ranks");
+
         try {
           await Promise.all(this.client.bot.guilds.filter(x => x.members.has(user.snowflake)).map(server => {
               return this.updateUserOnGuild(user, server);
@@ -176,10 +181,15 @@ export default class Updater {
             if (!guild.roles.has(role)) continue;
 
             // User has the role, but should not have it.
-            if (userHas.has(role) && !shouldHave.has(role)) guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.");
+            if (userHas.has(role) && !shouldHave.has(role)) {
+                logUpdate("Removing role %s from user %s (%s) since they do not qualify.", role, user.username, user.snowflake);
+
+                guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.");
+            }
 
             // User does not have the role, but should have it.
             if (!userHas.has(role) && shouldHave.has(role)) {
+                logUpdate("Adding role %s to user %s (%s) since they qualify.", role, user.username, user.snowflake);
                 guild.addMemberRole(user.snowflake, role, "Orianna - User meets requirements for role.");
 
                 this.announcePromotion(user, server.roles!.find(x => x.snowflake === role)!, guild);
