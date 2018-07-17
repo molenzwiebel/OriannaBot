@@ -43,6 +43,7 @@ const ERRORS: { [key: number]: ErrorDetails } = {
 export default class App extends Vue {
     private error: null | ErrorDetails = null;
     private user: object | null = null;
+    private isHome = location.pathname === "/";
     private navbarShown: boolean = !window.matchMedia("only screen and (max-width: 780px)").matches;
 
     private modal: {
@@ -67,6 +68,12 @@ export default class App extends Vue {
         // Listen to resizes.
         window.addEventListener("resize", () => {
             this.navbarShown = !window.matchMedia("only screen and (max-width: 780px)").matches
+        });
+
+        // Listen to navigation.
+        this.isHome = this.$route.path === "/";
+        this.$watch("$route.path", () => {
+            this.isHome = this.$route.path === "/";
         });
     }
 

@@ -29,6 +29,9 @@ module.exports = env => ({
         }, {
             test: /\.css$/,
             loader: "style-loader!css-loader"
+        }, {
+            test: /\.(webm|jpg)$/,
+            loader: "file-loader"
         }]
     },
     resolve: {

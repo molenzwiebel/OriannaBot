@@ -1,7 +1,7 @@
 <template>
-    <div class="contents">
+    <div class="contents" :class="isHome && 'home'">
         <transition name="slide-in-left">
-            <sidebar v-show="navbarShown" :user="user"></sidebar>
+            <sidebar v-show="!isHome && navbarShown" :user="user"></sidebar>
         </transition>
 
         <div class="nav-header">
@@ -56,6 +56,9 @@
         align-items center
         justify-content center
         background-color #fafafa
+
+    .contents.home .view
+        margin-left 0
 
     .modal
         position fixed

@@ -9,6 +9,7 @@ import "./common.styl";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";
 
 import App from "./components/app/app.vue";
+import Home from "./components/home/home.vue";
 import UserProfile from "./components/profile/profile.vue";
 import ServerProfile from "./components/server/server.vue";
 import Tree from "./components/role-tree/tree.vue";
@@ -23,7 +24,7 @@ Vue.use(VueFormWizard);
 const router = new VueRouter({
     mode: ENV === "prod" ? "history" : "hash",
     routes: [
-        { path: "/", component: { render(x) { return x("p") } } },
+        { path: "/", component: Home },
         { path: "/docs", component: Tree },
         { path: "/me", component: UserProfile },
         { path: "/server/:id", component: ServerProfile },
