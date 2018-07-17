@@ -135,7 +135,12 @@ export default class Updater {
         scheduleUpdateLoop(async user => {
             // Fetch ranked tier and recompute roles.
             await this.fetchRanked(user);
-            await this.updateUser(user);
+
+            // Actually, do not recompute roles.
+            // Users that haven't gotten their mastery scores yet will lose their roles.
+            // This is only really an issue just after the migration from Ori v1, but it doesn't
+            // really matter since the roles will still be recomputed on the next mastery loop, which
+            // shouldn't take too long.
 
             await user.$query().patch({
                 last_rank_update_timestamp: "" + Date.now()
