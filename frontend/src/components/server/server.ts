@@ -21,6 +21,7 @@ export interface DiscordRole {
     id: string;
     name: string;
     color: string;
+    position: number;
 }
 
 interface ServerDetails {
@@ -34,6 +35,7 @@ interface ServerDetails {
     discord: {
         channels: { id: string, name: string }[];
         roles: DiscordRole[];
+        highestRole: number;
     }
 }
 

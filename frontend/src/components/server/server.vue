@@ -30,6 +30,7 @@
                         ref="roleElements"
                         :role="role"
                         :discord-roles="server.discord.roles"
+                        :highest="server.discord.highestRole"
                         :key="role.id"
                         @dirty="updateDirty"
                         @delete="deleteRole(role)"

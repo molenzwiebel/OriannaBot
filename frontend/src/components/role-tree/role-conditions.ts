@@ -10,6 +10,7 @@ import Tree from "./tree.vue";
     components: { Tree },
     props: {
         role: Object,
+        highest: Number,
         discordRoles: Array
     }
 })
@@ -20,6 +21,7 @@ export default class RoleConditions extends Vue {
     conditions: { valid: boolean, opts: any }[] = [];
 
     discordRoles: DiscordRole[];
+    highest: number;
     expanded = false;
     dirty = false; // if we received a change event and haven't saved yet
 
@@ -125,5 +127,15 @@ export default class RoleConditions extends Vue {
      */
     get color() {
         return this.matchingDiscord ? this.matchingDiscord.color : "#0";
+    }
+
+    /**
+     * @returns if our highest role is below the discord role this role refers to
+     */
+    get isBelowRole() {
+        const matching = this.matchingDiscord;
+        if (!matching) return false;
+
+        return matching.position >= this.highest;
     }
 }

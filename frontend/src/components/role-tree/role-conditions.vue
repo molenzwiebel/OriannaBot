@@ -12,6 +12,13 @@
                 </i>
 
                 <i
+                        class="ion-alert-circled"
+                        v-if="isBelowRole"
+                        title="Orianna Bot's highest role is below this role. Due to how Discord's permission system works, Orianna Bot can only assign roles below her role. Move this role down, or move Orianna Bot's role up, in order to assign this role."
+                        v-tippy>
+                </i>
+
+                <i
                         class="ion-clipboard"
                         v-if="dirty"
                         title="This role has unsaved changes. Click here to save now."
