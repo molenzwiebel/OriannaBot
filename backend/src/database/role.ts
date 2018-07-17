@@ -44,6 +44,8 @@ export default class Role extends Model {
      */
     test(user: User): boolean {
         if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
+        if (!this.conditions.length) return false;
+
         return !this.conditions.some(x => !x.test(user));
     }
 

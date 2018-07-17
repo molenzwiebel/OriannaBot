@@ -152,7 +152,12 @@ export default class WebAPIClient {
         await server.$loadRelated("blacklisted_channels");
 
         const channels = guild.channels.filter(x => x.type === 0).map(x => ({ id: x.id, name: x.name }));
-        const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({ id: x.id, name: x.name, color: "#" + x.color.toString(16) }));
+        const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({
+            id: x.id,
+            name: x.name,
+            color: "#" + x.color.toString(16),
+            position: x.position
+        }));
 
         return res.json({
             ...server.toJSON(),

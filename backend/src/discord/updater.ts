@@ -173,6 +173,13 @@ export default class Updater {
         const member = guild.members.get(user.snowflake);
         if (!member) return;
 
+        // Update their avatar just in case its incorrect (happens after transfer from v1->v2).
+        if (member.avatar !== user.avatar) {
+            await user.$query().patch({
+                avatar: member.avatar || "none"
+            });
+        }
+
         logUpdate("Updating roles for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
 
         // Compute all roles that this server may assign, then compute all roles that the user should have.
@@ -225,6 +232,9 @@ export default class Updater {
                 });
             }
         }
+
+        // Nuke all old entries not in the list, so that deleted accounts update properly.
+        await user.$relatedQuery("stats").whereNotIn("champion_id", [...scores.keys()]).delete();
 
         // Nuke all old entries (in case the user removed an account) and append the new values.
         let changed = false;
