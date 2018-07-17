@@ -202,9 +202,13 @@ export default class Updater {
             // User does not have the role, but should have it.
             if (!userHas.has(role) && shouldHave.has(role)) {
                 logUpdate("Adding role %s to user %s (%s) since they qualify.", role, user.username, user.snowflake);
-                guild.addMemberRole(user.snowflake, role, "Orianna - User meets requirements for role.");
 
-                this.announcePromotion(user, server.roles!.find(x => x.snowflake === role)!, guild);
+                // Ignore failures, they'll show in the web interface anyway.
+                guild.addMemberRole(user.snowflake, role, "Orianna - User meets requirements for role.").then(() => {
+                    // Only announce if giving the role was successful.
+                    // Prevents us from announcing promotions if we didn't actually assign the role.
+                    this.announcePromotion(user, server.roles!.find(x => x.snowflake === role)!, guild);
+                }, () => {});
             }
         }
     }

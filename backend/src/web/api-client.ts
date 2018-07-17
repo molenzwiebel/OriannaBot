@@ -151,6 +151,10 @@ export default class WebAPIClient {
         await server.$loadRelated("roles.*");
         await server.$loadRelated("blacklisted_channels");
 
+        // Find our highest rank, for web interface logic.
+        const us = guild.members.get(this.client.bot.user.id)!;
+        const highest = Math.max(...us.roles.map(x => guild.roles.get(x)!.position));
+
         const channels = guild.channels.filter(x => x.type === 0).map(x => ({ id: x.id, name: x.name }));
         const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({
             id: x.id,
@@ -163,7 +167,8 @@ export default class WebAPIClient {
             ...server.toJSON(),
             discord: {
                 channels,
-                roles
+                roles,
+                highestRole: highest
             }
         });
     });
