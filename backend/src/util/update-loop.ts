@@ -11,7 +11,7 @@ const log = debug("orianna:updater:update_loop");
 export default function scheduleUpdateLoop<T>(handler: (item: T) => Promise<any>, producer: (amount: number) => Promise<T[]>, interval: number, amount: number) {
     // Distribute the jobs over 90% of our interval to give some time for the last jobs to finish.
     const step = Math.ceil((interval * 0.90) / amount);
-    let completed = 0;
+    let completed = amount;
 
     setInterval(async () => {
         // Prevent loops from overlapping and eventually clogging up.
