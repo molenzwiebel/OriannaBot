@@ -43,6 +43,7 @@ const ERRORS: { [key: number]: ErrorDetails } = {
 export default class App extends Vue {
     private error: null | ErrorDetails = null;
     private user: object | null = null;
+    private navbarShown: boolean = !window.matchMedia("only screen and (max-width: 780px)").matches;
 
     private modal: {
         component: any,
@@ -62,6 +63,11 @@ export default class App extends Vue {
         // We use fetch instead of the GET helper because we don't want to error if the user isn't logged in.
         const req = await fetch(API_HOST + "/api/v1/user", { credentials: "include" });
         this.user = req.status === 200 ? await req.json() : null;
+
+        // Listen to resizes.
+        window.addEventListener("resize", () => {
+            this.navbarShown = !window.matchMedia("only screen and (max-width: 780px)").matches
+        });
     }
 
     /**

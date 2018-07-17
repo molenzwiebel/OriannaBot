@@ -111,3 +111,15 @@ input[type=checkbox]
         border-color transparent
         background url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%220%200%2014%2011%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23fff%22%20points%3D%2212%201%205%207.5%202%205%201%205.5%205%2010%2013%201.5%22%20%2F%3E%0A%3C%2Fsvg%3E%0A") 50% 50% no-repeat
         background-color #1e87f0
+
+// Medium devices.
+@media only screen and (min-width: 780px) and (max-width: 1050px)
+    .box
+        max-width 500px
+        width 500px
+
+// Small devices.
+@media only screen and (max-width: 780px)
+    .box
+        width 90vw
+        max-width 90vw

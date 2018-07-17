@@ -35,7 +35,7 @@
             <span class="body-header">Conditions <i class="ion-help-circled" title="A user is eligible for a role if they apply for ALL of the conditions listed below." v-tippy></i></span>
 
             <div class="no-conditions" v-if="!conditions.length">
-                <b>This role has no conditions.</b> Every user on your server is currently eligible for this role. <a href="#" @click.prevent="addCondition">Add a condition?</a>
+                <b>This role has no conditions.</b> It will not be assigned to anyone until you add some conditions. <a href="#" @click.prevent="addCondition">Add a condition?</a>
             </div>
 
             <div class="conditions" v-else>

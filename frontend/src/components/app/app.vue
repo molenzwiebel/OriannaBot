@@ -1,6 +1,13 @@
 <template>
     <div class="contents">
-        <sidebar :user="user"></sidebar>
+        <transition name="slide-in-left">
+            <sidebar v-show="navbarShown" :user="user"></sidebar>
+        </transition>
+
+        <div class="nav-header">
+            <i class="ion-navicon" @click="navbarShown = !navbarShown"></i>
+            <span>Orianna Bot</span>
+        </div>
 
         <div class="view">
             <error v-if="error" :title="error.title" :details="error.details" :show-login="error.showLogin"></error>
@@ -29,6 +36,19 @@
         height 100%
         width 100%
 
+    .nav-header
+        display none
+        align-items center
+        border-bottom 1px solid #cdd2d2
+
+        i
+            font-size 38px
+            padding 10px 15px
+
+        span
+            font-family Roboto
+            font-size 23px
+
     .view
         margin-left navbar-width
         min-height 100%
@@ -47,4 +67,31 @@
         display flex
         justify-content center
         padding-top 40px
+
+    // On small screens, statically position menu and have a navbar at the top.
+    @media only screen and (max-width: 780px)
+        .contents .nav-header
+            display flex
+            position fixed
+            top 0
+            left 0
+            right 0
+            height 43px
+
+        .contents .view
+            margin-top 43px
+            margin-left 0
+
+    // Animation for sliding in and out.
+    .slide-in-left-enter-active
+        animation slide-in-left .5s
+
+    .slide-in-left-leave-active
+        animation slide-in-left .5s reverse
+
+    @keyframes slide-in-left
+        0%
+            transform translateX(-200px)
+        100%
+            transform translateX(0)
 </style>

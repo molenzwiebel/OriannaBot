@@ -191,6 +191,16 @@ League of Legends and Riot Games are trademarks or registered trademarks of Riot
             a
                 color #515151
 
+    @media only screen and (max-width: 780px)
+        .sidebar
+            position fixed
+            left 0
+            top 43px
+            right 0
+
+        .home-logo
+            display none !important
+
     .tippy-popper
         font-family Roboto
 </style>
