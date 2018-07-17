@@ -50,6 +50,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "noct": "Nocturne",
     "ori": "Orianna",
     "waifu": "Orianna", // :^)
+    "ball": "Orianna", // :^)
     "panth": "Pantheon",
     "rek": "RekSai",
     "renek": "Renekton",

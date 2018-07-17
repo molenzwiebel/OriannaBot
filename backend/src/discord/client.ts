@@ -204,7 +204,7 @@ export default class DiscordClient {
         }
 
         // If this matched command requires a mention, but we have none, abort.
-        if (!isDM && !hasMention && !matchedCommand.noTyping) return;
+        if (!isDM && !hasMention && matchedCommand.noMention !== true) return;
 
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, content);
         await elastic.logCommand(matchedCommand.name, msg);
@@ -239,11 +239,10 @@ export default class DiscordClient {
             user: () => this.findOrCreateUser(msg.author.id),
             ctx: <any>null
         };
-        template.ctx = template;
 
         const transaction = elastic.startCommandTransaction(matchedCommand.name);
         try {
-            await matchedCommand.handler(isDM ? {
+            const obj = isDM ? {
                 ...template,
                 guildChannel: <any>null,
                 privateChannel: <eris.PrivateChannel>msg.channel,
@@ -255,7 +254,10 @@ export default class DiscordClient {
                 privateChannel: <any>null,
                 guild: (<eris.TextChannel>msg.channel).guild,
                 server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
-            });
+            };
+            obj.ctx = obj;
+
+            await matchedCommand.handler(obj);
             if (transaction) transaction.result = 200;
         } catch (e) {
             // Send a message to the user and log the error.
