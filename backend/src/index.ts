@@ -7,7 +7,7 @@ import AboutCommand from "./discord/commands/about";
 import RefreshCommand from "./discord/commands/refresh";
 import EvalCommand from "./discord/commands/eval";
 import TopCommand from "./discord/commands/top";
-import ListCommand from "./discord/commands/list";
+import ProfileCommand from "./discord/commands/profile";
 import PointsCommand from "./discord/commands/points";
 import RolesCommand from "./discord/commands/roles";
 import EditCommand from "./discord/commands/edit";
@@ -45,7 +45,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(RefreshCommand);
     discord.registerCommand(EvalCommand);
     discord.registerCommand(TopCommand);
-    discord.registerCommand(ListCommand);
+    discord.registerCommand(ProfileCommand);
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
     discord.registerCommand(EditCommand);
