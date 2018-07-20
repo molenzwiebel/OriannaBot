@@ -25,8 +25,8 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
         });
 
         // Query some data we need later.
-        const top3Mastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").limit(3);
-        const top3Played = await target.$relatedQuery<UserChampionStat>("stats").orderBy("games_played", "DESC").limit(3);
+        const top3Mastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(3);
+        const top3Played = await target.$relatedQuery<UserChampionStat>("stats").orderBy("games_played", "DESC").where("games_played", ">", 0).limit(3);
         const levelCounts: { level: number, count: number }[] = <any>await target.$relatedQuery("stats").groupBy("level", "user_id").count().select("level");
         const totalMastery: string[] = <any>await target.$relatedQuery("stats").sum("score").groupBy("user_id").pluck("sum");
         const avgMastery: string[] = <any>await target.$relatedQuery("stats").avg("score").groupBy("user_id").pluck("avg");

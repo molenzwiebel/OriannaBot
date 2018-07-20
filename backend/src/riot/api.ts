@@ -40,22 +40,14 @@ export default class RiotAPI {
      * @returns the champion mastery for the specified summoner id
      */
     async getChampionMastery(region: string, summonerId: string): Promise<riot.ChampionMasteryInfo[]> {
-        try {
-            return await this.teemo.get(platform(region), "championMastery.getAllChampionMasteries", "" + summonerId);
-        } catch (e) {
-            return [];
-        }
+        return this.teemo.get(platform(region), "championMastery.getAllChampionMasteries", summonerId);
     }
 
     /**
      * @returns all the league positions for the specified summoner id
      */
     async getLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
-        try {
-            return await this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", "" + summonerId);
-        } catch (e) {
-            return [];
-        }
+        return this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", summonerId);
     }
 
     /**

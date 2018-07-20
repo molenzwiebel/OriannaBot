@@ -117,15 +117,20 @@ export default class Updater {
 
         // Loop 1: Update stats and games played.
         scheduleUpdateLoop(async user => {
-            // Update mastery values.
-            const hasChanged = await this.fetchMasteryScores(user);
+            try {
+                // Update mastery values.
+                const hasChanged = await this.fetchMasteryScores(user);
 
-            // If mastery changed or we need a full reset, update games played.
-            if (hasChanged || user.needsGamesPlayedReset) await this.fetchGamesPlayed(user);
+                // If mastery changed or we need a full reset, update games played.
+                if (hasChanged || user.needsGamesPlayedReset) await this.fetchGamesPlayed(user);
 
-            // Now recompute roles.
-            await this.updateUser(user);
+                // Now recompute roles.
+                await this.updateUser(user);
+            } catch (e) {
+                // Ignored.
+            }
 
+            // Update last update time regardless of if we succeeded or not.
             await user.$query().patch({
                 last_score_update_timestamp: "" + Date.now()
             });
@@ -134,7 +139,8 @@ export default class Updater {
         // Loop 2: Update ranked tiers.
         scheduleUpdateLoop(async user => {
             // Fetch ranked tier and recompute roles.
-            await this.fetchRanked(user);
+            // We don't care about the result, and we want to swallow errors.
+            this.fetchRanked(user).catch(() => {});
 
             // Actually, do not recompute roles.
             // Users that haven't gotten their mastery scores yet will lose their roles.
@@ -150,7 +156,8 @@ export default class Updater {
         // Loop 3: Update account state.
         scheduleUpdateLoop(async user => {
             // No need to recompute roles here. Thatll happen soon enough.
-            await this.fetchAccounts(user);
+            // We don't care about the result, and we want to swallow errors.
+            this.fetchAccounts(user).catch(() => {});
 
             await user.$query().patch({
                 last_account_update_timestamp: "" + Date.now()
@@ -227,12 +234,15 @@ export default class Updater {
         // Sum scores and max levels for all accounts.
         const scores = new Map<number, { score: number, level: number }>();
         for (const account of user.accounts) {
+            // This may throw. If it does, we don't particularly care. We will just try again later.
             const masteries = await this.riotAPI.getChampionMastery(account.region, account.summoner_id);
+
             for (const mastery of masteries) {
                 const old = scores.get(mastery.championId) || { score: 0, level: 0 };
+
                 scores.set(mastery.championId, {
                     score: old.score + mastery.championPoints,
-                    level: old.level > mastery.championLevel ? old.level : mastery.championLevel
+                    level: Math.max(old.level, mastery.championLevel)
                 });
             }
         }
@@ -240,7 +250,6 @@ export default class Updater {
         // Nuke all old entries not in the list, so that deleted accounts update properly.
         await user.$relatedQuery("stats").whereNotIn("champion_id", [...scores.keys()]).delete();
 
-        // Nuke all old entries (in case the user removed an account) and append the new values.
         let changed = false;
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
@@ -311,6 +320,15 @@ export default class Updater {
                 // Increment the amount of games played by one.
                 gamesPlayed.set(game.champion, (gamesPlayed.get(game.champion) || 0) + 1);
             }
+        }
+
+        // If the user needs a reset, first set the games played to 0 for every champion.
+        // Otherwise if a user with two accounts has 10 games on teemo on one, and zero on the other,
+        // and then removes account 1, the 10 games on teemo would stay.
+        if (user.needsGamesPlayedReset) {
+            await user.$relatedQuery<UserChampionStat>("stats").patch({
+                games_played: 0
+            });
         }
 
         // Now, update the database totals.
