@@ -15,8 +15,8 @@ export type RangeCondition<T> = ({
 } & T);
 
 export function evaluateRangeCondition(cnd: RangeCondition<{}>, value: number): boolean {
-    if (cnd.compare_type === "at_least") return value > cnd.value;
-    if (cnd.compare_type === "at_most") return value < cnd.value;
+    if (cnd.compare_type === "at_least") return value >= cnd.value;
+    if (cnd.compare_type === "at_most") return value <= cnd.value;
     if (cnd.compare_type === "exactly") return value === cnd.value;
     return value >= cnd.min && value <= cnd.max;
 }
