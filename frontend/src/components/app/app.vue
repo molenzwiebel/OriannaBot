@@ -40,6 +40,7 @@
         display none
         align-items center
         border-bottom 1px solid #cdd2d2
+        background-color white
 
         i
             font-size 38px
