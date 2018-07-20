@@ -53,6 +53,17 @@ export default class User extends Model {
     last_account_update_timestamp: string;
 
     /**
+     * If this user should be treated as if they are unranked in every single
+     * queue.
+     */
+    treat_as_unranked: boolean;
+
+    /**
+     * If the accounts for this user should not be publicly shown.
+     */
+    hide_accounts: boolean;
+
+    /**
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
     accounts?: LeagueAccount[];
@@ -86,7 +97,11 @@ export default class User extends Model {
      * Omit user id and token from the JSON object.
      */
     $formatJson(json: Pojo) {
-        return omit(super.$formatJson(json), ["id", "token"]);
+        return omit({
+            ...super.$formatJson(json),
+            treat_as_unranked: Boolean(this.treat_as_unranked),
+            hide_accounts: Boolean(this.hide_accounts)
+        }, ["id", "token"]);
     }
 
     /**

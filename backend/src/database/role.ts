@@ -115,7 +115,8 @@ export class RoleCondition extends Model {
         } else if (condition.type === "ranked_tier") {
             // If the user is unranked in the queue, only match if they had a condition set to `EQUAL UNRANKED` (e.g. don't include unranked in lt and gt).
             const tier = user.ranks.find(x => x.queue === condition.options.queue);
-            if (!tier) return condition.options.compare_type === "equal" && condition.options.tier === 0;
+            if (!tier || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
+
             const numeric = config.riot.tiers.indexOf(tier.tier);
             return condition.options.compare_type === "lower" ? condition.options.tier > numeric : condition.options.tier < numeric;
         } else if (condition.type === "champion_play_count") {

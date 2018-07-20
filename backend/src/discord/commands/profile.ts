@@ -46,7 +46,9 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
             "MASTER": `${emote(ctx, "Master")} Master`,
             "CHALLENGER": `${emote(ctx, "Challenger")} Challenger`
         })[rank];
-        const queueRank = (queue: string) => rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
+        const queueRank = (queue: string) =>
+            target.treat_as_unranked ? formatRank("UNRANKED") :
+            rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
 
         const fields: { name: string, value: string, inline: boolean }[] = [{
             name: "Top Champions",
@@ -79,15 +81,20 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
                 `3v3 Flex: **${queueRank("RANKED_FLEX_TT")}**${emote(ctx, "__")}`
             ].join("\n"),
             inline: true
-        }, {
-            name: "Account",
-            value: target.accounts!.map(x => x.username).join("\n"),
-            inline: true
-        }, {
-            name: "Region",
-            value: target.accounts!.map(x => x.region).join("\n"),
-            inline: true
         }];
+
+        // Only add accounts if the user has not toggled them off.
+        if (!target.hide_accounts) {
+            fields.push({
+                name: "Account",
+                value: target.accounts!.map(x => x.username).join("\n"),
+                inline: true
+            }, {
+                name: "Region",
+                value: target.accounts!.map(x => x.region).join("\n"),
+                inline: true
+            });
+        }
 
         return info({
             title: "📖 " + formatName(target) + "'s Profile",

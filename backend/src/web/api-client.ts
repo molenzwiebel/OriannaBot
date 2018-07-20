@@ -16,6 +16,7 @@ export default class WebAPIClient {
         this.bot = client.bot;
 
         app.get("/api/v1/user", swallowErrors(this.serveUserProfile));
+        app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
@@ -62,6 +63,30 @@ export default class WebAPIClient {
             avatar: req.user.avatarURL,
             guilds
         });
+    });
+
+    /**
+     * Handles updates to user settings, in particular the privacy toggles.
+     */
+    private patchUserProfile = requireAuth(async (req: express.Request, res: express.Response) => {
+        if (!this.validate({
+            hide_accounts: Joi.bool().optional(),
+            treat_as_unranked: Joi.bool().optional()
+        }, req, res)) return;
+
+        if (typeof req.body.hide_accounts !== "undefined") {
+            await req.user.$query().patch({
+                hide_accounts: req.body.hide_accounts
+            });
+        }
+
+        if (typeof req.body.treat_as_unranked !== "undefined") {
+            await req.user.$query().patch({
+                treat_as_unranked: req.body.treat_as_unranked
+            });
+        }
+
+        return res.json({ ok: true });
     });
 
     /**
