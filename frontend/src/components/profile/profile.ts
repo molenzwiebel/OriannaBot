@@ -100,7 +100,6 @@ export default class UserProfile extends Vue {
      * Updates the two different privacy settings.
      */
     updatePrivacySettings() {
-        console.log("x");
         this.$root.submit("/api/v1/user", "PATCH", {
             hide_accounts: this.user.hide_accounts,
             treat_as_unranked: this.user.treat_as_unranked

@@ -1,30 +1,8 @@
 <template>
     <div class="user-profile" v-if="user">
-
-        <div class="box">
-            <div class="header"><h2>Configure {{ user.username }}</h2></div>
-            <div class="body">
-                <div class="setting">
-                    <div style="margin-top: 4px">
-                        <input type="checkbox" v-model="user.hide_accounts" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
-                        <b>Hide Accounts</b>
-                    </div>
-                    <p>Enabling this will prevent your accounts being shown when people use the profile command. Use this if you prefer keeping your League accounts private.</p>
-                </div>
-
-                <div class="setting">
-                    <div>
-                        <input type="checkbox" v-model="user.treat_as_unranked" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
-                        <b>Hide Ranked Tier</b>
-                    </div>
-                    <p style="margin-bottom: 3px">When enabled, this will cause Orianna Bot to treat you as if you were unranked in all ranked queues. Note that this may affect which roles within a server you are eligible for.</p>
-                </div>
-            </div>
-        </div>
-
         <div class="box">
             <div class="header accounts-header">
-                <h2>League Accounts</h2>
+                <h2>Your League Accounts</h2>
 
                 <div class="actions" v-if="user.accounts.length">
                     <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
@@ -51,6 +29,27 @@
                         <a class="small-button" @click.prevent="importDiscordAccounts" href="#">Import From <i class="discord-logo"></i></a>
                         <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="header"><h2>Privacy Settings</h2></div>
+            <div class="body">
+                <div class="setting">
+                    <div style="margin-top: 4px">
+                        <input type="checkbox" v-model="user.hide_accounts" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
+                        <b>Hide Accounts</b>
+                    </div>
+                    <p>Enabling this will prevent your accounts being shown when people use the profile command. Use this if you prefer keeping your League accounts private.</p>
+                </div>
+
+                <div class="setting">
+                    <div>
+                        <input type="checkbox" v-model="user.treat_as_unranked" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
+                        <b>Hide Ranked Tier</b>
+                    </div>
+                    <p style="margin-bottom: 3px">When enabled, this will cause Orianna Bot to treat you as if you were unranked in all ranked queues. Note that this may affect which roles within a server you are eligible for.</p>
                 </div>
             </div>
         </div>
