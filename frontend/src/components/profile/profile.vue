@@ -4,7 +4,21 @@
         <div class="box">
             <div class="header"><h2>Configure {{ user.username }}</h2></div>
             <div class="body">
-                <i>This will eventually show opt-out options for stuff like region roles, rank roles and just roles in general. Maybe also opt out for graphs, depending if I want to make graphs public for everyone and display averages n shit.</i>
+                <div class="setting">
+                    <div style="margin-top: 4px">
+                        <input type="checkbox" v-model="user.hide_accounts" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
+                        <b>Hide Accounts</b>
+                    </div>
+                    <p>Enabling this will prevent your accounts being shown when people use the profile command. Use this if you prefer keeping your League accounts private.</p>
+                </div>
+
+                <div class="setting">
+                    <div>
+                        <input type="checkbox" v-model="user.treat_as_unranked" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
+                        <b>Hide Ranked Tier</b>
+                    </div>
+                    <p style="margin-bottom: 3px">When enabled, this will cause Orianna Bot to treat you as if you were unranked in all ranked queues. Note that this may affect which roles within a server you are eligible for.</p>
+                </div>
             </div>
         </div>
 
@@ -52,6 +66,10 @@
         align-self flex-start
         display flex
         flex-direction column
+
+        .setting > div
+            display flex
+            align-items center
 
         .actions
             display flex

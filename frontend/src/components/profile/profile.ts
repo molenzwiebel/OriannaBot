@@ -18,6 +18,8 @@ interface UserDetails {
     username: string;
     avatar: string;
     accounts: UserAccount[];
+    hide_accounts: boolean;
+    treat_as_unranked: boolean;
     guilds: {
         id: string,
         name: string,
@@ -92,5 +94,16 @@ export default class UserProfile extends Vue {
 
         await this.$root.submit("/api/v1/user/accounts", "DELETE", account);
         this.user.accounts.splice(this.user.accounts.indexOf(account), 1);
+    }
+
+    /**
+     * Updates the two different privacy settings.
+     */
+    updatePrivacySettings() {
+        console.log("x");
+        this.$root.submit("/api/v1/user", "PATCH", {
+            hide_accounts: this.user.hide_accounts,
+            treat_as_unranked: this.user.treat_as_unranked
+        });
     }
 }
