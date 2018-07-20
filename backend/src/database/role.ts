@@ -117,8 +117,10 @@ export class RoleCondition extends Model {
             const tier = user.ranks.find(x => x.queue === condition.options.queue);
             if (!tier || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
 
-            const numeric = config.riot.tiers.indexOf(tier.tier);
-            return condition.options.compare_type === "lower" ? condition.options.tier > numeric : condition.options.tier < numeric;
+            const numeric = config.riot.tiers.indexOf(tier.tier) + 1;
+            return condition.options.compare_type === "lower"
+                ? condition.options.tier > numeric
+                : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
         } else if (condition.type === "champion_play_count") {
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion

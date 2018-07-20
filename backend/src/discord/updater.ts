@@ -412,7 +412,7 @@ export default class Updater {
                 fpsScale: 1.4
             },
             args: {
-                name: formatName(user, true),
+                name: user.username,
                 title: role.name,
                 icon: user.avatarURL,
                 champion: championIcon,
