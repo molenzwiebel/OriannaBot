@@ -3,7 +3,7 @@ import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
 import StaticData from "../../riot/static-data";
 import { advancedPaginate, emote, expectChampion, paginate } from "./util";
-import formatName from "../../util/format-name";
+import formatName, { badge } from "../../util/format-name";
 
 const TopCommand: Command = {
     name: "Show Leaderboards",
@@ -111,15 +111,26 @@ If you want to know the top champions for a specific user, you can do so too. Si
             .where(x => serverOnly ? x.whereIn("user_id", serverIds) : true)  // filter on server members if needed
             .orderBy("score", "DESC");                                        // order by score
 
+        // Find the user's rank, or leave it out if they have no ori account.
+        let userRank: undefined | string = undefined;
+        const user = await ctx.user();
+        if (user && stats.find(x => x.user_id === user.id)) {
+            userRank = "Your Rank: " + (stats.findIndex(x => x.user_id === user.id) + 1);
+        }
+
         return advancedPaginate(ctx, stats, {
             title: "📊 Top " + champ.name + " Players" + (serverOnly ? " On This Server" : ""),
-            thumbnail: await StaticData.getChampionIcon(champ)
+            thumbnail: await StaticData.getChampionIcon(champ),
+            footer: userRank
         }, async (entries, offset) => {
             // Lazily load the users, and only the username and id, all in the name of speed.
             const users = await User.query().select("id", "username", "snowflake").whereIn("id", entries.map(x => x.user_id));
 
+            // If someone in this list has a badge, show an empty emote after others to ensure consistent line height.
+            const showNewline = users.some(x => !!badge(x));
+
             return entries.map((entry, i) => ({
-                name: `${offset + i + 1} - ${formatName(users.find(x => x.id === entry.user_id)!)}`,
+                name: `${offset + i + 1} - ${formatName(users.find(x => x.id === entry.user_id)!)}${showNewline ? emote(ctx, "__") : ""}`,
                 value: `${emote(ctx, "Level_" + entry.level)} ${entry.score.toLocaleString()} Points`,
                 inline: true
             }));

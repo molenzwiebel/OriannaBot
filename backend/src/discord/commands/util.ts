@@ -96,7 +96,7 @@ export async function advancedPaginate<T>({ info, msg }: CommandContext, element
         res.info({
             ...template,
             fields: await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage),
-            footer: "Page " + (curPage + 1) + " of " + pages
+            footer: "Page " + (curPage + 1) + " of " + pages + (template.footer ? " • " + template.footer : "")
         });
     };
 
