@@ -37,7 +37,7 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
         const amount = (entry: UserChampionStat) => entry.score < 10000 ? entry.score.toLocaleString() : `${Math.round(entry.score / 10000) * 10}k`;
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
-            "UNRANKED": "Unranked",
+            "UNRANKED": "Unranked" + emote(ctx, "__"),
             "BRONZE": `${emote(ctx, "Bronze")} Bronze`,
             "SILVER": `${emote(ctx, "Silver")} Silver`,
             "GOLD": `${emote(ctx, "Gold")} Gold`,
@@ -56,6 +56,7 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
                 `${await champ(topMastery[0])} - **${amount(topMastery[0])}**`,
                 `${await champ(topMastery[1])} - **${amount(topMastery[1])}**`,
                 `${await champ(topMastery[2])} - **${amount(topMastery[2])}**`,
+                `${emote(ctx, "__")}`
             ].join("\n"),
             inline: true
         }, {
@@ -76,10 +77,10 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
         }, {
             name: "Ranked Tiers",
             value: [
-                `Ranked Solo/Duo: **${queueRank("RANKED_SOLO_5x5")}**${emote(ctx, "__")}`,
-                `Ranked Flex: **${queueRank("RANKED_FLEX_SR")}**${emote(ctx, "__")}`,
-                `3v3 Flex: **${queueRank("RANKED_FLEX_TT")}**${emote(ctx, "__")}`
-            ].join("\n"),
+                `Ranked Solo/Duo: **${queueRank("RANKED_SOLO_5x5")}**`,
+                `Ranked Flex: **${queueRank("RANKED_FLEX_SR")}**`,
+                `3v3 Flex: **${queueRank("RANKED_FLEX_TT")}**`
+            ].join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }];
 
@@ -90,11 +91,11 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
 
             fields.push({
                 name: "Account",
-                value: sorted.map(x => x.username).join("\n"),
+                value: sorted.map(x => x.username).join("\n") + "\n" + emote(ctx, "__"),
                 inline: true
             }, {
                 name: "Region",
-                value: sorted.map(x => x.region).join("\n"),
+                value: sorted.map(x => x.region).join("\n") + "\n" + emote(ctx, "__"),
                 inline: true
             });
         }

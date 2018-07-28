@@ -32,7 +32,7 @@
 
             // Find SVG element, width, height.
             const svg = d3.select("svg");
-            const margin = { top: 20, right: 0, bottom: 55, left: 44 };
+            const margin = { top: 0, right: 0, bottom: 60, left: 44 };
             const width = +svg.attr("width") - margin.left - margin.right;
             const height = +svg.attr("height") - margin.top - margin.bottom;
 
@@ -41,12 +41,6 @@
             const y = d3.scaleLinear().rangeRound([height, 0]);
             x.domain(values.map(x => x.champion));
             y.domain([0, values[0].score]);
-
-            // Have a discord-white theme background.
-            svg.append("rect")
-                .attr("width", "100%")
-                .attr("height", "100%")
-                .attr("fill", "#32363c");
 
             // Create our content node.
             const g = svg.append("g")

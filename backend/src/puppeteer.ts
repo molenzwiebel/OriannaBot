@@ -114,6 +114,7 @@ export default class PuppeteerController extends EventEmitter {
      */
     private async renderScreenshot(options: ScreenshotRenderArgs, resolve: Function) {
         resolve(await this.page.screenshot({
+            omitBackground: true,
             clip: {
                 x: 0,
                 y: 0,
