@@ -101,6 +101,8 @@ export default class PuppeteerController extends EventEmitter {
         await this.page.goto("about:blank");
         await this.page.setContent(fs.readFileSync(file, "utf8"));
 
+        await this.page.waitForSelector(".ready");
+
         const promise = new Promise(r => this.once("ready", () => r()));
         await this.page.evaluate(<any>{ toString: () => `(arg) => window.prepare(arg)` }, options.args);
 

@@ -13,7 +13,7 @@ This command shows a general overview of your Orianna Bot "profile", computed fr
 To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want to view someone else's profile, you can simply include them in the mention (e.g. \`@Orianna Bot, show @molenzwiebel#2773's profile\`).
 `.trim(),
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
-    async handler({ msg, ctx, error, info }) {
+    async handler({ msg, ctx, error, info, client }) {
         const target = await expectUser(ctx);
         if (!target) return;
         await target.$loadRelated("accounts");
@@ -25,7 +25,7 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
         });
 
         // Query some data we need later.
-        const top3Mastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(3);
+        const topMastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(8);
         const top3Played = await target.$relatedQuery<UserChampionStat>("stats").orderBy("games_played", "DESC").where("games_played", ">", 0).limit(3);
         const levelCounts: { level: number, count: number }[] = <any>await target.$relatedQuery("stats").groupBy("level", "user_id").count().select("level");
         const totalMastery: string[] = <any>await target.$relatedQuery("stats").sum("score").groupBy("user_id").pluck("sum");
@@ -53,9 +53,9 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
         const fields: { name: string, value: string, inline: boolean }[] = [{
             name: "Top Champions",
             value: [
-                `${await champ(top3Mastery[0])} - **${amount(top3Mastery[0])}**`,
-                `${await champ(top3Mastery[1])} - **${amount(top3Mastery[1])}**`,
-                `${await champ(top3Mastery[2])} - **${amount(top3Mastery[2])}**`,
+                `${await champ(topMastery[0])} - **${amount(topMastery[0])}**`,
+                `${await champ(topMastery[1])} - **${amount(topMastery[1])}**`,
+                `${await champ(topMastery[2])} - **${amount(topMastery[2])}**`,
             ].join("\n"),
             inline: true
         }, {
@@ -85,21 +85,51 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
 
         // Only add accounts if the user has not toggled them off.
         if (!target.hide_accounts) {
+            // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
+            const sorted = target.accounts!.slice(0).sort((a, b) => a.region.localeCompare(b.region));
+
             fields.push({
                 name: "Account",
-                value: target.accounts!.map(x => x.username).join("\n"),
+                value: sorted.map(x => x.username).join("\n"),
                 inline: true
             }, {
                 name: "Region",
-                value: target.accounts!.map(x => x.region).join("\n"),
+                value: sorted.map(x => x.region).join("\n"),
                 inline: true
             });
         }
 
+        // Render a neat bar chart with the top 8 champions.
+        const colors: { [key: string]: string } = {
+            Mage: "#6cace2",
+            Marksman: "#cc708d",
+            Support: "#1eb59b",
+            Fighter: "#916063",
+            Tank: "#888690",
+            Assassin: "#c0964c"
+        };
+        const values = await Promise.all(topMastery.map(async x => ({
+            champion: (await StaticData.championById(x.champion_id)).name,
+            color: colors[(await StaticData.championById(x.champion_id)).tags[0]],
+            score: x.score
+        })));
+
+        const image = await client.puppeteer.render("./graphics/profile-chart.html", {
+            screenshot: {
+                width: 399,
+                height: 240
+            },
+            args: { values, width: 399, height: 240 }
+        });
+
         return info({
             title: "📖 " + formatName(target) + "'s Profile",
             fields,
-            thumbnail: target.avatarURL
+            thumbnail: target.avatarURL,
+            file: {
+                name: "chart.png",
+                file: image
+            }
         });
     }
 };

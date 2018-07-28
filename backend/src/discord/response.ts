@@ -18,6 +18,10 @@ export interface ResponseOptions {
     author?: { icon_url?: string, name: string };
     footer?: string;
     timestamp?: number;
+    file?: {
+        name: string,
+        file: Buffer
+    };
 }
 
 /**
@@ -69,7 +73,7 @@ export default class Response {
     async respond(responseContent: ResponseOptions): Promise<Response> {
         this.message = await this.channel.createMessage({
             embed: this.buildEmbed(responseContent)
-        });
+        }, responseContent.file || void 0);
         return this;
     }
 
@@ -213,6 +217,10 @@ export default class Response {
         if (options.image) obj.image = { url: options.image };
         if (options.thumbnail) obj.thumbnail = { url: options.thumbnail };
         if (options.author) obj.author = options.author;
+
+        if (options.file) {
+            obj.image = { url: "attachment://" + options.file.name };
+        }
 
         return obj;
     }

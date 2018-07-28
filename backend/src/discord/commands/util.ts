@@ -86,7 +86,7 @@ export async function advancedPaginate<T>({ info, msg }: CommandContext, element
     const res = await info({
         ...template,
         fields: await process(elements.slice(0, perPage), 0),
-        footer: "Page 1 of " + pages
+        footer: "Page 1 of " + pages + (template.footer ? " • " + template.footer : "")
     });
 
     const showPage = async (offset: number) => {

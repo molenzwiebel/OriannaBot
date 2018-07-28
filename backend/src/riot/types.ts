@@ -24,6 +24,7 @@ namespace riot {
         name: string;
         title: string;
         skins: { num: number }[];
+        tags: string[];
     }
 
     export interface MatchEntry {
