@@ -17,6 +17,7 @@ import ServerIntro from "./components/server-intro/server-intro.vue";
 import IntroMains from "./components/server-intro/intro-mains.vue";
 import IntroGeneric from "./components/server-intro/intro-generic.vue";
 import Error from "./components/error/error.vue";
+import { API_HOST } from "./config";
 
 Vue.component("masked-input", VueTextMask);
 Vue.component("vue-suggest", VueSimpleSuggest);
@@ -29,6 +30,7 @@ const router = new VueRouter({
     routes: [
         { path: "/", component: Home },
         { path: "/docs", component: Tree },
+        { path: "/invite", beforeEnter: () => location.href = API_HOST + "/api/v1/discord-invite" },
         { path: "/me", component: UserProfile },
         { path: "/server/:id", component: ServerProfile },
         { path: "/server/:id/intro", component: ServerIntro },
