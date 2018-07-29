@@ -59,14 +59,15 @@ export default class DiscordClient {
         if (server) return server;
 
         const guild = this.bot.guilds.get(id);
-        if (!guild) throw new Error("No common server shared with server " + id);
+        if (!guild) throw new Error("Not a member of server " + id);
 
         return Server.query().insertAndFetch({
             snowflake: guild.id,
             name: guild.name,
             avatar: guild.icon || "none",
             announcement_channel: null,
-            default_champion: null
+            default_champion: null,
+            completed_intro: false
         });
     }
 

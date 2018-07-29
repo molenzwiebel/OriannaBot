@@ -211,7 +211,10 @@ export default class WebAPIClient {
             announcement_channel: Joi.any().valid(null, ...guild.channels.filter(x => x.type === 0).map(x => x.id)).optional(),
 
             // Default champion must be a number or null. Optional.
-            default_champion: Joi.number().allow(null).optional()
+            default_champion: Joi.number().allow(null).optional(),
+
+            // Completed intro must be a boolean. Optional
+            completed_intro: Joi.boolean().optional()
         }, req, res)) return;
 
         await server.$query().update(req.body);

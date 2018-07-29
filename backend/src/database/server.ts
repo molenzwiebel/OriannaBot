@@ -41,6 +41,11 @@ export default class Server extends Model {
     default_champion: number | null;
 
     /**
+     * If the server admins have already completed the intro setup for this server.
+     */
+    completed_intro: boolean;
+
+    /**
      * Optionally eager-loaded blacklisted channels.
      */
     blacklisted_channels?: BlacklistedChannel[];
