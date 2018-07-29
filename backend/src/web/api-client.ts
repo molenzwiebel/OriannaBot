@@ -333,7 +333,7 @@ export default class WebAPIClient {
             for (let i = 1; i <= 7; i++) {
                 await server.$relatedQuery<Role>("roles").insertGraph(<any>{
                     name: "Level " + i,
-                    announce: false,
+                    announce: server.announcement_channel !== null,
                     snowflake: roleId("Level " + i),
                     conditions: [{
                         type: "mastery_level",
@@ -346,11 +346,11 @@ export default class WebAPIClient {
                 });
             }
         } else if (req.params.name === "step") {
-            const formatNumber = (x: number) => x > 1000000 ? (x / 1000000).toFixed(1) + "m" : (x / 1000).toFixed(0) + "k";
+            const formatNumber = (x: number) => x >= 1000000 ? (x / 1000000).toFixed(1) + "m" : (x / 1000).toFixed(0) + "k";
             for (let i = req.body.start; i <= req.body.end; i += req.body.step) {
                 await server.$relatedQuery<Role>("roles").insertGraph(<any>{
                     name: formatNumber(i),
-                    announce: false,
+                    announce: server.announcement_channel !== null,
                     snowflake: roleId(formatNumber(i)),
                     conditions: [{
                         type: "mastery_score",
