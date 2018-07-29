@@ -1,5 +1,6 @@
 .intro-specific
     width 100%
+    min-height 100%
     display flex
     flex-direction column
     align-items center
@@ -88,7 +89,13 @@
             cursor pointer
             transition 0.2s ease
             margin-top 20px
+            width 145px
 
-            &:hover
+            &:disabled
+                border 1px solid darken(#7799c5, 5%)
+                background-color #7799c5
+                cursor wait
+
+            &:not(:disabled):hover
                 border 1px solid darken(#619ff1, 15%)
                 background-color darken(#619ff1, 10%)

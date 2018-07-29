@@ -67,9 +67,9 @@
             <div class="section finish" :class="!champion && 'dimmed'">
                 <p>You're all set!</p>
 
-                <span>You're ready to start using Orianna. Any of the settings you just configured can be changed whenever you want. For more info, visit the <a href="#">documentation</a>.</span>
+                <span>You're ready to start using Orianna. Any of the settings you just configured can be changed whenever you want. For more info, visit the <router-link to="/docs">documentation</router-link>.</span>
 
-                <button class="button" @click="finish">Complete Setup</button>
+                <button class="button" :disabled="!champion || finishing" @click="finish">{{ finishing ? 'Loading...' : 'Complete Setup' }}</button>
             </div>
         </div>
     </div>
@@ -89,7 +89,8 @@
                 createMasteryRoles: false,
                 masteryRoleType: "levels",
                 announceChannel: "null",
-                channels: []
+                channels: [],
+                finishing: false
             };
         },
         mounted() {
@@ -101,7 +102,7 @@
             finish() {
                 if (!this.champion) return;
 
-                // TODO
+                this.finishing = true;
             }
         }
     };
