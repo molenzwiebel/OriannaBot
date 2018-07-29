@@ -30,6 +30,7 @@ export interface ServerDetails {
     avatar: string;
     announcement_channel: string | null;
     default_champion: number | null;
+    completed_intro: boolean;
     roles: Role[];
     blacklisted_channels: string[];
     discord: {
@@ -55,6 +56,11 @@ export default class ServerProfile extends Vue {
     async mounted() {
         // Load user details. Will error if the user is not logged in.
         this.server = (await this.$root.get<ServerDetails>("/api/v1/server/" + this.$route.params.id))!;
+
+        // Redirect to intro if it's not yet complete.
+        if (!this.server.completed_intro) {
+            this.$router.push("/server/" + this.$route.params.id + "/intro");
+        }
     }
 
     /**

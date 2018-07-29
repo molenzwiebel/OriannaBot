@@ -22,7 +22,7 @@
         </div>
 
         <div class="skip">
-            <a href="#" @click="skip">I have done this before. Just take me to the settings screen.</a>
+            <a href="#" @click.prevent="skip">I have done this before. Just take me to the settings screen.</a>
         </div>
     </div>
 </template>
@@ -31,7 +31,11 @@
     export default {
         methods: {
             skip() {
-                // TODO
+                this.$root.submit(`/api/v1/server/${this.$route.params.id}`, "PATCH", {
+                    completed_intro: true
+                }).then(() => {
+                    this.$router.push(`/server/${this.$route.params.id}`);
+                });
             },
             redirectTo(path: string) {
                 this.$router.push(`/server/${this.$route.params.id}/intro/${path}`);

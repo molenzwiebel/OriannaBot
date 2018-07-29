@@ -43,13 +43,13 @@
                                 <option value="levels">Mastery Levels (Level 1 - 7)</option>
                                 <option value="50k">Mastery Per 50k (50k - 1m)</option>
                                 <option value="100k">Mastery Per 100k (100k - 1m)</option>
-                                <option value="200k">Mastery Per 250k (250k - 1m)</option>
+                                <option value="250k">Mastery Per 250k (250k - 1m)</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <span>This will pre-populate some roles for you, so you can get started with Orianna even faster. No Discord roles will be created. You're free to edit these later, or add more.</span>
+                <span>This will pre-populate some roles for you, so you can get started with Orianna even faster. No Discord roles will be created. You'll be able to edit, add, remove or rename these roles later.</span>
             </div>
 
             <div class="section" :class="!champion && 'dimmed'">
@@ -99,10 +99,59 @@
             });
         },
         methods: {
-            finish() {
-                if (!this.champion) return;
-
+            async finish() {
+                if (!this.champion || this.finishing) return;
                 this.finishing = true;
+
+                const id = this.$route.params.id;
+
+                // Mark as intro complete, announce and champion.
+                await this.$root.submit(`/api/v1/server/${id}`, "PATCH", {
+                    completed_intro: true,
+                    default_champion: +this.champion,
+                    announcement_channel: this.announceChannel === "null" ? null : this.announceChannel
+                });
+
+                // Create region roles if needed.
+                if (this.createRegionRoles) {
+                    await this.$root.submit(`/api/v1/server/${id}/role/preset/region`, "POST", {});
+                }
+
+                // Create ranked roles if needed.
+                if (this.createRankedRoles) {
+                    await this.$root.submit(`/api/v1/server/${id}/role/preset/rank`, "POST", { queue: "RANKED_SOLO_5x5" });
+                }
+
+                // Create mastery roles if needed.
+                if (this.createMasteryRoles) {
+                    if (this.masteryRoleType === "levels") {
+                        await this.$root.submit(`/api/v1/server/${id}/role/preset/mastery`, "POST", { champion: this.champion });
+                    } else if (this.masteryRoleType === "50k") {
+                        await this.$root.submit(`/api/v1/server/${id}/role/preset/step`, "POST", {
+                            champion: this.champion,
+                            start: 50000,
+                            end: 1000000,
+                            step: 50000
+                        });
+                    } else if (this.masteryRoleType === "100k") {
+                        await this.$root.submit(`/api/v1/server/${id}/role/preset/step`, "POST", {
+                            champion: this.champion,
+                            start: 100000,
+                            end: 1000000,
+                            step: 100000
+                        });
+                    } else if (this.masteryRoleType === "250k") {
+                        await this.$root.submit(`/api/v1/server/${id}/role/preset/step`, "POST", {
+                            champion: this.champion,
+                            start: 250000,
+                            end: 1000000,
+                            step: 250000
+                        });
+                    }
+                }
+
+                // We're done, redirect to server page.
+                this.$router.push("/server/" + id);
             }
         }
     };

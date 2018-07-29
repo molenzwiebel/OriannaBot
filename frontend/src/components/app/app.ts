@@ -61,6 +61,12 @@ export default class App extends Vue {
             }
         });
 
+        // Listen to navigation.
+        this.isHome = this.$route.path === "/";
+        this.$watch("$route.path", () => {
+            this.isHome = this.$route.path === "/";
+        });
+
         // We use fetch instead of the GET helper because we don't want to error if the user isn't logged in.
         const req = await fetch(API_HOST + "/api/v1/user", { credentials: "include" });
         this.user = req.status === 200 ? await req.json() : null;
@@ -68,12 +74,6 @@ export default class App extends Vue {
         // Listen to resizes.
         window.addEventListener("resize", () => {
             this.navbarShown = !window.matchMedia("only screen and (max-width: 780px)").matches
-        });
-
-        // Listen to navigation.
-        this.isHome = this.$route.path === "/";
-        this.$watch("$route.path", () => {
-            this.isHome = this.$route.path === "/";
         });
     }
 

@@ -51,8 +51,24 @@
             };
         },
         methods: {
-            finish() {
+            async finish() {
+                if (this.finishing) return;
                 this.finishing = true;
+
+                const id = this.$route.params.id;
+
+                // Mark as intro complete, announce and champion.
+                await this.$root.submit(`/api/v1/server/${id}`, "PATCH", {
+                    completed_intro: true
+                });
+
+                // Create region roles if needed.
+                if (this.createRegionRoles) {
+                    await this.$root.submit(`/api/v1/server/${id}/role/preset/region`, "POST", {});
+                }
+
+                // We're done, redirect to server page.
+                this.$router.push("/server/" + id);
             }
         }
     };
