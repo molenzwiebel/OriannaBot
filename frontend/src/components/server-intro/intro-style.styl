@@ -1,0 +1,94 @@
+.intro-specific
+    width 100%
+    display flex
+    flex-direction column
+    align-items center
+    background-color #fafafa
+
+    .title
+        font-family Roboto
+        padding-top 20px
+        display flex
+        align-items center
+        flex-direction column
+
+        & p
+            margin 0
+            color #3380e5
+            font-size 28px
+
+        & span
+            color #4a4949
+            margin-top 5px
+
+    .sections
+        display flex
+        flex-direction column
+        max-width 600px
+        width 600px
+
+    .section
+        border-bottom 1px solid #d5d5d5
+        padding 20px 0
+        font-family Roboto
+        transition 0.2s ease
+
+        &.dimmed
+            opacity 0.3
+
+        & > p
+            font-size 22px
+            color #5386e5
+            margin 0 0 10px 0
+
+        & > span
+            display block
+            padding-top 10px
+
+        .role-presets
+            padding 8px
+
+        .preset
+            display flex
+            align-items center
+            padding 10px 5px
+
+        .preset:not(:last-of-type)
+            border-bottom 1px solid #d5d5d5
+
+        .preset input[type=checkbox]
+            flex 0 30px
+            width 30px
+            height 30px
+            display block
+
+        .preset .info
+            flex 1
+            padding-left 20px
+
+            & p
+                margin 0 0 4px 0
+                font-weight bold
+
+            & span
+                font-size 15px
+                color #626262
+
+            & select
+                margin-top 6px
+                width 90%
+                height 32px
+
+        button.button
+            border 1px solid darken(#619ff1, 5%)
+            color white
+            background-color #619ff1
+            padding 10px
+            font-size 17px
+            cursor pointer
+            transition 0.2s ease
+            margin-top 20px
+
+            &:hover
+                border 1px solid darken(#619ff1, 15%)
+                background-color darken(#619ff1, 10%)

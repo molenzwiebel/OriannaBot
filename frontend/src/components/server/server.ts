@@ -24,7 +24,7 @@ export interface DiscordRole {
     position: number;
 }
 
-interface ServerDetails {
+export interface ServerDetails {
     snowflake: string;
     name: string;
     avatar: string;
