@@ -188,12 +188,14 @@ export default class Response {
 
     /**
      * Handler for message deletion that deletes the response if the trigger is deleted.
+     * @returns true if this response was deleted, false otherwise
      */
     public readonly onMessageDelete = async (msg: { id: string }) => {
-        if (!msg || !this.trigger) return;
-        if (msg.id !== this.trigger.id) return;
+        if (!msg || !this.trigger) return false;
+        if (msg.id !== this.trigger.id) return false;
 
         await this.message.delete();
+        return true;
     };
 
     private buildEmbed(options: ResponseOptions): eris.EmbedOptions {

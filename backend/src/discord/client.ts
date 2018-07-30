@@ -44,6 +44,7 @@ export default class DiscordClient {
         });
 
         this.bot.on("messageCreate", this.handleMessage);
+        this.bot.on("messageUpdate", this.handleEdit);
         this.bot.on("messageReactionAdd", this.handleReaction);
         this.bot.on("messageDelete", this.handleDelete);
         this.bot.on("guildUpdate", this.handleGuildUpdate);
@@ -170,10 +171,6 @@ export default class DiscordClient {
      * to the user.
      */
     private handleMessage = async (msg: eris.Message, fromMute = false) => {
-        // Eris never deletes cached messages, even though we don't need them.
-        // Remove the message immediately so we don't run out of memory eventually.
-        msg.channel.messages.delete(msg.id);
-
         const isDM = msg.channel instanceof eris.PrivateChannel;
         const hasMention = msg.mentions.map(x => x.id).includes(this.bot.user.id);
 
@@ -200,6 +197,10 @@ export default class DiscordClient {
                 await msg.addReaction(HELP_REACTION, "@me");
                 msg.channel.messages.add(msg);
             }
+
+            // Eris never deletes cached messages, even though we don't need them.
+            // Remove the message immediately so we don't run out of memory eventually.
+            msg.channel.messages.delete(msg.id);
 
             return;
         }
@@ -306,10 +307,22 @@ export default class DiscordClient {
     };
 
     /**
+     * Handles message editing. Simulates the old message getting removed, following
+     * by a new message getting sent.
+     */
+    private handleEdit = async (msg: eris.Message, oldMsg?: any) => {
+        if (!oldMsg) return;
+        if (msg.author.id === this.bot.user.id) return;
+
+        await this.handleDelete(msg);
+        await this.handleMessage(msg);
+    };
+
+    /**
      * Handles the deletion of a message. Simply delegates it to all responses.
      */
     private handleDelete = async (msg: eris.PossiblyUncachedMessage) => {
-        this.responses.forEach(x => x.onMessageDelete(msg));
+        this.responses = this.responses.filter(x => !x.onMessageDelete(msg));
     };
 
     /**
@@ -359,7 +372,25 @@ export default class DiscordClient {
      */
     private createResponse(channel: eris.Textable, user: eris.User, msg?: eris.Message) {
         const resp = new Response(this.bot, user, channel, msg);
+
         this.responses.push(resp);
+
+        // Have responses expire after a set time to prevent them from
+        // indefinitely taking up resources.
+        setTimeout(() => {
+            const idx = this.responses.indexOf(resp);
+
+            if (idx !== -1) {
+                resp.removeAllOptions();
+                this.responses.splice(idx, 1);
+            }
+
+            if (msg) {
+                // Remove the message from our local cache too.
+                msg.channel.messages.delete(msg.id);
+            }
+        }, 30 * 60 * 1000); // expire after 30 mins
+
         return resp;
     }
 

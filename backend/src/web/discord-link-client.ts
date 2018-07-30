@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import config from "../config";
 import DiscordClient from "../discord/client";
 import { requireAuth } from "./decorators";
+import elastic from "../elastic";
 
 interface Connection {
     id: string;
@@ -84,6 +85,8 @@ export default function register(app: express.Application, client: DiscordClient
 
             res.send(`<head><script>window.opener.postMessage({ type: 'discord' }, '*')</script></head>`);
         } catch (err) {
+            elastic.reportError(err);
+
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }
     }));

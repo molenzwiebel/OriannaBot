@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import config from "../config";
 import DiscordClient from "../discord/client";
 import { Server } from "../database";
+import elastic from "../elastic";
 
 interface DiscordAuthToken {
     access_token?: string;
@@ -63,6 +64,8 @@ export default function register(app: express.Application, client: DiscordClient
             // the intro page, to save us a page load.
             return res.redirect(`/server/${tokenRes.guild.id}/intro`);
         } catch (err) {
+            elastic.reportError(err);
+
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }
     });
