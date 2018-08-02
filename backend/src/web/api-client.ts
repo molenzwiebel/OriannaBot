@@ -346,7 +346,7 @@ export default class WebAPIClient {
                 });
             }
         } else if (req.params.name === "step") {
-            const formatNumber = (x: number) => x >= 1000000 ? (x / 1000000).toFixed(1) + "m" : (x / 1000).toFixed(0) + "k";
+            const formatNumber = (x: number) => x >= 1000000 ? (x / 1000000).toFixed(1).replace(/[.,]0$/, "") + "m" : (x / 1000).toFixed(0) + "k";
             for (let i = req.body.start; i <= req.body.end; i += req.body.step) {
                 await server.$relatedQuery<Role>("roles").insertGraph(<any>{
                     name: formatNumber(i),

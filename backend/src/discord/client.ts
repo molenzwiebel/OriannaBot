@@ -296,10 +296,14 @@ export default class DiscordClient {
             if (!reacts.some(x => x.id === this.bot.user.id)) return;
 
             if (emoji.name === MUTE_REACTION) {
-                const dms = await this.bot.getDMChannel(msg.author.id);
-                await dms.createMessage("I don't have permissions to talk in <#" + msg.channel.id + ">, but I can still secretly perform your command. Here's what you requested:");
+                try {
+                    const dms = await this.bot.getDMChannel(msg.author.id);
+                    await dms.createMessage("I don't have permissions to talk in <#" + msg.channel.id + ">, but I can still secretly perform your command. Here's what you requested:");
 
-                this.handleMessage(msg, true);
+                    this.handleMessage(msg, true);
+                } catch (e) {
+                    // We don't have permissions to message the user. They're most likely set to private.
+                }
             } else {
                 this.displayHelp(msg.channel, msg.author, msg);
             }

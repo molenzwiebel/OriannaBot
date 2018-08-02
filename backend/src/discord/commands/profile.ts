@@ -34,7 +34,10 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
 
         // Formatting helpers.
         const champ = async (entry: UserChampionStat) => emote(ctx, await StaticData.championById(entry.champion_id)) + " " + (await StaticData.championById(entry.champion_id)).name;
-        const amount = (entry: UserChampionStat) => entry.score < 10000 ? entry.score.toLocaleString() : `${Math.round(entry.score / 10000) * 10}k`;
+        const amount = (entry: UserChampionStat) =>
+            entry.score < 10000 ? entry.score.toLocaleString() :
+            entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
+            : `${Math.round(entry.score / 10000) * 10}k`;
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
             "UNRANKED": "Unranked" + emote(ctx, "__"),
@@ -89,15 +92,27 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
             // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
             const sorted = target.accounts!.slice(0).sort((a, b) => a.region.localeCompare(b.region));
 
-            fields.push({
-                name: "Account",
-                value: sorted.map(x => x.username).join("\n") + "\n" + emote(ctx, "__"),
-                inline: true
-            }, {
-                name: "Region",
-                value: sorted.map(x => x.region).join("\n") + "\n" + emote(ctx, "__"),
-                inline: true
-            });
+            // Split up in columns if more than two, single field else.
+            if (sorted.length > 1) {
+                const left = sorted.slice(0, Math.ceil(sorted.length / 2));
+                const right = sorted.slice(left.length);
+
+                fields.push({
+                    name: "Accounts",
+                    value: left.map(x => x.region + " - " + x.username).join("\n"),
+                    inline: true
+                }, {
+                    name: "\u200b", // renders as an empty title in discord
+                    value: right.map(x => x.region + " - " + x.username).join("\n"),
+                    inline: true
+                })
+            } else {
+                fields.push({
+                    name: "Account",
+                    value: sorted[0].region + " - " + sorted[0].username,
+                    inline: true
+                });
+            }
         }
 
         // Render a neat bar chart with the top 8 champions.

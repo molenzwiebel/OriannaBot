@@ -69,7 +69,7 @@ Note that the same role might appear twice in the list with different requiremen
         return paginate(ctx, roleFields, {
             title: "📖 Server Roles",
             description: "The following roles are configured on this server. You will only receive a role if you are eligible for all conditions within the role."
-        }, 4);
+        }, 6);
     }
 };
 export default RolesCommand;

@@ -13,6 +13,7 @@ import RolesCommand from "./discord/commands/roles";
 import EditCommand from "./discord/commands/edit";
 import OtherBotsHelpfulCommand from "./discord/commands/other-bots";
 import StatsCommand from "./discord/commands/stats";
+import InviteCommand from "./discord/commands/invite";
 
 import createApplication from "./web/web";
 
@@ -40,17 +41,20 @@ process.on("unhandledRejection", (err: Error) => {
     const discord = new DiscordClient(riotAPI, puppeteer);
     await discord.connect();
 
+    // These should be in order of most importance.
+    // They're matched from first to last, so `edit profile` will match edit before it matches profile.
+    discord.registerCommand(EvalCommand);
     discord.registerCommand(HelpCommand);
     discord.registerCommand(AboutCommand);
+    discord.registerCommand(EditCommand);
     discord.registerCommand(RefreshCommand);
-    discord.registerCommand(EvalCommand);
     discord.registerCommand(TopCommand);
     discord.registerCommand(ProfileCommand);
     discord.registerCommand(PointsCommand);
     discord.registerCommand(RolesCommand);
-    discord.registerCommand(EditCommand);
-    discord.registerCommand(OtherBotsHelpfulCommand);
     discord.registerCommand(StatsCommand);
+    discord.registerCommand(InviteCommand);
+    discord.registerCommand(OtherBotsHelpfulCommand);
 
     const app = createApplication(discord);
     app.listen(config.web.port);

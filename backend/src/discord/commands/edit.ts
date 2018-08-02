@@ -10,7 +10,18 @@ const EditCommand: Command = {
 This command will send you a single-use link to effortlessly log in and access [your personal settings page](https://orianna.molenzwiebel.xyz/me). These links are single-use and will expire after 24 hours.
 `.trim(),
     keywords: ["edit", "config", "configure", "add", "remove"],
-    async handler({ ctx, client, bot, msg, error }) {
+    noTyping: true,
+    async handler({ ctx, client, bot, msg, error, info }) {
+        const normalizedContent = msg.content.toLowerCase();
+
+        // Catch edit server attempts.
+        if (normalizedContent.includes("server") || normalizedContent.includes("guild")) {
+            return info({
+                title: "ℹ Server Editing Works Differently",
+                description: "With Orianna v2, there is no longer a separate configuration URL for editing server settings. Instead, you can simply login with your own link or Discord account, then select your server from the sidebar. Note that you must have `Manage Server` permissions to edit server settings."
+            });
+        }
+
         const user = await ctx.user();
 
         const key = await UserAuthKey.query().insertAndFetch({
