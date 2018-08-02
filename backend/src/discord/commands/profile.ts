@@ -99,11 +99,11 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
 
                 fields.push({
                     name: "Accounts",
-                    value: left.map(x => x.region + " - " + x.username).join("\n"),
+                    value: left.map(x => x.region + " - " + x.username).join("\n") + emote(ctx, "__"),
                     inline: true
                 }, {
                     name: "\u200b", // renders as an empty title in discord
-                    value: right.map(x => x.region + " - " + x.username).join("\n"),
+                    value: right.map(x => x.region + " - " + x.username).join("\n") + emote(ctx, "__"),
                     inline: true
                 })
             } else {

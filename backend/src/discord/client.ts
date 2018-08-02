@@ -140,8 +140,8 @@ export default class DiscordClient {
         const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: ResponseOptions = {
             color: 0x0a96de,
-            title: ":bookmark: Orianna Help",
-            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click :bookmark: to show this index.",
+            title: "🔖 Orianna Help",
+            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click 🔖 to show this index.",
             fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: x.smallDescription }))
         };
 
@@ -151,7 +151,7 @@ export default class DiscordClient {
         for (const cmd of commands) {
             await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
-                    title: ":bookmark: Help for " + cmd.name,
+                    title: "🔖 Help for " + cmd.name,
                     description: "**Description**\n" + cmd.description,
                     fields: [{
                         name: "Keywords",
