@@ -95,7 +95,7 @@ export default class DiscordClient {
         const key = await UserAuthKey.query().insertAndFetch({
             user_id: user.id,
             created_at: "2100-01-01 10:10:10", // have this one never expire, just for a bit more user friendliness
-            key: randomBytes(21).toString("base64").replace(/\//g, "-")
+            key: randomBytes(16).toString("hex")
         });
         const link = config.web.url + "/login/" + key.key;
 

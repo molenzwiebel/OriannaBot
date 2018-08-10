@@ -45,8 +45,8 @@ class ElasticClient {
     reportError(err: any): string | null {
         if (!config.elastic.enabled) return null;
 
-        const errorId = randomBytes(21).toString("base64").replace(/\//g, "-");
-        this.apm.captureError(err, { incident: errorId });
+        const errorId = randomBytes(16).toString("hex");
+        this.apm.captureError(err, { custom: { incident: errorId } });
         return errorId;
     }
 

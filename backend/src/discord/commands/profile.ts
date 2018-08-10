@@ -109,7 +109,7 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
             } else {
                 fields.push({
                     name: "Account",
-                    value: sorted[0].region + " - " + sorted[0].username,
+                    value: sorted[0].region + " - " + sorted[0].username + "\n" + emote(ctx, "__"),
                     inline: true
                 });
             }

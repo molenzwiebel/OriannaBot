@@ -2,7 +2,7 @@ import express = require("express");
 import * as eris from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server, User, BlacklistedChannel, Role, RoleCondition } from "../database";
+import { Server, User, BlacklistedChannel, Role, RoleCondition, LeagueAccount } from "../database";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -102,6 +102,16 @@ export default class WebAPIClient {
         const summ = await this.client.riotAPI.getSummonerByName(req.body.region, req.body.username);
         if (!summ) return res.status(404).json(null);
 
+        // Check if this account has been taken by someone else already.
+        if (await LeagueAccount.query().where("summoner_id", summ.id).where("region", req.body.region).first()) {
+            return res.json({
+                taken: true,
+                username: summ.name
+            });
+        }
+
+        // Generate a key and assign it for the current session.
+        // Note that this will expire if we restart, but that should rarely happen.
         const key = randomstring.generate({
             length: 8,
             readable: true

@@ -26,7 +26,7 @@ This command will send you a single-use link to effortlessly log in and access [
 
         const key = await UserAuthKey.query().insertAndFetch({
             user_id: user.id,
-            key: randomBytes(21).toString("base64").replace(/\//g, "-")
+            key: randomBytes(16).toString("hex")
         });
         const link = config.web.url + "/login/" + key.key;
 
