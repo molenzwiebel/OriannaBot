@@ -6,6 +6,7 @@ import App from "../app/app";
 interface Summoner {
     username: string;
     code: string;
+    taken?: boolean;
 }
 
 @Component({
@@ -44,13 +45,18 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        const summ = await this.$root.submit("/api/v1/summoner", "POST", {
+        const summ = await this.$root.submit<Summoner>("/api/v1/summoner", "POST", {
             username: this.name,
             region: this.region
         });
 
         if (!summ) {
             this.detailsError = "Summoner not found. Use your summoner name, not login name.";
+            throw new Error("");
+        }
+
+        if (summ.taken) {
+            this.detailsError = "This account is already linked with a different Discord account. Please contact @molenzwiebel#2773 if you think this is an error.";
             throw new Error("");
         }
 

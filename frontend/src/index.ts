@@ -25,6 +25,13 @@ Vue.use(VueTippy);
 Vue.use(VueRouter);
 Vue.use(VueFormWizard);
 
+// Redirect old ori v1 player auth to the new link.
+// Note that this doesn't check for hash validity, that is the job of the api endpoint.
+if (window.location.hash.indexOf("player") !== -1) {
+    const match = /player\/(.*)$/.exec(window.location.hash);
+    if (match) window.location.href = "/login/" + match[1];
+}
+
 const router = new VueRouter({
     mode: ENV === "prod" ? "history" : "hash",
     routes: [
@@ -40,10 +47,18 @@ const router = new VueRouter({
         // Login failed route.
         { path: "/login-fail", component: Error, props: { title: "Login Failed", details: "The key you tried to use to authenticate either doesn't exist or has expired. Request a new one using @Orianna Bot edit or login using Discord below.", showLogin: true } },
 
+        // Outdated route.
+        { path: "/outdated-link", component: Error, props: { title: "Outdated Link", details: "You tried to use a server configuration link generated with an older version of Orianna Bot. These links are no longer valid. To configure your server, simply login below and select the appropriate server from the sidebar.", showLogin: true } },
+
         // 404 Route
         { path: "*", component: Error, props: { title: "Not Found", details: "Looks like the page you requested does not exist. Double-check your URL for spelling mistakes.", showLogin: false } },
     ]
 });
+
+// Redirect ori v1 server links.
+if (/(setup|configure)\/(.*)$/.test(window.location.hash)) {
+    router.push("/outdated-link");
+}
 
 new App({
     router
