@@ -1,6 +1,6 @@
 import RiotAPI from "../riot/api";
 import * as eris from "eris";
-import { Server, User, LeagueAccount, UserRank, UserChampionStat, Role } from "../database";
+import { Server, User, LeagueAccount, UserRank, UserChampionStat, Role, UserMasteryDelta } from "../database";
 import config from "../config";
 import DiscordClient from "./client";
 import StaticData from "../riot/static-data";
@@ -251,11 +251,24 @@ export default class Updater {
         await user.$relatedQuery("stats").whereNotIn("champion_id", [...scores.keys()]).delete();
 
         let changed = false;
+        const toInsert = [];
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
             const oldScore = user.stats.find(x => x.champion_id === champion);
             if (oldScore && score.level === oldScore.level && score.score === oldScore.score) continue;
-            if (oldScore) await oldScore.$query().delete();
+
+            // If we had an older score, we can diff the two and queue a delta for insertion.
+            if (oldScore) {
+                toInsert.push({
+                    user_id: user.id,
+                    champion_id: champion,
+                    delta: score.score - oldScore.score,
+                    value: score.score,
+                    timestamp: "" + Date.now()
+                });
+
+                await oldScore.$query().delete();
+            }
             changed = true;
 
             const oldGamesPlayed = oldScore ? oldScore.games_played : 0;
@@ -266,6 +279,10 @@ export default class Updater {
                 games_played: oldGamesPlayed
             });
         }
+
+        // If we had any changed values, we insert them all at once to avoid having a lot of
+        // individual queries.
+        if (toInsert.length) await UserMasteryDelta.query().insert(toInsert);
 
         // Refetch stats now that we updated stuff.
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
