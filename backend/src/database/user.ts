@@ -79,6 +79,11 @@ export default class User extends Model {
     ranks?: UserRank[];
 
     /**
+     * Optionally eager-loaded mastery delta entries, null if not specified in the query.
+     */
+    deltas?: UserMasteryDelta[];
+
+    /**
      * Returns the fully qualified URL to the avatar for this user.
      */
     get avatarURL(): string {
@@ -215,9 +220,44 @@ export class UserAuthKey extends Model {
     user: User;
 }
 
+@decorators.table("user_mastery_deltas")
+export class UserMasteryDelta extends Model {
+    /**
+     * Unique incremented ID for this delta.
+     */
+    readonly id: number;
+
+    /**
+     * The user this delta belongs to.
+     */
+    user_id: number;
+
+    /**
+     * The champion for this statistic entry.
+     */
+    champion_id: number;
+
+    /**
+     * The difference between the last recorded value. Can be
+     * negative if an account was removed.
+     */
+    delta: number;
+
+    /**
+     * The mastery value, after applying `delta`.
+     */
+    value: number;
+
+    /**
+     * Unix epoch timestamp, stored as a string (since postgres stores bigInts as strings).
+     */
+    timestamp: string;
+}
+
 decorators.belongsTo("user", () => User, "user_id", "id")(UserChampionStat);
 decorators.belongsTo("user", () => User, "user_id", "id")(UserAuthKey);
 
 decorators.hasMany("accounts", () => LeagueAccount, "id", "user_id")(User);
 decorators.hasMany("stats", () => UserChampionStat, "id", "user_id")(User);
 decorators.hasMany("ranks", () => UserRank, "id", "user_id")(User);
+decorators.hasMany("deltas", () => UserMasteryDelta, "id", "user_id")(User);
