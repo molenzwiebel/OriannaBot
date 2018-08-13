@@ -105,10 +105,16 @@ class StaticData {
         const normalized = content.toLowerCase().replace(/\W/g, "");
 
         // Try normal names first.
+        const valid = [];
         for (const champ of this.data) {
             if (normalized.includes(champ.name.toLowerCase().replace(/\W/g, ""))) {
-                return champ;
+                valid.push(champ);
             }
+        }
+
+        // If we had a valid full match, go for the longest name (to prevent Viktor from returning Vi for example).
+        if (valid.length) {
+            return valid.sort((a, b) => b.name.length - a.name.length)[0];
         }
 
         // If that doesn't work, try abbreviations.

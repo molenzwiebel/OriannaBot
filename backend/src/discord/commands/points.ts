@@ -16,6 +16,9 @@ Examples:
 `.trim(),
     keywords: ["points", "mastery", "score"],
     async handler({ ctx, error, msg, ok }) {
+        // Remove the keywords since they can combine with champion names (e.g. **mastery i**relia).
+        ctx.content = ctx.content.replace(/\b(points|mastery|score)\b/g, "");
+
         const user = await expectUser(ctx);
         await user.$loadRelated("[accounts, stats]");
 
