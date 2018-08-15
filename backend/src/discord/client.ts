@@ -10,6 +10,7 @@ import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
 import { randomBytes } from "crypto";
 import elastic from "../elastic";
+import { Commit, getLastCommit } from "git-last-commit";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -18,11 +19,30 @@ const HELP_REACTION = "❓";
 const HELP_INDEX_REACTION = "🔖";
 const MUTE_REACTION = "🔇";
 
+const STATUSES: [number, string][] = [
+    [0, "on-hit Orianna"],
+    [0, "with the Ball"],
+    [2, "time ticking away"],
+    [3, "my enemies shiver"],
+    [3, "you"],
+    [3, "Piltovan theater"],
+    [2, "Running in the 90s"],
+    [0, "with Stopwatch"],
+    [3, "imaqtpie"],
+    [2, "them scream"],
+    [3, "what makes them tick"],
+    [0, "Command: Attack"],
+    [0, "Command: Dissonance"],
+    [0, "Command: Protect"],
+    [0, "Command: Shockwave"]
+];
+
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token);
     public readonly updater = new Updater(this, this.riotAPI);
     private commands: Command[] = [];
     private responses: Response[] = [];
+    private statusIndex = 0;
 
     constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {}
 
@@ -50,6 +70,27 @@ export default class DiscordClient {
         this.bot.on("guildUpdate", this.handleGuildUpdate);
         this.bot.on("userUpdate", this.handleUserUpdate);
         this.bot.on("guildMemberAdd", this.handleGuildMemberAdd);
+
+        const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
+        const formatStatus = (stat: string) => {
+            const suffix = `Version ${commit.shortHash} - ${commit.subject}`;
+            return stat + " \n" + Array(126 - stat.length - suffix.length).join("\u3000") + suffix;
+        };
+
+        // Cycle game playing statuses.
+        setInterval(() => {
+            this.statusIndex = (this.statusIndex + 1) % STATUSES.length;
+
+            this.bot.editStatus("online", {
+                type: STATUSES[this.statusIndex][0],
+                name: formatStatus(STATUSES[this.statusIndex][1])
+            });
+        }, 10 * 1000); // cycle every 10 mins
+
+        this.bot.editStatus("online", {
+            name: formatStatus(STATUSES[0][1]),
+            type: STATUSES[0][0]
+        });
     }
 
     /**
