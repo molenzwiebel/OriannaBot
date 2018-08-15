@@ -102,17 +102,20 @@ export class RoleCondition extends Model {
 
         const condition: TypedRoleCondition = <TypedRoleCondition>this;
         if (condition.type === "mastery_level") {
+            // Check if we have a stats entry for the specified champion that matches the range.
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion
                 && evaluateRangeCondition(condition.options, x.level));
         } else if (condition.type === "mastery_score") {
+            // Check if we have a stats entry for the specified champion that matches the range.
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion
                 && evaluateRangeCondition(condition.options, x.score));
         } else if (condition.type === "total_mastery_score") {
+            // Sum total score, then evaluate the range condition.
             const total = user.stats.reduce((p, c) => p + c.score, 0);
             return evaluateRangeCondition(condition.options, total);
-        } else if (condition.type === "ranked_tier") {
+        } else if (condition.type === "ranked_tier" && condition.options.queue !== "ANY") {
             // If the user is unranked in the queue, only match if they had a condition set to `EQUAL UNRANKED` (e.g. don't include unranked in lt and gt).
             const tier = user.ranks.find(x => x.queue === condition.options.queue);
             if (!tier || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
@@ -121,11 +124,28 @@ export class RoleCondition extends Model {
             return condition.options.compare_type === "lower"
                 ? condition.options.tier > numeric
                 : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
+        } else if (condition.type === "ranked_tier" && condition.options.queue === "ANY") {
+            if (user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
+
+            // For every tier, try matching.
+            for (const tier of user.ranks) {
+                const numeric = config.riot.tiers.indexOf(tier.tier) + 1;
+                const matches = condition.options.compare_type === "lower"
+                    ? condition.options.tier > numeric
+                    : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
+
+                if (matches) return true;
+            }
+
+            // None of the tiers matched.
+            return false;
         } else if (condition.type === "champion_play_count") {
+            // Check if we have a stats entry for the specified champion that matches the range.
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion
                 && x.games_played >= condition.options.count);
         } else if (condition.type === "server") {
+            // Check if we have an account in the specified region.
             return user.accounts.some(x => x.region === condition.options.region);
         } else {
             throw new Error("Invalid RoleCondition type.");

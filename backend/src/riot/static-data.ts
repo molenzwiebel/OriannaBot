@@ -29,6 +29,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "kata": "Katarina",
     "kha": "Khazix",
     "kog": "KogMaw",
+    "skaarl": "Kled",
     "lb": "Leblanc",
     "lee": "LeeSin",
     "leo": "Leona",
@@ -48,10 +49,12 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "nida": "Nidalee",
     "noc": "Nocturne",
     "noct": "Nocturne",
+    "willump": "Nunu",
     "ori": "Orianna",
     "waifu": "Orianna", // :^)
     "ball": "Orianna", // :^)
     "panth": "Pantheon",
+    "valor": "Quinn",
     "rek": "RekSai",
     "renek": "Renekton",
     "croc": "Renekton",
