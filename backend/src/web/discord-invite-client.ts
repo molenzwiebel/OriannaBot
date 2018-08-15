@@ -60,9 +60,10 @@ export default function register(app: express.Application, client: DiscordClient
                 });
             }
 
-            // Finally, redirect them to the setup page. We redirect them immediately to
-            // the intro page, to save us a page load.
-            return res.redirect(`/server/${tokenRes.guild.id}/intro`);
+            // Finally, redirect them to the config page. Don't directly
+            // redirect them to setup since this might've been from a transfer
+            // and they'd already have roles setup.
+            return res.redirect(`/server/${tokenRes.guild.id}`);
         } catch (err) {
             elastic.reportError(err);
 

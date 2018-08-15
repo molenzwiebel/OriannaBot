@@ -74,7 +74,7 @@ export default class DiscordClient {
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
         const formatStatus = (stat: string) => {
             const suffix = `Version ${commit.shortHash} - ${commit.subject}`;
-            return stat + " \n" + Array(126 - stat.length - suffix.length).join("\u3000") + suffix;
+            return stat + " \n" + Array(126 - stat.length - suffix.length).join("\n") + suffix;
         };
 
         // Cycle game playing statuses.
@@ -85,7 +85,7 @@ export default class DiscordClient {
                 type: STATUSES[this.statusIndex][0],
                 name: formatStatus(STATUSES[this.statusIndex][1])
             });
-        }, 10 * 1000); // cycle every 10 mins
+        }, 10 * 60 * 1000); // cycle every 10 mins
 
         this.bot.editStatus("online", {
             name: formatStatus(STATUSES[0][1]),
