@@ -356,7 +356,7 @@ export default class DiscordClient {
      * by a new message getting sent.
      */
     private handleEdit = async (msg: eris.Message, oldMsg?: any) => {
-        if (!oldMsg) return;
+        if (!oldMsg || !msg.author) return; // message can potentially be uncached, so check for author property
         if (msg.author.id === this.bot.user.id) return;
 
         await this.handleDelete(msg);

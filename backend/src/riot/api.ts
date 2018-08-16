@@ -1,7 +1,7 @@
 import Teemo = require("teemojs");
 import config from "../config";
 
-export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU"];
+export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU", "KR"];
 
 /**
  * A simple incomplete interface for the Riot Games API.

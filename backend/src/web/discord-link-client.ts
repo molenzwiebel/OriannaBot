@@ -33,7 +33,9 @@ const regions = new Map([
     ["oce", "OCE"],
     ["tr1", "TR"],
     ["tr", "TR"],
-    ["ru", "RU"]
+    ["ru", "RU"],
+    ["kr", "KR"],
+    ["kr1", "KR"]
 ]);
 
 export default function register(app: express.Application, client: DiscordClient) {
