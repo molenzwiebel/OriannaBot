@@ -135,6 +135,7 @@
                 <option value="JP">JP</option>
                 <option value="TR">TR</option>
                 <option value="RU">RU</option>
+                <option value="KR">KR</option>
             </select>
         </template>
     </div>
