@@ -19,6 +19,8 @@
                         <option value="RANKED_SOLO_5x5">Ranked Solo/Duo</option>
                         <option value="RANKED_FLEX_SR">Ranked Flex 5v5</option>
                         <option value="RANKED_FLEX_TT">Ranked Flex 3v3</option>
+                        <option value="ANY">Any Ranked Queue</option>
+                        <option value="HIGHEST">Player's Highest Ranked Queue</option>
                     </select>
                     <button :disabled="queue === 'unselected'" @click.prevent="addPreset('rank', { queue })">Load</button>
                 </div>
