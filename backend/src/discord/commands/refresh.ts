@@ -32,6 +32,13 @@ You are also periodically refreshed automatically by Orianna (usually once every
         msg.addReaction(loadingEmoji);
         await client.updater.fetchAndUpdateAll(user);
 
+        // Update timestamps.
+        user.$query().patch({
+            last_account_update_timestamp: '' + Date.now(),
+            last_rank_update_timestamp: '' + Date.now(),
+            last_score_update_timestamp: '' + Date.now()
+        });
+
         msg.removeReaction(loadingEmoji);
         msg.addReaction("✅");
     }

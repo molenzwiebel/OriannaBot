@@ -331,7 +331,8 @@ export default class Updater {
 
         const gamesPlayed = new Map<number, number>();
         for (const account of user.accounts) {
-            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, +user.last_score_update_timestamp);
+            // If we need a games played reset, fetch since the beginning. Else, fetch since the last time we ran this update.
+            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, user.needsGamesPlayedReset ? 0 : +user.last_score_update_timestamp);
 
             for (const game of games) {
                 // Increment the amount of games played by one.

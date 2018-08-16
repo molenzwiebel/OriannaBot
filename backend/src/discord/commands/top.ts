@@ -19,7 +19,7 @@ If you're more interested in the highest score, regardless of champion, you can 
 
 If you want to know the top champions for a specific user, you can do so too. Simply mention them in your message to look at their champion mastery scores. For example, \`@Orianna Bot top champions @molenzwiebel#2773\`. 
 `.trim(),
-    keywords: ["top", "leaderboard", "most", "highest"],
+    keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
     async handler({ content, guild, ctx, msg, client, error }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");

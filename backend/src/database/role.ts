@@ -1,7 +1,7 @@
 import { Model, Pojo } from "objection";
 import * as decorators from "../util/objection";
-import { evaluateRangeCondition, TypedRoleCondition } from "../types/conditions";
-import User from "./user";
+import { evaluateRangeCondition, RankedTierCondition, TypedRoleCondition } from "../types/conditions";
+import User, { UserRank } from "./user";
 import config from "../config";
 import omit = require("lodash.omit");
 
@@ -115,30 +115,22 @@ export class RoleCondition extends Model {
             // Sum total score, then evaluate the range condition.
             const total = user.stats.reduce((p, c) => p + c.score, 0);
             return evaluateRangeCondition(condition.options, total);
-        } else if (condition.type === "ranked_tier" && condition.options.queue !== "ANY") {
+        } else if (condition.type === "ranked_tier" && condition.options.queue === "HIGHEST") { // user's highest ranked queue.
+            const highest = user.ranks.sort((a, b) => config.riot.tiers.indexOf(b.tier) - config.riot.tiers.indexOf(a.tier))[0];
+            if (!highest || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
+
+            return evaluateRankedTier(condition, highest);
+        } else if (condition.type === "ranked_tier" && condition.options.queue === "ANY") { // any ranked queue
+            if (user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
+
+            // Check if for any of our ranks the specified condition is true.
+            return user.ranks.some(tier => evaluateRankedTier(condition, tier));
+        } else if (condition.type === "ranked_tier") { // normal ranked queues
             // If the user is unranked in the queue, only match if they had a condition set to `EQUAL UNRANKED` (e.g. don't include unranked in lt and gt).
             const tier = user.ranks.find(x => x.queue === condition.options.queue);
             if (!tier || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
 
-            const numeric = config.riot.tiers.indexOf(tier.tier) + 1;
-            return condition.options.compare_type === "lower"
-                ? condition.options.tier > numeric
-                : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
-        } else if (condition.type === "ranked_tier" && condition.options.queue === "ANY") {
-            if (user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
-
-            // For every tier, try matching.
-            for (const tier of user.ranks) {
-                const numeric = config.riot.tiers.indexOf(tier.tier) + 1;
-                const matches = condition.options.compare_type === "lower"
-                    ? condition.options.tier > numeric
-                    : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
-
-                if (matches) return true;
-            }
-
-            // None of the tiers matched.
-            return false;
+            return evaluateRankedTier(condition, tier);
         } else if (condition.type === "champion_play_count") {
             // Check if we have a stats entry for the specified champion that matches the range.
             return user.stats.some(x =>
@@ -158,6 +150,17 @@ export class RoleCondition extends Model {
     $formatJson(json: Pojo) {
         return omit(super.$formatJson(json), ["id", "role_id"]);
     }
+}
+
+/**
+ * Simple helper function to evaluate if the specified ranked tier satisfies
+ * the specified conditions.
+ */
+function evaluateRankedTier(condition: RankedTierCondition, tier: UserRank): boolean {
+    const numeric = config.riot.tiers.indexOf(tier.tier) + 1;
+    return condition.options.compare_type === "lower"
+        ? condition.options.tier > numeric
+        : condition.options.compare_type === "higher" ? condition.options.tier < numeric : condition.options.tier === numeric;
 }
 
 decorators.hasMany("conditions", () => RoleCondition, "id", "role_id")(Role);
