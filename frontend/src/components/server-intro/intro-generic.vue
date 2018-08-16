@@ -22,7 +22,7 @@
                         <input type="checkbox" v-model="createRankedRoles">
                         <div class="info">
                             <p>Ranked Roles</p>
-                            <span>Creates a role for all ranked tiers. Assigns Platinum to anyone that is platinum in solo queue.</span>
+                            <span>Creates a role for all ranked tiers. Assigns Platinum to anyone that is platinum in their highest queue.</span>
                         </div>
                     </div>
                 </div>
@@ -65,6 +65,11 @@
                 // Create region roles if needed.
                 if (this.createRegionRoles) {
                     await this.$root.submit(`/api/v1/server/${id}/role/preset/region`, "POST", {});
+                }
+
+                // Create ranked roles if needed.
+                if (this.createRankedRoles) {
+                    await this.$root.submit(`/api/v1/server/${id}/role/preset/rank`, "POST", { queue: "HIGHEST" });
                 }
 
                 // We're done, redirect to server page.
