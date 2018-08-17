@@ -1,14 +1,3 @@
 <template>
-    <champion-picker v-model="champ"></champion-picker>
+    <div>Coming Soon! In the meantime, try using <code>@Orianna Bot help</code> to get help on commands directly from Discord.</div>
 </template>
-
-<script lang="ts">
-    import ChampionPicker from "../champion-dropdown/champion-dropdown.vue";
-
-    export default {
-        components: { ChampionPicker },
-        data() {
-            return { champ: null }
-        }
-    };
-</script>

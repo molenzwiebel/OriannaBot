@@ -12,7 +12,7 @@ import App from "./components/app/app.vue";
 import Home from "./components/home/home.vue";
 import UserProfile from "./components/profile/profile.vue";
 import ServerProfile from "./components/server/server.vue";
-import Tree from "./components/role-tree/tree.vue";
+import Docs from "./components/docs/docs.vue";
 import ServerIntro from "./components/server-intro/server-intro.vue";
 import IntroMains from "./components/server-intro/intro-mains.vue";
 import IntroGeneric from "./components/server-intro/intro-generic.vue";
@@ -36,7 +36,7 @@ const router = new VueRouter({
     mode: ENV === "prod" ? "history" : "hash",
     routes: [
         { path: "/", component: Home },
-        { path: "/docs", component: Tree },
+        { path: "/docs", component: Docs },
         { path: "/invite", beforeEnter: () => location.href = API_HOST + "/api/v1/discord-invite" },
         { path: "/me", component: UserProfile },
         { path: "/server/:id", component: ServerProfile },
