@@ -33,7 +33,7 @@ You are also periodically refreshed automatically by Orianna (usually once every
 
         // Force a full games played update by setting account update to 0.
         user.$query().patch({
-            last_account_update_timestamp: '' + Date.now()
+            last_account_update_timestamp: '0'
         });
 
         await client.updater.fetchAndUpdateAll(user);
