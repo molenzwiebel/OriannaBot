@@ -30,6 +30,12 @@ You are also periodically refreshed automatically by Orianna (usually once every
         const loadingEmoji = emote(ctx, "Refreshing").replace("<:", "").replace(">", "");
 
         msg.addReaction(loadingEmoji);
+
+        // Force a full games played update by setting account update to 0.
+        user.$query().patch({
+            last_account_update_timestamp: '' + Date.now()
+        });
+
         await client.updater.fetchAndUpdateAll(user);
 
         // Update timestamps.
