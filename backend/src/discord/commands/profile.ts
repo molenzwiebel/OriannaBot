@@ -135,6 +135,7 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
                 width: 399,
                 height: 240
             },
+            timeout: 3000,
             args: { values, width: 399, height: 240 }
         });
 

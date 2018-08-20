@@ -300,8 +300,8 @@
             loadElement(args.icon, summoner),
             loadElement(args.champion, champion),
             loadElement(args.background, background),
-            loadElement("https://raw.communitydragon.org/8.10/plugins/rcp-fe-lol-missions/global/default/eog_intro_magic.webm", introVideo), // intro video webm
-            loadElement("https://raw.communitydragon.org/8.10/plugins/rcp-fe-lol-missions/global/default/levelupexplosion_small.webm", explodeVideo) // explode video webm
+            loadElement("https://raw.communitydragon.org/8.16/plugins/rcp-fe-lol-missions/global/default/eog_intro_magic.webm", introVideo), // intro video webm
+            loadElement("https://raw.communitydragon.org/8.16/plugins/rcp-fe-lol-missions/global/default/levelupexplosion_small.webm", explodeVideo) // explode video webm
         ]);
 
         // Wait for 100 ms just to be sure that everything is loaded and rendered.
@@ -333,6 +333,7 @@
             const prop = el instanceof HTMLVideoElement ? "oncanplay" : "onload";
 
             el[prop] = () => resolve();
+            el.onerror = () => resolve(); // if we fail to load, just resolve anyway, nothing we can do
             el.src = src;
         });
     }

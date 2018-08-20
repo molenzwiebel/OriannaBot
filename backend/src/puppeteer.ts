@@ -10,6 +10,7 @@ export interface ScreenshotRenderArgs {
         width: number;
         height: number;
     };
+    timeout: number;
     args: object;
 }
 
@@ -20,6 +21,7 @@ export interface GifRenderArgs {
         length: number;
         fpsScale: number;
     };
+    timeout: number;
     args: object;
 }
 
@@ -57,7 +59,11 @@ export default class PuppeteerController extends EventEmitter {
             while (this.queue.length) {
                 const { file, options, resolve, reject } = this.queue.shift()!;
                 try {
-                    await this.doRender(file, options, resolve);
+                    // Race between either the render or the timeout reject, whatever comes first.
+                    await Promise.race([
+                        this.doRender(file, options, resolve),
+                        new Promise((_, reject) => setTimeout(reject, options.timeout))
+                    ]);
                 } catch (e) {
                     reject(e);
                 }

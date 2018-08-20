@@ -50,6 +50,7 @@ const StatsCommand: Command = {
                 width: 399,
                 height: 250
             },
+            timeout: 3000,
             args: {
                 width: 399,
                 height: 250,

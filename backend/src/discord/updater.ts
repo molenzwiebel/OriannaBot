@@ -447,6 +447,7 @@ export default class Updater {
                 length: 2.4,
                 fpsScale: 1.4
             },
+            timeout: 10000,
             args: {
                 name: user.username,
                 title: role.name,
