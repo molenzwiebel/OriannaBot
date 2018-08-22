@@ -203,7 +203,8 @@ export default class Updater {
             if (userHas.has(role) && !shouldHave.has(role)) {
                 logUpdate("Removing role %s from user %s (%s) since they do not qualify.", role, user.username, user.snowflake);
 
-                guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.");
+                // Ignore errors if we don't have permissions.
+                guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.").catch(() => {});
             }
 
             // User does not have the role, but should have it.

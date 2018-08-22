@@ -1,0 +1,52 @@
+{
+    "riot": {
+        "apiKey": "<<riot games API key>>",
+        "tiers": ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHALLENGER"],
+        "rankedQueues": {
+            "RANKED_SOLO_5x5": "Ranked Solo/Duo",
+            "RANKED_FLEX_SR": "Ranked Flex 5v5",
+            "RANKED_FLEX_TT": "Ranked Flex 3v3",
+            "ANY": "any ranked queue",
+            "HIGHEST": "your highest ranked queue"
+        },
+        "rankedGameCountSeasons": [11],
+        "rankedGameCountQueues": [420, 440, 470]
+    },
+    "discord": {
+        "clientId": "<<discord application client id>>",
+        "clientSecret": "<<discord application client secret>>",
+        "owner": "<<discord user id of the owner of the bot (your own id)>>",
+        "token": "<<discord bot token>>",
+        "emoteServers": ["<<potential list of discord server ids where to find bot servers. leave as an empty array to disable emotes completely>>"]
+    },
+    "reddit": {
+        "clientId": "<<reddit client id>>",
+        "clientSecret": "<<reddit client secret>>"
+    },
+    "web": {
+        "url": "<<publicly accessible URL where orianna is hosted, is prepended to messages like @Ori edit>>",
+        "port": "<<port on which the web server interface will listen>>"
+    },
+    "db": {
+        "host": "<<hostname of postgres database>>",
+        "database": "<<database name of postgres database>>",
+        "user": "<<username of postgres database>>",
+        "password": "<<password of postgres database>>",
+        "port": 5432
+    },
+    "elastic": {
+        "enabled": false,
+        "host": "<<if enabled, the host URL of an elasticsearch instance>>",
+        "auth": "<<if enabled, the username:pass of the specified elasticsearch instance>>"
+    },
+    "updater": {
+        "masteryGamesInterval": 60000,
+        "masteryGamesAmount": 1,
+        "rankedTierInterval": 60000,
+        "rankedTierAmount": 1,
+        "accountInterval": 60000,
+        "accountAmount": 1
+    },
+    "badges": {},
+    "ffmpeg": "<<path to ffmpeg binary (ffmpeg.exe/ffmpeg), required for producing promotion animations>>"
+}
