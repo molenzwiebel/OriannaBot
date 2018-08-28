@@ -15,6 +15,8 @@ export default class WebAPIClient {
     constructor(private client: DiscordClient, private app: express.Application) {
         this.bot = client.bot;
 
+        app.get("/api/v1/commands", swallowErrors(this.serveCommands));
+
         app.get("/api/v1/user", swallowErrors(this.serveUserProfile));
         app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
@@ -33,6 +35,18 @@ export default class WebAPIClient {
         app.delete("/api/v1/server/:id/role/:role", swallowErrors(this.deleteRole));
         app.post("/api/v1/server/:id/role/:role/link", swallowErrors(this.linkRoleWithDiscord));
     }
+
+    /**
+     * Serves a static list of all commands registered with the discord command handler,
+     * for documentation purposes on the website.
+     */
+    private serveCommands = async (req: express.Request, res: express.Response) => {
+        res.json(this.client.commands.map(cmd => ({
+            name: cmd.name,
+            description: cmd.description,
+            keywords: cmd.keywords
+        })));
+    };
 
     /**
      * Serves the user profile, with guilds they can manage and their accounts + settings.

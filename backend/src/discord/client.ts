@@ -40,7 +40,7 @@ const STATUSES: [number, string][] = [
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token, { maxShards: "auto" });
     public readonly updater = new Updater(this, this.riotAPI);
-    private commands: Command[] = [];
+    public readonly commands: Command[] = [];
     private responses: Response[] = [];
     private statusIndex = 0;
 
