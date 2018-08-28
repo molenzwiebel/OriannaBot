@@ -62,7 +62,7 @@ export default class PuppeteerController extends EventEmitter {
                     // Race between either the render or the timeout reject, whatever comes first.
                     await Promise.race([
                         this.doRender(file, options, resolve),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error("Puppeteer Render Timeout")), options.timeout))
+                        new Promise((_, reject) => setTimeout(() => reject(new Error("Puppeteer Render Timeout: " + file)), options.timeout))
                     ]);
                 } catch (e) {
                     reject(e);

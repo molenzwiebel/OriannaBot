@@ -309,7 +309,7 @@ export default class DiscordClient {
             error("%O", e);
 
             // Report to elastic, if enabled.
-            const incident = await elastic.reportError(e);
+            const incident = await elastic.reportError(e, "command handler");
             if (transaction) transaction.result = 404;
 
             await template.error({

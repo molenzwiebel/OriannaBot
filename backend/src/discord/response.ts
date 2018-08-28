@@ -173,13 +173,13 @@ export default class Response {
         // If this wasn't the one that triggered the message, and the reaction cannot be used by everyone, delete the reaction.
         // Reactions cannot be deleted in a PM, but that doesn't matter since this will always be false in a PM.
         if (userID !== this.user.id && this.globalReactions.indexOf(emoji.name) === -1) {
-            await message.removeReaction(emoji.name, userID);
+            await message.removeReaction(emoji.name, userID).catch(() => { /* Ignored, we probably don't have permissions. */ });
             return;
         }
 
         // Remove the reaction if we weren't in a PM.
         if (!(this.message.channel instanceof _eris.PrivateChannel)) {
-            await message.removeReaction(emoji.name, userID);
+            await message.removeReaction(emoji.name, userID).catch(() => { /* Ignored, we probably don't have permissions. */ });
         }
 
         // Call the callback
@@ -191,10 +191,10 @@ export default class Response {
      * @returns true if this response was deleted, false otherwise
      */
     public readonly onMessageDelete = async (msg: { id: string }) => {
-        if (!msg || !this.trigger) return false;
+        if (!msg || !this.trigger || !this.message) return false;
         if (msg.id !== this.trigger.id) return false;
 
-        await this.message.delete();
+        await this.message.delete().catch(() => { /* Ignored, we probably don't have permissions. */ });
         return true;
     };
 

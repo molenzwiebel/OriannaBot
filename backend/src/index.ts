@@ -27,7 +27,7 @@ const error = debug("orianna:error");
 
 process.on("unhandledRejection", (err: Error) => {
     error("Unhandled rejection: %O", err);
-    elastic.reportError(err);
+    elastic.reportError(err, "unhandled global rejection");
 });
 
 (async() => {

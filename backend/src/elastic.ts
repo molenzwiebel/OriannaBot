@@ -42,11 +42,15 @@ class ElasticClient {
      * Reports the specified object as an error. A custom ID will be generated for
      * the error and returned back, so it can be attached to the error message.
      */
-    reportError(err: any): string | null {
+    reportError(err: any, from: string): string | null {
         if (!config.elastic.enabled) return null;
 
         const errorId = randomBytes(16).toString("hex");
-        this.apm.captureError(err, { custom: { incident: errorId } });
+        this.apm.captureError(err, { custom: {
+            incident: errorId,
+            from,
+            reportStack: new Error().stack
+        } });
         return errorId;
     }
 

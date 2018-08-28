@@ -245,7 +245,7 @@ export default class WebAPIClient {
 
         // If the channel hasn't been marked as blacklisted already, add it.
         await server.$loadRelated("blacklisted_channels");
-        if (!server.blacklisted_channels!.some(x => x.snowflake === req.body.channel)) {
+        if (!server.blacklisted_channels!.some(x => x.snowflake === req.body.channel) && req.body.channel) {
             await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").insert({
                 snowflake: req.body.channel
             });

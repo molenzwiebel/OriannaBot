@@ -39,7 +39,7 @@ export default function register(app: express.Application, client: DiscordClient
             res.cookie("token", user.token);
             return res.redirect("/me");
         } catch (err) {
-            elastic.reportError(err);
+            elastic.reportError(err, "discord auth handling");
 
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }

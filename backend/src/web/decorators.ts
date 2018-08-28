@@ -53,7 +53,7 @@ export function swallowErrors(fn: ExpressRouteHandler) {
         } catch (e) {
             swallowErrorLog("Error handling %s %s: %s", req.method, req.url, e.message);
             swallowErrorLog("%o", e);
-            elastic.reportError(e);
+            elastic.reportError(e, "web request: " + req.url);
 
             try {
                 res.status(500).send();

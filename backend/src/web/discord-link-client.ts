@@ -87,7 +87,7 @@ export default function register(app: express.Application, client: DiscordClient
 
             res.send(`<head><script>window.opener.postMessage({ type: 'discord' }, '*')</script></head>`);
         } catch (err) {
-            elastic.reportError(err);
+            elastic.reportError(err, "discord importing handling");
 
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }

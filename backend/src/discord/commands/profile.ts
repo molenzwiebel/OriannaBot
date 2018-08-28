@@ -55,12 +55,9 @@ To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want
 
         const fields: { name: string, value: string, inline: boolean }[] = [{
             name: "Top Champions",
-            value: [
-                `${await champ(topMastery[0])} - **${amount(topMastery[0])}**`,
-                `${await champ(topMastery[1])} - **${amount(topMastery[1])}**`,
-                `${await champ(topMastery[2])} - **${amount(topMastery[2])}**`,
-                `${emote(ctx, "__")}`
-            ].join("\n"),
+            value: (await Promise.all(topMastery.slice(0, 3).map(async x =>
+                `${await champ(x)} - **${amount(x)}**`
+            ))).join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
             name: "Mastery Statistics",

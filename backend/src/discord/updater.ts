@@ -72,7 +72,7 @@ export default class Updater {
             logFetch("Error fetching or updating for user %s (%s): %s", user.username, user.snowflake, e.message);
             logFetch("%O", e);
 
-            elastic.reportError(e);
+            elastic.reportError(e, "fetchAndUpdateAll");
         }
     }
 
@@ -99,8 +99,7 @@ export default class Updater {
             logUpdate("Failed to update roles for user %s (%s): %s", user.username, user.snowflake, e.message);
             logUpdate("%O", e);
 
-            // Rethrow, something else will catch it.
-            throw e;
+            throw new Error("Failed to update roles for user: " + e.message);
         }
     }
 

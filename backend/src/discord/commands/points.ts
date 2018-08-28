@@ -19,7 +19,7 @@ Examples:
         // Remove the keywords since they can combine with champion names (e.g. **mastery i**relia).
         ctx.content = ctx.content.replace(/\b(points|mastery|score)\b/g, "");
 
-        const user = await expectUser(ctx);
+        const user = await expectUser(ctx);p
         await user.$loadRelated("[accounts, stats]");
 
         const champ = await expectChampion(ctx);
