@@ -41,7 +41,7 @@ export default class WebAPIClient {
      * for documentation purposes on the website.
      */
     private serveCommands = async (req: express.Request, res: express.Response) => {
-        res.json(this.client.commands.map(cmd => ({
+        res.json(this.client.commands.filter(x => !x.hideFromHelp).map(cmd => ({
             name: cmd.name,
             description: cmd.description,
             keywords: cmd.keywords
