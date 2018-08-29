@@ -49,6 +49,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "nida": "Nidalee",
     "noc": "Nocturne",
     "noct": "Nocturne",
+    "nunu": "Nunu", // they're nunu & willump, alias to make it easier
     "willump": "Nunu",
     "ori": "Orianna",
     "waifu": "Orianna", // :^)
