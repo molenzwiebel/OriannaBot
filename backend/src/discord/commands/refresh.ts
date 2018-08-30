@@ -5,14 +5,17 @@ const RefreshCommand: Command = {
     name: "Refresh",
     smallDescription: "Update your data and recalculate your roles.",
     description: `
-Contacts the Riot API to refresh all of your data. This command will:
-- Check if all of your accounts still exist.
-- Update your ranked tiers and amount of games played.
-- Update your champion mastery scores and levels.
+This command will manually trigger a full refresh of your mastery and ranked statistics across all of your linked accounts. In particular, the following things will be updated:
+- All your linked accounts will be checked for name changes or region transfers.
+- All your ranked tiers will be refreshed.
+- The amount of ranked games played across all accounts will be recounted.
+- All your champion mastery values and levels will be refreshed.
 
-After refreshing all of your data, Orianna will recalculate all of your roles across any server you share with her.
+After updating all values, Orianna will recompute your roles in every server you share with her, potentially adding or removing roles based on the new values.
 
-You are also periodically refreshed automatically by Orianna (usually once every 30-45 minutes). Use this command if you want to see new changes immediately.
+Note that you do not need to manually refresh. Orianna will periodically update your statistics automatically, so this command should only be used if you have any changes that you want to see immediately.
+
+If you want to refresh someone else's scores, simply mention them when invoking the command (e.g. \`@Orianna Bot refresh @b1nzy#0001\`).
 `.trim(),
     noTyping: true,
     keywords: ["refresh", "reload", "update", "recalculate"],

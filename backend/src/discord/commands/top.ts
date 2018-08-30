@@ -9,15 +9,37 @@ const TopCommand: Command = {
     name: "Show Leaderboards",
     smallDescription: "Show leaderboards and other neat statistics!",
     description: `
-This command can show a variety of leaderboards and statistics for users and champions alike. The basic usage is very simple:
-\`\`\`@Orianna Bot, who has the most points on <champion>?\`\`\`
-This will show a paginated leaderboard of all players registered with Orianna and their score on \`<champion>\`. \`<champion>\` can be any champion name or abbreviation. For example, \`@Orianna Bot top mf\` will show the leaderboards for \`Miss Fortune\`. If you are currently in a server that has specified a default champion for commands, you do not have to specify a champion at all.
+This command is capable of showing a variety of leaderboards and rankings, based on either your individual score or all people linked with Orianna.
 
-The above leaderboard can be limited to only players in the current server by including \`server\`. For example, \`@Orianna Bot top Orianna on this server\` will show the best Orianna players on the current server.
+**Champion Leaderboards**  
+The most common usage is to show a leaderboard of all user's top scores on a specified champion. To do so, simply use \`@Orianna Bot top <champion name>\`, where champion name is any champion or [abbreviation](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92).
 
-If you're more interested in the highest score, regardless of champion, you can include \`every\` to show a leaderboard of highest scores on a single champion (e.g. \`@Orianna Bot top every champion\`).
+If you do not specify a champion name, Orianna will fall back to the default champion in your current server, or show an error if the server has no champion setup.
 
-If you want to know the top champions for a specific user, you can do so too. Simply mention them in your message to look at their champion mastery scores. For example, \`@Orianna Bot top champions @molenzwiebel#2773\`. 
+To limit results to just people in the current Discord server, include \`server\` in your message.
+
+Examples:
+- \`@Orianna Bot top mf\` - shows top scores on Miss Fortune across all linked Orianna accounts
+- \`@Orianna Bot leaderboard\` - shows top scores on the server default champion across all linked Orianna accounts
+- \`@Orianna Bot top thresh server\` - shows the top scores on Thresh of all current server members
+
+**Overall Leaderboards**  
+To get a leaderboard of true champion fanatics, you can also get a leaderboard of all highest champion mastery scores regardless of champion. To do so, simply use \`@Orianna Bot top all\`. This command will show you all true champion fanatics, with millions of points invested into a single champion.
+
+To limit results to just people in the current Discord server, include \`server\` in your message.
+
+Examples:
+- \`@Orianna Bot top all champions\` - shows top scores of all users on any champion
+- \`@Orianna Bot top all champions in this server\` - shows top scores of all users in the current server on any champion
+
+**Personal Top Champions**  
+You can also see a leaderboard of your own personal mastery scores by adding \`me\` to the command. Doing so will show you a list of all your champion mastery values.
+
+To see the leaderboard of someone else, simply mention them in your message.
+
+Examples:
+- \`@Orianna Bot top me\` - shows your top champions
+- \`@Orianna Bot top @molenzwiebel\` - shows molenzwiebel's top champions
 `.trim(),
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
     async handler({ content, guild, ctx, msg, client, error }) {
@@ -66,8 +88,8 @@ If you want to know the top champions for a specific user, you can do so too. Si
         }
 
         // A player was mentioned, show their top.
-        if (msg.mentions.length) {
-            const user = await client.findOrCreateUser(msg.mentions[0].id);
+        if (msg.mentions.length || normalizedContent.includes(" me")) {
+            const user = await client.findOrCreateUser(msg.mentions.length ? msg.mentions[0].id : msg.author.id);
             await user.$loadRelated("[accounts, stats]");
 
             if (!user.accounts!.length) return error({

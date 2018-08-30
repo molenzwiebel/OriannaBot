@@ -7,7 +7,9 @@ const EditCommand: Command = {
     name: "Edit Profile",
     smallDescription: "Sends you a link to your personal profile settings page.",
     description: `
-This command will send you a single-use link to effortlessly log in and access [your personal settings page](https://orianna.molenzwiebel.xyz/me). These links are single-use and will expire after 24 hours.
+This command will send you a single-use link to your [personal online settings page](${config.web.url}/me) for managing and adding all League accounts linked to your Orianna Bot profile.
+
+For more information on your personal profile and how to set up your League commands, check out the [relevant documentation page](${config.web.url}/docs/link).
 `.trim(),
     keywords: ["edit", "config", "configure", "add", "remove"],
     noTyping: true,

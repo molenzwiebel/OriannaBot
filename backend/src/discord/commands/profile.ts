@@ -8,9 +8,15 @@ const ProfileCommand: Command = {
     name: "Show User Profile",
     smallDescription: "Show the League accounts and general statistics for a Discord user.",
     description: `
-This command shows a general overview of your Orianna Bot "profile", computed from data gathered from the accounts you have linked.
+This command shows you an overview of your Orianna Bot profile, computed from data gathered from all accounts you have linked from Orianna. To see your own profile, simply use \`@Orianna Bot profile\`.
 
-To view your own profile, simply use \`@Orianna Bot, show profile\`. If you want to view someone else's profile, you can simply include them in the mention (e.g. \`@Orianna Bot, show @molenzwiebel#2773's profile\`).
+To see someone else's profile instead, simply mention them in the message. Note that that user will have to have linked accounts with Orianna.
+
+If you would like to hide your ranked tiers or account usernames, you can do so by changing the privacy settings in your [web dashboard](https://orianna.molenzwiebel.xyz/me).
+
+Examples:
+- \`@Orianna Bot profile\` - shows your personal profile
+- \`@Orianna Bot profile @molenzwiebel\` - shows molenzwiebel's profile
 `.trim(),
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
     async handler({ msg, ctx, error, info, client }) {

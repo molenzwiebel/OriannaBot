@@ -6,13 +6,16 @@ const PointsCommand: Command = {
     name: "Show Mastery Points",
     smallDescription: "Show how many mastery points you have on a champion.",
     description: `
-Shows a user's mastery score on a certain champion. To specify a champion, simply include the champion name in the command. If no champion is specified, the server default is used. Most common abbreviations (e.g. \`lee\` for Lee Sin) will also work.
-To specify a user, simply mention them in the message. If no users are mentioned, your own score is shown instead.
+This command shows a user's mastery score on the specified champion.
+
+To choose a champion, simply include a champion name or [alias](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92) in your message. If no champion name is included, Orianna will fall back to the default champion of the current Discord server, or show an error message if there is no default champion configured.
+
+To see someone else's mastery, simply mention their name in the command.
 
 Examples:
-- @Orianna Bot, how many points do I have on mf?
-- @Orianna Bot, how much points does @user#1234 have on Lee Sin?
-- @Orianna Bot, how many points do I have?
+- \`@Orianna Bot points mf\` - shows your mastery on Miss Fortune
+- \`@Orianna Bot score lee @molenzwiebel\` - shows molenzwiebel's mastery on Lee Sin
+- \`@Orianna Bot mastery\` - shows your mastery on the default champion
 `.trim(),
     keywords: ["points", "mastery", "score"],
     async handler({ ctx, error, msg, ok }) {

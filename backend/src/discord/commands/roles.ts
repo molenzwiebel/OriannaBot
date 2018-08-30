@@ -11,6 +11,8 @@ const RolesCommand: Command = {
 Shows all the roles and their requirements as configured on the current Discord server. This will list all roles, along with an indication of whether or not you are currently eligible for them.
 
 Note that the same role might appear twice in the list with different requirements. If this is the case, you will receive the role if you are eligible for at least one of the "sets" of conditions.
+
+For more information on role conditions and how they work, check out the [documentation](https://orianna.molenzwiebel.xyz/docs/conditions).
 `.trim(),
     keywords: ["roles", "config", "ranks"],
     async handler({ guild, user: loadUser, server: loadServer, error, ctx }) {
