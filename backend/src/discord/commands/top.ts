@@ -12,7 +12,7 @@ const TopCommand: Command = {
 This command is capable of showing a variety of leaderboards and rankings, based on either your individual score or all people linked with Orianna.
 
 **Champion Leaderboards**  
-The most common usage is to show a leaderboard of all user's top scores on a specified champion. To do so, simply use \`@Orianna Bot top <champion name>\`, where champion name is any champion or [abbreviation](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92).
+The most common usage is to show a leaderboard of all user's top scores on a specified champion. To do so, simply use \`@Orianna Bot top <champion name>\`, where champion name is any champion or [abbreviation](https://bit.ly/2wwGVMi).
 
 If you do not specify a champion name, Orianna will fall back to the default champion in your current server, or show an error if the server has no champion setup.
 
@@ -20,7 +20,6 @@ To limit results to just people in the current Discord server, include \`server\
 
 Examples:
 - \`@Orianna Bot top mf\` - shows top scores on Miss Fortune across all linked Orianna accounts
-- \`@Orianna Bot leaderboard\` - shows top scores on the server default champion across all linked Orianna accounts
 - \`@Orianna Bot top thresh server\` - shows the top scores on Thresh of all current server members
 
 **Overall Leaderboards**  
@@ -30,7 +29,7 @@ To limit results to just people in the current Discord server, include \`server\
 
 Examples:
 - \`@Orianna Bot top all champions\` - shows top scores of all users on any champion
-- \`@Orianna Bot top all champions in this server\` - shows top scores of all users in the current server on any champion
+- \`@Orianna Bot top all champions in this server\` - shows top scores of all users in the current server
 
 **Personal Top Champions**  
 You can also see a leaderboard of your own personal mastery scores by adding \`me\` to the command. Doing so will show you a list of all your champion mastery values.

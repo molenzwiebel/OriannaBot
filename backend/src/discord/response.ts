@@ -112,7 +112,7 @@ export default class Response {
     removeAllOptions() {
         this.reactions.clear();
         this.globalReactions = [];
-        return this.message.removeReactions();
+        return this.message.removeReactions().catch(() => { /* Doesn't work in DMs */ });
     }
 
     /**
