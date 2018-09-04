@@ -47,7 +47,7 @@
     };
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
     title-width = 840px
 
     @import "./docs-common.styl"
@@ -71,7 +71,7 @@
             padding-bottom 0.3em
             border-bottom 1px solid #eaecef
 
-        & p, & li
+        & p, & li, & b
             font-size 1.05em
             line-height 1.3em
 
@@ -79,7 +79,7 @@
             font-size 0.8em
 
         & code
-            font-size 12px
+            font-size 14px
             color #f0506e
             white-space nowrap
             padding 2px 6px

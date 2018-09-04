@@ -1,8 +1,8 @@
 <template>
     <div class="docs">
         <div class="header">
-            <div class="title">Adding Orianna To Your Server</div>
-            <div class="subtitle"><i>"This is a fun game."</i></div>
+            <div class="title">Adding Your Account To Orianna</div>
+            <div class="subtitle"><i>"This is very exiting."</i></div>
         </div>
 
         <div class="body">

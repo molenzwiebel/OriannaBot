@@ -15,6 +15,9 @@ import ServerProfile from "./components/server/server.vue";
 
 import Docs from "./components/docs/docs.vue";
 import CommandDocs from "./components/docs/commands.vue";
+import LinkDocs from "./components/docs/link.vue";
+import SetupDocs from "./components/docs/setup.vue";
+import ConditionDocs from "./components/docs/conditions.vue";
 
 import ServerIntro from "./components/server-intro/server-intro.vue";
 import IntroMains from "./components/server-intro/intro-mains.vue";
@@ -42,6 +45,9 @@ const router = new VueRouter({
 
         { path: "/docs", component: Docs },
         { path: "/docs/commands", component: CommandDocs },
+        { path: "/docs/link", component: LinkDocs },
+        { path: "/docs/setup", component: SetupDocs },
+        { path: "/docs/conditions", component: ConditionDocs },
 
         { path: "/invite", beforeEnter: () => location.href = API_HOST + "/api/v1/discord-invite" },
         { path: "/me", component: UserProfile },
