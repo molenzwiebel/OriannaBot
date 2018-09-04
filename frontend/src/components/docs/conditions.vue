@@ -6,7 +6,9 @@
         </div>
 
         <div class="body">
-
+            <div class="content">
+                WIP. Check back soon!
+            </div>
         </div>
     </div>
 </template>
@@ -17,5 +19,11 @@
     @import "./docs-common.styl"
 
     .body
-        @import "./markdown-styles.styl"
+        .content
+            padding 10px
+            max-width title-width
+            margin 0 auto
+            font-family Roboto
+
+            @import "./markdown-styles.styl"
 </style>
