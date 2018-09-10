@@ -77,7 +77,7 @@ export default class RiotAPI {
                 beginIndex: i
             });
 
-            if (!games.matches.length) return rankedGames;
+            if (!games || !games.matches.length) return rankedGames;
             for (const game of games.matches) {
                 // If we only have stale games left, stop.
                 if (game.timestamp < timestamp || game.season < minSeason) return rankedGames;

@@ -44,6 +44,15 @@ Examples:
     async handler({ content, guild, ctx, msg, client, error }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
+
+        // You'd think that nobody is dumb enough to do this, but there are people.
+        if (serverOnly && !guild) {
+            return error({
+                title: "❓ What Are You Doing?!?!",
+                description: "Limiting leaderboards to only members in the current server while you send me a DM is a bit weird, don't you think? Consider removing `server` from your command."
+            });
+        }
+
         // If we filter on server only, collect the user ids of everyone in the server.
         // This is fairly expensive, but less expensive than filtering post-query.
         const serverIds = serverOnly ? (await User

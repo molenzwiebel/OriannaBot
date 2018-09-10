@@ -468,6 +468,6 @@ export default class Updater {
                     icon_url: user.avatarURL
                 }
             }
-        }, { file: image, name: "promotion.gif" });
+        }, { file: image, name: "promotion.gif" }).catch(() => { /* We don't care. */ });
     }
 }

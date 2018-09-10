@@ -125,9 +125,16 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
 export function emote({ bot }: CommandContext, name: string | riot.Champion) {
     if (typeof name !== "string") name = name.name.replace(/\W/g, "");
 
-    const servers = config.discord.emoteServers.map(x => bot.guilds.get(x)!);
+    const servers = config.discord.emoteServers.map(x => bot.guilds.get(x)!).filter(x => !!x);
     const allEmotes = (<eris.Emoji[]>[]).concat(...servers.map(x => x.emojis));
 
     const emote = allEmotes.find(x => x.name === name) || allEmotes.find(x => x.name === "Missing_Champion")!;
-    return "<:" + emote.name + ":" + (<any>emote).id + ">";
+
+    if (emote) {
+        return "<:" + emote.name + ":" + (<any>emote).id + ">";
+    } else {
+        // Most likely the emote servers are down. Return
+        // something so we don't crash.
+        return "❓";
+    }
 }

@@ -32,7 +32,7 @@ export default function register(app: express.Application, riot: RiotAPI, update
 
             // Ask for the accounts linked to that reddit account.
             const accountsReq = await fetch("http://flairs.championmains.com/api/user-summoners?username=" + username);
-            const accounts: { region: string, name: string }[] = (await accountsReq.json()).result || [];
+            const accounts: { region: string, name: string }[] = accountsReq.status === 200 ? (await accountsReq.json()).result || [] : [];
 
             for (const acc of accounts) {
                 const summ = await riot.getSummonerByName(acc.region, acc.name);
