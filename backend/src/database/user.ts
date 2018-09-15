@@ -88,7 +88,13 @@ export default class User extends Model {
      */
     get avatarURL(): string {
         if (this.avatar === "none") return "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";
-        return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.png`;
+
+        // If this is an animated avatar...
+        if (this.avatar.indexOf("a_") === 0) {
+            return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.gif`;
+        } else {
+            return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.png`;
+        }
     }
 
     /**
