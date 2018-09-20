@@ -223,6 +223,35 @@ export default class DiscordClient {
             .replace(new RegExp(`<@!?${this.bot.user.id}>`, "g"), "")
             .replace(/\s+/g, " ").trim();
         msg.mentions = msg.mentions.filter(x => x.id !== this.bot.user.id);
+
+        // Treat any ID and user#1111 inside the content as mentions as well.
+        content.replace(/\d{16,}/g, (match) => {
+            const user = this.bot.users.get(match);
+            if (user && !msg.mentions.find(x => x.id === user.id)) msg.mentions.push(user);
+            return "";
+        });
+
+        // AAA#0000 mentions are a bit more effort since a command like `@Ori top Some User#1234` is ambiguous between
+        // "Some User#1234", "User#1234" and even "top Some User#1234". We use a hacky solution by instead relying on finding
+        // all users with the discriminator, then find the user whose name is contained inside the message, prefering longer
+        // matches over shorter ones (User#1234 > er#1234)
+        content.replace(/\b(.*)#(\d{4})\b/g, (_, username, discrim) => {
+            const usersWithDiscrim = this.bot.users.filter(x => x.discriminator === discrim);
+
+            const bestUser = usersWithDiscrim.reduce<eris.User | null>((prev, cur) => {
+                // If the username of this user is not in the query, continue.
+                if (!username.includes(cur.username)) return prev;
+
+                // If this is the first match, just return it.
+                if (!prev) return cur;
+
+                return prev.username.length >= cur.username.length ? prev : cur;
+            }, null);
+
+            if (bestUser && !msg.mentions.find(x => x.id === bestUser.id)) msg.mentions.push(bestUser);
+            return "";
+        });
+
         const words = content.toLowerCase().split(" ");
 
         // Find a command that is matched.
