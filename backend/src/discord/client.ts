@@ -45,6 +45,7 @@ export default class DiscordClient {
     public readonly commands: Command[] = [];
     private responses: Response[] = [];
     private statusIndex = 0;
+    private presenceTimeouts = new Map<string, number>();
 
     constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {}
 
@@ -463,6 +464,9 @@ export default class DiscordClient {
             const user = await User.query().where("snowflake", other.id).eager("accounts").first();
             if (!user || !user.accounts!.length) return;
 
+            // If we've recently processed something from this user, abort.
+            if (this.presenceTimeouts.has(user.snowflake) && Date.now() < this.presenceTimeouts.get(user.snowflake)!) return;
+
             info(
                 "User %s (%s) got out of a League game according to their presence, queueing an update. They were ingame for %im%is",
                 user.username,
@@ -471,9 +475,11 @@ export default class DiscordClient {
                 timeInSec % 60
             );
 
+            // Ensure that we rate limit this user. Process another update in 10 minutes.
+            this.presenceTimeouts.set(user.snowflake, Date.now() + 1000 * 60 * 10);
+
             // Artifically modify the last update timestamps of this user to ensure that they
-            // get included in the next cycle. This also prevents the issue of presence updates
-            // firing twice: they happen before the next cycle so we don't update them twice.
+            // get included in the next cycle.
             await user.$query().patch({
                 // Set the last update timestamp to a day ago. Should be enough to guarantee inclusion.
                 last_score_update_timestamp: "" + (Date.now() - 1000 * 60 * 60 * 24),
