@@ -19,6 +19,8 @@ const HELP_REACTION = "❓";
 const HELP_INDEX_REACTION = "🔖";
 const MUTE_REACTION = "🔇";
 
+const LOL_APPLICATION_ID = "401518684763586560";
+
 const STATUSES: [number, string][] = [
     [0, "on-hit Orianna"],
     [0, "with the Ball"],
@@ -70,6 +72,7 @@ export default class DiscordClient {
         this.bot.on("guildUpdate", this.handleGuildUpdate);
         this.bot.on("userUpdate", this.handleUserUpdate);
         this.bot.on("guildMemberAdd", this.handleGuildMemberAdd);
+        this.bot.on("presenceUpdate", this.handlePresenceUpdate);
 
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
         const formatStatus = (stat: string) => {
@@ -425,6 +428,58 @@ export default class DiscordClient {
                 avatar: user.avatar || "none"
             })
         .execute();
+    };
+
+    /**
+     * Potentially queues an update for the specified user if their discord presence
+     * has just gone from Rich Presence Ingame to out of game.
+     */
+    private handlePresenceUpdate = async (other: eris.Member | eris.Relationship, oldPresence?: eris.OldPresence) => {
+        // If there was no old game, or if the old game was not League, abort.
+        if (
+            !oldPresence                                                        // no old presence cached
+            || !oldPresence.game                                                // not playing a game
+            || (<any>oldPresence.game).application_id !== LOL_APPLICATION_ID    // the old game wasn't league
+            || !(<any>oldPresence.game).assets                                  // the league game didn't have assets
+            || !(<any>oldPresence.game).assets.large_text                       // the league presence didn't have the name of a champion
+            || !(<any>oldPresence.game).timestamps                              // the league presence didn't have timestamps
+            || !(<any>oldPresence.game).timestamps.start                        // the league presence didn't have a start timestamp.
+        ) return;
+
+        // The user got out of game if:
+        // - They used to have league as a presence, and don't have league now.
+        // - Or: They used to have ingame with a specific champion, and are just in a lobby now.
+        const newPresenceIsLeague = other.game && (<any>other.game).application_id === LOL_APPLICATION_ID;
+        const noLongerIngame = newPresenceIsLeague && (<any>other.game).assets && !(<any>other.game).assets.large_text;
+
+        // If the new presence isn't league, or if we're no longer in game, check if we should update this user.
+        if (!newPresenceIsLeague || noLongerIngame) {
+            // If they were in game for less than 15 minutes, it is probably a false alarm and we should ignore it.
+            const timeIngame = Date.now() - (<any>oldPresence.game).timestamps.start;
+            const timeInSec = timeIngame / 1000;
+            if (timeInSec < 900) return;
+
+            // If this user has no accounts, abort as well.
+            const user = await User.query().where("snowflake", other.id).eager("accounts").first();
+            if (!user || !user.accounts!.length) return;
+
+            info(
+                "User %s (%s) got out of a League game according to their presence, queueing an update. They were ingame for %im%is",
+                user.username,
+                user.snowflake,
+                Math.floor(timeInSec / 60),
+                timeInSec % 60
+            );
+
+            // Artifically modify the last update timestamps of this user to ensure that they
+            // get included in the next cycle. This also prevents the issue of presence updates
+            // firing twice: they happen before the next cycle so we don't update them twice.
+            await user.$query().patch({
+                // Set the last update timestamp to a day ago. Should be enough to guarantee inclusion.
+                last_score_update_timestamp: "" + (Date.now() - 1000 * 60 * 60 * 24),
+                last_rank_update_timestamp: "" + (Date.now() - 1000 * 60 * 60 * 24)
+            });
+        }
     };
 
     /**
