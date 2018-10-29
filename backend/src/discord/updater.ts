@@ -459,7 +459,6 @@ export default class Updater {
 
         // Send image!
         announceChannel.createMessage({
-            content: `<@!${user.snowflake}>`,
             embed: {
                 color: 0x49bd1a,
                 timestamp: new Date().toISOString(),
