@@ -71,3 +71,12 @@ export type TypedRoleCondition =
     | RankedTierCondition
     | ChampionPlayCountCondition
     | ServerCondition;
+
+export type RoleCombinator = {
+    type: "all"
+} | {
+    type: "any"
+} | {
+    type: "at_least",
+    amount: number
+};

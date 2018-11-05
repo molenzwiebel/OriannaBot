@@ -1,12 +1,17 @@
 import { Model, Pojo } from "objection";
 import * as decorators from "../util/objection";
-import { evaluateRangeCondition, RankedTierCondition, TypedRoleCondition } from "../types/conditions";
+import { evaluateRangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../types/conditions";
 import User, { UserRank } from "./user";
 import config from "../config";
 import omit = require("lodash.omit");
 
 @decorators.table("roles")
 export default class Role extends Model {
+    /**
+     * Ensure that the combinator is JSON (de)serialized.
+     */
+    static jsonAttributes = ["combinator"];
+
     /**
      * Unique incremented ID for this role.
      */
@@ -34,6 +39,11 @@ export default class Role extends Model {
     server_id: number;
 
     /**
+     * What combinator should be used for testing eligibility for this role.
+     */
+    combinator: RoleCombinator;
+
+    /**
      * Optionally eager-loaded conditions.
      */
     conditions?: RoleCondition[];
@@ -43,10 +53,29 @@ export default class Role extends Model {
      * The user must have its accounts, scores and tiers loaded already.
      */
     test(user: User): boolean {
+        // Error if conditions are not loaded.
         if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
+
+        // Roles without conditions should never assign. This is to prevent
+        // people from getting the role while the user is busy adding conditions.
         if (!this.conditions.length) return false;
 
-        return !this.conditions.some(x => !x.test(user));
+        // Test how many conditions are true.
+        const valid = this.conditions.filter(x => x.test(user));
+
+        // Now, based on the combinator, return an answer.
+        if (this.combinator.type === "all") {
+            // Every condition needs to be valid.
+            return valid.length === this.conditions.length;
+        } else if (this.combinator.type === "any") {
+            // At least one.
+            return valid.length >= 1;
+        } else if (this.combinator.type === "at_least") {
+            // At least N.
+            return valid.length >= this.combinator.amount;
+        }
+
+        throw new Error("Invalid combinator type: " + this.combinator);
     }
 
     /**

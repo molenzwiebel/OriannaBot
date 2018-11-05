@@ -1,5 +1,5 @@
 import { Command } from "../command";
-import { RangeCondition, RankedTierCondition, TypedRoleCondition } from "../../types/conditions";
+import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
 import StaticData from "../../riot/static-data";
 import { emote, paginate } from "./util";
 import config from "../../config";
@@ -41,10 +41,12 @@ For more information on role conditions and how they work, check out the [docume
             if (range.compare_type === "exactly") return "of exactly " + range.value.toLocaleString();
             return "between " + range.min.toLocaleString() + " and " + range.max.toLocaleString()
         };
+
         const formatChampion = async (id: number) => {
             const champ = await StaticData.championById(id);
             return emote(ctx, champ) + " " + champ.name;
         };
+
         const formatRanked = (cond: RankedTierCondition) => {
             const tier = cond.options.tier === 0 ? "Unranked" : capitalize(config.riot.tiers[cond.options.tier - 1].toLowerCase());
             const queue = config.riot.rankedQueues[cond.options.queue];
@@ -63,14 +65,34 @@ For more information on role conditions and how they work, check out the [docume
             throw new Error("Unknown condition type: " + JSON.stringify(cond));
         };
 
-        const roleFields = await Promise.all(server.roles!.map(async x => ({
-            name: x.name,
-            value: (await Promise.all(x.conditions!.map(async x => sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x)))).join("\n") || "_No Conditions_"
-        })));
+        const formatCombinator = (comb: RoleCombinator) => {
+            if (comb.type === "all") return "**All must match:**";
+            if (comb.type === "any") return "**Any must match:**";
+            if (comb.type === "at_least") return "**At least " + comb.amount.toLocaleString() + " must match:**";
+
+            // Should never happen.
+            throw new Error("Unknown combinator type: " + JSON.stringify(comb));
+        };
+
+        const roleFields = await Promise.all(server.roles!.map(async x => {
+            if (!x.conditions || !x.conditions.length) return {
+                name: x.name,
+                value: "_No Conditions_"
+            };
+
+            const conditions = await Promise.all(x.conditions.map(async x => {
+                return sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x);
+            }));
+
+            return {
+                name: x.name,
+                value: conditions.length === 1 ? conditions[0] : (formatCombinator(x.combinator) + "\n" + conditions.join("\n"))
+            };
+        }));
 
         return paginate(ctx, roleFields, {
             title: "📖 Server Roles",
-            description: "The following roles are configured on this server. You will only receive a role if you are eligible for all conditions within the role."
+            description: "The following roles are configured on this server:"
         }, 6);
     }
 };

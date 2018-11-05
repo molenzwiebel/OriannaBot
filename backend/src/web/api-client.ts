@@ -409,6 +409,11 @@ export default class WebAPIClient {
         if (!this.validate({
             name: Joi.string(),
             announce: Joi.boolean(),
+            combinator: [
+                { type: "all" },
+                { type: "any" },
+                { type: "at_least", amount: Joi.number().required() },
+            ],
             conditions: Joi.array().items({
                 type: Joi.string(),
                 options: Joi.object()
@@ -418,7 +423,8 @@ export default class WebAPIClient {
         // Update role announce.
         await role.$query().update({
             announce: req.body.announce,
-            name: req.body.name
+            name: req.body.name,
+            combinator: req.body.combinator
         });
 
         // Drop all old conditions.
