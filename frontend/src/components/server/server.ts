@@ -6,6 +6,15 @@ import RoleConditions from "../role-tree/role-conditions.vue";
 import { default as RoleConditionsTy } from "../role-tree/role-conditions";
 import PresetsModal from "../presets/presets.vue";
 
+export type RoleCombinator = {
+    type: "all"
+} | {
+    type: "one"
+} | {
+    type: "at_least",
+    amount: number
+};
+
 export interface Role {
     id: number;
     name: string;
@@ -15,6 +24,7 @@ export interface Role {
         type: string;
         options: any;
     }[];
+    combinator: RoleCombinator;
 }
 
 export interface DiscordRole {

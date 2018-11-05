@@ -39,7 +39,10 @@
         </div>
 
         <div class="body" v-if="expanded">
-            <span class="body-header">Conditions <i class="ion-help-circled" title="A user is eligible for a role if they apply for ALL of the conditions listed below." v-tippy></i></span>
+            <div class="body-header">
+                <span class="left">Conditions</span>
+                <span class="right"><combinator v-model="role.combinator"></combinator></span>
+            </div>
 
             <div class="no-conditions" v-if="!conditions.length">
                 <b>This role has no conditions.</b> It will not be assigned to anyone until you add some conditions. <a href="#" @click.prevent="addCondition">Add a condition?</a>
@@ -127,11 +130,16 @@
 
             .body-header
                 font-size 18px
-                padding 10px 5px
+                padding 10px 10px
                 font-weight 700
                 width 100%
                 border-bottom 1px solid #f1f1f1
-                display inline-block
+                display flex
+                align-items center
+
+                .left
+                    flex 1
+                    font-size 1.2em
 
             .body-header ~ .body-header
                 padding-top 25px

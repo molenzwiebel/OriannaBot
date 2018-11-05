@@ -5,9 +5,10 @@ import Dialog from "../dialog/dialog.vue";
 import RenameModal from "./rename-modal.vue";
 import { Role, DiscordRole } from "../server/server";
 import Tree from "./tree.vue";
+import Combinator from "./combinator.vue";
 
 @Component({
-    components: { Tree },
+    components: { Tree, Combinator },
     props: {
         role: Object,
         highest: Number,
@@ -30,6 +31,12 @@ export default class RoleConditions extends Vue {
             valid: true,
             opts: { type: x.type, ...x.options }
         }));
+
+        // If the combinator changes, mark as dirty (may not 100% be correct).
+        this.$watch(() => JSON.stringify(this.role.combinator), () => {
+            this.dirty = true;
+            this.$emit("dirty");
+        });
     }
 
     private handleChange(state: { valid: boolean, options: any }, condition: { valid: boolean, opts: any }) {
@@ -99,6 +106,10 @@ export default class RoleConditions extends Vue {
         await this.$root.submit("/api/v1/server/" + this.$route.params.id + "/role/" + this.role.id, "POST", {
             name: this.role.name,
             announce: this.role.announce,
+            combinator: this.role.combinator.type === "at_least" ? {
+                type: "at_least",
+                amount: +this.role.combinator.amount
+            } : { type: this.role.combinator.type },
             conditions: this.conditions.map(x => ({
                 type: x.opts.type,
                 options: { ...x.opts, type: undefined }
