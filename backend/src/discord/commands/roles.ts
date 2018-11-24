@@ -74,7 +74,7 @@ For more information on role conditions and how they work, check out the [docume
             throw new Error("Unknown combinator type: " + JSON.stringify(comb));
         };
 
-        const roleFields = await Promise.all(server.roles!.map(async x => {
+        const roleFields = [].concat(...<any>await Promise.all(server.roles!.map(async x => {
             if (!x.conditions || !x.conditions.length) return {
                 name: x.name,
                 value: "_No Conditions_"
@@ -84,12 +84,25 @@ For more information on role conditions and how they work, check out the [docume
                 return sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x);
             }));
 
-            return {
-                name: x.name,
-                value: conditions.length === 1 ? conditions[0] : (formatCombinator(x.combinator) + "\n" + conditions.join("\n"))
-            };
-        }));
+            // Group conditions per 5, to prevent exceeding the 1024 character limit
+            // for a single embed value. This actually happened in the wild, because someone
+            // went _wild_ with their conditions. My fault for giving them so much options,
+            // I guess. ;)
+            const fields = [];
+            for (let i = 0; i < conditions.length; i += 5) {
+                const conditionLines = conditions.slice(i, i + 5);
 
+                fields.push({
+                    name: x.name + (i > 0 ? " (Continued)" : ""),
+                    value: i > 0
+                        ? conditionLines.join("\n")
+                        : (conditionLines.length === 1 ? conditionLines[0] : (formatCombinator(x.combinator) + "\n" + conditionLines.join("\n")))
+                });
+            }
+
+            return fields;
+        })));
+        
         return paginate(ctx, roleFields, {
             title: "📖 Server Roles",
             description: "The following roles are configured on this server:"
