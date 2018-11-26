@@ -26,7 +26,7 @@
                         <input :class="detailsError && 'errored'" type="text" v-model="name" placeholder="Summoner Name">
                     </div>
 
-                    <span class="details-error">{{ detailsError }}</span>
+                    <span class="details-error" v-html="detailsError"></span>
                 </tab-content>
                 <tab-content title="Verification" :before-change="verifySummoner">
                     <div class="verification-step" v-if="summoner">
@@ -71,10 +71,9 @@
         .details-error
             width 100%
             display block
-            text-align right
             font-size 14px
             padding 10px
-            padding-right 0
+            padding-left 0
             color red
 
         .verification-step

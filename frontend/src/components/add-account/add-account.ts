@@ -51,12 +51,18 @@ export default class AddAccountWizard extends Vue {
         });
 
         if (!summ) {
-            this.detailsError = "Summoner not found. Use your summoner name, not login name.";
+            this.detailsError = "Summoner not found. Make sure to use your summoner name, not your login name.";
             throw new Error("");
         }
 
         if (summ.taken) {
-            this.detailsError = "This account is already linked with a different Discord account. Please contact @molenzwiebel#2773 if you think this is an error.";
+            this.detailsError = `
+This account is already linked with a different Discord account. To prevent abuse, a League account can only be connected to one Discord account at a time.<br><br>
+
+If you previously linked this account to a different Discord that you still have access to, you can simply log in and remove the League account from your old Orianna profile.<br><br>
+
+If you did not add this account to an Orianna Bot profile, or if you do not have access to the old Discord account, please message @molenzwiebel#2773 on Discord with the summoner name and region of the account you are trying to add.
+`.trim();
             throw new Error("");
         }
 
