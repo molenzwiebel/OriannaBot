@@ -29,11 +29,7 @@ export default class RiotAPI {
      * @returns the summoner for the specified summoner id in the specified region, or null if not found
      */
     async getSummonerById(region: string, summonerId: string): Promise<riot.Summoner | null> {
-        try {
-            return await this.teemo.get(platform(region), "summoner.getBySummonerId", "" + summonerId);
-        } catch (e) {
-            return null;
-        }
+        return this.teemo.get(platform(region), "summoner.getBySummonerId", "" + summonerId);
     }
 
     /**
