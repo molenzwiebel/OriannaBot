@@ -2,8 +2,9 @@
 namespace riot {
     export interface Summoner {
         name: string;
-        id: number;
-        accountId: number;
+        id: string;
+        accountId: string;
+        puuid: string;
         profileIconId: number;
     }
 

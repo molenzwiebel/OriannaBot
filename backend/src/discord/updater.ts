@@ -392,7 +392,7 @@ export default class Updater {
             const summoner = await this.riotAPI.getSummonerById(account.region, account.summoner_id);
 
             if (!summoner) {
-                logAccounts("User %s (%s) seems to have transferred account %s - %s (%i)", user.username, user.snowflake, account.region, account.username, account.summoner_id);
+                logAccounts("User %s (%s) seems to have transferred account %s - %s (%s)", user.username, user.snowflake, account.region, account.username, account.summoner_id);
 
                 // Delete the account.
                 await account.$query().delete();

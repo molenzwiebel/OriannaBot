@@ -1,7 +1,7 @@
 {
     "riot": {
         "apiKey": "<<riot games API key>>",
-        "tiers": ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHALLENGER"],
+        "tiers": ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"],
         "rankedQueues": {
             "RANKED_SOLO_5x5": "Ranked Solo/Duo",
             "RANKED_FLEX_SR": "Ranked Flex 5v5",
