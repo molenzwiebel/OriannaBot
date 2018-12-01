@@ -2227,9 +2227,9 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-teemojs@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/teemojs/-/teemojs-1.2.0.tgz#2ab62a5790842043caee3ad8290b8cb00b7fb61b"
+teemojs@^1.3.0-alpha0:
+  version "1.3.0-alpha0"
+  resolved "https://registry.yarnpkg.com/teemojs/-/teemojs-1.3.0-alpha0.tgz#cc0c83d495a7e54c2f9937be8bab9aa8396b8ba0"
   dependencies:
     request "^2.81.0"
     request-promise-native "^1.0.4"
