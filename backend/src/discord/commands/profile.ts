@@ -47,12 +47,14 @@ Examples:
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
             "UNRANKED": "Unranked" + emote(ctx, "__"),
+            "IRON": `${emote(ctx, "Iron")} Iron`,
             "BRONZE": `${emote(ctx, "Bronze")} Bronze`,
             "SILVER": `${emote(ctx, "Silver")} Silver`,
             "GOLD": `${emote(ctx, "Gold")} Gold`,
             "PLATINUM": `${emote(ctx, "Platinum")} Platinum`,
             "DIAMOND": `${emote(ctx, "Diamond")} Diamond`,
             "MASTER": `${emote(ctx, "Master")} Master`,
+            "GRANDMASTER": `${emote(ctx, "Grandmaster")} Grandmaster`,
             "CHALLENGER": `${emote(ctx, "Challenger")} Challenger`
         })[rank];
         const queueRank = (queue: string) =>
