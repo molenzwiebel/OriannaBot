@@ -82,10 +82,10 @@ export default class Role extends Model {
      * Finds a champion in the set of requirements for this role, to be displayed
      * in the promotion image, _if_ one exists.
      */
-    findChampion(): number | null {
+    findChampionFor(user: User): number | null {
         if (typeof this.conditions === "undefined") throw new Error("Conditions must be loaded.");
 
-        const cond = this.conditions.find(x => !!x.options.champion);
+        const cond = this.conditions.find(x => !!x.options.champion && x.test(user));
         return cond ? cond.options.champion : null;
     }
 

@@ -435,7 +435,7 @@ export default class Updater {
         logUpdate("Announcing promotion for %s (%s) to %s on %s (%s)", user.username, user.snowflake, role.name, guild.name, guild.id);
 
         // Figure out what images to show for the promotion.
-        const champion = role.findChampion();
+        const champion = role.findChampionFor(user);
         const championIcon = champion ? await StaticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
         const championBg = champion ? await StaticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
 
