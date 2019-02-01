@@ -4,8 +4,9 @@ interface Configuration {
     riot: {
         apiKey: string;
         tiers: string[];
+        refreshToken: string;
         rankedQueues: { [key: string]: string };
-        rankedGameCountSeasons: number[];
+        rankedGameSeasonStartTimestamp: number;
         rankedGameCountQueues: number[];
     };
     discord: {

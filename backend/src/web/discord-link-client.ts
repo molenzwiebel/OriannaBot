@@ -4,6 +4,7 @@ import config from "../config";
 import DiscordClient from "../discord/client";
 import { requireAuth } from "./decorators";
 import elastic from "../elastic";
+import { platform } from "../riot/api";
 
 interface Connection {
     id: string;
@@ -37,6 +38,27 @@ const regions = new Map([
     ["kr", "KR"],
     ["kr1", "KR"]
 ]);
+
+async function findSummonerName(region: string, summonerId: number): Promise<string | null> {
+    const accessToken: { access_token: string } = await fetch("https://auth.riotgames.com/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `grant_type=refresh_token&refresh_token=${config.riot.refreshToken}&redirect_uri=http%3A%2F%2Flocalhost%2Foauth2-callback&client_id=leagueconnect&client_secret=amVYw7iK_qSaGUNqxRvzgs16EMgdEUdu1mDVdMNJDC4`
+    }).then(x => x.json());
+
+    const account: { name: string } = await fetch(`https://${platform(region)}.api.riotgames.com/summonercore/v1/regions/${platform(region)}/summoners/summoner-ids`, {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + accessToken.access_token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify([summonerId])
+    }).then(x => x.json());
+
+    return account && account.name ? account.name : null;
+}
 
 export default function register(app: express.Application, client: DiscordClient) {
     const redirectUrl = config.web.url + "/api/v1/discord-link/callback";
@@ -75,7 +97,10 @@ export default function register(app: express.Application, client: DiscordClient
 
                 try {
                     const region = regions.get(parts[0].toLowerCase())!;
-                    const summ = await client.riotAPI.getSummonerById(region, parts[1]);
+                    const summonerName = await findSummonerName(region, +parts[1]);
+                    if (!summonerName) continue;
+                    
+                    const summ = await client.riotAPI.getSummonerByName(region, summonerName);
                     if (!summ) continue;
 
                     await req.user.addAccount(region, summ);

@@ -65,7 +65,6 @@ export default class RiotAPI {
      */
     async findRankedGamesAfter(region: string, accountId: string, timestamp: number): Promise<riot.MatchEntry[]> {
         const rankedGames = [];
-        const minSeason = Math.min(...config.riot.rankedGameCountSeasons);
 
         for (let i = 0; true; i += 100) {
             // Load games 100 at a time until we have all games.
@@ -76,10 +75,10 @@ export default class RiotAPI {
             if (!games || !games.matches.length) return rankedGames;
             for (const game of games.matches) {
                 // If we only have stale games left, stop.
-                if (game.timestamp < timestamp || game.season < minSeason) return rankedGames;
+                if (game.timestamp < timestamp || game.timestamp < config.riot.rankedGameSeasonStartTimestamp) return rankedGames;
 
                 // If this is a valid game, add it to the list.
-                if (config.riot.rankedGameCountQueues.includes(game.queue) && config.riot.rankedGameCountSeasons.includes(game.season)) {
+                if (config.riot.rankedGameCountQueues.includes(game.queue)) {
                     rankedGames.push(game);
                 }
             }
@@ -90,7 +89,7 @@ export default class RiotAPI {
 /**
  * @returns the platform ID for the specified region
  */
-function platform(region: string): string {
+export function platform(region: string): string {
     return (<{ [key: string]: string }>{
         "br": "BR1",
         "eune": "EUN1",
