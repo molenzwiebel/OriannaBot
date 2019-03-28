@@ -6,7 +6,7 @@
 
                 <div class="actions" v-if="user.accounts.length">
                     <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
-                    <a class="small-button" @click.prevent="importDiscordAccounts" href="#">Import From <i class="discord-logo"></i></a>
+                    <a class="small-button" disabled title="Due to a change in Riot's API, importing from Discord is (temporarily) disabled." v-tippy href="#">Import From <i class="discord-logo"></i></a>
                     <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                     <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score:</p>
                     <div class="actions">
                         <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
-                        <a class="small-button" @click.prevent="importDiscordAccounts" href="#">Import From <i class="discord-logo"></i></a>
+                        <a class="small-button" disabled title="Due to a change in Riot's API, importing from Discord is (temporarily) disabled." v-tippy href="#">Import From <i class="discord-logo"></i></a>
                         <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                     </div>
                 </div>
