@@ -45,6 +45,7 @@ interface Configuration {
     } };
     db: ConnectionConfig;
     ffmpeg: string;
+    dblToken: string;
 }
 
 const config: Configuration = require("../config.json");

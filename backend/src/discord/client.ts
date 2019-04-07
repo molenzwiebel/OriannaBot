@@ -10,6 +10,7 @@ import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
 import { randomBytes } from "crypto";
 import elastic from "../elastic";
+import * as DBL from "dblapi.js";
 import { Commit, getLastCommit } from "git-last-commit";
 
 const info = debug("orianna:discord");
@@ -47,7 +48,13 @@ export default class DiscordClient {
     private statusIndex = 0;
     private presenceTimeouts = new Map<string, number>();
 
-    constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {}
+    constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {
+        const dbl = new DBL(config.dblToken, this.bot);
+
+        dbl.on("posted", () => {
+            info("DBL statistics successfully posted.");
+        });
+    }
 
     /**
      * Adds a new command to this DiscordClient instance.

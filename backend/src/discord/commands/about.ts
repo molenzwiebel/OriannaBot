@@ -27,11 +27,11 @@ const AboutCommand: Command = {
                 inline: true
             }, {
                 name: "Channels",
-                value: Object.keys(bot.channelGuildMap).length.toLocaleString(),
+                value: bot.guilds.map(x => x).reduce((p, c) => p + c.channels.size, 0).toLocaleString(),
                 inline: true
             }, {
                 name: "Users",
-                value: bot.users.size.toLocaleString(),
+                value: bot.guilds.map(x => x).reduce((p, c) => p + c.memberCount, 0).toLocaleString(),
                 inline: true
             }, {
                 name: "Memory Usage",
