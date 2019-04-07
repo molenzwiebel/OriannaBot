@@ -19,7 +19,7 @@ export default function register(app: express.Application, riot: RiotAPI, update
 
         if (!req.query.code || req.query.error) return ret({ ok: false, error: req.query.error });
         try {
-            const reddit = await snoowrap.fromAuthCode({
+            const reddit: any = await snoowrap.fromAuthCode({
                 code: req.query.code,
                 userAgent: "Orianna Bot",
                 clientId: config.reddit.clientId,
@@ -28,7 +28,7 @@ export default function register(app: express.Application, riot: RiotAPI, update
             });
 
             // Shitty typings force me to use this ugly line. Sorry...
-            const username = (<any>await reddit.getMe()).name;
+            const username: string = (await reddit.getMe()).name;
 
             // Ask for the accounts linked to that reddit account.
             const accountsReq = await fetch("http://flairs.championmains.com/api/user-summoners?username=" + username);
