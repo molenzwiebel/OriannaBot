@@ -110,7 +110,7 @@ export default class PuppeteerController extends EventEmitter {
         await this.page.waitForSelector(".ready");
 
         const promise = new Promise(r => this.once("ready", () => r()));
-        await this.page.evaluate(`(arg) => window.prepare(arg)`, <any>options.args);
+        await this.page.evaluate(<any>{ toString: () => `(arg) => window.prepare(arg)` }, <any>options.args);
 
         return promise;
     }
