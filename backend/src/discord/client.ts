@@ -355,8 +355,8 @@ export default class DiscordClient {
             await template.error({
                 title: "💥 Ouch!",
                 description:
-                    "Something went horribly wrong executing that command. Try again in a bit, or contact my creator (`@Orianna Bot about`)"
-                    + (incident ? " and give him the following code: `" + incident + "`." : "."),
+                    "Something went horribly wrong executing that command, please try again in a bit. If this error keeps happening, please send a bug report in [the Orianna Bot support server](https://discord.gg/bfxdsRC)"
+                    + (incident ? " with the following error code: `" + incident + "`." : "."),
                 image: "https://i.imgur.com/SBpi54R.png"
             });
         } finally {

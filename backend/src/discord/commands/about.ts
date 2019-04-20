@@ -38,12 +38,12 @@ const AboutCommand: Command = {
                 value: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2) + " MB",
                 inline: true
             }, {
-                name: "Node Version",
-                value: process.version,
+                name: "Support Server",
+                value: "[discord.gg/bfxdsRC](https://discord.gg/bfxdsRC)",
                 inline: true
             }, {
-                name: "Best Waifu",
-                value: "Orianna",
+                name: "Vote For Orianna Bot",
+                value: "[discordbots.org](https://discordbots.org/bot/244234418007441408)",
                 inline: true
             }]
         });
