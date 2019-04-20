@@ -61,7 +61,7 @@ This account is already linked with a different Discord account. To prevent abus
 
 If you previously linked this account to a different Discord that you still have access to, you can simply log in and remove the League account from your old Orianna profile.<br><br>
 
-If you did not add this account to an Orianna Bot profile, or if you do not have access to the old Discord account, please message @molenzwiebel#2773 on Discord with the summoner name and region of the account you are trying to add.
+If you did not add this account to an Orianna Bot profile, or if you do not have access to the old Discord account, please <a href="https://discord.gg/bfxdsRC">join the support server</a> or directly message @molenzwiebel#2773 on Discord and include the summoner name and region of the account you are trying to add.
 `.trim();
             throw new Error("");
         }
