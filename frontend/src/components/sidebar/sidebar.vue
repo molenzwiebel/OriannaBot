@@ -25,6 +25,13 @@
             Invite Orianna Bot
         </router-link>
 
+        <div class="divider"></div>
+
+        <a href="https://discord.gg/bfxdsRC">
+            <i class="icon ion-android-chat"></i>
+            Support Server
+        </a>
+
         <div class="divider section"></div>
 
         <a v-if="!user" :href="signInLink" class="discord-sign-in">
