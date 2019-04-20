@@ -1,6 +1,9 @@
 <h1><img width=80 height=80 src="https://ddragon.leagueoflegends.com/cdn/7.5.1/img/champion/Orianna.png"></td>
 Orianna Bot</h1>
 
+[![Discord](https://discordapp.com/api/guilds/249481856687407104/widget.png?style=shield)](https://discord.gg/bfxdsRC)
+
+
 This is the source code for the Discord bot and website portions that compromise [Orianna Bot](https://orianna.molenzwiebel.xyz). Note that Orianna Bot is not intended for self-hosting (although it is theoretically possible), so if you want Orianna Bot on your Discord server the easiest solution is to simply press the large button [here](https://orianna.molenzwiebel.xyz).
 
 # Components
