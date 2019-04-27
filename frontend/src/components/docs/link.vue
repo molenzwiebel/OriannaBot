@@ -32,15 +32,12 @@
                     your profile. This may cause you to lose ranks in servers, since your mastery total and ranked tiers
                     may decrease.</p>
 
-                <h2>Importing from Discord and Reddit</h2>
+                <h2>Importing from Reddit</h2>
                 <p><strong>To import accounts from the ChampionMains flair system</strong>, click the <code>Import from
                     Reddit</code> button and follow the instructions to verify your Reddit account. We will then import
                     any accounts linked to your Reddit account. <em>Note:</em> The accounts are only imported, not
                     synchronized. Adding a new account to Reddit does not automatically add it to your Discord profile.
                 </p>
-                <p><strong>To import accounts linked to your Discord connections</strong>, click the <code>Import from
-                    Discord</code> button to allow Orianna to access your Discord connections. This will automatically
-                    import all valid League accounts that you have linked with your Discord profile.</p>
             </div>
         </div>
     </div>
