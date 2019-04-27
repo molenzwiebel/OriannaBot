@@ -63,9 +63,9 @@ Examples:
             target.treat_as_unranked ? formatRank("UNRANKED") :
             rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
         const daysAgo = (entry: UserMasteryDelta) => {
-            const diff = differenceInDays(+entry.timestamp, new Date());
-            if (diff === 0) return "today";
-            if (diff === 1) return "yesterday";
+            const diff = Math.abs(differenceInDays(+entry.timestamp, new Date()));
+            if (diff === 0) return "Today";
+            if (diff === 1) return "Yesterday";
             return diff + " days ago";
         };
 
