@@ -58,7 +58,6 @@ For more information on role conditions and how they work, check out the [docume
             if (cond.type === "mastery_score") return "Have a mastery score " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
             if (cond.type === "total_mastery_score") return "Have a total mastery score " + formatRange(cond.options);
             if (cond.type === "ranked_tier") return "Have a ranked tier " + formatRanked(cond);
-            if (cond.type === "champion_play_count") return "Have played at least " + cond.options.count.toLocaleString() + " games on " + await formatChampion(cond.options.champion);
             if (cond.type === "server") return "Have an active account on " + cond.options.region;
 
             // Error out since we don't have a valid role here. It'll be caught and reported to ELK so we end up seeing it.

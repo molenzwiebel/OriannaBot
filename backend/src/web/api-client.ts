@@ -180,11 +180,8 @@ export default class WebAPIClient {
 
         await toDelete.$query().delete();
 
-        // Mark last account update timestamp as 0 to force a complete recalculation of games played, instead
-        // of running an incremental check (which would include the games on the deleted account as well).
-        await req.user.$query().update({
-            last_account_update_timestamp: "0"
-        });
+        // Don't await so we can return without doing this.
+        // TODO: Maybe instead of updating now just put it in the queue?
         this.client.updater.fetchAndUpdateAll(req.user);
 
         return res.json({ ok: true });

@@ -49,14 +49,6 @@ export interface RankedTierCondition {
     };
 }
 
-export interface ChampionPlayCountCondition {
-    type: "champion_play_count";
-    options: {
-        count: number;
-        champion: number;
-    };
-}
-
 export interface ServerCondition {
     type: "server";
     options: {
@@ -69,7 +61,6 @@ export type TypedRoleCondition =
     | MasteryScoreCondition
     | TotalMasteryScoreCondition
     | RankedTierCondition
-    | ChampionPlayCountCondition
     | ServerCondition;
 
 export type RoleCombinator = {

@@ -6,8 +6,6 @@ interface Configuration {
         tiers: string[];
         refreshToken: string;
         rankedQueues: { [key: string]: string };
-        rankedGameSeasonStartTimestamp: number;
-        rankedGameCountQueues: number[];
     };
     discord: {
         clientId: string;

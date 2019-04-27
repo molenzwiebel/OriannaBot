@@ -160,11 +160,6 @@ export class RoleCondition extends Model {
             if (!tier || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
 
             return evaluateRankedTier(condition, tier);
-        } else if (condition.type === "champion_play_count") {
-            // Check if we have a stats entry for the specified champion that matches the range.
-            return user.stats.some(x =>
-                x.champion_id === condition.options.champion
-                && x.games_played >= condition.options.count);
         } else if (condition.type === "server") {
             // Check if we have an account in the specified region.
             return user.accounts.some(x => x.region === condition.options.region);

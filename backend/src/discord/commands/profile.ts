@@ -1,6 +1,7 @@
 import { Command } from "../command";
+import { distanceInWordsToNow } from "date-fns";
 import { emote, expectUser } from "./util";
-import { UserChampionStat, UserRank } from "../../database";
+import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
 import StaticData from "../../riot/static-data";
 import formatName from "../../util/format-name";
 
@@ -32,14 +33,14 @@ Examples:
 
         // Query some data we need later.
         const topMastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(8);
-        const top3Played = await target.$relatedQuery<UserChampionStat>("stats").orderBy("games_played", "DESC").where("games_played", ">", 0).limit(3);
+        const recentlyPlayed = await UserMasteryDelta.query().where("user_id", target.id).distinct("champion_id").select("timestamp").orderBy("timestamp", "desc").limit(3);
         const levelCounts: { level: number, count: number }[] = <any>await target.$relatedQuery("stats").groupBy("level", "user_id").count().select("level");
         const totalMastery: string[] = <any>await target.$relatedQuery("stats").sum("score").groupBy("user_id").pluck("sum");
         const avgMastery: string[] = <any>await target.$relatedQuery("stats").avg("score").groupBy("user_id").pluck("avg");
         const rankedData = await target.$relatedQuery<UserRank>("ranks");
 
         // Formatting helpers.
-        const champ = async (entry: UserChampionStat) => emote(ctx, await StaticData.championById(entry.champion_id)) + " " + (await StaticData.championById(entry.champion_id)).name;
+        const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(ctx, await StaticData.championById(entry.champion_id)) + " " + (await StaticData.championById(entry.champion_id)).name;
         const amount = (entry: UserChampionStat) =>
             entry.score < 10000 ? entry.score.toLocaleString() :
             entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
@@ -77,10 +78,10 @@ Examples:
             ].join("\n"),
             inline: true
         }, {
-            name: "Most Played Ranked",
-            value: ((await Promise.all(top3Played.map(async x =>
-                `${await champ(x)} - **${x.games_played.toLocaleString()} Games**`
-            ))).join("\n") || "_No Ranked Games_") + "\n" + emote(ctx, "__"),
+            name: "Recently Played",
+            value: ((await Promise.all(recentlyPlayed.map(async x =>
+                `${await champ(x)} - **${distanceInWordsToNow(+x.timestamp)} ago**`
+            ))).join("\n") || "_No Games Tracked_") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
             name: "Ranked Tiers",

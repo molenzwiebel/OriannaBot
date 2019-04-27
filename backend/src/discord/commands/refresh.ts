@@ -8,7 +8,6 @@ const RefreshCommand: Command = {
 This command will manually trigger a full refresh of your mastery and ranked statistics across all of your linked accounts. In particular, the following things will be updated:
 - All your linked accounts will be checked for name changes or region transfers.
 - All your ranked tiers will be refreshed.
-- The amount of ranked games played across all accounts will be recounted.
 - All your champion mastery values and levels will be refreshed.
 
 After updating all values, Orianna will recompute your roles in every server you share with her, potentially adding or removing roles based on the new values.
@@ -33,11 +32,6 @@ If you want to refresh someone else's scores, simply mention them when invoking 
         const loadingEmoji = emote(ctx, "Refreshing").replace("<:", "").replace(">", "");
 
         msg.addReaction(loadingEmoji);
-
-        // Force a full games played update by setting account update to 0.
-        user.$query().patch({
-            last_account_update_timestamp: '0'
-        });
 
         await client.updater.fetchAndUpdateAll(user);
 

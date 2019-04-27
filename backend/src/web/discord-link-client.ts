@@ -99,7 +99,7 @@ export default function register(app: express.Application, client: DiscordClient
                     const region = regions.get(parts[0].toLowerCase())!;
                     const summonerName = await findSummonerName(region, +parts[1]);
                     if (!summonerName) continue;
-                    
+
                     const summ = await client.riotAPI.getSummonerByName(region, summonerName);
                     if (!summ) continue;
 

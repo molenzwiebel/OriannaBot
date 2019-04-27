@@ -14,7 +14,6 @@ const logFetch = debug("orianna:updater:fetch");
 const logMastery = debug("orianna:updater:fetch:mastery");
 const logRanked = debug("orianna:updater:fetch:ranked");
 const logAccounts = debug("orianna:updater:fetch:accounts");
-const logGames = debug("orianna:updater:fetch:games");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
@@ -60,7 +59,6 @@ export default class Updater {
             // Run the account update and games count first since it may alter the results
             // of the other fetch queries (if a user transferred).
             await this.fetchAccounts(user);
-            await this.fetchGamesPlayed(user);
 
             await Promise.all([
                 this.fetchMasteryScores(user),
@@ -114,14 +112,11 @@ export default class Updater {
             .eager("[accounts, stats, ranks]")
             .limit(amount);
 
-        // Loop 1: Update stats and games played.
+        // Loop 1: Update stats.
         scheduleUpdateLoop(async user => {
             try {
                 // Update mastery values.
                 const hasChanged = await this.fetchMasteryScores(user);
-
-                // If mastery changed or we need a full reset, update games played.
-                if (hasChanged || user.needsGamesPlayedReset) await this.fetchGamesPlayed(user);
 
                 // Now recompute roles.
                 await this.updateUser(user);
@@ -271,12 +266,10 @@ export default class Updater {
             }
             changed = true;
 
-            const oldGamesPlayed = oldScore ? oldScore.games_played : 0;
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,
                 level: score.level,
-                score: score.score,
-                games_played: oldGamesPlayed
+                score: score.score
             });
         }
 
@@ -318,62 +311,6 @@ export default class Updater {
                 tier: config.riot.tiers[tier]
             });
         }
-    }
-
-    /**
-     * Loads the amount of ranked games played across all champions and all regions
-     * for the specified user. Note that this will update even if it was updated recently.
-     */
-    private async fetchGamesPlayed(user: User) {
-        if (!user.accounts) user.accounts = await user.$relatedQuery<LeagueAccount>("accounts");
-        if (!user.stats) user.stats = await user.$relatedQuery<UserChampionStat>("stats");
-        logGames("Updating ranked games played for user %s (%s)", user.username, user.snowflake);
-
-        const gamesPlayed = new Map<number, number>();
-        for (const account of user.accounts) {
-            // If we need a games played reset, fetch since the beginning. Else, fetch since the last time we ran this update.
-            const games = await this.riotAPI.findRankedGamesAfter(account.region, account.account_id, user.needsGamesPlayedReset ? 0 : +user.last_score_update_timestamp);
-
-            for (const game of games) {
-                // Increment the amount of games played by one.
-                gamesPlayed.set(game.champion, (gamesPlayed.get(game.champion) || 0) + 1);
-            }
-        }
-
-        // If the user needs a reset, first set the games played to 0 for every champion.
-        // Otherwise if a user with two accounts has 10 games on teemo on one, and zero on the other,
-        // and then removes account 1, the 10 games on teemo would stay.
-        if (user.needsGamesPlayedReset) {
-            await user.$relatedQuery<UserChampionStat>("stats").patch({
-                games_played: 0
-            });
-        }
-
-        // Now, update the database totals.
-        const incremental = !user.needsGamesPlayedReset;
-        for (const [champion, games] of gamesPlayed) {
-            const oldValue = user.stats.find(x => x.champion_id === champion);
-
-            // Skip updating this if the value we have is already the most recent. Saves us a database call.
-            if (incremental && oldValue && oldValue.games_played === games) continue;
-
-            // Weird, but it can happen I guess.
-            if (!oldValue) {
-                await user.$relatedQuery<UserChampionStat>("stats").insert({
-                    champion_id: champion,
-                    level: 0,
-                    score: 0,
-                    games_played: games
-                });
-            } else {
-                await oldValue.$query().update({
-                    games_played: incremental ? oldValue.games_played + games : games
-                });
-            }
-        }
-
-        // Refetch stats now that we updated stuff
-        user.stats = await user.$relatedQuery<UserChampionStat>("stats");
     }
 
     /**

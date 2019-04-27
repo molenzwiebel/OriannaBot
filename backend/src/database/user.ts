@@ -98,13 +98,6 @@ export default class User extends Model {
     }
 
     /**
-     * @returns if the amount of games played for this user needs to be computed from the start, instead of incrementally
-     */
-    get needsGamesPlayedReset(): boolean {
-        return this.last_account_update_timestamp === "0";
-    }
-
-    /**
      * Omit user id and token from the JSON object.
      */
     $formatJson(json: Pojo) {
@@ -154,12 +147,6 @@ export class UserChampionStat extends Model {
      * The total amount of points (the score) the user has on this champion.
      */
     score: number;
-
-    /**
-     * The total amount of ranked games this user has in the
-     * current ranked season.
-     */
-    games_played: number;
 
     /**
      * The eager-loaded user this stat belongs to, if it was specified in the query.

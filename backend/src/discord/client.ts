@@ -226,8 +226,8 @@ export default class DiscordClient {
         const isDM = msg.channel instanceof eris.PrivateChannel;
         const hasMention = msg.mentions.map(x => x.id).includes(this.bot.user.id);
 
-        // Don't respond to ourselves.
-        if (msg.author.id === this.bot.user.id) return;
+        // Don't respond to ourselves or other bots.
+        if (msg.author.id === this.bot.user.id || msg.author.bot) return;
 
         // Clean content.
         const content = msg.content
@@ -235,7 +235,7 @@ export default class DiscordClient {
             .replace(/\s+/g, " ").trim();
         msg.mentions = msg.mentions.filter(x => x.id !== this.bot.user.id);
 
-        // Treat any ID and user#1111 inside the content as mentions as well.
+        // Treat any ID inside the content as mentions as well.
         content.replace(/\d{16,}/g, (match) => {
             const user = this.bot.users.get(match);
             if (user && !msg.mentions.find(x => x.id === user.id)) msg.mentions.push(user);
@@ -244,7 +244,7 @@ export default class DiscordClient {
 
         // AAA#0000 mentions are a bit more effort since a command like `@Ori top Some User#1234` is ambiguous between
         // "Some User#1234", "User#1234" and even "top Some User#1234". We use a hacky solution by instead relying on finding
-        // all users with the discriminator, then find the user whose name is contained inside the message, prefering longer
+        // all users with the discriminator, then find the user whose name is contained inside the message, preferring longer
         // matches over shorter ones (User#1234 > er#1234)
         content.replace(/\b(.*)#(\d{4})\b/g, (_, username, discrim) => {
             const usersWithDiscrim = this.bot.users.filter(x => x.discriminator === discrim);
@@ -500,6 +500,9 @@ export default class DiscordClient {
      * already having accounts set up.
      */
     private handleGuildMemberAdd = async (guild: eris.Guild, member: eris.Member) => {
+        // Ignore bots. We can't assign them roles anyway.
+        if (member.bot) return;
+
         // Don't use findOrCreateUser since it will message the user.
         const user = await User.query().where("snowflake", "=", member.id).first();
         if (!user) return;
