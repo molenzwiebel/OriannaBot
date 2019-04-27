@@ -1,5 +1,4 @@
 import { Command } from "../command";
-import { raw } from "objection";
 import { differenceInDays } from "date-fns";
 import { emote, expectUser } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
@@ -34,7 +33,8 @@ Examples:
 
         // Query some data we need later.
         const topMastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(8);
-        const recentlyPlayed = await UserMasteryDelta.query().where("user_id", target.id).distinct(raw("ON (champion_id) champion_id")).select("timestamp").orderBy("timestamp", "desc").limit(3);
+        const recentlyPlayed = await UserMasteryDelta.query().where("user_id", target.id).select("champion_id", "timestamp").orderBy("timestamp", "desc").limit(10);
+        const uniqueRecentlyPlayed = recentlyPlayed.filter((e, i, a) => a.findIndex(x => x.champion_id === e.champion_id) === i);
         const levelCounts: { level: number, count: number }[] = <any>await target.$relatedQuery("stats").groupBy("level", "user_id").count().select("level");
         const totalMastery: string[] = <any>await target.$relatedQuery("stats").sum("score").groupBy("user_id").pluck("sum");
         const avgMastery: string[] = <any>await target.$relatedQuery("stats").avg("score").groupBy("user_id").pluck("avg");
@@ -86,7 +86,7 @@ Examples:
             inline: true
         }, {
             name: "Recently Played",
-            value: ((await Promise.all(recentlyPlayed.map(async x =>
+            value: ((await Promise.all(uniqueRecentlyPlayed.slice(0, 3).map(async x =>
                 (await champ(x)) + " - **" + daysAgo(x) + "**"
             ))).join("\n") || "_No Games Tracked_") + "\n" + emote(ctx, "__"),
             inline: true
