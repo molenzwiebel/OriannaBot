@@ -8,7 +8,6 @@
             <option value="mastery_score">has a mastery score of</option>
             <option value="total_mastery_score">has a total mastery score of</option>
             <option value="ranked_tier">has a ranked tier</option>
-            <option value="champion_play_count">has played at least</option>
             <option value="server">has an account on </option>
         </select>
 
@@ -118,13 +117,6 @@
             </template>
         </template>
 
-        <template v-if="state.type === 'champion_play_count'">
-            <masked-input :mask="numberMask" v-model="state.count" placeholder="25"></masked-input>
-            <span>games played on</span>
-            <champion-dropdown v-model="state.champion"></champion-dropdown>
-            <span>in any ranked queue this season</span>
-        </template>
-
         <template v-if="state.type === 'server'">
             <select v-model="state.region">
                 <option value="EUW">EUW</option>
@@ -152,7 +144,6 @@
         mastery_score: d => d.compare_type === "between" ? ["compare_type", "champion", "min", "max"] : ["compare_type", "champion", "value"],
         total_mastery_score: d => d.compare_type === "between" ? ["compare_type", "min", "max"] : ["compare_type", "value"],
         ranked_tier: ["compare_type", "tier", "queue"],
-        champion_play_count: ["count", "champion"],
         server: ["region"]
     };
     const NUMBERS = ["value", "champion", "min", "max", "count", "tier"];
