@@ -1,5 +1,6 @@
 import { Command } from "../command";
-import { distanceInWordsToNow } from "date-fns";
+import { raw } from "objection";
+import { differenceInDays } from "date-fns";
 import { emote, expectUser } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
 import StaticData from "../../riot/static-data";
@@ -33,7 +34,7 @@ Examples:
 
         // Query some data we need later.
         const topMastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(8);
-        const recentlyPlayed = await UserMasteryDelta.query().where("user_id", target.id).distinct("champion_id").select("timestamp").orderBy("timestamp", "desc").limit(3);
+        const recentlyPlayed = await UserMasteryDelta.query().where("user_id", target.id).distinct(raw("ON (champion_id) champion_id")).select("timestamp").orderBy("timestamp", "desc").limit(3);
         const levelCounts: { level: number, count: number }[] = <any>await target.$relatedQuery("stats").groupBy("level", "user_id").count().select("level");
         const totalMastery: string[] = <any>await target.$relatedQuery("stats").sum("score").groupBy("user_id").pluck("sum");
         const avgMastery: string[] = <any>await target.$relatedQuery("stats").avg("score").groupBy("user_id").pluck("avg");
@@ -61,6 +62,12 @@ Examples:
         const queueRank = (queue: string) =>
             target.treat_as_unranked ? formatRank("UNRANKED") :
             rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
+        const daysAgo = (entry: UserMasteryDelta) => {
+            const diff = differenceInDays(+entry.timestamp, new Date());
+            if (diff === 0) return "today";
+            if (diff === 1) return "yesterday";
+            return diff + " days ago";
+        };
 
         const fields: { name: string, value: string, inline: boolean }[] = [{
             name: "Top Champions",
@@ -80,7 +87,7 @@ Examples:
         }, {
             name: "Recently Played",
             value: ((await Promise.all(recentlyPlayed.map(async x =>
-                `${await champ(x)} - **${distanceInWordsToNow(+x.timestamp)} ago**`
+                (await champ(x)) + " - **" + daysAgo(x) + "**"
             ))).join("\n") || "_No Games Tracked_") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
