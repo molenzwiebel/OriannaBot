@@ -4,11 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Orianna Top</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&subset=latin-ext" rel="stylesheet"></head>
 
     <style>
         body {
             margin: 0;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: subpixel-antialiased;
         }
 
         .image-and-header {
@@ -64,16 +66,21 @@
         .row > .second {
             margin-left: 5px;
             margin-right: 5px;
-            flex: 1;
+            flex: 0 90px;
         }
 
         .title {
             display: flex;
             align-items: center;
-            font-family: Open Sans;
+            font-family: Noto Sans, sans-serif;
             color: white;
             font-size: 13px;
             font-weight: 600;
+        }
+
+        .page {
+            font-size: 11px;
+            color: rgb(137, 137, 145);
         }
 
         .title > img {
@@ -89,7 +96,7 @@
         }
 
         .headers > div {
-            font-family: Open Sans;
+            font-family: Noto Sans, sans-serif;
             font-size: 11px;
             color: rgb(137, 137, 145);
         }
@@ -104,7 +111,7 @@
 
         .row.player {
             height: 23px;
-            font-family: Open Sans;
+            font-family: Noto Sans, sans-serif;
             color: white;
             font-size: 13px;
         }
@@ -146,7 +153,13 @@
         .row.player > .first > .place {
             display: block;
             width: 8px;
-            text-align: center;
+        }
+
+        .row.player > .first > .name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
         }
 
         .row.player > .first > .icon {
@@ -166,21 +179,12 @@
             font-weight: bold;
         }
 
-        .footer {
-            margin-left: 5px;
-            margin-top: 10px;
-            font-family: Open Sans;
-            font-size: 11px;
-            font-weight: 600;
-            color: rgb(137, 137, 145);
+        .no-medals .row > svg, .no-medals .row.headers > img {
+            display: none;
         }
 
-        .footer > span {
-            color: #4f545c;
-            font-size: 10px;
-            display: inline-block;
-            font-weight: 700;
-            margin: 0 4px;
+        .row.headers {
+            height: 22px;
         }
     </style>
 </head>
@@ -196,6 +200,9 @@
             <div class="row title">
                 <img src="https://cdn.communitydragon.org/latest/champion/Irelia/square">
                 <div class="first title">Irelia Leaderboard</div>
+                <div class="second page">
+                    Page 1 of 12345
+                </div>
             </div>
 
             <div class="row headers">
@@ -209,13 +216,31 @@
 </div>
 
 <script>
-    function prepare(args) {
-        const { champion_id, champion_name, footer, players } = args;
+    const masteryImages = [
+        "https://cdn.discordapp.com/emojis/411977489175281685.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977489158635529.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977489607557121.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977489343053826.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977803144364032.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977489351704587.png?v=1",
+        "https://cdn.discordapp.com/emojis/411977489707958282.png?v=1"
+    ];
 
-        document.querySelector(".image-and-header").style.background = `linear-gradient(to bottom, transparent 60%, rgb(52, 54, 60)), url(https://cdn.communitydragon.org/latest/champion/${champion_id}/splash-art)`;
+    function prepare(args) {
+        const { header_image, title_image, title, page, players } = args;
+
+        document.querySelector(".image-and-header").style.background = `linear-gradient(to bottom, transparent 60%, rgb(52, 54, 60)), url(${header_image})`;
         document.querySelector(".image-and-header").style.backgroundSize = `cover`;
-        document.querySelector(".row.title > img").src = `https://cdn.communitydragon.org/latest/champion/${champion_id}/square`;
-        document.querySelector(".row.title > .title").innerText = champion_name + " Leaderboard";
+        document.querySelector(".row.title > img").src = title_image;
+        document.querySelector(".row.title > .title").innerText = title;
+        document.querySelector(".row.title .page").innerText = page;
+
+        const lowest = Math.min(...players.map(x => x.place));
+        if (lowest >= 4) {
+            document.querySelector("body").classList.add("no-medals");
+        }
+
+        const placeWidth = Math.max(...players.map(x => x.place)).toString().length * 7;
 
         const content = document.querySelector(".content");
         for (const player of players) {
@@ -225,21 +250,44 @@
                 <div class="row player ${clazz}">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 10c-3.865 0-7 3.134-7 7s3.135 7 7 7 7-3.134 7-7-3.135-7-7-7zm0 12c-2.762 0-5-2.239-5-5s2.238-5 5-5 5 2.239 5 5-2.238 5-5 5zm1.484-4.315l1.516-1.457-2.083-.287-.917-1.892-.917 1.892-2.083.287 1.516 1.457-.369 2.07 1.853-.992 1.854.992-.37-2.07zm1.62-9.822l-2.48-3.329 3.376-4.534h5l-5.896 7.863zm-2.974.137h1.828l-5.958-8h-1.869l5.999 8zm-7.249-8h-1.881l6 8h1.881l-6-8z"/></svg>
                   <div class="first">
-                    <span class="place">${player.place}</span>
+                    <span class="place" style="width: ${placeWidth}px">${player.place}</span>
                     <img class="icon" src="${player.avatar}">
                     <span class="name">${player.username}</span>
                   </div>
                   <div class="second">
-                    <img class="level" src="https://cdn.discordapp.com/emojis/411977489707958282.png?v=1">
+                    <img class="level" src="${masteryImages[player.level - 1]}">
                     <span class="score">${player.score.toLocaleString()}</span>
                   </div>
                 </div>
             `);
         }
 
-        content.insertAdjacentHTML("beforeend", "<div class='footer'>" + footer.replace(/•/g, "<span>•</span>") + "</div>");
+        const images = Array.from(document.querySelectorAll("img"));
+        let imagesDone = 0;
+        let didReady = false;
 
-        setTimeout(() => window.ready(), 1000);
+        for (const image of images) {
+            if (image.complete) imagesDone++;
+
+            image.addEventListener('load', function () {
+                imagesDone++;
+
+                if (imagesDone === images.length) {
+                    didReady = true;
+                    window.ready();
+                }
+            });
+        }
+
+        if (imagesDone === images.length) {
+            didReady = true;
+            window.ready();
+        }
+
+        // If it takes more than 3 seconds to load all images, just go ahead anyway.
+        setTimeout(() => {
+            if (!didReady) window.ready();
+        }, 3000);
     }
 </script>
 

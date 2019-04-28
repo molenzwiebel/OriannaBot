@@ -167,6 +167,16 @@ class StaticData {
     }
 
     /**
+     * Returns a URL for the splash art for the specified champion or champion id.
+     */
+    public async getChampionSplash(champion: riot.Champion | number) {
+        if (typeof champion === "number") champion = await this.championById(champion);
+
+        await this.dataPromise;
+        return `http://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champion.id}_0.jpg`;
+    }
+
+    /**
      * Returns a URL for a random centered splash for one of the skins of the specified champion.
      */
     public async getRandomCenteredSplash(champion: riot.Champion | number) {

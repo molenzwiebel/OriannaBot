@@ -1,7 +1,8 @@
 import { Command } from "../command";
 import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
-import { expectChampion } from "./util";
+import StaticData from "../../riot/static-data";
+import { expectChampion, paginateRawMessage } from "./util";
 
 const TestTopCommand: Command = {
     name: "Show Leaderboards (Test)",
@@ -47,43 +48,44 @@ const TestTopCommand: Command = {
             .where(x => serverOnly ? x.whereIn("user_id", serverIds) : true)  // filter on server members if needed
             .orderBy("score", "DESC");                                        // order by score
 
-        // Find the user's rank, or leave it out if they have no ori account.
-        let userRank: undefined | string = undefined;
-        const user = await ctx.user();
-        if (user && stats.find(x => x.user_id === user.id)) {
-            userRank = "Your Rank: " + (stats.findIndex(x => x.user_id === user.id) + 1);
-        }
+        // Return paginated image.
+        await paginateRawMessage(ctx, stats, async (items, offset, curPage, maxPages) => {
+            // Map players to display on the graphic.
+            const players = await Promise.all(items.map(async (x, i) => {
+                const user = await User.query().where("id", x.user_id).first();
 
-        // Map players to display on the graphic.
-        const players = await Promise.all(stats.slice(0, 5).map(async (x, i) => {
-            const user = await User.query().where("id", x.user_id).first();
+                return {
+                    place: offset + i + 1,
+                    username: user!.username,
+                    avatar: user!.avatarURL,
+                    score: x.score,
+                    level: x.level
+                };
+            }));
+
+            const image = await client.puppeteer.render("./graphics/top.html", {
+                screenshot: {
+                    width: 399,
+                    height: 295
+                },
+                timeout: 5000,
+                args: {
+                    header_image: await StaticData.getChampionSplash(champ),
+                    title_image: await StaticData.getChampionIcon(champ),
+                    title: champ.name + " Leaderboard",
+                    page: "Page " + curPage + " of " + maxPages,
+                    players
+                }
+            });
 
             return {
-                place: i + 1,
-                username: user!.username,
-                avatar: user!.avatarURL,
-                score: x.score
+                file: {
+                    file: image,
+                    name: "top.png",
+                    fileOnly: true
+                }
             };
-        }));
-
-        const image = await client.puppeteer.render("./graphics/top.html", {
-            screenshot: {
-                width: 399,
-                height: 332
-            },
-            timeout: 5000,
-            args: {
-                champion_id: +champ.key,
-                champion_name: champ.name,
-                footer: "Page: 1/" + Math.ceil(stats.length / 5) + (userRank ? " • " + userRank : "") + " • " + msg.author.username,
-                players
-            }
-        });
-
-        await channel.createMessage("", {
-            file: image,
-            name: "top.png"
-        });
+        }, 6);
     }
 };
 export default TestTopCommand;

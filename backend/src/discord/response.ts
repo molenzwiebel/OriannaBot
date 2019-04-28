@@ -20,7 +20,8 @@ export interface ResponseOptions {
     timestamp?: number;
     file?: {
         name: string,
-        file: Buffer
+        file: Buffer,
+        fileOnly?: boolean
     };
 }
 
@@ -71,9 +72,15 @@ export default class Response {
      * (but rather by the constructor of the response context).
      */
     async respond(responseContent: ResponseOptions): Promise<Response> {
-        this.message = await this.channel.createMessage({
-            embed: this.buildEmbed(responseContent)
-        }, responseContent.file || void 0);
+        // Do not include embed if this is file-only.
+        if (responseContent.file && responseContent.file.fileOnly) {
+            this.message = await this.channel.createMessage("", responseContent.file);
+        } else {
+            this.message = await this.channel.createMessage({
+                embed: this.buildEmbed(responseContent)
+            }, responseContent.file || void 0);
+        }
+
         return this;
     }
 
@@ -163,7 +170,21 @@ export default class Response {
      * Implementation for {@link ok}, {@link error} and {@link info}.
      */
     async update(response: ResponseOptions) {
-        this.message = await this.message.edit({ embed: this.buildEmbed(response) });
+        // Recreate message if this is file-only.
+        if (response.file && response.file.fileOnly) {
+            // Do these at the same time, little bit faster.
+            await Promise.all([
+                this.message.delete(),
+                this.respond(response)
+            ]);
+
+            // Re-add reactions.
+            for (const [react] of this.reactions) {
+                await this.message.addReaction(react);
+            }
+        } else {
+            this.message = await this.message.edit({ embed: this.buildEmbed(response) });
+        }
     }
 
     /**

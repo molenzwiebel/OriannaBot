@@ -118,6 +118,33 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
 }
 
 /**
+ * Utility method to paginate a raw message. Unlike advancedPaginate, this does not take the assumption that
+ * fields are used as pagination. Instead, a raw callback can edit the page itself.
+ */
+export async function paginateRawMessage<T>({ info, msg }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+    const pages = Math.ceil(elements.length / perPage);
+    let curPage = 0;
+
+    const res = await info(await process(elements.slice(0, perPage), 0, curPage + 1, pages));
+
+    const showPage = async (offset: number) => {
+        if (curPage + offset < 0 || curPage + offset >= pages) return;
+        curPage += offset;
+
+        res.info(await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage, curPage + 1, pages));
+    };
+
+    if (pages !== 1) {
+        await res.globalOption("⬅", () => showPage(-1));
+        await res.globalOption("➡", () => showPage(+1));
+    }
+
+    await res.option("🗑", () => msg.delete("Deleted By User"));
+
+    return res;
+}
+
+/**
  * Finds the emote with the specified name in one of the specified emote servers. If the
  * emote cannot be found, Missing_Champion is returned instead. Supplying a number or champion
  * instance will look for the emote belonging to the icon of that champion instead.
