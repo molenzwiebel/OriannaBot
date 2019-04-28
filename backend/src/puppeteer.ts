@@ -119,6 +119,11 @@ export default class PuppeteerController extends EventEmitter {
      * Renders a screenshot of the current page with the specified options.
      */
     private async renderScreenshot(options: ScreenshotRenderArgs, resolve: Function) {
+        await this.page.setViewport({
+            width: options.screenshot.width,
+            height: options.screenshot.height
+        });
+
         resolve(await this.page.screenshot({
             omitBackground: true,
             clip: {

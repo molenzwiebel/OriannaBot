@@ -6,183 +6,184 @@
     <title>Orianna Top</title>
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&subset=latin-ext" rel="stylesheet"></head>
 
-    <style>
-        body {
-            margin: 0;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: subpixel-antialiased;
-        }
+<style>
+    body {
+        margin: 0;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
 
-        .image-and-header {
-            border-radius: 3px 3px 0 0;
-            height: 90px;
-        }
+    .image-and-header {
+        border-radius: 3px 3px 0 0;
+        height: 80px;
+    }
 
-        .embed {
-            position: relative;
-            width: 399px;
-        }
+    .embed {
+        position: relative;
+        width: 399px;
+        height: 300px;
+    }
 
-        .pill-and-content {
-            display: flex;
-        }
+    .pill-and-content {
+        display: flex;
+    }
 
-        .no-medals .row > svg, .no-medals .row.headers > img {
-            display: none;
-        }
+    .no-medals .row > svg, .no-medals .row.headers > img {
+        display: none;
+    }
 
-        .row.headers {
-            height: 22px;
-        }
+    .row.headers {
+        height: 22px;
+    }
 
-        .content {
-            flex: 1;
-            padding-top: 10px;
-            box-sizing: border-box;
-            background-color: rgb(52, 54, 60);
-            border-top-width: 0;
-            border-radius: 0 0 3px 3px;
-            overflow: hidden;
-        }
+    .content {
+        height: calc(300px - 80px);
+        flex: 1;
+        padding-top: 10px;
+        box-sizing: border-box;
+        background-color: rgb(52, 54, 60);
+        border-top-width: 0;
+        border-radius: 0 0 3px 3px;
+        overflow: hidden;
+    }
 
-        .row {
-            display: flex;
-            width: 100%;
-            align-items: center;
-        }
+    .row {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
 
-        .row > img, .row > svg {
-            width: 22px;
-            height: 22px;
-            flex: 0 22px;
-        }
+    .row > img, .row > svg {
+        width: 22px;
+        height: 22px;
+        flex: 0 22px;
+    }
 
-        .row > .first {
-            margin-left: 5px;
-            flex: 1;
-        }
+    .row > .first {
+        margin-left: 5px;
+        flex: 1;
+    }
 
-        .row > .second {
-            margin-left: 5px;
-            margin-right: 5px;
-            flex: 0 95px;
-        }
+    .row > .second {
+        margin-left: 5px;
+        margin-right: 5px;
+        flex: 0 100px;
+    }
 
-        .title {
-            display: flex;
-            align-items: center;
-            font-family: Noto Sans, sans-serif;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-        }
+    .title {
+        display: flex;
+        align-items: center;
+        font-family: Noto Sans, sans-serif;
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+    }
 
-        .row.title > img {
-            margin-left: 10px;
-        }
+    .row.title > img {
+        margin-left: 5px;
+    }
 
-        .page {
-            font-size: 11px;
-            color: rgb(137, 137, 145);
-        }
+    .page {
+        font-size: 11px;
+        color: rgb(137, 137, 145);
+    }
 
-        .title > img {
-            border-radius: 50%;
-        }
+    .title > img {
+        border-radius: 50%;
+    }
 
-        .headers {
-            margin-top: 6px;
-        }
+    .headers {
+        margin-top: 4px;
+    }
 
-        .headers > img {
-            visibility: hidden;
-        }
+    .headers > img {
+        visibility: hidden;
+    }
 
-        .headers > div {
-            font-family: Noto Sans, sans-serif;
-            font-size: 11px;
-            color: rgb(137, 137, 145);
-        }
+    .headers > div {
+        font-family: Noto Sans, sans-serif;
+        font-size: 11px;
+        color: rgb(137, 137, 145);
+    }
 
-        .row.player:not(.first):not(.second):not(.third) > svg {
-            visibility: hidden;
-        }
+    .row.player:not(.first):not(.second):not(.third) > svg {
+        visibility: hidden;
+    }
 
-        .row.player:not(.first):not(.second):not(.third) .place {
-            color: rgba(255,255,255,0.6);
-        }
+    .row.player:not(.first):not(.second):not(.third) .place {
+        color: rgba(255,255,255,0.6);
+    }
 
-        .row.player {
-            height: 25px;
-            font-family: Noto Sans, sans-serif;
-            color: white;
-            font-size: 14px;
-        }
+    .row.player {
+        height: 24px;
+        font-family: Noto Sans, sans-serif;
+        color: white;
+        font-size: 13px;
+    }
 
-        .row.player > svg {
-            width: 16px;
-            height: 16px;
-        }
+    .row.player > svg {
+        width: 16px;
+        height: 16px;
+    }
 
-        .row.player.first > svg {
-            fill: rgb(245, 196, 0);
-        }
+    .row.player.first > svg {
+        fill: rgb(245, 196, 0);
+    }
 
-        .row.player.first .place {
-            color: rgb(245, 196, 0);
-        }
+    .row.player.first .place {
+        color: rgb(245, 196, 0);
+    }
 
-        .row.player.second > svg {
-            fill: rgb(222, 222, 222);
-        }
+    .row.player.second > svg {
+        fill: rgb(222, 222, 222);
+    }
 
-        .row.player.second .place {
-            color: rgb(222, 222, 222);
-        }
+    .row.player.second .place {
+        color: rgb(222, 222, 222);
+    }
 
-        .row.player.third > svg {
-            fill: rgb(216, 147, 50);
-        }
+    .row.player.third > svg {
+        fill: rgb(216, 147, 50);
+    }
 
-        .row.player.third .place {
-            color: rgb(216, 147, 50);
-        }
+    .row.player.third .place {
+        color: rgb(216, 147, 50);
+    }
 
-        .row.player > div {
-            display: flex;
-            align-items: center;
-        }
+    .row.player > div {
+        display: flex;
+        align-items: center;
+    }
 
-        .row.player > .first > .place {
-            display: block;
-            width: 6px;
-        }
+    .row.player > .first > .place {
+        display: block;
+        width: 6px;
+    }
 
-        .row.player > .first > .name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 14px;
-            max-width: 220px;
-        }
+    .row.player > .first > .name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+    }
 
-        .row.player > .first > .icon {
-            width: 16px;
-            height: 16px;
-            padding: 0 6px;
-            border-radius: 50%;
-        }
+    .row.player > .first > .icon {
+        width: 16px;
+        height: 16px;
+        padding: 0 6px;
+        border-radius: 50%;
+    }
 
-        .row.player > .second > .level {
-            width: 16px;
-            height: 16px;
-            margin-right: 4px
-        }
+    .row.player > .second > .level {
+        width: 16px;
+        height: 16px;
+        margin-right: 4px
+    }
 
-        .row.player > .second > .score {
-            font-weight: bold;
-        }
-    </style>
+    .row.player > .second > .score {
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
 <div class="embed">
@@ -235,7 +236,7 @@
             document.querySelector("body").classList.add("no-medals");
         }
 
-        const placeWidth = Math.max(...players.map(x => x.place)).toString().length * 7;
+        const placeWidth = Math.max(...players.map(x => x.place)).toString().length * 8;
 
         const content = document.querySelector(".content");
         for (const player of players) {
@@ -289,4 +290,3 @@
 <div class="ready"></div>
 
 </body>
-</html>

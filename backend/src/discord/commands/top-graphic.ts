@@ -14,7 +14,7 @@ const TestTopCommand: Command = {
     smallDescription: "",
     description: ``.trim(),
     keywords: ["top-test"],
-    async handler({ content, guild, ctx, msg, client, error, channel }) {
+    async handler({ content, guild, ctx, client, error }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
 
@@ -53,6 +53,7 @@ const TestTopCommand: Command = {
             .orderBy("score", "DESC");                                        // order by score
 
         // Return paginated image.
+        const pageImages = new Map<number, string>();
         await paginateRaw(ctx, stats, async (items, offset, curPage, maxPages) => {
             // Map players to display on the graphic.
             const players = await Promise.all(items.map(async (x, i) => {
@@ -67,11 +68,10 @@ const TestTopCommand: Command = {
                 };
             }));
 
-            const isEmbed = msg.cleanContent!.includes("embed");
-            const image = await client.puppeteer.render(isEmbed ? "./graphics/top-embed.html" : "./graphics/top.html", {
+            const render = async () => client.puppeteer.render("./graphics/top-embed.html", {
                 screenshot: {
                     width: 399,
-                    height: isEmbed ? 300 : 295
+                    height: 300
                 },
                 timeout: 5000,
                 args: {
@@ -83,25 +83,20 @@ const TestTopCommand: Command = {
                 }
             });
 
-            if (isEmbed) {
+            let fileName = pageImages.get(curPage);
+
+            if (!fileName) {
                 const fileName = randomstring.generate({
                     length: 32
                 }) + ".png";
+                pageImages.set(curPage, fileName);
 
-                fs.writeFileSync(path.join(__dirname, "../../../../frontend/dist/img/generated", fileName), image);
-
-                return {
-                    image: config.web.url + "/img/generated/" + fileName,
-                    noFooter: true
-                };
+                fs.writeFileSync(path.join(__dirname, "../../../../frontend/dist/img/generated", fileName), await render());
             }
 
             return {
-                file: {
-                    file: image,
-                    name: "top.png",
-                    fileOnly: true
-                }
+                image: config.web.url + "/img/generated/" + fileName,
+                noFooter: true
             };
         }, 6);
     }
