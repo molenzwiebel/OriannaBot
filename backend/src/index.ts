@@ -14,6 +14,7 @@ import EditCommand from "./discord/commands/edit";
 import OtherBotsHelpfulCommand from "./discord/commands/other-bots";
 import StatsCommand from "./discord/commands/stats";
 import InviteCommand from "./discord/commands/invite";
+import TestTopCommand from "./discord/commands/top-graphic";
 
 import createApplication from "./web/web";
 
@@ -54,6 +55,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(RolesCommand);
     discord.registerCommand(StatsCommand);
     discord.registerCommand(InviteCommand);
+    discord.registerCommand(TestTopCommand);
     discord.registerCommand(OtherBotsHelpfulCommand);
 
     const app = createApplication(discord);

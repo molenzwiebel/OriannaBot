@@ -77,7 +77,7 @@ export default class PuppeteerController extends EventEmitter {
      */
     private async createBrowser() {
         // Include no-sandbox so we can run as root in CI environments and docker containers.
-        this.browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+        this.browser = await puppeteer.launch({ args: ["--no-sandbox"], headless: false });
 
         this.page = await this.browser.newPage();
         await this.page.exposeFunction("ready", () => {

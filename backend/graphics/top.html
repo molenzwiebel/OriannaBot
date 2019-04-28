@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Orianna Top</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .image-and-header {
+            border-radius: 3px 3px 0 0;
+            height: 120px;
+        }
+
+        .embed {
+            position: relative;
+            width: 399px;
+        }
+
+        .pill-and-content {
+            display: flex;
+        }
+
+        .pill {
+            background-color: #0a96de;
+            width: 4px;
+            flex-shrink: 0;
+            border-radius: 0 0 0 3px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 8px 10px;
+            box-sizing: border-box;
+            background-color: rgb(52, 54, 60);
+            border: 1px solid rgb(49, 51, 56);
+            border-top-width: 0;
+            border-radius: 0 0 3px 0;
+            overflow: hidden;
+        }
+
+        .row {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        .row > img, .row > svg {
+            margin-left: 5px;
+            width: 22px;
+            height: 22px;
+            flex: 0 22px;
+        }
+
+        .row > .first {
+            margin-left: 5px;
+            flex: 1;
+        }
+
+        .row > .second {
+            margin-left: 5px;
+            margin-right: 5px;
+            flex: 1;
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            font-family: Open Sans;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .title > img {
+            border-radius: 50%;
+        }
+
+        .headers {
+            margin-top: 6px;
+        }
+
+        .headers > img {
+            visibility: hidden;
+        }
+
+        .headers > div {
+            font-family: Open Sans;
+            font-size: 11px;
+            color: rgb(137, 137, 145);
+        }
+
+        .row.player:not(.first):not(.second):not(.third) > svg {
+            visibility: hidden;
+        }
+
+        .row.player:not(.first):not(.second):not(.third) .place {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .row.player {
+            height: 24px;
+            font-family: Open Sans;
+            color: white;
+            font-size: 13px;
+        }
+
+        .row.player > svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .row.player.first > svg {
+            fill: rgb(245, 196, 0);
+        }
+
+        .row.player.first .place {
+            color: rgb(245, 196, 0);
+        }
+
+        .row.player.second > svg {
+            fill: rgb(222, 222, 222);
+        }
+
+        .row.player.second .place {
+            color: rgb(222, 222, 222);
+        }
+
+        .row.player.third > svg {
+            fill: rgb(216, 147, 50);
+        }
+
+        .row.player.third .place {
+            color: rgb(216, 147, 50);
+        }
+
+        .row.player > div {
+            display: flex;
+            align-items: center;
+        }
+
+        .row.player > .first > .place {
+            display: block;
+            width: 8px;
+            text-align: center;
+        }
+
+        .row.player > .first > .icon {
+            width: 16px;
+            height: 16px;
+            padding: 0 6px;
+            border-radius: 50%;
+        }
+
+        .row.player > .second > .level {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px
+        }
+
+        .row.player > .second > .score {
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-left: 5px;
+            margin-top: 10px;
+            font-family: Open Sans;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgb(137, 137, 145);
+        }
+
+        .footer > span {
+            color: #4f545c;
+            font-size: 10px;
+            display: inline-block;
+            font-weight: 700;
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="embed">
+    <div class="image-and-header">
+
+    </div>
+
+    <div class="pill-and-content">
+        <div class="pill"></div>
+        <div class="content">
+            <div class="row title">
+                <img src="https://cdn.communitydragon.org/latest/champion/Irelia/square">
+                <div class="first title">Irelia Leaderboard</div>
+            </div>
+
+            <div class="row headers">
+                <img>
+                <div class="first">NAME</div>
+                <div class="second">SCORE</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function prepare(args) {
+        const { champion_id, champion_name, footer, players } = args;
+
+        document.querySelector(".image-and-header").style.background = `linear-gradient(to bottom, transparent, rgb(52, 54, 60)), linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url(https://cdn.communitydragon.org/latest/champion/${champion_id}/splash-art)`;
+        document.querySelector(".image-and-header").style.backgroundSize = `cover`;
+        document.querySelector(".row.title > img").src = `https://cdn.communitydragon.org/latest/champion/${champion_id}/square`;
+        document.querySelector(".row.title > .title").innerText = champion_name + " Leaderboard";
+
+        const content = document.querySelector(".content");
+        for (const player of players) {
+            const clazz = player.place === 1 ? "first" : player.place === 2 ? "second" : player.place === 3 ? "third" : "";
+
+            content.insertAdjacentHTML("beforeend", `
+                <div class="row player ${clazz}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 10c-3.865 0-7 3.134-7 7s3.135 7 7 7 7-3.134 7-7-3.135-7-7-7zm0 12c-2.762 0-5-2.239-5-5s2.238-5 5-5 5 2.239 5 5-2.238 5-5 5zm1.484-4.315l1.516-1.457-2.083-.287-.917-1.892-.917 1.892-2.083.287 1.516 1.457-.369 2.07 1.853-.992 1.854.992-.37-2.07zm1.62-9.822l-2.48-3.329 3.376-4.534h5l-5.896 7.863zm-2.974.137h1.828l-5.958-8h-1.869l5.999 8zm-7.249-8h-1.881l6 8h1.881l-6-8z"/></svg>
+                  <div class="first">
+                    <span class="place">${player.place}</span>
+                    <img class="icon" src="${player.avatar}">
+                    <span class="name">${player.username}</span>
+                  </div>
+                  <div class="second">
+                    <img class="level" src="https://cdn.discordapp.com/emojis/411977489707958282.png?v=1">
+                    <span class="score">${player.score.toLocaleString()}</span>
+                  </div>
+                </div>
+            `);
+        }
+
+        content.insertAdjacentHTML("beforeend", "<div class='footer'>" + footer.replace(/•/g, "<span>•</span>") + "</div>");
+
+        setTimeout(() => window.ready(), 1000);
+    }
+</script>
+
+<div class="ready"></div>
+
+</body>
+</html>
