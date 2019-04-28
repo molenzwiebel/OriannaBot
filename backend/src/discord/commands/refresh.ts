@@ -1,5 +1,5 @@
 import { Command } from "../command";
-import { emote, expectUser } from "./util";
+import { emote, expectUser, rawEmote } from "./util";
 
 const RefreshCommand: Command = {
     name: "Refresh",
@@ -29,7 +29,7 @@ If you want to refresh someone else's scores, simply mention them when invoking 
         const user = await expectUser(ctx);
         if (!user) return;
 
-        const loadingEmoji = emote(ctx, "Refreshing").replace("<:", "").replace(">", "");
+        const loadingEmoji = rawEmote(ctx, "Refreshing")!;
 
         msg.addReaction(loadingEmoji);
 

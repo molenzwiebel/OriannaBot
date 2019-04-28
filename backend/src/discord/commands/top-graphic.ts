@@ -2,7 +2,7 @@ import { Command } from "../command";
 import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
 import StaticData from "../../riot/static-data";
-import { expectChampion, paginateRawMessage } from "./util";
+import { expectChampion, paginateImage } from "./util";
 
 const TestTopCommand: Command = {
     name: "Show Leaderboards (Test)",
@@ -49,7 +49,7 @@ const TestTopCommand: Command = {
             .orderBy("score", "DESC");                                        // order by score
 
         // Return paginated image.
-        await paginateRawMessage(ctx, stats, async (items, offset, curPage, maxPages) => {
+        await paginateImage(ctx, stats, async (items, offset, curPage, maxPages) => {
             // Map players to display on the graphic.
             const players = await Promise.all(items.map(async (x, i) => {
                 const user = await User.query().where("id", x.user_id).first();
@@ -57,7 +57,7 @@ const TestTopCommand: Command = {
                 return {
                     place: offset + i + 1,
                     username: user!.username,
-                    avatar: user!.avatarURL,
+                    avatar: user!.avatarURL + "?size=16",
                     score: x.score,
                     level: x.level
                 };

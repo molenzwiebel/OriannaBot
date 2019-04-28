@@ -121,17 +121,22 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
  * Utility method to paginate a raw message. Unlike advancedPaginate, this does not take the assumption that
  * fields are used as pagination. Instead, a raw callback can edit the page itself.
  */
-export async function paginateRawMessage<T>({ info, msg }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+export async function paginateImage<T>({ info, msg, ctx }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
+    let loading = false;
 
     const res = await info(await process(elements.slice(0, perPage), 0, curPage + 1, pages));
 
     const showPage = async (offset: number) => {
+        if (loading) return;
         if (curPage + offset < 0 || curPage + offset >= pages) return;
         curPage += offset;
 
+        loading = true;
+        res.message.addReaction(rawEmote(ctx, "loading")!);
         res.info(await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage, curPage + 1, pages));
+        loading = false;
     };
 
     if (pages !== 1) {
@@ -149,7 +154,22 @@ export async function paginateRawMessage<T>({ info, msg }: CommandContext, eleme
  * emote cannot be found, Missing_Champion is returned instead. Supplying a number or champion
  * instance will look for the emote belonging to the icon of that champion instead.
  */
-export function emote({ bot }: CommandContext, name: string | riot.Champion) {
+export function emote(ctx: CommandContext, name: string | riot.Champion) {
+    const raw = rawEmote(ctx, name);
+
+    if (raw) {
+        return "<:" + raw + ">";
+    } else {
+        // Most likely the emote servers are down. Return
+        // something so we don't crash.
+        return "❓";
+    }
+}
+
+/**
+ * Returns the "raw" emote name for the specified name, which can be used to react to a message.
+ */
+export function rawEmote({ bot }: CommandContext, name: string | riot.Champion) {
     if (typeof name !== "string") name = name.name.replace(/\W/g, "");
 
     const servers = config.discord.emoteServers.map(x => bot.guilds.get(x)!).filter(x => !!x);
@@ -158,10 +178,8 @@ export function emote({ bot }: CommandContext, name: string | riot.Champion) {
     const emote = allEmotes.find(x => x.name === name) || allEmotes.find(x => x.name === "Missing_Champion")!;
 
     if (emote) {
-        return "<:" + emote.name + ":" + (<any>emote).id + ">";
+        return emote.name + ":" + (<any>emote).id;
     } else {
-        // Most likely the emote servers are down. Return
-        // something so we don't crash.
-        return "❓";
+        return null;
     }
 }
