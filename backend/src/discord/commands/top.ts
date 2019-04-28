@@ -4,6 +4,7 @@ import { raw } from "objection";
 import StaticData from "../../riot/static-data";
 import { advancedPaginate, emote, expectChampion, paginate } from "./util";
 import formatName, { badge } from "../../util/format-name";
+import TestTopCommand from "./top-graphic";
 
 const TopCommand: Command = {
     name: "Show Leaderboards",
@@ -41,7 +42,7 @@ Examples:
 - \`@Orianna Bot top @molenzwiebel\` - shows molenzwiebel's top champions
 `.trim(),
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
-    async handler({ content, guild, ctx, msg, client, error }) {
+    async handler({ content, guild, ctx, msg, client, error, channel }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
 
@@ -120,6 +121,14 @@ Examples:
             return paginate(ctx, fields, {
                 title: "📊 Top Champions For " + formatName(user),
             }, 12);
+        }
+
+        // Potentially use the test version instead.
+        // We use the test version if new is included, or if the last digit of the user's id is <= 5.
+        if (!msg.content.includes("old") && (msg.content.includes("new") || +msg.author.id.slice(-1) <= 5)) {
+            await channel.createMessage("We are testing a redesigned version of Orianna's leaderboards. Please let us know what you think! <https://forms.gle/ZWmfuqtBDV8jtWQ7A>");
+            await channel.sendTyping();
+            return TestTopCommand.handler(ctx);
         }
 
         // No player was mentioned, show the top for the specified champion.

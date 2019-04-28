@@ -71,7 +71,7 @@ const TestTopCommand: Command = {
             const render = async () => client.puppeteer.render("./graphics/top-embed.html", {
                 screenshot: {
                     width: 399,
-                    height: 300
+                    height: 288
                 },
                 timeout: 5000,
                 args: {
