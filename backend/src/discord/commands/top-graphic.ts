@@ -86,7 +86,7 @@ const TestTopCommand: Command = {
             let fileName = pageImages.get(curPage);
 
             if (!fileName) {
-                const fileName = randomstring.generate({
+                fileName = randomstring.generate({
                     length: 32
                 }) + ".png";
                 pageImages.set(curPage, fileName);

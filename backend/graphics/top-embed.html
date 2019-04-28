@@ -186,6 +186,7 @@
 </style>
 </head>
 <body>
+<img class="top-image-loader" style="display: none">
 <div class="embed">
     <div class="image-and-header">
 
@@ -225,6 +226,7 @@
     function prepare(args) {
         const { header_image, title_image, title, page, players } = args;
 
+        document.querySelector(".top-image-loader").src = header_image;
         document.querySelector(".image-and-header").style.background = `linear-gradient(to bottom, transparent 60%, rgb(52, 54, 60)), url(${header_image})`;
         document.querySelector(".image-and-header").style.backgroundSize = `cover`;
         document.querySelector(".row.title > img").src = title_image;
@@ -290,3 +292,4 @@
 <div class="ready"></div>
 
 </body>
+</html>
