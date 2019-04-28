@@ -2,7 +2,11 @@ import { Command } from "../command";
 import { User, UserChampionStat } from "../../database";
 import { raw } from "objection";
 import StaticData from "../../riot/static-data";
-import { expectChampion, paginateImage } from "./util";
+import randomstring = require("randomstring");
+import { expectChampion, paginateRaw } from "./util";
+import * as path from "path";
+import * as fs from "fs";
+import config from "../../config";
 
 const TestTopCommand: Command = {
     name: "Show Leaderboards (Test)",
@@ -49,7 +53,7 @@ const TestTopCommand: Command = {
             .orderBy("score", "DESC");                                        // order by score
 
         // Return paginated image.
-        await paginateImage(ctx, stats, async (items, offset, curPage, maxPages) => {
+        await paginateRaw(ctx, stats, async (items, offset, curPage, maxPages) => {
             // Map players to display on the graphic.
             const players = await Promise.all(items.map(async (x, i) => {
                 const user = await User.query().where("id", x.user_id).first();
@@ -63,7 +67,8 @@ const TestTopCommand: Command = {
                 };
             }));
 
-            const image = await client.puppeteer.render("./graphics/top.html", {
+            const isEmbed = msg.cleanContent!.includes("embed");
+            const image = await client.puppeteer.render(isEmbed ? "./graphics/top-embed.html" : "./graphics/top.html", {
                 screenshot: {
                     width: 399,
                     height: 295
@@ -77,6 +82,19 @@ const TestTopCommand: Command = {
                     players
                 }
             });
+
+            if (isEmbed) {
+                const fileName = randomstring.generate({
+                    length: 32
+                }) + ".png";
+
+                fs.writeFileSync(path.join(__dirname, "../../../../frontend/dist/img/generated", fileName), image);
+
+                return {
+                    image: config.web.url + "/img/generated/" + fileName,
+                    noFooter: true
+                };
+            }
 
             return {
                 file: {

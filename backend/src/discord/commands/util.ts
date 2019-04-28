@@ -121,12 +121,13 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
  * Utility method to paginate a raw message. Unlike advancedPaginate, this does not take the assumption that
  * fields are used as pagination. Instead, a raw callback can edit the page itself.
  */
-export async function paginateImage<T>({ info, msg, ctx }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
     let loading = false;
 
-    const res = await info(await process(elements.slice(0, perPage), 0, curPage + 1, pages));
+    const initialOptions = await process(elements.slice(0, perPage), 0, curPage + 1, pages);
+    const res = await info(initialOptions);
 
     const showPage = async (offset: number) => {
         if (loading) return;
@@ -134,8 +135,15 @@ export async function paginateImage<T>({ info, msg, ctx }: CommandContext, eleme
         curPage += offset;
 
         loading = true;
-        res.message.addReaction(rawEmote(ctx, "loading")!);
+        const loadingPromise = res.message.addReaction(rawEmote(ctx, "loading")!);
         res.info(await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage, curPage + 1, pages));
+
+        // If the message wasn't recreated, make sure to remove the loading emote.
+        if (!initialOptions.file || !initialOptions.file.fileOnly) {
+            await loadingPromise;
+            await res.message.removeReaction(rawEmote(ctx, "loading")!);
+        }
+
         loading = false;
     };
 
