@@ -70,7 +70,9 @@
         background-color rgba(0, 0, 0, 0.6)
         display flex
         justify-content center
-        padding-top 40px
+        overflow-y auto
+        overflow-x hidden
+        padding 40px 0
 
     // On small screens, statically position menu and have a navbar at the top.
     @media only screen and (max-width: 780px)
