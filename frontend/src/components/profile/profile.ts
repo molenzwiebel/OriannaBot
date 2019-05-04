@@ -4,7 +4,6 @@ import App from "../app/app";
 import Dialog from "../dialog/dialog.vue";
 import AddAccountComponent from "../add-account/add-account.vue";
 import ImportAccountsWizard from "../import-accounts/import-accounts.vue";
-import { API_HOST } from "../../config";
 
 interface UserAccount {
     username: string;
@@ -61,20 +60,6 @@ export default class UserProfile extends Vue {
 
         // Reload user data to show the new accounts.
         this.user = (await this.$root.get<UserDetails>("/api/v1/user"))!;
-    }
-
-    /**
-     * Opens a popup with the discord auth flow to import accounts.
-     */
-    async importDiscordAccounts() {
-        const popup = window.open(API_HOST + "/api/v1/discord-link", "Import League Accounts From Discord", "width=450,height=600");
-        const listener = async (ev: MessageEvent) => {
-            popup!.close();
-
-            // Reload accounts.
-            this.user = (await this.$root.get<UserDetails>("/api/v1/user"))!;
-        };
-        window.addEventListener("message", listener);
     }
 
     /**
