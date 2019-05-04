@@ -23,7 +23,7 @@ This command checks the summoner icons of all your linked accounts, looking for 
             description: `To receive a role based on which trials house you chose, you need to link your League accounts with me. You can add some using \`@Orianna Bot configure\` and following the instructions.`
         });
 
-        let received = [];
+        let received: string[] = [];
         for (const acc of user.accounts!) {
             const data = await client.riotAPI.getSummonerById(acc.region, acc.summoner_id);
             if (!data) continue;
@@ -31,6 +31,7 @@ This command checks the summoner icons of all your linked accounts, looking for 
             if (!house) continue;
             const role = guild.roles.find(x => x.name === house);
             if (!role) continue;
+            if (received.includes(role.id)) continue;
 
             msg.member!.addRole(role.id, "Is In House").catch(() => { /* Ignored. */ });
             received.push(role.id);
