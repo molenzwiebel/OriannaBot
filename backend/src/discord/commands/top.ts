@@ -125,11 +125,12 @@ Examples:
 
         // Potentially use the test version instead.
         // We use the test version if new is included, or if the last digit of the user's id is <= 5.
-        if (!msg.content.includes("old") && (msg.content.includes("new") || +msg.author.id.slice(-1) <= 5)) {
+        // Disabled for more work. Overall results were positive, but a few common requests need to be accounted for.
+        /*if (!msg.content.includes("old") && (msg.content.includes("new") || +msg.author.id.slice(-1) <= 5)) {
             await channel.createMessage("We are testing a redesigned version of Orianna's leaderboards. Please let us know what you think! <https://forms.gle/ZWmfuqtBDV8jtWQ7A>");
             await channel.sendTyping();
             return TestTopCommand.handler(ctx);
-        }
+        }*/
 
         // No player was mentioned, show the top for the specified champion.
         const champ = await expectChampion(ctx);

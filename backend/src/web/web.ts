@@ -7,7 +7,6 @@ import DiscordClient from "../discord/client";
 import { default as registerReddit } from "./reddit-client";
 import { default as registerAuth } from "./auth-key-client";
 import { default as registerDiscordAuth } from "./discord-auth-client";
-import { default as registerDiscordLink } from "./discord-link-client";
 import { default as registerDiscordInvite } from "./discord-invite-client";
 import * as path from "path";
 
@@ -34,7 +33,6 @@ export default function createApplication(client: DiscordClient) {
     registerAuth(app);
     registerReddit(app, client.riotAPI, client.updater);
     registerDiscordAuth(app, client);
-    registerDiscordLink(app, client);
     registerDiscordInvite(app, client);
 
     // Then, default to index for anything we do not recognize, that way

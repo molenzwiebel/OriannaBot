@@ -135,13 +135,13 @@ export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, element
         curPage += offset;
 
         loading = true;
-        const loadingPromise = res.message.addReaction(rawEmote(ctx, "loading")!);
+        const loadingPromise = res.message.addReaction(rawEmote(ctx, "loading")!).catch(() => { /* Ignored */ });
         res.info(await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage, curPage + 1, pages));
 
         // If the message wasn't recreated, make sure to remove the loading emote.
         if (!initialOptions.file || !initialOptions.file.fileOnly) {
             await loadingPromise;
-            await res.message.removeReaction(rawEmote(ctx, "loading")!);
+            await res.message.removeReaction(rawEmote(ctx, "loading")!).catch(() => { /* Ignored */ });
         }
 
         loading = false;
