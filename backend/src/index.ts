@@ -22,6 +22,7 @@ import config from "./config";
 import RiotAPI from "./riot/api";
 import PuppeteerController from "./puppeteer";
 import DiscordClient from "./discord/client";
+import HouseCommand from "./discord/commands/house";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -56,6 +57,7 @@ process.on("unhandledRejection", (err: Error) => {
     discord.registerCommand(StatsCommand);
     discord.registerCommand(InviteCommand);
     discord.registerCommand(TestTopCommand);
+    discord.registerCommand(HouseCommand);
     discord.registerCommand(OtherBotsHelpfulCommand);
 
     const app = createApplication(discord);
