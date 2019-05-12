@@ -7,6 +7,8 @@ import { expectChampion, paginateRaw } from "./util";
 import * as path from "path";
 import * as fs from "fs";
 import config from "../../config";
+import generateTopGraphic from "../../graphics/top";
+import { ResponseOptions } from "../response";
 
 const TestTopCommand: Command = {
     name: "Show Leaderboards (Test)",
@@ -52,9 +54,16 @@ const TestTopCommand: Command = {
             .where(x => serverOnly ? x.whereIn("user_id", serverIds) : true)  // filter on server members if needed
             .orderBy("score", "DESC");                                        // order by score
 
+        // Find the user's rank, or leave it out if they have no ori account.
+        let userRank: undefined | string = undefined;
+        const user = await ctx.user();
+        if (user && stats.find(x => x.user_id === user.id)) {
+            userRank = "Your Rank: " + (stats.findIndex(x => x.user_id === user.id) + 1);
+        }
+
         // Return paginated image.
         const pageImages = new Map<number, string>();
-        await paginateRaw(ctx, stats, async (items, offset, curPage, maxPages) => {
+        await paginateRaw(ctx, stats, async (items, offset, curPage, maxPages): Promise<ResponseOptions> => {
             // Map players to display on the graphic.
             const players = await Promise.all(items.map(async (x, i) => {
                 const user = await User.query().where("id", x.user_id).first();
@@ -68,19 +77,11 @@ const TestTopCommand: Command = {
                 };
             }));
 
-            const render = async () => client.puppeteer.render("./graphics/top-embed.html", {
-                screenshot: {
-                    width: 399,
-                    height: 288
-                },
-                timeout: 5000,
-                args: {
-                    header_image: await StaticData.getChampionSplash(champ),
-                    title_image: await StaticData.getChampionIcon(champ),
-                    title: champ.name + " Leaderboard",
-                    page: "Page " + curPage + " of " + maxPages,
-                    players
-                }
+            const render = async () => generateTopGraphic({
+                headerImage: await StaticData.getChampionSplash(champ),
+                titleImage: await StaticData.getChampionIcon(champ),
+                title: champ.name + " Leaderboard",
+                players
             });
 
             let fileName = pageImages.get(curPage);
@@ -95,10 +96,10 @@ const TestTopCommand: Command = {
             }
 
             return {
-                image: config.web.url + "/img/generated/" + fileName,
-                noFooter: true
+                footer: "Page " + curPage + " of " + maxPages + (userRank ? " • " + userRank : ""),
+                image: config.web.url + "/img/generated/" + fileName
             };
-        }, 6);
+        }, 8);
     }
 };
 export default TestTopCommand;
