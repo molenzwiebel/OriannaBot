@@ -97,7 +97,11 @@ const TestTopCommand: Command = {
 
             return {
                 footer: "Page " + curPage + " of " + maxPages + (userRank ? " • " + userRank : ""),
-                image: config.web.url + "/img/generated/" + fileName
+                image: {
+                    url: config.web.url + "/img/generated/" + fileName,
+                    width: 399,
+                    height: 299
+                }
             };
         }, 8);
     }

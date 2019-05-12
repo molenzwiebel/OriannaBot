@@ -25,7 +25,8 @@ export function createCanvas(width: number, height: number): Canvas {
 export async function loadImage(path: string): Promise<Image> {
     if (imageCache.has(path)) return imageCache.get(path);
 
-    const image = await canvasLoadImage(path);
+    // If loading fails, use a transparent image.
+    const image = await canvasLoadImage(path).catch(e => canvasLoadImage("data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="));
     imageCache.set(path, image);
     return image;
 }

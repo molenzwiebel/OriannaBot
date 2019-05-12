@@ -20,8 +20,6 @@ export interface TopGraphicOptions {
  * a fake canvas object to retrieve the operations needed to render the specified image statically.
  */
 export default async function generateTopGraphic(options: TopGraphicOptions): Promise<Buffer> {
-    const a = Date.now();
-
     // Step 1: Load all images.
     await Promise.all([
         // Title and header images.
@@ -35,7 +33,8 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
         ...[...new Set(options.players.map(x => x.level))].map(x => loadImage(`./assets/level${x}.png`))
     ]);
 
-    const b = Date.now();
+    // Figure out the width our numbers need to be.
+    const placeWidth = Math.max(...options.players.map(x => x.place)).toString().length * 8;
 
     // Step 2: Render canvas. All the code that follows was automatically generated.
     const canvas = createCanvas(399, 299);
@@ -210,10 +209,10 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
         ctx.clip();
         ctx.save();
         ctx.beginPath();
-        ctx.arc(27, 118 + 24 * i, 8, 0, Math.PI * 2, true);
+        ctx.arc(19 + placeWidth, 118 + 24 * i, 8, 0, Math.PI * 2, true);
         ctx.closePath();
         ctx.clip();
-        ctx.drawImage(await loadImage(player.avatar), 0, 0, 16, 16, 19, 110 + 24 * i, 16, 16);
+        ctx.drawImage(await loadImage(player.avatar), 0, 0, 16, 16, 11 + placeWidth, 110 + 24 * i, 16, 16);
         ctx.restore();
         ctx.restore();
         ctx.save();
@@ -233,7 +232,7 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
         ctx.clip();
         ctx.font = "13px \"Noto Sans\", sans-serif";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(player.username, 41, 127 + 24 * i);
+        ctx.fillText(player.username, 33 + placeWidth, 127 + 24 * i);
         ctx.restore();
         ctx.save();
         ctx.beginPath();
@@ -276,12 +275,6 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
         ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
         ctx.restore();
     }
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    const c = Date.now();
-
-    console.log("Loading images took " + (b - a) + "ms, generating the graphic took " + (c - b) + "ms for a total of " + (c - a) + "ms");
 
     return canvas.toBuffer();
 }

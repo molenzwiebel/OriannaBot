@@ -13,7 +13,7 @@ export interface ResponseOptions {
     url?: string;
     description?: string;
     fields?: { name: string, value: string, inline?: boolean }[];
-    image?: string;
+    image?: string | { url: string, width: number, height: number };
     thumbnail?: string;
     author?: { icon_url?: string, name: string };
     footer?: string;
@@ -248,7 +248,7 @@ export default class Response {
         if (options.url) obj.url = options.url;
         if (options.description) obj.description = options.description;
         if (options.fields) obj.fields = options.fields;
-        if (options.image) obj.image = { url: options.image };
+        if (options.image) obj.image = typeof options.image === "string" ? { url: options.image } : options.image;
         if (options.thumbnail) obj.thumbnail = { url: options.thumbnail };
         if (options.author) obj.author = options.author;
 
