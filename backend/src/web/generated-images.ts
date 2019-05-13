@@ -28,7 +28,6 @@ export function createGeneratedImagePath(cacheKey: string, generate: () => Promi
     const key = randomstring.generate({ length: 32 });
 
     const promise = generate().then(result => {
-        console.log(path.join(IMAGES, key + ".png"));
         return new Promise(resolve => fs.writeFile(path.join(IMAGES, key + ".png"), result, () => resolve()));
     }).then(() => {
         generatingImages.delete(key);

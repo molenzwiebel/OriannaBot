@@ -3,7 +3,7 @@ import { User, UserChampionStat } from "../../database";
 import StaticData from "../../riot/static-data";
 import randomstring = require("randomstring");
 import { expectChampion, paginateRaw } from "./util";
-import generateTopGraphic from "../../graphics/top";
+import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
 import { ResponseOptions } from "../response";
 import redis from "../../redis";
 import { createGeneratedImagePath } from "../../web/generated-images";
@@ -17,6 +17,7 @@ const TestTopCommand: Command = {
     async handler({ msg, content, guild, ctx, error }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
+        const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
 
         // You'd think that nobody is dumb enough to do this, but there are people.
         if (serverOnly && !guild) {
@@ -26,9 +27,15 @@ const TestTopCommand: Command = {
             });
         }
 
-        // No player was mentioned, show the top for the specified champion.
-        const champ = await expectChampion(ctx);
-        if (!champ) return;
+        // No player was mentioned, show the top for the specified champion, or all champs if given.
+        let champ: riot.Champion | undefined = undefined;
+        if (!allChamps) {
+            champ = await expectChampion(ctx);
+            if (!champ) return;
+        }
+
+        // The source redis key to get our data from.
+        const sourceKey = champ ? "leaderboard:" + champ.key : "leaderboard:all";
 
         // The redis key to pull data from.
         let redisKey: string;
@@ -48,11 +55,11 @@ const TestTopCommand: Command = {
             await redis.zadd(userCollection, ...([] as string[]).concat(...userIds.map(x => ["0", "" + x])));
 
             // Run intersection.
-            await redis.zinterstore(intersectedCollection, 2, userCollection, "leaderboard:" + champ.key);
+            await redis.zinterstore(intersectedCollection, 2, userCollection, sourceKey);
 
             redisKey = intersectedCollection;
         } else {
-            redisKey = "leaderboard:" + champ.key;
+            redisKey = sourceKey;
         }
 
         // Find the user's rank, or leave it out if they have no ori account or aren't listed on that champion.
@@ -74,10 +81,13 @@ const TestTopCommand: Command = {
 
             // Query more information about those players.
             const players = await Promise.all(userIds.map(async (x, i) => {
-                const entry = await UserChampionStat.query().where("champion_id", +champ.key).where("user_id", +x).first();
+                const entry = allChamps
+                    ? await UserChampionStat.query().where("user_id", +x).orderBy("score", "DESC").first()
+                    : await UserChampionStat.query().where("champion_id", +champ!.key).where("user_id", +x).first();
                 const user = await User.query().where("id", +x).first();
 
                 return {
+                    championAvatar: await StaticData.getChampionIcon(entry!.champion_id),
                     place: offset + i + 1,
                     username: user!.username,
                     avatar: user!.avatarURL + "?size=16",
@@ -87,10 +97,11 @@ const TestTopCommand: Command = {
             }));
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
-            const imagePath = await createGeneratedImagePath(`leaderboard-${champ.key}-${msg.author.id}-${curPage}-${serverOnly}`, async () => generateTopGraphic({
-                headerImage: await StaticData.getChampionSplash(champ),
-                titleImage: await StaticData.getChampionIcon(champ),
-                title: champ.name + " Leaderboard",
+            const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
+            const imagePath = await createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction({
+                headerImage: champ ? await StaticData.getChampionSplash(champ) : "https://i.imgur.com/XVKpmRV.png",
+                titleImage: champ ? await StaticData.getChampionIcon(champ) : undefined,
+                title: champ ? champ.name + " Leaderboard" : "Global Leaderboard",
                 players
             }));
 
