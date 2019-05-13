@@ -128,7 +128,7 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "bold 13px \"Noto Sans\", sans-serif";
+    ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(options.title, 32, 78);
     ctx.restore();
@@ -270,7 +270,7 @@ export default async function generateTopGraphic(options: TopGraphicOptions): Pr
         ctx.lineTo(0, 300 + 24 * i);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "bold 13px \"Noto Sans\", sans-serif";
+        ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
         ctx.restore();
