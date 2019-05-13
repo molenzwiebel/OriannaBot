@@ -38,10 +38,11 @@ export async function loadImage(path: string): Promise<Image> {
  */
 export function resizeImage(img: Image, size: {
     width: number,
-    height: number
+    height: number,
+    yOffset?: number
 }): Canvas {
     const cv = createCanvas(size.width, size.height);
     const c = cv.getContext("2d");
-    c.drawImage(img, 0, 0, img.width, img.height, 0, 0, size.width, size.height);
+    c.drawImage(img, 0, size.yOffset || 0, img.width, img.height, 0, 0, size.width, size.height);
     return cv;
 }

@@ -1,10 +1,10 @@
 import { createCanvas, loadImage, resizeImage } from "./tools";
+import StaticData from "../riot/static-data";
 
 export interface TopGraphicOptions {
-    headerImage: string;
+    champion?: riot.Champion;
 
     title: string;
-    titleImage?: string;
 
     players: {
         championAvatar?: string;
@@ -16,16 +16,113 @@ export interface TopGraphicOptions {
     }[];
 }
 
+const SPLASH_OFFSETS: { [key: string]: number } = {
+    Blitzcrank: 30,
+    Anivia: 80,
+    Kassadin: 40,
+    Hecarim: -40,
+    Velkoz: 100,
+    Zac: 230,
+    Soraka: -40,
+    Jayce: 30,
+    Alistar: 120,
+    Leona: -60,
+    Rammus: 100,
+    Lissandra: -40,
+    Darius: -45,
+    Trundle: 30,
+    TahmKench: 100,
+    Kaisa: -40,
+    Katarina: 110,
+    Aatrox: 30,
+    Gnar: 220,
+    Lucian: 100,
+    Ezreal: 30,
+    Khazix: 90,
+    Draven: 30,
+    Heimerdinger: 140,
+    Yasuo: 50,
+    MissFortune: 40,
+    Kindred: 70,
+    Fiddlesticks: 50,
+    Garen: 60,
+    Shen: -60,
+    Annie: 60,
+    Quinn: 40,
+    Ziggs: 150,
+    DrMundo: 40,
+    Kennen: 50,
+    Rumble: 15,
+    Malphite: 200,
+    Illaoi: -85,
+    Sona: -30,
+    Zed: -30,
+    Rengar: 70,
+    Urgot: -80,
+    Maokai: 110,
+    Olaf: 60,
+    Braum: -30,
+    Lulu: 90,
+    Sejuani: -30,
+    Amumu: 50,
+    Ornn: 80,
+    Tristana: 30,
+    Yorick: -60,
+    Sion: -20,
+    Nunu: 320,
+    Rakan: -40,
+    KogMaw: 250,
+    Xayah: 40,
+    Volibear: -70,
+    Corki: 30,
+    Veigar: 40,
+    Ivern: 20,
+    Skarner: 130,
+    Teemo: 40,
+    Akali: -30,
+    Orianna: -50,
+    Nocturne: 140,
+    Irelia: -70,
+    Diana: 70,
+    Cassiopeia: 50,
+    Twitch: 100,
+    Galio: -70,
+    RekSai: 260,
+    Udyr: 180,
+    Warwick: 240,
+    Kayn: 170,
+    Karthus: -60,
+    Ryze: 80,
+    Taric: -80,
+    MasterYi: 60,
+    Pyke: 70,
+    Talon: 60,
+    Camille: -30,
+    Graves: -90,
+    Janna: 30,
+    Fiora: -70,
+    Caitlyn: -20,
+    Sivir: 60,
+    Chogath: 70,
+    Xerath: -80,
+    Varus: -70,
+    Swain: -80,
+    Gangplank: 30,
+};
+
 /**
  * The following function is generated from an instance of [html2canvas](https://github.com/niklasvh/html2canvas) on
  * a fake canvas object to retrieve the operations needed to render the specified image statically.
  */
 export async function generateChampionTopGraphic(options: TopGraphicOptions): Promise<Buffer> {
+    const splash = await StaticData.getChampionSplash(options.champion!);
+    const icon = await StaticData.getChampionIcon(options.champion!);
+
     // Step 1: Load all images.
     await Promise.all([
         // Title and header images.
-        loadImage(options.headerImage),
-        loadImage(options.titleImage!),
+        loadImage(splash),
+        loadImage(icon),
 
         // Player avatars
         ...options.players.map(x => loadImage(x.avatar)),
@@ -59,9 +156,10 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
     ctx.lineTo(399, 50);
     ctx.lineTo(0, 50);
     ctx.closePath();
-    ctx.fillStyle = ctx.createPattern(resizeImage(await loadImage(options.headerImage), {
+    ctx.fillStyle = ctx.createPattern(resizeImage(await loadImage(splash), {
         "width": 399,
-        "height": 235.45925925925926
+        "height": 235.45925925925926,
+        yOffset: SPLASH_OFFSETS[options.champion!.id] || 0
     }), "repeat");
     ctx.translate(0, -503);
     ctx.fill();
@@ -116,7 +214,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
     ctx.bezierCurveTo(9.924867751861271, 80, 5, 75.07513224813873, 5, 69);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(await loadImage(options.titleImage!), 0, 0, 120, 120, 5, 58, 22, 22);
+    ctx.drawImage(await loadImage(icon), 0, 0, 120, 120, 5, 58, 22, 22);
     ctx.restore();
     ctx.restore();
     ctx.save();
@@ -286,7 +384,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
     // Step 1: Load all images.
     await Promise.all([
         // Title and header images.
-        loadImage(options.headerImage),
+        loadImage("https://i.imgur.com/XVKpmRV.png"),
 
         // Player avatars
         ...options.players.map(x => loadImage(x.avatar)),
@@ -323,7 +421,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
     ctx.lineTo(399, 50);
     ctx.lineTo(0, 50);
     ctx.closePath();
-    ctx.fillStyle = ctx.createPattern(resizeImage(await loadImage(options.headerImage), {
+    ctx.fillStyle = ctx.createPattern(resizeImage(await loadImage("https://i.imgur.com/XVKpmRV.png"), {
         "width": 399,
         "height": 235.45925925925926
     }), "repeat");

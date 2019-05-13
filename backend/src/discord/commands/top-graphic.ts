@@ -102,9 +102,8 @@ const TestTopCommand: Command = {
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = await createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction({
-                headerImage: champ ? await StaticData.getChampionSplash(champ) : "https://i.imgur.com/XVKpmRV.png",
-                titleImage: champ ? await StaticData.getChampionIcon(champ) : undefined,
+            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction({
+                champion: champ,
                 title: champ ? champ.name + " Leaderboard" : "Global Leaderboard",
                 players
             }));
