@@ -37,6 +37,10 @@
         "host": "<<if enabled, the host URL of an elasticsearch instance>>",
         "auth": "<<if enabled, the username:pass of the specified elasticsearch instance>>"
     },
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379
+    },
     "updater": {
         "masteryGamesInterval": 60000,
         "masteryGamesAmount": 1,

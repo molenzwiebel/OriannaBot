@@ -8,6 +8,7 @@ import { default as registerReddit } from "./reddit-client";
 import { default as registerAuth } from "./auth-key-client";
 import { default as registerDiscordAuth } from "./discord-auth-client";
 import { default as registerDiscordInvite } from "./discord-invite-client";
+import { default as registerImages } from "./generated-images";
 import * as path from "path";
 
 /**
@@ -27,6 +28,9 @@ export default function createApplication(client: DiscordClient) {
 
     // First try static data.
     app.use(express.static(path.join(__dirname, "../../../frontend/dist")));
+
+    // Then, try images that may or may not exist yet.
+    registerImages(app);
 
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);

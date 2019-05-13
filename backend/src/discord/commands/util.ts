@@ -119,15 +119,19 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
 
 /**
  * Utility method to paginate a raw message. Unlike advancedPaginate, this does not take the assumption that
- * fields are used as pagination. Instead, a raw callback can edit the page itself.
+ * fields are used as pagination. Instead, a raw callback can edit the page itself. It also takes a maximum amount of
+ * entries instead of a fully materialized list of entries.
  */
-export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, elements: T[], process: (elements: T[], offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
-    const pages = Math.ceil(elements.length / perPage);
+export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, elementCount: number, process: (offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+    const pages = Math.ceil(elementCount / perPage);
     let curPage = 0;
     let loading = false;
 
-    const initialOptions = await process(elements.slice(0, perPage), 0, curPage + 1, pages);
-    const res = await info(initialOptions);
+    const initialOptions = await process(0, curPage + 1, pages);
+    const res = await info({
+        ...initialOptions,
+        footer: "Page 1 of " + pages + (initialOptions.footer ? " • " + initialOptions.footer : "")
+    });
 
     const showPage = async (offset: number) => {
         if (loading) return;
@@ -135,7 +139,12 @@ export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, element
         curPage += offset;
 
         loading = true;
-        res.info(await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage, curPage + 1, pages));
+
+        const template = await process(curPage * perPage, curPage + 1, pages);
+        res.info({
+            ...template,
+            footer: "Page " + (curPage + 1) + " of " + pages + (template.footer ? " • " + template.footer : "")
+        });
 
         loading = false;
     };
