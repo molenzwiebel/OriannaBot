@@ -27,6 +27,10 @@ interface Configuration {
         host: string;
         auth: string;
     };
+    redis: {
+        host: string;
+        port: number;
+    };
     updater: {
         masteryGamesInterval: number;
         masteryGamesAmount: number;

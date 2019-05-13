@@ -8,6 +8,7 @@ import debug = require("debug");
 import elastic from "../elastic";
 import scheduleUpdateLoop from "../util/update-loop";
 import formatName from "../util/format-name";
+import redis from "../redis";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -116,7 +117,7 @@ export default class Updater {
         scheduleUpdateLoop(async user => {
             try {
                 // Update mastery values.
-                const hasChanged = await this.fetchMasteryScores(user);
+                await this.fetchMasteryScores(user);
 
                 // Now recompute roles.
                 await this.updateUser(user);
@@ -226,6 +227,9 @@ export default class Updater {
         if (!user.stats) user.stats = await user.$relatedQuery<UserChampionStat>("stats");
         logMastery("Updating mastery for user %s (%s)", user.username, user.snowflake);
 
+        // Create a redis pipeline for leaderboard tracking through sorted sets.
+        const pipeline = redis.pipeline();
+
         // Sum scores and max levels for all accounts.
         const scores = new Map<number, { score: number, level: number }>();
         for (const account of user.accounts) {
@@ -242,10 +246,17 @@ export default class Updater {
             }
         }
 
-        // Nuke all old entries not in the list, so that deleted accounts update properly.
+        // Remove user from Redis leaderboards if they lost their points.
+        for (const stats of user.stats) {
+            if (scores.has(stats.champion_id)) continue;
+
+            pipeline.zrem("leaderboard:" + stats.champion_id, "" + user.id);
+        }
+
+        // Remove user from Postgres stats if they lost their points.
         await user.$relatedQuery("stats").whereNotIn("champion_id", [...scores.keys()]).delete();
 
-        let changed = false;
+        let changed;
         const toInsert = [];
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
@@ -266,6 +277,9 @@ export default class Updater {
             }
             changed = true;
 
+            // Insert or update into redis.
+            pipeline.zadd("leaderboard:" + champion, "" + score.score, "" + user.id);
+
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,
                 level: score.level,
@@ -273,9 +287,18 @@ export default class Updater {
             });
         }
 
+        // If we had a change, also update the leaderboard for most total score.
+        if (changed) {
+            const maxScore = Math.max(...[...scores.values()].map(x => x.score));
+            pipeline.zadd("leaderboard:all", maxScore + "", "" + user.id);
+        }
+
         // If we had any changed values, we insert them all at once to avoid having a lot of
         // individual queries.
         if (toInsert.length) await UserMasteryDelta.query().insert(toInsert);
+
+        // Run redis pipeline.
+        await pipeline.exec();
 
         // Refetch stats now that we updated stuff.
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
