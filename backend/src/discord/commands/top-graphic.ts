@@ -57,6 +57,10 @@ const TestTopCommand: Command = {
             // Run intersection.
             await redis.zinterstore(intersectedCollection, 2, userCollection, sourceKey);
 
+            // Ensure that the temporary keys expire after 30 minutes.
+            await redis.expire(userCollection, 30 * 60);
+            await redis.expire(intersectedCollection, 30 * 60);
+
             redisKey = intersectedCollection;
         } else {
             redisKey = sourceKey;

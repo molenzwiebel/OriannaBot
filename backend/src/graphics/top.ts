@@ -194,7 +194,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
         ctx.lineTo(0, 300);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans\", sans-serif";
+        ctx.font = "13px \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
         ctx.fillText(player.place.toString(), 5, 127 + 24 * i);
         ctx.restore();
@@ -275,7 +275,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
         ctx.restore();
     }
 
-    return canvas.toBuffer();
+    return canvas.toBuffer("image/jpeg", { quality: 1 });
 }
 
 /**
@@ -444,7 +444,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
         ctx.lineTo(0, 300);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans\", sans-serif";
+        ctx.font = "13px \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
         ctx.fillText(player.place.toString(), 5, 127 + 24 * i);
         ctx.restore();
@@ -532,5 +532,5 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
         ctx.restore();
     }
 
-    return canvas.toBuffer();
+    return canvas.toBuffer("image/jpeg", { quality: 1 });
 }
