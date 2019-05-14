@@ -23,6 +23,7 @@ const MUTE_REACTION = "🔇";
 const LOL_APPLICATION_ID = "401518684763586560";
 
 const STATUSES: [number, string][] = [
+    [0, "x.co/orifeedback"],
     [0, "on-hit Orianna"],
     [0, "with the Ball"],
     [2, "time ticking away"],

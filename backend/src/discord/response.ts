@@ -17,6 +17,7 @@ export interface ResponseOptions {
     thumbnail?: string;
     author?: { icon_url?: string, name: string };
     footer?: string;
+    noFooterDefaults?: boolean;
     timestamp?: number;
     noFooter?: boolean;
     file?: {
@@ -235,8 +236,8 @@ export default class Response {
         if (this.trigger) {
             obj = {
                 color: options.color,
-                footer: options.noFooter ? void 0 : { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + " • " : "") + formatName(this.user, true) },
-                timestamp: options.noFooter ? void 0 : new Date(options.timestamp || Date.now()).toISOString()
+                footer: options.noFooter ? void 0 : { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + (options.noFooterDefaults ? "" : " • ") : "") + (options.noFooterDefaults ? "" : formatName(this.user, true)) },
+                timestamp: options.noFooter || options.noFooterDefaults ? void 0 : new Date(options.timestamp || Date.now()).toISOString()
             };
         } else {
             obj = { color: options.color };
