@@ -1,6 +1,6 @@
 import { Command } from "../command";
-import { emote, expectChampion, expectUser } from "./util";
-import formatName, { badge } from "../../util/format-name";
+import { emote, expectChampion, expectUserWithAccounts } from "./util";
+import { badge } from "../../util/format-name";
 
 const PointsCommand: Command = {
     name: "Show Mastery Points",
@@ -18,20 +18,16 @@ Examples:
 - \`@Orianna Bot mastery\` - shows your mastery on the default champion
 `.trim(),
     keywords: ["points", "mastery", "score"],
-    async handler({ ctx, error, msg, ok }) {
+    async handler({ ctx, ok }) {
         // Remove the keywords since they can combine with champion names (e.g. **mastery i**relia).
         ctx.content = ctx.content.replace(/\b(points|mastery|score)\b/g, "");
 
-        const user = await expectUser(ctx);
-        await user.$loadRelated("[accounts, stats]");
+        const user = await expectUserWithAccounts(ctx);
+        if (!user) return;
+        await user.$loadRelated("[stats]");
 
         const champ = await expectChampion(ctx);
         if (!champ) return;
-
-        if (!user.accounts!.length) return error({
-            title: `🔍 ${formatName(user)} Has No Accounts`,
-            description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${formatName(user)} has no accounts setup with me. ${msg.author.id === user.snowflake ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
-        });
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
         const text = points && points.score ? emote(ctx, "Level_" + points.level) + " **" + points.score.toLocaleString() : "**0";

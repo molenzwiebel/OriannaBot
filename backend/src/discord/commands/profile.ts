@@ -1,6 +1,6 @@
 import { Command } from "../command";
 import { differenceInDays } from "date-fns";
-import { emote, expectUser } from "./util";
+import { emote, expectUserWithAccounts } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
 import StaticData from "../../riot/static-data";
 import formatName from "../../util/format-name";
@@ -20,16 +20,9 @@ Examples:
 - \`@Orianna Bot profile @molenzwiebel\` - shows molenzwiebel's profile
 `.trim(),
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
-    async handler({ msg, ctx, error, info, client }) {
-        const target = await expectUser(ctx);
+    async handler({ ctx, info, client }) {
+        const target = await expectUserWithAccounts(ctx);
         if (!target) return;
-        await target.$loadRelated("accounts");
-
-        const isAuthor = target.snowflake === msg.author.id;
-        if (!target.accounts!.length) return error({
-            title: "🔎 No Accounts Found",
-            description: `${isAuthor ? "You have" : formatName(target) + " has"} no accounts configured with me. ${isAuthor ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
-        });
 
         // Query some data we need later.
         const topMastery = await target.$relatedQuery<UserChampionStat>("stats").orderBy("score", "DESC").where("score", ">", 0).limit(8);

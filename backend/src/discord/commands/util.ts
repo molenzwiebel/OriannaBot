@@ -4,6 +4,7 @@ import StaticData from "../../riot/static-data";
 import * as eris from "eris";
 import config from "../../config";
 import { ResponseOptions } from "../response";
+import formatName from "../../util/format-name";
 
 /**
  * Utility method that takes a command context and either gets the current server or
@@ -29,6 +30,26 @@ export async function expectServer({ guild, error, server }: CommandContext): Pr
 export async function expectUser({ msg, client, user }: CommandContext): Promise<User> {
     const mentionTarget = msg.mentions.find(x => !x.bot);
     return mentionTarget ? client.findOrCreateUser(mentionTarget.id) : user();
+}
+
+/**
+ * The same as expectUser, but also ensures that they have at least a single account linked.
+ * If they don't, prints an error message and returns undefined instead.
+ */
+export async function expectUserWithAccounts(ctx: CommandContext): Promise<User | undefined> {
+    const user = await expectUser(ctx);
+    await user.$loadRelated("[accounts]");
+
+    if (!user.accounts!.length)  {
+        const authorWasTarget = ctx.msg.author.id === user.snowflake;
+        await ctx.error({
+            title: `🔍 ${formatName(user)} has no accounts configured.`,
+            description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${authorWasTarget ? "you have" : formatName(user) + " has"} no accounts setup with me. ${authorWasTarget ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
+        });
+        return;
+    }
+
+    return user;
 }
 
 /**
