@@ -164,8 +164,7 @@ Examples:
             }));
 
             return {
-                footer: (userRank ? userRank + " • " : "") + "Give us feedback! x.co/orifeedback",
-                noFooterDefaults: true,
+                footer: userRank,
                 image: {
                     url: imagePath,
                     width: 399,
