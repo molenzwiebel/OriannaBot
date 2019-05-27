@@ -300,6 +300,9 @@ export default class DiscordClient {
 
             // Find the first instance where snowflake = channel_snowflake. If it exists, we abort.
             if (await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").where("snowflake", "=", msg.channel.id).first()) {
+                // If this server is muted and this is a command not triggered by a mention, just do not do anything.
+                if (matchedCommand.noMention) return;
+
                 await msg.addReaction(MUTE_REACTION, "@me");
                 msg.channel.messages.add(msg);
                 return;
