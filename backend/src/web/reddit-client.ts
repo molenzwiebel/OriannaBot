@@ -4,10 +4,10 @@ import snoowrap = require("snoowrap");
 import { requireAuth } from "./decorators";
 import config from "../config";
 import RiotAPI from "../riot/api";
-import Updater from "../discord/updater";
+import * as ipc from "../cluster/master-ipc";
 import elastic from "../elastic";
 
-export default function register(app: express.Application, riot: RiotAPI, updater: Updater) {
+export default function register(app: express.Application, riot: RiotAPI) {
     const redirectUrl = config.web.url + "/api/v1/reddit/callback";
 
     app.get("/api/v1/reddit", requireAuth((req, res) => {
@@ -42,7 +42,7 @@ export default function register(app: express.Application, riot: RiotAPI, update
             }
 
             // Update data for the user after they fetched their accounts.
-            updater.fetchAndUpdateAll(req.user);
+            ipc.fetchAndUpdateUser(req.user);
 
             return ret({ ok: true });
         } catch (err) {

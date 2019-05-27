@@ -7,6 +7,7 @@ import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
 import config from "../config";
+import * as ipc from "../cluster/master-ipc";
 
 export default class WebAPIClient {
     private bot: eris.Client;
@@ -159,7 +160,7 @@ export default class WebAPIClient {
 
         // Add the user..
         await req.user.addAccount(summoner.region, summoner);
-        this.client.updater.fetchAndUpdateAll(req.user);
+        ipc.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
     });
@@ -182,7 +183,7 @@ export default class WebAPIClient {
 
         // Don't await so we can return without doing this.
         // TODO: Maybe instead of updating now just put it in the queue?
-        this.client.updater.fetchAndUpdateAll(req.user);
+        ipc.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
     });

@@ -9,8 +9,10 @@ export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "T
 export default class RiotAPI {
     private readonly teemo: teemo.Teemo;
 
-    constructor(key: string) {
-        this.teemo = Teemo(key);
+    constructor(key: string, scale: number) {
+        this.teemo = Teemo(key, {
+            distFactor: scale
+        });
     }
 
     /**

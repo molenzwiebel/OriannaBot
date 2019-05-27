@@ -13,6 +13,8 @@ declare namespace teemo {
 }
 
 declare module "teemojs" {
-    function create(apiKey: string): teemo.Teemo;
+    function create(apiKey: string, options?: {
+        distFactor?: number
+    }): teemo.Teemo;
     export = create;
 }

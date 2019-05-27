@@ -9,7 +9,7 @@ export default class ExpiringMap<K, V> implements Map<K, V> {
 
     constructor(private timeout: number) {}
 
-    [Symbol.toStringTag]: "Map (Expiring)";
+    [Symbol.toStringTag]: "Map";
 
     clear(): void {
         this.map.clear();

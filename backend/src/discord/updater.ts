@@ -1,14 +1,11 @@
 import RiotAPI from "../riot/api";
-import * as eris from "eris";
-import { Server, User, LeagueAccount, UserRank, UserChampionStat, Role, UserMasteryDelta } from "../database";
+import { Server, User, LeagueAccount, UserRank, UserChampionStat, UserMasteryDelta } from "../database";
 import config from "../config";
-import DiscordClient from "./client";
-import StaticData from "../riot/static-data";
 import debug = require("debug");
 import elastic from "../elastic";
 import scheduleUpdateLoop from "../util/update-loop";
-import formatName from "../util/format-name";
 import redis from "../redis";
+import createIPC from "../cluster/worker-ipc";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -18,10 +15,9 @@ const logAccounts = debug("orianna:updater:fetch:accounts");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
- * This updater actually runs 4 different updating loops, each at different intervals.
+ * This updater actually runs 3 different updating loops, each at different intervals.
  * From ran most often to ran least often:
  * - Update Mastery Scores (level, score)
- * - Update Ranked Information (amount of games)
  * - Update Ranked Information (ranked tier)
  * - Update Summoners (check if the summoner was renamed, transferred)
  * These different intervals are mostly because of the rate limits imposed on us by
@@ -35,9 +31,9 @@ const logAccounts = debug("orianna:updater:fetch:accounts");
  *           was previously fetched (and thus might have new data)
  */
 export default class Updater {
-    constructor(private client: DiscordClient, private riotAPI: RiotAPI) {
-        this.startUpdateLoops();
-    }
+    private ipc = createIPC(this);
+
+    constructor(private riotAPI: RiotAPI) {}
 
     /**
      * Updates everything for the specified user instance or snowflake. This
@@ -91,9 +87,13 @@ export default class Updater {
         if (!user.ranks) await user.$loadRelated("ranks");
 
         try {
-          await Promise.all(this.client.bot.guilds.filter(x => x.members.has(user.snowflake)).map(server => {
-              return this.updateUserOnGuild(user, server);
-          }));
+            // Find all guilds this user is on.
+            const userGuilds = await this.ipc.searchUser(user.snowflake);
+
+            // Update all of them in parallel.
+            await Promise.all(userGuilds.map(data => {
+                return this.updateUserOnGuild(user, data[1], data[0]);
+            }));
         } catch (e) {
             logUpdate("Failed to update roles for user %s (%s): %s", user.username, user.snowflake, e.message);
             logUpdate("%O", e);
@@ -105,7 +105,7 @@ export default class Updater {
     /**
      * Starts the 3 different update loops.
      */
-    private startUpdateLoops() {
+    public startUpdateLoops() {
         const selectLeastRecentlyUpdated = (field: string) => (amount: number) => User
             .query()
             .whereRaw(`(select count(*) from "league_accounts" as "accounts" where "accounts"."user_id" = "users"."id") > 0`)
@@ -164,23 +164,13 @@ export default class Updater {
      * Recalculates all the roles for the specified user in the specified
      * Discord guild. Does nothing if the guild is not registered in the database.
      */
-    private async updateUserOnGuild(user: User, guild: eris.Guild) {
+    private async updateUserOnGuild(user: User, userRoles: string[], guildId: string) {
         const server = await Server
             .query()
-            .where("snowflake", guild.id)
+            .where("snowflake", guildId)
             .eager("roles.conditions")
             .first();
         if (!server) return;
-
-        const member = guild.members.get(user.snowflake);
-        if (!member) return;
-
-        // Update their avatar just in case its incorrect (happens after transfer from v1->v2).
-        if (member.avatar !== user.avatar) {
-            await user.$query().patch({
-                avatar: member.avatar || "none"
-            });
-        }
 
         logUpdate("Updating roles for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
 
@@ -189,17 +179,15 @@ export default class Updater {
         // sure that that corresponds with the roles the user currently has on the server.
         const allRoles = new Set(server.roles!.map(x => x.snowflake));
         const shouldHave = new Set(server.roles!.filter(x => x.test(user)).map(x => x.snowflake));
-        const userHas = new Set(member.roles);
+        const userHas = new Set(userRoles);
 
         for (const role of allRoles) {
-            if (!guild.roles.has(role)) continue;
-
             // User has the role, but should not have it.
             if (userHas.has(role) && !shouldHave.has(role)) {
                 logUpdate("Removing role %s from user %s (%s) since they do not qualify.", role, user.username, user.snowflake);
 
                 // Ignore errors if we don't have permissions.
-                guild.removeMemberRole(user.snowflake, role, "Orianna - User does not meet requirements for this role.").catch(() => {});
+                this.ipc.removeGuildMemberRole(guildId, user.snowflake, role, "Orianna - User does not meet requirements for this role.").catch(() => {});
             }
 
             // User does not have the role, but should have it.
@@ -207,11 +195,14 @@ export default class Updater {
                 logUpdate("Adding role %s to user %s (%s) since they qualify.", role, user.username, user.snowflake);
 
                 // Ignore failures, they'll show in the web interface anyway.
-                guild.addMemberRole(user.snowflake, role, "Orianna - User meets requirements for role.").then(() => {
+                const dbRole = server.roles!.find(x => x.snowflake === role)!;
+                this.ipc.addGuildMemberRole(guildId, user.snowflake, role, "Orianna - User meets requirements for role.").then(result => {
+                    if (!result || !dbRole.announce) return;
+
                     // Only announce if giving the role was successful.
                     // Prevents us from announcing promotions if we didn't actually assign the role.
-                    this.announcePromotion(user, server.roles!.find(x => x.snowflake === role)!, guild);
-                }, () => {});
+                    this.ipc.announcePromotion(user, dbRole, guildId);
+                }).catch(() => { /* Ignored */ });
             }
         }
     }
@@ -359,7 +350,7 @@ export default class Updater {
                 user.accounts.slice(user.accounts.indexOf(account), 1);
 
                 // Potentially notify the user.
-                this.client.notify(user.snowflake, {
+                this.ipc.notify(user.snowflake, {
                     color: 0x0a96de,
                     title: "✈ Account Transferred?",
                     description: "You registered your League account **" + account.username + "** (" + account.region + ") with me a while ago. While checking up on it today, it seems that the account no longer exists. Did you transfer the account to another region?\n\nI have unlinked the League account from your Discord profile. If you have indeed transferred, you can simply add the account again in the new region."
@@ -373,61 +364,5 @@ export default class Updater {
                 });
             }
         }
-    }
-
-    /**
-     * Announces promotion for the specified user and the specified role on the
-     * specified guild, if enabled.
-     */
-    private async announcePromotion(user: User, role: Role, guild: eris.Guild) {
-        if (!role.announce) return;
-
-        // Find announcement channel ID.
-        const server = await Server.query().where("id", role.server_id).first();
-        if (!server) return;
-        const announceChannelId = server.announcement_channel;
-        if (!announceChannelId) return;
-
-        // Ensure that that channel exists.
-        const announceChannel = guild.channels.get(announceChannelId);
-        if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
-
-        logUpdate("Announcing promotion for %s (%s) to %s on %s (%s)", user.username, user.snowflake, role.name, guild.name, guild.id);
-
-        // Figure out what images to show for the promotion.
-        const champion = role.findChampionFor(user);
-        const championIcon = champion ? await StaticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
-        const championBg = champion ? await StaticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
-
-        // Enqueue rendering of the gif.
-        const image = await this.client.puppeteer.render("./graphics/promotion.html", {
-            gif: {
-                width: 800,
-                height: 220,
-                length: 2.4,
-                fpsScale: 1.4
-            },
-            timeout: 10000,
-            args: {
-                name: user.username,
-                title: role.name,
-                icon: user.avatarURL,
-                champion: championIcon,
-                background: championBg
-            }
-        });
-
-        // Send image!
-        announceChannel.createMessage({
-            embed: {
-                color: 0x49bd1a,
-                timestamp: new Date().toISOString(),
-                image: { url: "attachment://promotion.gif" },
-                author: {
-                    name: formatName(user, true) + " just got promoted to " + role.name + "!",
-                    icon_url: user.avatarURL
-                }
-            }
-        }, { file: image, name: "promotion.gif" }).catch(() => { /* We don't care. */ });
     }
 }

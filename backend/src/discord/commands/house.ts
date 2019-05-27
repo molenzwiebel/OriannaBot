@@ -47,7 +47,7 @@ This command checks the summoner icons of all your linked accounts, looking for 
 
         return ok({
             title: "✅ Roles Received!",
-            description: `You received ${received.map(x => "<&" + x + ">").join(', ')}.`
+            description: `You received ${received.map(x => "<@&" + x + ">").join(', ')}.`
         });
     }
 };

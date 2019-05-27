@@ -2,6 +2,9 @@
 import elastic from "./elastic";
 import debug = require("debug");
 
+import * as cluster from "cluster";
+import * as ipc from "./cluster/master-ipc";
+
 import HelpCommand from "./discord/commands/help";
 import AboutCommand from "./discord/commands/about";
 import RefreshCommand from "./discord/commands/refresh";
@@ -14,6 +17,7 @@ import EditCommand from "./discord/commands/edit";
 import OtherBotsHelpfulCommand from "./discord/commands/other-bots";
 import StatsCommand from "./discord/commands/stats";
 import InviteCommand from "./discord/commands/invite";
+import HouseCommand from "./discord/commands/house";
 
 import createApplication from "./web/web";
 
@@ -21,7 +25,7 @@ import config from "./config";
 import RiotAPI from "./riot/api";
 import PuppeteerController from "./puppeteer";
 import DiscordClient from "./discord/client";
-import HouseCommand from "./discord/commands/house";
+import Updater from "./discord/updater";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -32,35 +36,55 @@ process.on("unhandledRejection", (err: Error) => {
 });
 
 (async() => {
-    info("Starting Orianna Bot...");
+    if (cluster.isMaster) {
+        process.title = "Orianna Bot - Master";
 
-    const riotAPI = new RiotAPI(config.riot.apiKey);
+        info("Starting Orianna Bot - Master...");
 
-    const puppeteer = new PuppeteerController();
-    await puppeteer.initialize();
+        // Give the master process 10% of our rate limits.
+        const riotAPI = new RiotAPI(config.riot.apiKey, 0.1);
 
-    const discord = new DiscordClient(riotAPI, puppeteer);
-    await discord.connect();
+        const puppeteer = new PuppeteerController();
+        await puppeteer.initialize();
 
-    // These should be in order of most importance.
-    // They're matched from first to last, so `edit profile` will match edit before it matches profile.
-    discord.registerCommand(EvalCommand);
-    discord.registerCommand(HelpCommand);
-    discord.registerCommand(AboutCommand);
-    discord.registerCommand(EditCommand);
-    discord.registerCommand(RefreshCommand);
-    discord.registerCommand(TopCommand);
-    discord.registerCommand(ProfileCommand);
-    discord.registerCommand(PointsCommand);
-    discord.registerCommand(RolesCommand);
-    discord.registerCommand(StatsCommand);
-    discord.registerCommand(InviteCommand);
-    discord.registerCommand(HouseCommand);
-    discord.registerCommand(OtherBotsHelpfulCommand);
+        const discord = new DiscordClient(riotAPI, puppeteer);
+        await discord.connect();
 
-    const app = createApplication(discord);
-    app.listen(config.web.port);
-    info("Hosting web interface on 0.0.0.0:%i...", config.web.port);
+        // Fork update processes and register handlers for them.
+        ipc.initializeMasterRPC(discord, 1);
 
-    info("Orianna is running!");
+        // These should be in order of most importance.
+        // They're matched from first to last, so `edit profile` will match edit before it matches profile.
+        discord.registerCommand(EvalCommand);
+        discord.registerCommand(HelpCommand);
+        discord.registerCommand(AboutCommand);
+        discord.registerCommand(EditCommand);
+        discord.registerCommand(RefreshCommand);
+        discord.registerCommand(TopCommand);
+        discord.registerCommand(ProfileCommand);
+        discord.registerCommand(PointsCommand);
+        discord.registerCommand(RolesCommand);
+        discord.registerCommand(StatsCommand);
+        discord.registerCommand(InviteCommand);
+        discord.registerCommand(HouseCommand);
+        discord.registerCommand(OtherBotsHelpfulCommand);
+
+        const app = createApplication(discord);
+        app.listen(config.web.port);
+        info("Hosting web interface on 0.0.0.0:%i...", config.web.port);
+
+        info("Orianna is running!");
+    } else {
+        process.title = "Orianna Bot - Worker " + cluster.worker.id;
+
+        info("Starting Orianna Bot - Updater Worker %i...", cluster.worker.id);
+
+        // Give the updater process 90% of our rate limits.
+        const riotAPI = new RiotAPI(config.riot.apiKey, 0.9);
+        const updater = new Updater(riotAPI);
+
+        updater.startUpdateLoops();
+
+        info("Orianna Worker Process %i is running!", cluster.worker.id);
+    }
 })();

@@ -1,5 +1,6 @@
 import { Command } from "../command";
-import { emote, expectUser, rawEmote } from "./util";
+import { expectUser, rawEmote } from "./util";
+import * as ipc from "../../cluster/master-ipc";
 
 const RefreshCommand: Command = {
     name: "Refresh",
@@ -33,7 +34,7 @@ If you want to refresh someone else's scores, simply mention them when invoking 
 
         msg.addReaction(loadingEmoji);
 
-        await client.updater.fetchAndUpdateAll(user);
+        await ipc.fetchAndUpdateUser(user);
 
         // Update timestamps.
         user.$query().patch({

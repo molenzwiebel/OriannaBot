@@ -4,14 +4,16 @@ import config from "../config";
 import randomstring = require("randomstring");
 import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
-import { Server, User, BlacklistedChannel, UserAuthKey } from "../database";
-import Updater from "./updater";
+import { Server, User, BlacklistedChannel, UserAuthKey, Role } from "../database";
 import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
 import { randomBytes } from "crypto";
 import elastic from "../elastic";
 import * as DBL from "dblapi.js";
 import { Commit, getLastCommit } from "git-last-commit";
+import formatName from "../util/format-name";
+import StaticData from "../riot/static-data";
+import * as ipc from "../cluster/master-ipc";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -43,7 +45,6 @@ const STATUSES: [number, string][] = [
 
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token, { maxShards: "auto" });
-    public readonly updater = new Updater(this, this.riotAPI);
     public readonly commands: Command[] = [];
     private responses: Response[] = [];
     private statusIndex = 0;
@@ -508,9 +509,8 @@ export default class DiscordClient {
         const user = await User.query().where("snowflake", "=", member.id).first();
         if (!user) return;
 
-        // Only update, do not fetch new data for the user.
         // This should assign new roles, if appropriate.
-        this.updater.updateUser(user);
+        ipc.fetchAndUpdateUser(user);
     };
 
     /**
@@ -563,5 +563,61 @@ export default class DiscordClient {
                 }), new Promise(resolve => setTimeout(() => resolve(undefined), timeout))]);
             }
         };
+    }
+
+    /**
+      * Announces promotion for the specified user and the specified role on the
+      * specified guild, if enabled.
+      */
+    public async announcePromotion(user: User, role: Role, guildId: string) {
+        const guild = this.bot.guilds.get(guildId);
+        if (!guild) return;
+
+        // Find announcement channel ID.
+        const server = await Server.query().where("id", role.server_id).first();
+        if (!server) return;
+
+        const announceChannelId = server.announcement_channel;
+        if (!announceChannelId) return;
+
+        // Ensure that that channel exists.
+        const announceChannel = guild.channels.get(announceChannelId);
+        if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
+
+        // Figure out what images to show for the promotion.
+        const champion = role.findChampionFor(user);
+        const championIcon = champion ? await StaticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
+        const championBg = champion ? await StaticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
+
+        // Enqueue rendering of the gif.
+        const image = await this.puppeteer.render("./graphics/promotion.html", {
+            gif: {
+                width: 800,
+                height: 220,
+                length: 2.4,
+                fpsScale: 1.4
+            },
+            timeout: 10000,
+            args: {
+                name: user.username,
+                title: role.name,
+                icon: user.avatarURL,
+                champion: championIcon,
+                background: championBg
+            }
+        });
+
+        // Send image!
+        announceChannel.createMessage({
+            embed: {
+                color: 0x49bd1a,
+                timestamp: new Date().toISOString(),
+                image: { url: "attachment://promotion.gif" },
+                author: {
+                    name: formatName(user, true) + " just got promoted to " + role.name + "!",
+                    icon_url: user.avatarURL
+                }
+            }
+        }, { file: image, name: "promotion.gif" }).catch(() => { /* We don't care. */ });
     }
 }
