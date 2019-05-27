@@ -34,7 +34,7 @@ class MasterIPC extends IPCBase {
         } else if (msg.action === "notify") {
             this.client.notify(msg.args[0], msg.args[1]).catch(() => { /* Ignored */ });
         } else if (msg.action === "announce-promotion") {
-            const user = await User.query().where("id", msg.args[0]).first();
+            const user = await User.query().where("id", msg.args[0]).first().eager("[ranks, stats, accounts]");
             const role = await Role.query().where("id", msg.args[1]).first().eager("[conditions]");
             if (!user || !role) return;
 
