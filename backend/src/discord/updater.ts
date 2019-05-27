@@ -182,6 +182,10 @@ export default class Updater {
         const userHas = new Set(userRoles);
 
         for (const role of allRoles) {
+            // We can't fully test if this is a valid role since we don't have guild information here,
+            // but we can at least ensure that if this ID is obviously incorrect that we don't do an attempt.
+            if (!/^\d+$/.test(role)) continue;
+
             // User has the role, but should not have it.
             if (userHas.has(role) && !shouldHave.has(role)) {
                 logUpdate("Removing role %s from user %s (%s) since they do not qualify.", role, user.username, user.snowflake);
