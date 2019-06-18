@@ -13,6 +13,9 @@ export default class RiotAPI {
         this.teemo = Teemo(key, {
             distFactor: scale
         });
+
+        // Teemo has no support for this yet, add it manually.
+        this.teemo.config.endpoints.league.getAllLeagueEntriesForSummoner = "/lol/league/v4/entries/by-summoner/%s";
     }
 
     /**
@@ -44,7 +47,7 @@ export default class RiotAPI {
      * @returns all the league positions for the specified summoner id
      */
     async getLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
-        return this.teemo.get(platform(region), "league.getAllLeaguePositionsForSummoner", summonerId);
+        return this.teemo.get(platform(region), "league.getAllLeagueEntriesForSummoner", summonerId);
     }
 
     /**
