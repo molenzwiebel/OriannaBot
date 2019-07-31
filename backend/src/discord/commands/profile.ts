@@ -88,7 +88,7 @@ Examples:
             value: [
                 `Ranked Solo/Duo: **${queueRank("RANKED_SOLO_5x5")}**`,
                 `Ranked Flex: **${queueRank("RANKED_FLEX_SR")}**`,
-                `3v3 Flex: **${queueRank("RANKED_FLEX_TT")}**`
+                `Ranked TFT: **${queueRank("RANKED_TFT")}**`
             ].join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }];

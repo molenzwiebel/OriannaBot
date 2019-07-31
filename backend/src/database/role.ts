@@ -144,8 +144,11 @@ export class RoleCondition extends Model {
             // Sum total score, then evaluate the range condition.
             const total = user.stats.reduce((p, c) => p + c.score, 0);
             return evaluateRangeCondition(condition.options, total);
-        } else if (condition.type === "ranked_tier" && condition.options.queue === "HIGHEST") { // user's highest ranked queue.
-            const highest = user.ranks.sort((a, b) => config.riot.tiers.indexOf(b.tier) - config.riot.tiers.indexOf(a.tier))[0];
+        } else if (condition.type === "ranked_tier" && condition.options.queue.startsWith("HIGHEST")) { // user's highest ranked queue (potentially including tft)
+            const includeTFT = condition.options.queue.includes("TFT");
+            const highest = user.ranks
+                .filter(x => x.queue === "RANKED_TFT" ? includeTFT : true)
+                .sort((a, b) => config.riot.tiers.indexOf(b.tier) - config.riot.tiers.indexOf(a.tier))[0];
             if (!highest || user.treat_as_unranked) return condition.options.compare_type === "equal" && condition.options.tier === 0;
 
             return evaluateRankedTier(condition, highest);
