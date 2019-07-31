@@ -111,8 +111,10 @@
                     <option value="RANKED_SOLO_5x5">Ranked Solo/Duo</option>
                     <option value="RANKED_FLEX_SR">Ranked Flex 5v5</option>
                     <option value="RANKED_FLEX_TT">Ranked Flex 3v3</option>
+                    <option value="RANKED_TFT">Ranked TFT</option>
                     <option value="ANY">any ranked queue</option>
-                    <option value="HIGHEST">their highest ranked queue</option>
+                    <option value="HIGHEST">their highest ranked queue (excluding TFT)</option>
+                    <option value="HIGHEST_TFT">their highest ranked queue (including TFT)</option>
                 </select>
             </template>
         </template>
