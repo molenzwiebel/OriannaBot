@@ -2,7 +2,7 @@
     <div class="docs">
         <div class="header">
             <div class="title">Adding Your Account To Orianna</div>
-            <div class="subtitle"><i>"This is very exiting."</i></div>
+            <div class="subtitle"><i>"This is very exciting."</i></div>
         </div>
 
         <div class="body">
