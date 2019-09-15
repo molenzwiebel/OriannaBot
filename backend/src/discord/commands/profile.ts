@@ -4,6 +4,7 @@ import { emote, expectUserWithAccounts } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
 import StaticData from "../../riot/static-data";
 import formatName from "../../util/format-name";
+import generateProfileGraphic from "../../graphics/profile";
 
 const ProfileCommand: Command = {
     name: "Show User Profile",
@@ -130,20 +131,14 @@ Examples:
             Tank: "#888690",
             Assassin: "#c0964c"
         };
+
         const values = await Promise.all(topMastery.map(async x => ({
             champion: (await StaticData.championById(x.champion_id)).name,
             color: colors[(await StaticData.championById(x.champion_id)).tags[0]],
             score: x.score
         })));
 
-        const image = await client.puppeteer.render("./graphics/profile-chart.html", {
-            screenshot: {
-                width: 399,
-                height: 240
-            },
-            timeout: 3000,
-            args: { values, width: 399, height: 240 }
-        });
+        const image = await generateProfileGraphic(values);
 
         return info({
             title: "📖 " + formatName(target) + "'s Profile",

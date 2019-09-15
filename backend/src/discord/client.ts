@@ -553,7 +553,7 @@ export default class DiscordClient {
             error: embed => this.createResponse(channel, user, msg).respond({ color: 0xfd5c5c, ...embed }),
             respond: embed => this.createResponse(channel, user, msg).respond(embed),
             listen: (timeout = 30000) => {
-                return Promise.race<eris.Message, undefined>([new Promise(resolve => {
+                return Promise.race([new Promise<eris.Message>(resolve => {
                     const fn = (msg: eris.Message) => {
                         if (msg.channel !== channel) return;
                         if (msg.author.id !== user.id) return;
@@ -563,7 +563,7 @@ export default class DiscordClient {
                     };
 
                     this.bot.on("messageCreate", fn);
-                }), new Promise(resolve => setTimeout(() => resolve(undefined), timeout))]);
+                }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
             }
         };
     }
