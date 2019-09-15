@@ -22,7 +22,7 @@
     "debug": "^3.1.0",
     "elastic-apm-node": "^1.5.4",
     "elasticsearch": "^15.0.0",
-    "eris": "^0.8.4",
+    "eris": "0",
     "express": "^4.16.2",
     "git-last-commit": "^0.3.0",
     "ioredis": "^4.9.3",
