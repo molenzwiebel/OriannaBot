@@ -3,6 +3,7 @@ import { emote, expectChampion, expectUser } from "./util";
 import { UserMasteryDelta } from "../../database";
 import StaticData from "../../riot/static-data";
 import formatName, { badge } from "../../util/format-name";
+import generateStatsGraphic from "../../graphics/stats";
 
 const StatsCommand: Command = {
     name: "Show Stats",
@@ -45,18 +46,7 @@ const StatsCommand: Command = {
         const fmtDate = (ts: string) => new Date(+ts).toISOString().slice(0, 10);
 
         // Chart resulting data.
-        const chart = await client.puppeteer.render("./graphics/stats-chart.html", {
-            screenshot: {
-                width: 399,
-                height: 250
-            },
-            timeout: 3000,
-            args: {
-                width: 399,
-                height: 250,
-                values
-            }
-        });
+        const chart = await generateStatsGraphic(values);
 
         info({
             title: "📈 Mastery Stats - " + formatName(target) + " - " + champ.name,
