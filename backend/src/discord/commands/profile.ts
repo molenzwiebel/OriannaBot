@@ -66,30 +66,30 @@ Examples:
         const fields: { name: string, value: string, inline: boolean }[] = [{
             name: "Top Champions",
             value: (await Promise.all(topMastery.slice(0, 3).map(async x =>
-                `${await champ(x)} - **${amount(x)}**`
+                `${await champ(x)}\u00a0-\u00a0**${amount(x)}**`
             ))).join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
             name: "Mastery Statistics",
             value: [
-                `${levelCount(7)}x${emote(ctx, "Level_7")} ${levelCount(6)}x${emote(ctx, "Level_6")} ${levelCount(5)}x${emote(ctx, "Level_5")}${emote(ctx, "__")}`,
-                `${(+totalMastery[0]).toLocaleString()} **Total Points**${emote(ctx, "__")}`,
-                `${(+avgMastery[0]).toLocaleString("en-GB", { maximumFractionDigits: 2 })} **Average/Champ**${emote(ctx, "__")}`,
+                `${levelCount(7)}x${emote(ctx, "Level_7")}\u00a0${levelCount(6)}x${emote(ctx, "Level_6")}\u00a0${levelCount(5)}x${emote(ctx, "Level_5")}${emote(ctx, "__")}`,
+                `${(+totalMastery[0]).toLocaleString()}\u00a0**Total Points**${emote(ctx, "__")}`,
+                `${(+avgMastery[0]).toLocaleString("en-GB", { maximumFractionDigits: 2 })}\u00a0**Avg/Champ**${emote(ctx, "__")}`,
                 `${emote(ctx, "__")}`
             ].join("\n"),
             inline: true
         }, {
             name: "Recently Played",
             value: ((await Promise.all(uniqueRecentlyPlayed.slice(0, 3).map(async x =>
-                (await champ(x)) + " - **" + daysAgo(x) + "**"
+                (await champ(x)) + "\u00a0-\u00a0**" + daysAgo(x) + "**"
             ))).join("\n") || "_No Games Tracked_") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
             name: "Ranked Tiers",
             value: [
-                `Ranked Solo/Duo: **${queueRank("RANKED_SOLO_5x5")}**`,
-                `Ranked Flex: **${queueRank("RANKED_FLEX_SR")}**`,
-                `Ranked TFT: **${queueRank("RANKED_TFT")}**`
+                `Ranked Solo:\u00a0**${queueRank("RANKED_SOLO_5x5")}**`,
+                `Ranked Flex:\u00a0**${queueRank("RANKED_FLEX_SR")}**`,
+                `Ranked TFT:\u00a0**${queueRank("RANKED_TFT")}**`
             ].join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }];
@@ -106,17 +106,17 @@ Examples:
 
                 fields.push({
                     name: "Accounts",
-                    value: left.map(x => x.region + " - " + x.username).join("\n") + "\n" + emote(ctx, "__"),
+                    value: left.map(x => x.region + "\u00a0-\u00a0" + x.username).join("\n") + "\n" + emote(ctx, "__"),
                     inline: true
                 }, {
                     name: "\u200b", // renders as an empty title in discord
-                    value: right.map(x => x.region + " - " + x.username).join("\n") + "\n" + emote(ctx, "__"),
+                    value: right.map(x => x.region + "\u00a0-\u00a0" + x.username).join("\n") + "\n" + emote(ctx, "__"),
                     inline: true
                 })
             } else {
                 fields.push({
                     name: "Account",
-                    value: sorted[0].region + " - " + sorted[0].username + "\n" + emote(ctx, "__"),
+                    value: sorted[0].region + "\u00a0-\u00a0" + sorted[0].username + "\n" + emote(ctx, "__"),
                     inline: true
                 });
             }
@@ -143,7 +143,6 @@ Examples:
         return info({
             title: "📖 " + formatName(target) + "'s Profile",
             fields,
-            thumbnail: target.avatarURL,
             file: {
                 name: "chart.png",
                 file: image

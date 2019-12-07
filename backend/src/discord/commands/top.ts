@@ -63,8 +63,8 @@ Examples:
                     const champion = await StaticData.championById(x.champion_id);
 
                     return {
-                        name: `${emote(ctx, champion)}  ${i + 1} - ${champion.name}`,
-                        value: `${emote(ctx, "Level_" + x.level)} ${x.score.toLocaleString()} Points`,
+                        name: `**${emote(ctx, champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
+                        value: `${emote(ctx, "Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0Points`,
                         inline: true
                     };
                 }));
