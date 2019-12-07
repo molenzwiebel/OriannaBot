@@ -35,7 +35,7 @@ export default function register(app: express.Application, riot: RiotAPI) {
             const accounts: { region: string, name: string }[] = accountsReq.status === 200 ? (await accountsReq.json()).result || [] : [];
 
             for (const acc of accounts) {
-                const summ = await riot.getSummonerByName(acc.region, acc.name);
+                const summ = await riot.getLoLSummonerByName(acc.region, acc.name);
                 if (!summ) continue;
 
                 await req.user.addAccount(acc.region, summ);

@@ -41,7 +41,7 @@ process.on("unhandledRejection", (err: Error) => {
         info("Starting Orianna Bot - Master...");
 
         // Give the master process 10% of our rate limits.
-        const riotAPI = new RiotAPI(config.riot.apiKey, 0.1);
+        const riotAPI = new RiotAPI(config.riot.lolApiKey, config.riot.tftApiKey, 0.1);
 
         const puppeteer = new PuppeteerController();
         await puppeteer.initialize();
@@ -78,7 +78,7 @@ process.on("unhandledRejection", (err: Error) => {
         info("Starting Orianna Bot - Updater Worker %i...", cluster.worker.id);
 
         // Give the updater process 90% of our rate limits.
-        const riotAPI = new RiotAPI(config.riot.apiKey, 0.9);
+        const riotAPI = new RiotAPI(config.riot.lolApiKey, config.riot.tftApiKey, 0.9);
         const updater = new Updater(riotAPI);
 
         updater.startUpdateLoops();

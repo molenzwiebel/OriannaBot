@@ -51,11 +51,13 @@ export default class DiscordClient {
     private presenceTimeouts = new Map<string, number>();
 
     constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {
-        const dbl = new DBL(config.dblToken, this.bot);
+        if (config.dblToken) {
+            const dbl = new DBL(config.dblToken, this.bot);
 
-        dbl.on("posted", () => {
-            info("DBL statistics successfully posted.");
-        });
+            dbl.on("posted", () => {
+                info("DBL statistics successfully posted.");
+            });
+        }
     }
 
     /**

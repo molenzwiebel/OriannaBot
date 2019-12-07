@@ -2,7 +2,8 @@ import { ConnectionConfig } from "knex";
 
 interface Configuration {
     riot: {
-        apiKey: string;
+        lolApiKey: string;
+        tftApiKey: string;
         tiers: string[];
         refreshToken: string;
         rankedQueues: { [key: string]: string };

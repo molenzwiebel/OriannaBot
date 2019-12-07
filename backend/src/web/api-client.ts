@@ -114,7 +114,7 @@ export default class WebAPIClient {
             region: Joi.any().valid(REGIONS)
         }, req, res)) return;
 
-        const summ = await this.client.riotAPI.getSummonerByName(req.body.region, req.body.username);
+        const summ = await this.client.riotAPI.getLoLSummonerByName(req.body.region, req.body.username);
         if (!summ) return res.status(404).json(null);
 
         // Check if this account has been taken by someone else already.

@@ -3953,10 +3953,10 @@ tarn@^1.1.4:
   resolved "https://registry.yarnpkg.com/tarn/-/tarn-1.1.5.tgz#7be88622e951738b9fa3fb77477309242cdddc2d"
   integrity sha512-PMtJ3HCLAZeedWjJPgGnCvcphbCOMbtZpjKgLq3qM5Qq9aQud+XHrL0WlrlgnTyS8U+jrjGbEXprFcQrxPy52g==
 
-teemojs@^1.3.0-alpha0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/teemojs/-/teemojs-1.3.0.tgz#29a210e50611e315e5a2d1ca34b28c148d3ed152"
-  integrity sha512-GdrCHdLEgKW0eSziC4m5+j4BrarH7oFnmVWP32eCbfDIjLWwDocvpwpBjp1rhH4L3XjqPm9bnrN5Zw2S/D/hhQ==
+teemojs@1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/teemojs/-/teemojs-1.3.4.tgz#6def761718241233c8343e28ec79190bdebddd45"
+  integrity sha512-TpBPIPRNnZzURpDWfXS5OwcKtKJgOWN/1fTpj92dYZW7B7ZM5tkwtj2KFH2RwlXTYG9mHeKHqbVkPgj3rtu7DA==
   dependencies:
     request "^2.81.0"
     request-promise-native "^1.0.4"

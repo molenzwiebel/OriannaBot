@@ -311,7 +311,7 @@ export default class Updater {
         // Figure out the highest rank in every queue for all the accounts combined.
         const tiers = new Map<string, number>();
         for (const account of user.accounts) {
-            const results = await this.riotAPI.getLeaguePositions(account.region, account.summoner_id);
+            const results = await this.riotAPI.getLoLLeaguePositions(account.region, account.summoner_id);
             for (const result of results) {
                 const old = tiers.get(result.queueType) || 0;
                 const val = config.riot.tiers.indexOf(result.tier);
@@ -344,7 +344,7 @@ export default class Updater {
         // the user that we removed their account.
         const copy = user.accounts.slice();
         for (const account of copy) {
-            const summoner = await this.riotAPI.getSummonerById(account.region, account.summoner_id);
+            const summoner = await this.riotAPI.getLoLSummonerById(account.region, account.summoner_id);
 
             if (!summoner) {
                 logAccounts("User %s (%s) seems to have transferred account %s - %s (%s)", user.username, user.snowflake, account.region, account.username, account.summoner_id);
