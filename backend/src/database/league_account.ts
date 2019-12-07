@@ -22,19 +22,34 @@ export default class LeagueAccount extends Model {
     region: string;
 
     /**
-     * The encrypted summoner id for this league account.
+     * The encrypted LoL summoner id for this league account.
      */
     summoner_id: string;
 
     /**
-     * The encrypted account id for this league account.
+     * The encrypted LoL account id for this league account.
      */
     account_id: string;
 
     /**
-     * Unique encrypted PUUID for this league account.
+     * Unique encrypted LoL PUUID for this league account.
      */
     puuid: string;
+
+    /**
+     * The encrypted TFT summoner id for this league account.
+     */
+    tft_summoner_id: string;
+
+    /**
+     * The encrypted TFT account id for this league account.
+     */
+    tft_account_id: string;
+
+    /**
+     * Unique encrypted TFT PUUID for this league account.
+     */
+    tft_puuid: string;
 
     /**
      * Omit id and user_id from the JSON object.

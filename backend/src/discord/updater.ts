@@ -312,6 +312,13 @@ export default class Updater {
         const tiers = new Map<string, number>();
         for (const account of user.accounts) {
             const results = await this.riotAPI.getLoLLeaguePositions(account.region, account.summoner_id);
+
+            // If we have a TFT ID for this account, concat with the TFT positions.
+            if (account.tft_summoner_id) {
+                const tftRanked = await this.riotAPI.getTFTLeaguePositions(account.region, account.tft_summoner_id);
+                results.push(...tftRanked);
+            }
+
             for (const result of results) {
                 const old = tiers.get(result.queueType) || 0;
                 const val = config.riot.tiers.indexOf(result.tier);
@@ -365,6 +372,20 @@ export default class Updater {
                 account.username = summoner.name;
                 await account.$query().update({
                     username: summoner.name
+                });
+            }
+
+            // If this account doesn't have a TFT summoner yet, associate it.
+            if (summoner && !account.tft_summoner_id) {
+                const tftSummoner = await this.riotAPI.getTFTSummonerByName(account.region, summoner.name);
+                if (!tftSummoner) return; // ???, should never happen
+
+                logAccounts("User %s (%s) associated account %s (%s) with TFT account %s.", user.username, user.snowflake, summoner.name, summoner.id, tftSummoner.id);
+
+                await account.$query().update({
+                    tft_summoner_id: tftSummoner.id,
+                    tft_account_id: tftSummoner.accountId,
+                    tft_puuid: tftSummoner.puuid
                 });
             }
         }

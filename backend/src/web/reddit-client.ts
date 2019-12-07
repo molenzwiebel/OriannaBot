@@ -38,7 +38,10 @@ export default function register(app: express.Application, riot: RiotAPI) {
                 const summ = await riot.getLoLSummonerByName(acc.region, acc.name);
                 if (!summ) continue;
 
-                await req.user.addAccount(acc.region, summ);
+                const tftSumm = await riot.getTFTSummonerByName(acc.region, acc.name);
+                if (!tftSumm) continue;
+
+                await req.user.addAccount(acc.region, summ, tftSumm);
             }
 
             // Update data for the user after they fetched their accounts.

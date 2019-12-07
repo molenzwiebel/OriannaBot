@@ -111,16 +111,19 @@ export default class User extends Model {
     /**
      * Adds a new league account to this user, provided they do not have it registered already.
      */
-    async addAccount(region: string, summ: riot.Summoner) {
+    async addAccount(region: string, lolSummoner: riot.Summoner, tftSummoner: riot.Summoner) {
         await this.$loadRelated("accounts");
-        if (this.accounts!.some(x => x.region === region && x.summoner_id === summ.id)) return;
+        if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
 
         await this.$relatedQuery<LeagueAccount>("accounts").insert({
-            username: summ.name,
+            username: lolSummoner.name,
             region: region,
-            summoner_id: summ.id,
-            account_id: summ.accountId,
-            puuid: summ.puuid
+            summoner_id: lolSummoner.id,
+            account_id: lolSummoner.accountId,
+            puuid: lolSummoner.puuid,
+            tft_summoner_id: tftSummoner.id,
+            tft_account_id: tftSummoner.accountId,
+            tft_puuid: tftSummoner.puuid
         });
     }
 }

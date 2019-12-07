@@ -158,8 +158,12 @@ export default class WebAPIClient {
         const summoner = this.summoners.get(req.body.code)!;
         if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, "" + summoner.id, req.body.code)) return res.json({ ok: false });
 
+        // Find the matching TFT summoner.
+        const tftSummoner = await this.client.riotAPI.getTFTSummonerByName(summoner.region, summoner.name);
+        if (!tftSummoner) throw new Error("The TFT summoner for the LoL summoner " + summoner.name + " does not exist?");
+
         // Add the user..
-        await req.user.addAccount(summoner.region, summoner);
+        await req.user.addAccount(summoner.region, summoner, tftSummoner);
         ipc.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
