@@ -96,10 +96,14 @@ const ABBREVIATIONS: { [key: string]: string } = {
  * Simple class that manages static league data, such as champion
  * data and URLs to images.
  */
-class StaticData {
+export default class StaticData {
     private data: riot.Champion[];
     private version: string;
-    private dataPromise = this.fetchData();
+    private dataPromise: Promise<void>;
+
+    constructor(language: string) {
+        this.dataPromise = this.fetchData(language);
+    }
 
     /**
      * Tries to find a champion name in the specified string. Returns
@@ -198,15 +202,14 @@ class StaticData {
     /**
      * Loads the champion data if it is not already loaded.
      */
-    private async fetchData() {
+    private async fetchData(language: string) {
         const versionReq = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
         const versions = await versionReq.json();
 
-        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/en_US/championFull.json`);
+        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/${language}/championFull.json`);
         const data = await dataReq.json();
 
         this.version = data.version;
         this.data = Object.values(data.data);
     }
 }
-export default new StaticData();

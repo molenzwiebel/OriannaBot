@@ -4,6 +4,7 @@ import config from "../config";
 import DiscordClient from "../discord/client";
 import { Server } from "../database";
 import elastic from "../elastic";
+import getTranslator from "../i18n";
 
 interface DiscordAuthToken {
     access_token?: string;
@@ -45,7 +46,7 @@ export default function register(app: express.Application, client: DiscordClient
 
             // First, ensure that we create a user and sign them in. That way we can immediately redirect
             // the user to the setup page.
-            const user = await client.findOrCreateUser(me.id, me);
+            const user = await client.findOrCreateUser(me.id, getTranslator("en-US"), me);
             res.cookie("token", user.token);
 
             // Next, if the discord server doesn't exist, register it.

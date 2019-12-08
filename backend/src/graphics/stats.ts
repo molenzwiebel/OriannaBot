@@ -5,7 +5,7 @@ import { createCanvas, Image } from "canvas";
 import { UserMasteryDelta } from "../database";
 
 export default function generateStatsGraphic(beforeValues: UserMasteryDelta[]) {
-    // TODO: Translate graphics
+    // TODO: Maybe translate dates here.
     const { document } = new JSDOM(`<svg id="svg" width="399" height="250"></svg>`).window;
     (<any>global).document = document; // d3 expects this
 

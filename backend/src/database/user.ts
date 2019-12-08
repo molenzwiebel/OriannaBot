@@ -35,6 +35,12 @@ export default class User extends Model {
     token: string;
 
     /**
+     * The preferred language for this user. Empty if the user has no preferred language
+     * and just uses the language from the server (or english in DMs).
+     */
+    language: string;
+
+    /**
      * Epoch timestamp of when we last updated this users scores and games played.
      * Stored as a string since knex returns bigint values as strings.
      */

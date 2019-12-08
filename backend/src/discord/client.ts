@@ -12,9 +12,8 @@ import elastic from "../elastic";
 import * as DBL from "dblapi.js";
 import { Commit, getLastCommit } from "git-last-commit";
 import formatName from "../util/format-name";
-import StaticData from "../riot/static-data";
 import * as ipc from "../cluster/master-ipc";
-import getTranslator from "../i18n";
+import getTranslator, { Translator } from "../i18n";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -24,8 +23,6 @@ const HELP_INDEX_REACTION = "🔖";
 const MUTE_REACTION = "🔇";
 
 const LOL_APPLICATION_ID = "401518684763586560";
-
-const t = getTranslator("en-US");
 
 const STATUSES: [number, string][] = [
     [0, "on-hit Orianna"],
@@ -133,7 +130,7 @@ export default class DiscordClient {
     /**
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
-    public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string }): Promise<User> {
+    public async findOrCreateUser(id: string, t: Translator, discordUser?: { username: string, avatar?: string }): Promise<User> {
         let user = await User.query().where("snowflake", "=", id).first();
         if (user) return user;
 
@@ -191,8 +188,7 @@ export default class DiscordClient {
     /**
      * Displays an interactive list of all commands in the specified channel.
      */
-    public async displayHelp(channel: eris.Textable, user: eris.User, trigger: eris.Message) {
-        // TODO: Local translation.
+    public async displayHelp(t: Translator, channel: eris.Textable, user: eris.User, trigger: eris.Message) {
         const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: ResponseOptions = {
             color: 0x0a96de,
@@ -227,7 +223,6 @@ export default class DiscordClient {
      * to the user.
      */
     private handleMessage = async (msg: eris.Message, fromMute = false) => {
-        // TODO: Local translation
         const isDM = msg.channel instanceof eris.PrivateChannel;
         const hasMention = msg.mentions.map(x => x.id).includes(this.bot.user.id);
 
@@ -312,9 +307,12 @@ export default class DiscordClient {
             }
         }
 
+        // Create a translation instance for this message.
+        const t = await this.getTranslatorForUser(msg.author.id, isDM ? void 0 : (<eris.TextChannel>msg.channel).guild.id);
+
         // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
         const targetChannel = fromMute ? await this.bot.getDMChannel(msg.author.id) : msg.channel;
-        const responseContext = this.createResponseContext(targetChannel, msg.author, msg);
+        const responseContext = this.createResponseContext(t, targetChannel, msg.author, msg);
 
         // Send typing during computing time, unless disabled for this specific command.
         if (!matchedCommand.noTyping) await targetChannel.sendTyping();
@@ -327,7 +325,7 @@ export default class DiscordClient {
             channel: msg.channel,
             msg,
             content,
-            user: () => this.findOrCreateUser(msg.author.id),
+            user: () => this.findOrCreateUser(msg.author.id, t),
             ctx: <any>null
         };
 
@@ -379,6 +377,10 @@ export default class DiscordClient {
         msg = await this.bot.getMessage(msg.channel.id, msg.id);
         this.responses.forEach(x => x.onReactionAdd(msg, emoji, userID));
 
+        // Find the translation context for this message.
+        const inServer = !!(<eris.TextChannel>msg.channel).guild;
+        const t = await this.getTranslatorForUser(msg.author.id, inServer ? (<eris.TextChannel>msg.channel).guild.id : void 0);
+
         if ([HELP_REACTION, MUTE_REACTION].includes(emoji.name) && userID === msg.author.id) {
             const reacts = await msg.getReaction(emoji.name);
             if (!reacts.some(x => x.id === this.bot.user.id)) return;
@@ -393,7 +395,7 @@ export default class DiscordClient {
                     // We don't have permissions to message the user. They're most likely set to private.
                 }
             } else {
-                this.displayHelp(msg.channel, msg.author, msg);
+                this.displayHelp(t, msg.channel, msg.author, msg);
             }
         }
     };
@@ -548,7 +550,7 @@ export default class DiscordClient {
     /**
      * Creates a new ResponseContext for the specified user and channel, and optionally the trigger message.
      */
-    public createResponseContext(channel: eris.Textable, user: eris.User, msg?: eris.Message): ResponseContext {
+    public createResponseContext(t: Translator, channel: eris.Textable, user: eris.User, msg?: eris.Message): ResponseContext {
         return {
             ok: embed => this.createResponse(channel, user, msg).respond({ color: 0x49bd1a, ...embed }),
             info: embed => this.createResponse(channel, user, msg).respond({ color: 0x0a96de, ...embed }),
@@ -567,9 +569,29 @@ export default class DiscordClient {
                     this.bot.on("messageCreate", fn);
                 }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
             },
-            // TODO: Local translation
             t
         };
+    }
+
+    /**
+     * Returns the relevant translator for the specified user, possibly in the specified guild.
+     * Precedence is user language > guild language > en-US.
+     */
+    private async getTranslatorForUser(userID: string, guildID?: string): Promise<Translator> {
+        // Figure out the language for response.
+        let language = "en-US";
+
+        // If not in a DM, default to the server language.
+        if (guildID) {
+            const server = await this.findOrCreateServer(guildID);
+            language = server.language;
+        }
+
+        // If a user exists, override the language with their preferred language.
+        const user = await User.query().where("snowflake", userID).first();
+        if (user && user.language) language = user.language;
+
+        return getTranslator(language);
     }
 
     /**
@@ -581,7 +603,6 @@ export default class DiscordClient {
         if (!guild) return;
 
         // Find announcement channel ID.
-        // TODO: Local translation.
         const server = await Server.query().where("id", role.server_id).first();
         if (!server) return;
 
@@ -592,10 +613,13 @@ export default class DiscordClient {
         const announceChannel = guild.channels.get(announceChannelId);
         if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
 
+        // Get a translator. Note that we ignore the users preferred language here.
+        const t = getTranslator(server.language);
+
         // Figure out what images to show for the promotion.
         const champion = role.findChampionFor(user);
-        const championIcon = champion ? await StaticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
-        const championBg = champion ? await StaticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
+        const championIcon = champion ? await t.staticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
+        const championBg = champion ? await t.staticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
 
         // Enqueue rendering of the gif.
         const image = await this.puppeteer.render("./graphics/promotion.html", {

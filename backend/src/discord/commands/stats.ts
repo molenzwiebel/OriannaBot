@@ -1,7 +1,6 @@
 import { Command } from "../command";
 import { emote, expectChampion, expectUser } from "./util";
 import { UserMasteryDelta } from "../../database";
-import StaticData from "../../riot/static-data";
 import formatName, { badge } from "../../util/format-name";
 import generateStatsGraphic from "../../graphics/stats";
 
@@ -52,7 +51,7 @@ const StatsCommand: Command = {
 
         info({
             title: t.command_stats_message_title({ name: formatName(target), champion: champ.name }),
-            thumbnail: await StaticData.getChampionIcon(champ),
+            thumbnail: await t.staticData.getChampionIcon(champ),
             fields: [{
                 name: t.command_stats_message_data,
                 value: t.command_stats_message_data_value({

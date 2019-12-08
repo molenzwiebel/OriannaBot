@@ -1,5 +1,5 @@
-// Only import translations as type so that typescript does not import it.
 import * as translations from "./translations.json";
+import StaticData from "./riot/static-data";
 
 /**
  * Represents the function arguments to a translation that takes arguments.
@@ -27,20 +27,26 @@ export type Translator = {
      * the number will be truncated to the specified digits, else it will be rounded.
      */
     number: (num: number, numDecimals?: number) => string;
+
+    /**
+     * A static data instance that uses the relevant translated DDragon for this language.
+     */
+    staticData: StaticData;
 };
 
 /**
  * Function that builds a translator for the specified language entry.
  */
 function buildTranslator(language: {
-    metadata: { code: string },
+    metadata: { code: string, ddragonLanguage: string },
     phrases: { [key: string]: string }
 }): Translator {
     const ret: any = {
         number: (num: number, numDecimals = 0) => num.toLocaleString(language.metadata.code, {
             minimumFractionDigits: numDecimals,
             maximumFractionDigits: numDecimals
-        })
+        }),
+        staticData: new StaticData(language.metadata.ddragonLanguage)
     };
 
     for (const [key, phrase] of Object.entries(language.phrases)) {

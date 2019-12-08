@@ -1,10 +1,10 @@
 import { CommandContext } from "../command";
 import { Server, User } from "../../database";
-import StaticData from "../../riot/static-data";
 import * as eris from "eris";
 import config from "../../config";
 import { ResponseOptions } from "../response";
 import formatName from "../../util/format-name";
+import getTranslator from "../../i18n";
 
 /**
  * Utility method that takes a command context and either gets the current server or
@@ -27,9 +27,9 @@ export async function expectServer({ guild, error, server, t }: CommandContext):
  * targeting. This looks for the first non-bot mention, or otherwise the sender
  * of the message.
  */
-export async function expectUser({ msg, client, user }: CommandContext): Promise<User> {
+export async function expectUser({ msg, client, user, t }: CommandContext): Promise<User> {
     const mentionTarget = msg.mentions.find(x => !x.bot);
-    return mentionTarget ? client.findOrCreateUser(mentionTarget.id) : user();
+    return mentionTarget ? client.findOrCreateUser(mentionTarget.id, t) : user();
 }
 
 /**
@@ -80,12 +80,16 @@ export async function expectModerator({ msg, error, guild, t }: CommandContext):
  * If none of those are matched, sends a message and returns undefined instead.
  */
 export async function expectChampion({ content, guild, server, error, t }: CommandContext): Promise<riot.Champion | undefined> {
-    const match = await StaticData.findChampion(content);
+    const match = await t.staticData.findChampion(content);
     if (match) return match;
+
+    // Fall back to english for other languages, to prevent _some_ confusion.
+    const englishMatch = await getTranslator("en-US").staticData.findChampion(content);
+    if (englishMatch) return await t.staticData.championById(englishMatch.key);
 
     if (guild) {
         const serverDefault = (await server()).default_champion;
-        if (serverDefault) return await StaticData.championById(serverDefault);
+        if (serverDefault) return await t.staticData.championById(serverDefault);
     }
 
     await error({

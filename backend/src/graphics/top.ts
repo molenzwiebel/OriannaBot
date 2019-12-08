@@ -1,5 +1,5 @@
 import { createCanvas, loadImage, resizeImage } from "./tools";
-import StaticData from "../riot/static-data";
+import { Translator } from "../i18n";
 
 export interface TopGraphicOptions {
     champion?: riot.Champion;
@@ -114,10 +114,9 @@ const SPLASH_OFFSETS: { [key: string]: number } = {
  * The following function is generated from an instance of [html2canvas](https://github.com/niklasvh/html2canvas) on
  * a fake canvas object to retrieve the operations needed to render the specified image statically.
  */
-export async function generateChampionTopGraphic(options: TopGraphicOptions): Promise<Buffer> {
-    // TODO: Translate graphics.
-    const splash = await StaticData.getChampionSplash(options.champion!);
-    const icon = await StaticData.getChampionIcon(options.champion!);
+export async function generateChampionTopGraphic(t: Translator, options: TopGraphicOptions): Promise<Buffer> {
+    const splash = await t.staticData.getChampionSplash(options.champion!);
+    const icon = await t.staticData.getChampionIcon(options.champion!);
 
     // Step 1: Load all images.
     await Promise.all([
@@ -226,7 +225,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
+    ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(options.title, 32, 78);
     ctx.restore();
@@ -247,7 +246,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "11px \"Noto Sans\", sans-serif";
+    ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
     ctx.fillText("NAME", 5, 102.5);
     ctx.restore();
@@ -259,7 +258,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "11px \"Noto Sans\", sans-serif";
+    ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
     ctx.fillText("SCORE", 294, 102.5);
     ctx.restore();
@@ -293,7 +292,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
         ctx.lineTo(0, 300);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans Small\", sans-serif";
+        ctx.font = "13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
         ctx.fillText(player.place.toString(), 5, 127 + 24 * i);
         ctx.restore();
@@ -328,7 +327,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
         ctx.lineTo(41, 130 + 24 * i);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans\", sans-serif";
+        ctx.font = "13px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(player.username, 33 + placeWidth, 127 + 24 * i);
         ctx.restore();
@@ -368,7 +367,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
         ctx.lineTo(0, 300 + 24 * i);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
+        ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
         ctx.restore();
@@ -381,7 +380,7 @@ export async function generateChampionTopGraphic(options: TopGraphicOptions): Pr
  * The following function is generated from an instance of [html2canvas](https://github.com/niklasvh/html2canvas) on
  * a fake canvas object to retrieve the operations needed to render the specified image statically.
  */
-export async function generateGlobalTopGraphic(options: TopGraphicOptions): Promise<Buffer> {
+export async function generateGlobalTopGraphic(t: Translator, options: TopGraphicOptions): Promise<Buffer> {
     // Step 1: Load all images.
     await Promise.all([
         // Title and header images.
@@ -476,7 +475,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
+    ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(options.title, 5, 78);
     ctx.restore();
@@ -497,7 +496,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "11px \"Noto Sans\", sans-serif";
+    ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
     ctx.fillText("NAME", 5, 102.5);
     ctx.restore();
@@ -509,7 +508,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.font = "11px \"Noto Sans\", sans-serif";
+    ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
     ctx.fillText("SCORE", 273, 102.5);
     ctx.restore();
@@ -543,7 +542,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
         ctx.lineTo(0, 300);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans Small\", sans-serif";
+        ctx.font = "13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
         ctx.fillText(player.place.toString(), 5, 127 + 24 * i);
         ctx.restore();
@@ -578,7 +577,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
         ctx.lineTo(41, 130 + 24 * i);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "13px \"Noto Sans\", sans-serif";
+        ctx.font = "13px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(player.username, 33 + placeWidth, 127 + 24 * i);
         ctx.restore();
@@ -625,7 +624,7 @@ export async function generateGlobalTopGraphic(options: TopGraphicOptions): Prom
         ctx.lineTo(0, 300 + 24 * i);
         ctx.closePath();
         ctx.clip();
-        ctx.font = "bold 13px \"Noto Sans Small\", sans-serif";
+        ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
         ctx.restore();

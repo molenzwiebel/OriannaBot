@@ -1,6 +1,5 @@
 import { Command } from "../command";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
-import StaticData from "../../riot/static-data";
 import { emote, paginate } from "./util";
 import config from "../../config";
 
@@ -37,7 +36,7 @@ const RolesCommand: Command = {
         };
 
         const formatChampion = async (id: number) => {
-            const champ = await StaticData.championById(id);
+            const champ = await t.staticData.championById(id);
             return emote(ctx, champ) + " " + champ.name;
         };
 

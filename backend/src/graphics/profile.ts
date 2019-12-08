@@ -1,7 +1,8 @@
 import * as d3 from "d3";
 import { JSDOM } from "jsdom";
 import * as canvg from "canvg";
-import { createCanvas, Image } from "canvas";
+import { createCanvas } from "./tools";
+import { Image } from "canvas";
 
 export interface ProfileGraphicValue {
     champion: string;
@@ -10,7 +11,6 @@ export interface ProfileGraphicValue {
 }
 
 export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
-    // TODO: Translate graphics
     const { document } = new JSDOM(`<svg id="svg" width="399" height="240"></svg>`).window;
     (<any>global).document = document; // d3 expects this
 
@@ -38,6 +38,7 @@ export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
         .attr("transform", "rotate(-40)")
         .attr("text-anchor", "end")
         .attr("fill", "#88939c")
+        .attr("font", "13px \"Noto Sans KR\", \"Noto Sans\"")
         .attr("style", "font-size: 13px");
 
     // Create our Y-axis.
@@ -45,6 +46,7 @@ export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
         .call(d3.axisLeft(y).ticks(7, "s"))
         .selectAll("text")
         .attr("fill", "#88939c")
+        .attr("font", "13px \"Noto Sans KR\", \"Noto Sans\"")
         .attr("style", "font-size: 13px");
 
     // Create our actual bars.

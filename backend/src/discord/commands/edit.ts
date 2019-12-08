@@ -30,7 +30,7 @@ const EditCommand: Command = {
 
         try {
             const channel = await bot.getDMChannel(msg.author.id);
-            await client.createResponseContext(channel, msg.author, msg).info({
+            await client.createResponseContext(t, channel, msg.author, msg).info({
                 title: t.command_edit_dm_title,
                 description: t.command_edit_dm_description({ link })
             });

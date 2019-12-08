@@ -1,6 +1,5 @@
 import { Command } from "../command";
 import { User, UserChampionStat } from "../../database";
-import StaticData from "../../riot/static-data";
 import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
 import formatName from "../../util/format-name";
 import redis from "../../redis";
@@ -29,7 +28,7 @@ const TopCommand: Command = {
             const fields = await Promise.all(user.stats!
                 .sort((a, b) => b.score - a.score)
                 .map(async (x, i) => {
-                    const champion = await StaticData.championById(x.champion_id);
+                    const champion = await t.staticData.championById(x.champion_id);
 
                     return {
                         name: `**${emote(ctx, champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
@@ -115,7 +114,7 @@ const TopCommand: Command = {
                 const user = await User.query().where("id", +x).first();
 
                 return {
-                    championAvatar: await StaticData.getChampionIcon(entry!.champion_id),
+                    championAvatar: await t.staticData.getChampionIcon(entry!.champion_id),
                     place: offset + i + 1,
                     username: user!.username,
                     avatar: user!.avatarURL + "?size=16",
@@ -125,9 +124,9 @@ const TopCommand: Command = {
             }));
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
-            // TODO: Localize image.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction({
+            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction(
+                t, {
                 champion: champ,
                 title: champ
                     ? serverOnly ? t.command_top_server_title({ champ: champ.name }) : t.command_top_title({ champ: champ.name })

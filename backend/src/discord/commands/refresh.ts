@@ -8,7 +8,7 @@ const RefreshCommand: Command = {
     descriptionKey: "command_refresh_description",
     noTyping: true,
     keywords: ["refresh", "reload", "update", "recalculate"],
-    async handler({ client, ctx, msg, content, info, t }) {
+    async handler({ ctx, msg, content, info, t }) {
         if (content.toLowerCase().includes("everyone")) {
             return info({
                 title: t.command_refresh_everyone_title,

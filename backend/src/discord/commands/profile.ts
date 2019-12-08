@@ -2,7 +2,6 @@ import { Command } from "../command";
 import { differenceInDays } from "date-fns";
 import { emote, expectUserWithAccounts } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
-import StaticData from "../../riot/static-data";
 import formatName from "../../util/format-name";
 import generateProfileGraphic from "../../graphics/profile";
 
@@ -25,7 +24,7 @@ const ProfileCommand: Command = {
         const rankedData = await target.$relatedQuery<UserRank>("ranks");
 
         // Formatting helpers.
-        const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(ctx, await StaticData.championById(entry.champion_id)) + " " + (await StaticData.championById(entry.champion_id)).name;
+        const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(ctx, await t.staticData.championById(entry.champion_id)) + " " + (await t.staticData.championById(entry.champion_id)).name;
         const amount = (entry: UserChampionStat) =>
             entry.score < 10000 ? entry.score.toLocaleString() :
             entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
@@ -126,8 +125,8 @@ const ProfileCommand: Command = {
         };
 
         const values = await Promise.all(topMastery.map(async x => ({
-            champion: (await StaticData.championById(x.champion_id)).name,
-            color: colors[(await StaticData.championById(x.champion_id)).tags[0]],
+            champion: (await t.staticData.championById(x.champion_id)).name,
+            color: colors[(await t.staticData.championById(x.champion_id)).tags[0]],
             score: x.score
         })));
 

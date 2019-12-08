@@ -46,6 +46,13 @@ export default class Server extends Model {
     completed_intro: boolean;
 
     /**
+     * The preferred language for this server. All messages in this server will have this
+     * language, unless the user invoking them has a different language (which will take
+     * priority).
+     */
+    language: string;
+
+    /**
      * Optionally eager-loaded blacklisted channels.
      */
     blacklisted_channels?: BlacklistedChannel[];
