@@ -8,20 +8,10 @@ import generateProfileGraphic from "../../graphics/profile";
 
 const ProfileCommand: Command = {
     name: "Show User Profile",
-    smallDescription: "Show the League accounts and general statistics for a Discord user.",
-    description: `
-This command shows you an overview of your Orianna Bot profile, computed from data gathered from all accounts you have linked from Orianna. To see your own profile, simply use \`@Orianna Bot profile\`.
-
-To see someone else's profile instead, simply mention them in the message. Note that that user will have to have linked accounts with Orianna.
-
-If you would like to hide your ranked tiers or account usernames, you can do so by changing the privacy settings in your [web dashboard](https://orianna.molenzwiebel.xyz/me).
-
-Examples:
-- \`@Orianna Bot profile\` - shows your personal profile
-- \`@Orianna Bot profile @molenzwiebel\` - shows molenzwiebel's profile
-`.trim(),
+    smallDescriptionKey: "command_profile_small_description",
+    descriptionKey: "command_profile_description",
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
-    async handler({ ctx, info, client }) {
+    async handler({ ctx, info, client, t }) {
         const target = await expectUserWithAccounts(ctx);
         if (!target) return;
 
@@ -42,54 +32,54 @@ Examples:
             : `${Math.round(entry.score / 10000) * 10}k`;
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
-            "UNRANKED": "Unranked" + emote(ctx, "__"),
-            "IRON": `${emote(ctx, "Iron")} Iron`,
-            "BRONZE": `${emote(ctx, "Bronze")} Bronze`,
-            "SILVER": `${emote(ctx, "Silver")} Silver`,
-            "GOLD": `${emote(ctx, "Gold")} Gold`,
-            "PLATINUM": `${emote(ctx, "Platinum")} Platinum`,
-            "DIAMOND": `${emote(ctx, "Diamond")} Diamond`,
-            "MASTER": `${emote(ctx, "Master")} Master`,
-            "GRANDMASTER": `${emote(ctx, "Grandmaster")} Grandmaster`,
-            "CHALLENGER": `${emote(ctx, "Challenger")} Challenger`
+            "UNRANKED": t.ranked_tier_unranked + emote(ctx, "__"),
+            "IRON": `${emote(ctx, "Iron")} ` + t.ranked_tier_iron,
+            "BRONZE": `${emote(ctx, "Bronze")} ` + t.ranked_tier_bronze,
+            "SILVER": `${emote(ctx, "Silver")} ` + t.ranked_tier_silver,
+            "GOLD": `${emote(ctx, "Gold")} ` + t.ranked_tier_gold,
+            "PLATINUM": `${emote(ctx, "Platinum")} ` + t.ranked_tier_platinum,
+            "DIAMOND": `${emote(ctx, "Diamond")} ` + t.ranked_tier_diamond,
+            "MASTER": `${emote(ctx, "Master")} ` + t.ranked_tier_master,
+            "GRANDMASTER": `${emote(ctx, "Grandmaster")} ` + t.ranked_tier_grandmaster,
+            "CHALLENGER": `${emote(ctx, "Challenger")} ` + t.ranked_tier_challenger
         })[rank];
         const queueRank = (queue: string) =>
             target.treat_as_unranked ? formatRank("UNRANKED") :
             rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
         const daysAgo = (entry: UserMasteryDelta) => {
             const diff = Math.abs(differenceInDays(+entry.timestamp, new Date()));
-            if (diff === 0) return "Today";
-            if (diff === 1) return "Yesterday";
-            return diff + " days ago";
+            if (diff === 0) return t.time_ago_today;
+            if (diff === 1) return t.time_ago_yesterday;
+            return t.time_ago_days_ago({ days: diff });
         };
 
         const fields: { name: string, value: string, inline: boolean }[] = [{
-            name: "Top Champions",
+            name: t.command_profile_top_champions,
             value: (await Promise.all(topMastery.slice(0, 3).map(async x =>
                 `${await champ(x)}\u00a0-\u00a0**${amount(x)}**`
             ))).join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }, {
-            name: "Mastery Statistics",
+            name: t.command_profile_statistics,
             value: [
                 `${levelCount(7)}x${emote(ctx, "Level_7")}\u00a0${levelCount(6)}x${emote(ctx, "Level_6")}\u00a0${levelCount(5)}x${emote(ctx, "Level_5")}${emote(ctx, "__")}`,
-                `${(+totalMastery[0]).toLocaleString()}\u00a0**Total Points**${emote(ctx, "__")}`,
-                `${(+avgMastery[0]).toLocaleString("en-GB", { maximumFractionDigits: 2 })}\u00a0**Avg/Champ**${emote(ctx, "__")}`,
+                t.command_profile_statistics_total_points({ amount: +totalMastery[0] }) + emote(ctx, "__"),
+                t.command_profile_statistics_avg_champ({ amount: t.number(+avgMastery[0], 2) }) + emote(ctx, "__"),
                 `${emote(ctx, "__")}`
             ].join("\n"),
             inline: true
         }, {
-            name: "Recently Played",
+            name: t.command_profile_recently_played,
             value: ((await Promise.all(uniqueRecentlyPlayed.slice(0, 3).map(async x =>
                 (await champ(x)) + "\u00a0-\u00a0**" + daysAgo(x) + "**"
-            ))).join("\n") || "_No Games Tracked_") + "\n" + emote(ctx, "__"),
+            ))).join("\n") || t.command_profile_recently_played_no_games) + "\n" + emote(ctx, "__"),
             inline: true
         }, {
-            name: "Ranked Tiers",
+            name: t.command_profile_ranked_tiers,
             value: [
-                `Ranked Solo:\u00a0**${queueRank("RANKED_SOLO_5x5")}**`,
-                `Ranked Flex:\u00a0**${queueRank("RANKED_FLEX_SR")}**`,
-                `Ranked TFT:\u00a0**${queueRank("RANKED_TFT")}**`
+                `${t.queue_ranked_solo}:\u00a0**${queueRank("RANKED_SOLO_5x5")}**`,
+                `${t.queue_ranked_flex}:\u00a0**${queueRank("RANKED_FLEX_SR")}**`,
+                `${t.queue_ranked_tft}:\u00a0**${queueRank("RANKED_TFT")}**`
             ].join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }];
@@ -104,8 +94,11 @@ Examples:
                 const left = sorted.slice(0, Math.ceil(sorted.length / 2));
                 const right = sorted.slice(left.length);
 
+                // Make the ranked tiers not inline.
+                fields[fields.length - 1].inline = false;
+
                 fields.push({
-                    name: "Accounts",
+                    name: t.command_profile_accounts,
                     value: left.map(x => x.region + "\u00a0-\u00a0" + x.username).join("\n") + "\n" + emote(ctx, "__"),
                     inline: true
                 }, {
@@ -115,7 +108,7 @@ Examples:
                 })
             } else {
                 fields.push({
-                    name: "Account",
+                    name: t.command_profile_account,
                     value: sorted[0].region + "\u00a0-\u00a0" + sorted[0].username + "\n" + emote(ctx, "__"),
                     inline: true
                 });
@@ -141,7 +134,7 @@ Examples:
         const image = await generateProfileGraphic(values);
 
         return info({
-            title: "📖 " + formatName(target) + "'s Profile",
+            title: t.command_profile_title({ name: formatName(target) }),
             fields,
             file: {
                 name: "chart.png",

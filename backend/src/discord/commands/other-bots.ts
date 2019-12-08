@@ -3,13 +3,13 @@ import { Command } from "../command";
 const COMMANDS = [".iam", ".giveme", ".rank", "+rank", "+role", "!rank", "!role"];
 const OtherBotsHelpfulCommand: Command = {
     name: "Try Help Clueless User",
-    smallDescription: "",
-    description: ``.trim(),
+    smallDescriptionKey: "empty",
+    descriptionKey: "empty",
     hideFromHelp: true,
     noMention: true,
     noTyping: true,
     keywords: COMMANDS,
-    async handler({ info, guild, server, msg }) {
+    async handler({ info, guild, server, msg , t }) {
         // Abort if in a DM or keyword not at the start of the message.
         if (!guild) return;
         if (!COMMANDS.some(c => msg.content.indexOf(c) === 0)) return;
@@ -28,8 +28,8 @@ const OtherBotsHelpfulCommand: Command = {
         if (!matching) return;
 
         info({
-            title: "💡 Pro Tip!",
-            description: "The `" + matching.name + "` role is managed by me. You can setup your account (using `@Orianna Bot configure`) to enable automatic role assignment. Already added an account? Wait for me to update you, or use `@Orianna Bot refresh` to update immediately."
+            title: t.command_other_bot_title,
+            description: t.command_other_bot_description({ role: matching.name })
         });
     }
 };

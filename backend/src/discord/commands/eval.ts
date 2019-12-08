@@ -6,8 +6,8 @@ import StaticData from "../../riot/static-data";
 
 const EvalCommand: Command = {
     name: "Evaluate Expression",
-    smallDescription: "",
-    description: "",
+    smallDescriptionKey: "empty",
+    descriptionKey: "empty",
     hideFromHelp: true,
     keywords: ["eval"],
     async handler({ msg, bot, error, ok, ctx }) {

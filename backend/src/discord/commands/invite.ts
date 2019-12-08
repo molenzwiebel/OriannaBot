@@ -4,13 +4,15 @@ import config from "../../config";
 const InviteCommand: Command = {
     name: "Invite To Server",
     keywords: ["invite"],
-    smallDescription: "Sends you a link to invite Orianna.",
-    description: "Sends a simple link that you can use to invite Orianna Bot to your own server.",
+    smallDescriptionKey: "command_invite_small_description",
+    descriptionKey: "command_invite_description",
     hideFromHelp: true,
-    async handler({ info }) {
+    async handler({ info, t }) {
         info({
-            title: "🤖 So You Want An Invite?",
-            description: `To add Orianna Bot to your own Discord server, simply use [this](${config.web.url}/api/v1/discord-invite) link. Thanks for liking Orianna Bot enough to consider adding her to your own server!`
+            title: t.command_invite_title,
+            description: t.command_invite_message_description({
+                link: `${config.web.url}/api/v1/discord-invite`
+            })
         });
     }
 };

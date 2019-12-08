@@ -6,12 +6,15 @@ import elastic from "../elastic";
 import scheduleUpdateLoop from "../util/update-loop";
 import redis from "../redis";
 import createIPC from "../cluster/worker-ipc";
+import getTranslator from "../i18n";
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
 const logMastery = debug("orianna:updater:fetch:mastery");
 const logRanked = debug("orianna:updater:fetch:ranked");
 const logAccounts = debug("orianna:updater:fetch:accounts");
+
+const t = getTranslator("en-US");
 
 /**
  * The updater is responsible for "updating" user ranks every set interval.
@@ -363,8 +366,8 @@ export default class Updater {
                 // Potentially notify the user.
                 this.ipc.notify(user.snowflake, {
                     color: 0x0a96de,
-                    title: "✈ Account Transferred?",
-                    description: "You registered your League account **" + account.username + "** (" + account.region + ") with me a while ago. While checking up on it today, it seems that the account no longer exists. Did you transfer the account to another region?\n\nI have unlinked the League account from your Discord profile. If you have indeed transferred, you can simply add the account again in the new region."
+                    title: t.transfer_title,
+                    description: t.transfer_body({ username: account.username, region: account.region })
                 });
             } else if (summoner.name !== account.username) {
                 logAccounts("User %s (%s) seems to have renamed account %s - %s to %s", user.username, user.snowflake, account.region, account.username, summoner.name);

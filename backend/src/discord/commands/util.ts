@@ -10,11 +10,11 @@ import formatName from "../../util/format-name";
  * Utility method that takes a command context and either gets the current server or
  * sends an error to the user (if the command was used in a DM).
  */
-export async function expectServer({ guild, error, server }: CommandContext): Promise<Server | undefined> {
+export async function expectServer({ guild, error, server, t }: CommandContext): Promise<Server | undefined> {
     if (!guild) {
         await error({
-            title: "🔍 What server?",
-            description: "I'll need to know what server you are talking about. Try doing this again, but in a server instead of DMs."
+            title: t.command_error_no_server,
+            description: t.command_error_no_server_description
         });
         return;
     }
@@ -43,8 +43,8 @@ export async function expectUserWithAccounts(ctx: CommandContext): Promise<User 
     if (!user.accounts!.length)  {
         const authorWasTarget = ctx.msg.author.id === user.snowflake;
         await ctx.error({
-            title: `🔍 ${formatName(user)} has no accounts configured.`,
-            description: `This command is a lot more useful if I actually have some data to show, but unfortunately ${authorWasTarget ? "you have" : formatName(user) + " has"} no accounts setup with me. ${authorWasTarget ? "You" : "They"} can add some using \`@Orianna Bot configure\`.`
+            title: ctx.t.command_error_no_accounts({ user: formatName(user) }),
+            description: ctx.t.command_error_no_accounts_description
         });
         return;
     }
@@ -57,7 +57,7 @@ export async function expectUserWithAccounts(ctx: CommandContext): Promise<User 
  * the command has moderator permissions. If the user does, it returns true. If
  * the user does not, it will print a message and return false.
  */
-export async function expectModerator({ msg, error, guild }: CommandContext): Promise<boolean> {
+export async function expectModerator({ msg, error, guild, t }: CommandContext): Promise<boolean> {
     // If this was sent in DMs, this is illegal and should really throw, but we will abort.
     if (!guild) return false;
 
@@ -68,8 +68,8 @@ export async function expectModerator({ msg, error, guild }: CommandContext): Pr
     if (msg.member!.permission.has("manageMessages")) return true;
 
     await error({
-        title: "✋ Stop Right There!",
-        description: "You must be able to manage messages to use this feature. Sorry :("
+        title: t.command_error_no_permissions,
+        description: t.command_error_no_permissions_description
     });
     return false;
 }
@@ -79,7 +79,7 @@ export async function expectModerator({ msg, error, guild }: CommandContext): Pr
  * the server default is used, if the message was sent in a server with a default champion set.
  * If none of those are matched, sends a message and returns undefined instead.
  */
-export async function expectChampion({ content, guild, server, error }: CommandContext): Promise<riot.Champion | undefined> {
+export async function expectChampion({ content, guild, server, error, t }: CommandContext): Promise<riot.Champion | undefined> {
     const match = await StaticData.findChampion(content);
     if (match) return match;
 
@@ -89,8 +89,8 @@ export async function expectChampion({ content, guild, server, error }: CommandC
     }
 
     await error({
-        title: "🔎 Which Champion?",
-        description: "I tried to look for a champion name in your message, but I was unable to find one. Either you had a typo somewhere or you forgot to specify the name of a champion."
+        title: t.command_error_no_champion,
+        description: t.command_error_no_champion_description
     });
     // Implicitly return undefined.
 }
@@ -100,14 +100,14 @@ export async function expectChampion({ content, guild, server, error }: CommandC
  * with only the fields swapped for every list element. The process function is used to lazily compute the contents on
  * every page.
  */
-export async function advancedPaginate<T>({ info, msg }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
+export async function advancedPaginate<T>({ info, msg, t }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
 
     const res = await info({
         ...template,
         fields: await process(elements.slice(0, perPage), 0),
-        footer: "Page 1 of " + pages + (template.footer ? " • " + template.footer : "")
+        footer: t.command_page_n_of_n({ n: 1, total: pages }) + (template.footer ? " • " + template.footer : "")
     });
 
     const showPage = async (offset: number) => {
@@ -117,7 +117,7 @@ export async function advancedPaginate<T>({ info, msg }: CommandContext, element
         res.info({
             ...template,
             fields: await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage),
-            footer: "Page " + (curPage + 1) + " of " + pages + (template.footer ? " • " + template.footer : "")
+            footer: t.command_page_n_of_n({ n: curPage + 1, total: pages }) + (template.footer ? " • " + template.footer : "")
         });
     };
 
@@ -143,7 +143,7 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
  * fields are used as pagination. Instead, a raw callback can edit the page itself. It also takes a maximum amount of
  * entries instead of a fully materialized list of entries.
  */
-export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, elementCount: number, process: (offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+export async function paginateRaw<T>({ info, msg, ctx, t }: CommandContext, elementCount: number, process: (offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
     const pages = Math.ceil(elementCount / perPage);
     let curPage = 0;
     let loading = false;
@@ -151,7 +151,10 @@ export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, element
     const initialOptions = await process(0, curPage + 1, pages);
     const res = await info({
         ...initialOptions,
-        footer: "Page 1 of " + pages + (initialOptions.footer ? " • " + initialOptions.footer : "")
+        footer: t.command_page_n_of_n({
+            n: 1,
+            total: pages
+        }) + (initialOptions.footer ? " • " + initialOptions.footer : "")
     });
 
     const showPage = async (offset: number) => {
@@ -164,7 +167,10 @@ export async function paginateRaw<T>({ info, msg, ctx }: CommandContext, element
         const template = await process(curPage * perPage, curPage + 1, pages);
         res.info({
             ...template,
-            footer: "Page " + (curPage + 1) + " of " + pages + (template.footer ? " • " + template.footer : "")
+            footer: t.command_page_n_of_n({
+                n: curPage + 1,
+                total: pages
+            }) + (template.footer ? " • " + template.footer : "")
         });
 
         loading = false;

@@ -14,6 +14,7 @@ import { Commit, getLastCommit } from "git-last-commit";
 import formatName from "../util/format-name";
 import StaticData from "../riot/static-data";
 import * as ipc from "../cluster/master-ipc";
+import getTranslator from "../i18n";
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -24,8 +25,9 @@ const MUTE_REACTION = "🔇";
 
 const LOL_APPLICATION_ID = "401518684763586560";
 
+const t = getTranslator("en-US");
+
 const STATUSES: [number, string][] = [
-    [0, "x.co/orifeedback"],
     [0, "on-hit Orianna"],
     [0, "with the Ball"],
     [2, "time ticking away"],
@@ -157,13 +159,10 @@ export default class DiscordClient {
 
         // Try send them a message since this is the first time we met them.
         await this.notify(id, {
-            title: "👋 Hey " + discordUser.username + "!",
+            title: t.first_use_title({ username: discordUser.username }),
             url: link,
             color: 0x49bd1a,
-            description: `Since you just used a command of mine for the first time, I figured I'd introduce myself. I'm **Orianna Bot**, and I'm a pretty cool bot that keeps track of League accounts, mostly for the purpose of showing cool stats and assigning Discord roles.`
-            + `\n\nIf you'd like me to track you and give you all the roles you deserve, you can add your League account using the [online configuration panel](${link}). You can also import your League accounts from Discord and the Reddit [ChampionMains Flairs](https://flairs.championmains.com) system.`
-            + `\n\nTo get started, click the link below!\n${link}`
-            + `\n\nConfused, intrigued, angry, happy? Check out all my available commands using \`@Orianna Bot help\` and contact my creator using \`@Orianna Bot about\`.`,
+            description: t.first_use_message({ link }),
             timestamp: new Date().getTime(),
             thumbnail: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png",
             footer: "Orianna Bot v2"
@@ -193,12 +192,13 @@ export default class DiscordClient {
      * Displays an interactive list of all commands in the specified channel.
      */
     public async displayHelp(channel: eris.Textable, user: eris.User, trigger: eris.Message) {
+        // TODO: Local translation.
         const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: ResponseOptions = {
             color: 0x0a96de,
-            title: "🔖 Orianna Help",
-            description: "I try to determine what you mean when you mention me using specific keywords. Here is a simple list of commands that I understand. Click the corresponding number for more information and examples about the commmand. Click 🔖 to show this index.",
-            fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: x.smallDescription }))
+            title: t.command_help_title,
+            description: t.command_help_description,
+            fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: <string>t[x.smallDescriptionKey] }))
         };
 
         const resp = await this.createResponse(channel, user, trigger).respond(index);
@@ -207,10 +207,10 @@ export default class DiscordClient {
         for (const cmd of commands) {
             await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
-                    title: "🔖 Help for " + cmd.name,
-                    description: "**Description**\n" + cmd.description,
+                    title: t.command_help_command_title({ name: cmd.name }),
+                    description: t.command_help_command_description({ description: <string>t[cmd.descriptionKey] }),
                     fields: [{
-                        name: "Keywords",
+                        name: t.command_help_command_keywords,
                         value: cmd.keywords.map(x => "`" + x + "`").join(", ")
                     }]
                 });
@@ -227,6 +227,7 @@ export default class DiscordClient {
      * to the user.
      */
     private handleMessage = async (msg: eris.Message, fromMute = false) => {
+        // TODO: Local translation
         const isDM = msg.channel instanceof eris.PrivateChannel;
         const hasMention = msg.mentions.map(x => x.id).includes(this.bot.user.id);
 
@@ -360,10 +361,9 @@ export default class DiscordClient {
             if (transaction) transaction.result = 404;
 
             await template.error({
-                title: "💥 Ouch!",
+                title: t.command_error_title,
                 description:
-                    "Something went horribly wrong executing that command, please try again in a bit. If this error keeps happening, please send a bug report in [the Orianna Bot support server](https://discord.gg/bfxdsRC)"
-                    + (incident ? " with the following error code: `" + incident + "`." : "."),
+                    incident ? t.command_error_description_incident({ incident }) : t.command_error_description,
                 image: "https://i.imgur.com/SBpi54R.png"
             });
         } finally {
@@ -386,7 +386,7 @@ export default class DiscordClient {
             if (emoji.name === MUTE_REACTION) {
                 try {
                     const dms = await this.bot.getDMChannel(msg.author.id);
-                    await dms.createMessage("I don't have permissions to talk in <#" + msg.channel.id + ">, but I can still secretly perform your command. Here's what you requested:");
+                    await dms.createMessage(t.command_muted_preamble({ channel: `<#${msg.channel.id}>` }));
 
                     this.handleMessage(msg, true);
                 } catch (e) {
@@ -566,7 +566,9 @@ export default class DiscordClient {
 
                     this.bot.on("messageCreate", fn);
                 }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
-            }
+            },
+            // TODO: Local translation
+            t
         };
     }
 
@@ -579,6 +581,7 @@ export default class DiscordClient {
         if (!guild) return;
 
         // Find announcement channel ID.
+        // TODO: Local translation.
         const server = await Server.query().where("id", role.server_id).first();
         if (!server) return;
 
@@ -619,7 +622,7 @@ export default class DiscordClient {
                 timestamp: new Date().toISOString(),
                 image: { url: "attachment://promotion.gif" },
                 author: {
-                    name: formatName(user, true) + " just got promoted to " + role.name + "!",
+                    name: t.promotion_title({ username: formatName(user, true), role: role.name }),
                     icon_url: user.avatarURL
                 }
             }

@@ -8,6 +8,7 @@ import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
 import config from "../config";
 import * as ipc from "../cluster/master-ipc";
+import getTranslator from "../i18n";
 
 export default class WebAPIClient {
     private bot: eris.Client;
@@ -44,7 +45,7 @@ export default class WebAPIClient {
     private serveCommands = async (req: express.Request, res: express.Response) => {
         res.json(this.client.commands.filter(x => !x.hideFromHelp).map(cmd => ({
             name: cmd.name,
-            description: cmd.description,
+            description: getTranslator("en-US")[cmd.descriptionKey],
             keywords: cmd.keywords
         })));
     };

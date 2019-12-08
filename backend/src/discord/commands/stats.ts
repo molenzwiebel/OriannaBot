@@ -7,11 +7,10 @@ import generateStatsGraphic from "../../graphics/stats";
 
 const StatsCommand: Command = {
     name: "Show Stats",
-    smallDescription: "",
-    description: ``.trim(),
-    hideFromHelp: true,
+    smallDescriptionKey: "command_stats_small_description",
+    descriptionKey: "command_stats_description",
     keywords: ["stats", "graph", "chart", "progression", "progress"],
-    async handler({ info, msg, ctx, client, error }) {
+    async handler({ info, msg, ctx, client, error, t }) {
         // Find champion and target user.
         const champ = await expectChampion(ctx);
         if (!champ) return;
@@ -34,8 +33,11 @@ const StatsCommand: Command = {
             const isUs = target.snowflake === msg.author.id;
 
             return error({
-                title: "🔍 There's Nothing Here!",
-                description: `<@!${target.snowflake}>${badge(target)} has no tracked games on ${champ.name}. ${isUs ? "You" : "They"}'ll need to play some games before I can show statistics.`
+                title: t.command_stats_no_values_title,
+                description: t.command_stats_no_values_description({
+                    user: `<@!${target.snowflake}>${badge(target)}`,
+                    champion: champ.name
+                })
             });
         }
 
@@ -49,15 +51,21 @@ const StatsCommand: Command = {
         const chart = await generateStatsGraphic(values);
 
         info({
-            title: "📈 Mastery Stats - " + formatName(target) + " - " + champ.name,
+            title: t.command_stats_message_title({ name: formatName(target), champion: champ.name }),
             thumbnail: await StaticData.getChampionIcon(champ),
             fields: [{
-                name: "Data",
-                value: `**${values.length}** Games Tracked\n**${fmtDate(values[0].timestamp)}** First Game\n**${fmtDate(values[values.length - 1].timestamp)}** Last Game\n${emote(ctx, "__")}`,
+                name: t.command_stats_message_data,
+                value: t.command_stats_message_data_value({
+                    numGames: values.length,
+                    firstGameDate: fmtDate(values[0].timestamp),
+                    lastGameDate: fmtDate(values[values.length - 1].timestamp)
+                }) + emote(ctx, "__"),
                 inline: true
             }, {
-                name: "Games",
-                value: `**${win}** Wins\n**${loss}** Losses\n**${pct}%** Win Rate\n${emote(ctx, "__")}`,
+                name: t.command_stats_message_games,
+                value: t.command_stats_message_games_value({
+                    win, loss, winrate: pct
+                }) + emote(ctx, "__"),
                 inline: true
             }],
             file: { name: "chart.png", file: chart }

@@ -3,6 +3,7 @@
         "noImplicitAny": true,
         "strictNullChecks": true,
         "alwaysStrict": true,
+        "resolveJsonModule": true,
         "experimentalDecorators": true,
         "outDir": "dist",
         "module": "commonjs",

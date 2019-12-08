@@ -1,15 +1,15 @@
 {
     "riot": {
-        "apiKey": "<<riot games API key>>",
+        "lolApiKey": "<<riot games API key>>",
+        "tftApiKey": "<<riot games API key>>",
         "tiers": ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"],
-        "rankedQueues": {
-            "RANKED_SOLO_5x5": "Ranked Solo/Duo",
-            "RANKED_FLEX_SR": "Ranked Flex 5v5",
-            "RANKED_FLEX_TT": "Ranked Flex 3v3",
-            "RANKED_TFT": "Ranked TFT",
-            "ANY": "any ranked queue",
-            "HIGHEST": "your highest ranked queue (excluding TFT)",
-            "HIGHEST_TFT": "your highest ranked queue (including TFT)"
+        "rankedQueueTranslationKeys": {
+            "RANKED_SOLO_5x5": "queue_ranked_solo",
+            "RANKED_FLEX_SR": "queue_ranked_flex",
+            "RANKED_TFT": "queue_ranked_tft",
+            "ANY": "queue_ranked_any",
+            "HIGHEST": "queue_ranked_highest",
+            "HIGHEST_TFT": "queue_ranked_highest_tft"
         }
     },
     "discord": {

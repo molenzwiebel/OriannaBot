@@ -11,41 +11,10 @@ import { createGeneratedImagePath } from "../../web/generated-images";
 
 const TopCommand: Command = {
     name: "Show Leaderboards",
-    smallDescription: "Show leaderboards and other neat statistics!",
-    description: `
-This command is capable of showing a variety of leaderboards and rankings, based on either your individual score or all people linked with Orianna.
-
-**Champion Leaderboards**  
-The most common usage is to show a leaderboard of all user's top scores on a specified champion. To do so, simply use \`@Orianna Bot top <champion name>\`, where champion name is any champion or [abbreviation](https://bit.ly/2wwGVMi).
-
-If you do not specify a champion name, Orianna will fall back to the default champion in your current server, or show an error if the server has no champion setup.
-
-To limit results to just people in the current Discord server, include \`server\` in your message.
-
-Examples:
-- \`@Orianna Bot top mf\` - shows top scores on Miss Fortune across all linked Orianna accounts
-- \`@Orianna Bot top thresh server\` - shows the top scores on Thresh of all current server members
-
-**Overall Leaderboards**  
-To get a leaderboard of true champion fanatics, you can also get a leaderboard of all highest champion mastery scores regardless of champion. To do so, simply use \`@Orianna Bot top all\`. This command will show you all true champion fanatics, with millions of points invested into a single champion.
-
-To limit results to just people in the current Discord server, include \`server\` in your message.
-
-Examples:
-- \`@Orianna Bot top all champions\` - shows top scores of all users on any champion
-- \`@Orianna Bot top all champions in this server\` - shows top scores of all users in the current server
-
-**Personal Top Champions**  
-You can also see a leaderboard of your own personal mastery scores by adding \`me\` to the command. Doing so will show you a list of all your champion mastery values.
-
-To see the leaderboard of someone else, simply mention them in your message.
-
-Examples:
-- \`@Orianna Bot top me\` - shows your top champions
-- \`@Orianna Bot top @molenzwiebel\` - shows molenzwiebel's top champions
-`.trim(),
+    smallDescriptionKey: "command_top_small_description",
+    descriptionKey: "command_top_description",
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
-    async handler({ msg, content, guild, ctx, error }) {
+    async handler({ msg, content, guild, ctx, error, t }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
         const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
@@ -64,21 +33,21 @@ Examples:
 
                     return {
                         name: `**${emote(ctx, champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
-                        value: `${emote(ctx, "Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0Points`,
+                        value: `${emote(ctx, "Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
                         inline: true
                     };
                 }));
 
             return paginate(ctx, fields, {
-                title: "📊 Top Champions For " + formatName(user),
+                title: t.command_top_personal_title({ name: formatName(user) }),
             }, 12);
         }
 
         // You'd think that nobody is dumb enough to do this, but there are people.
         if (serverOnly && !guild) {
             return error({
-                title: "❓ What Are You Doing?!?!",
-                description: "Limiting leaderboards to only members in the current server while you send me a DM is a bit weird, don't you think? Consider removing `server` from your command."
+                title: t.command_top_no_server_title,
+                description: t.command_top_no_server_description
             });
         }
 
@@ -127,7 +96,7 @@ Examples:
         if (user) {
             const rank = await redis.zrevrank(redisKey, user.id + "");
             if (rank) {
-                userRank = "Your Rank: " + (rank + 1); // rank is 0-indexed
+                userRank = t.command_top_rank({ rank: rank + 1 }); // rank is 0-indexed
             }
         }
 
@@ -156,10 +125,13 @@ Examples:
             }));
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
+            // TODO: Localize image.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
             const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction({
                 champion: champ,
-                title: champ ? champ.name + (serverOnly ? " Server" : "") + " Leaderboard" : "Global" + (serverOnly ? " Server" : "") + " Leaderboard",
+                title: champ
+                    ? serverOnly ? t.command_top_server_title({ champ: champ.name }) : t.command_top_title({ champ: champ.name })
+                    : serverOnly ? t.command_top_global_server_title : t.command_top_global_title,
                 players
             }));
 

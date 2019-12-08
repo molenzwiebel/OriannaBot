@@ -6,19 +6,13 @@ import config from "../../config";
 
 const RolesCommand: Command = {
     name: "Show Server Roles",
-    smallDescription: "Shows all roles configured on the current server.",
-    description: `
-Shows all the roles and their requirements as configured on the current Discord server. This will list all roles, along with an indication of whether or not you are currently eligible for them.
-
-Note that the same role might appear twice in the list with different requirements. If this is the case, you will receive the role if you are eligible for at least one of the "sets" of conditions.
-
-For more information on role conditions and how they work, check out the [documentation](https://orianna.molenzwiebel.xyz/docs/conditions).
-`.trim(),
+    smallDescriptionKey: "command_roles_small_description",
+    descriptionKey: "command_roles_description",
     keywords: ["roles", "config", "ranks"],
-    async handler({ guild, user: loadUser, server: loadServer, error, ctx }) {
+    async handler({ guild, user: loadUser, server: loadServer, error, ctx, t }) {
         if (!guild) return error({
-            title: "🛑 Server Missing",
-            description: "This command explicitly says that it shows _server_ information, yet you try to use it in DMs? Madman."
+            title: t.command_roles_no_server_title,
+            description: t.command_roles_no_server_description
         });
 
         const server = await loadServer();
@@ -31,15 +25,15 @@ For more information on role conditions and how they work, check out the [docume
         await user.$loadRelated("[accounts, ranks, stats]");
 
         if (!server.roles!.length) return error({
-            title: "🔍 There Seems To Be Nothing Here...",
-            description: "The current server does not seem to have any roles configured."
+            title: t.command_roles_no_roles_title,
+            description: t.command_roles_no_roles_description
         });
 
         const formatRange = (range: RangeCondition<any>) => {
-            if (range.compare_type === "at_least") return "of at least " + range.value.toLocaleString();
-            if (range.compare_type === "at_most") return "of at most " + range.value.toLocaleString();
-            if (range.compare_type === "exactly") return "of exactly " + range.value.toLocaleString();
-            return "between " + range.min.toLocaleString() + " and " + range.max.toLocaleString()
+            if (range.compare_type === "at_least") return t.command_roles_at_least({ value: range.value });
+            if (range.compare_type === "at_most") return t.command_roles_at_most({ value: range.value });
+            if (range.compare_type === "exactly") return t.command_roles_exactly({ value: range.value });
+            return t.command_roles_between({ min: range.min, max: range.max });
         };
 
         const formatChampion = async (id: number) => {
@@ -48,26 +42,35 @@ For more information on role conditions and how they work, check out the [docume
         };
 
         const formatRanked = (cond: RankedTierCondition) => {
-            const tier = cond.options.tier === 0 ? "Unranked" : capitalize(config.riot.tiers[cond.options.tier - 1].toLowerCase());
-            const queue = config.riot.rankedQueues[cond.options.queue];
-            return (cond.options.compare_type === "equal" ? "of " + tier : cond.options.compare_type + " than " + tier) + " in " + queue;
+            const tier = cond.options.tier === 0 ? t.ranked_tier_unranked : (<any>t)["ranked_tier_" + config.riot.tiers[cond.options.tier - 1].toLowerCase()];
+            const queue = <string>t[config.riot.rankedQueueTranslationKeys[cond.options.queue]];
+
+            if (cond.options.compare_type === "equal") {
+                return t.command_roles_ranked_tier_equal({ tier, queue });
+            }
+
+            if (cond.options.compare_type === "lower") {
+                return t.command_roles_ranked_tier_lower({ tier, queue });
+            }
+
+            return t.command_roles_ranked_tier_higher({ tier, queue });
         };
 
         const formatCondition = async (cond: TypedRoleCondition): Promise<string> => {
-            if (cond.type === "mastery_level") return "Have a mastery level " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
-            if (cond.type === "mastery_score") return "Have a mastery score " + formatRange(cond.options) + " on " + await formatChampion(cond.options.champion);
-            if (cond.type === "total_mastery_score") return "Have a total mastery score " + formatRange(cond.options);
-            if (cond.type === "ranked_tier") return "Have a ranked tier " + formatRanked(cond);
-            if (cond.type === "server") return "Have an active account on " + cond.options.region;
+            if (cond.type === "mastery_level") return t.command_roles_mastery_level({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
+            if (cond.type === "mastery_score") return t.command_roles_mastery_score({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
+            if (cond.type === "total_mastery_score") return t.command_roles_total_mastery_score({ range: formatRange(cond.options) });
+            if (cond.type === "ranked_tier") return t.command_roles_ranked_tier({ ranked: formatRanked(cond) });
+            if (cond.type === "server") return t.command_roles_region({ region: cond.options.region });
 
             // Error out since we don't have a valid role here. It'll be caught and reported to ELK so we end up seeing it.
             throw new Error("Unknown condition type: " + JSON.stringify(cond));
         };
 
         const formatCombinator = (comb: RoleCombinator) => {
-            if (comb.type === "all") return "**All must match:**";
-            if (comb.type === "any") return "**Any must match:**";
-            if (comb.type === "at_least") return "**At least " + comb.amount.toLocaleString() + " must match:**";
+            if (comb.type === "all") return t.command_roles_all_match;
+            if (comb.type === "any") return t.command_roles_any_match;
+            if (comb.type === "at_least") return t.command_roles_at_least_n({ amount: comb.amount });
 
             // Should never happen.
             throw new Error("Unknown combinator type: " + JSON.stringify(comb));
@@ -76,7 +79,7 @@ For more information on role conditions and how they work, check out the [docume
         const roleFields = [].concat(...<any>await Promise.all(server.roles!.map(async x => {
             if (!x.conditions || !x.conditions.length) return {
                 name: x.name,
-                value: "_No Conditions_"
+                value: t.command_roles_no_conditions
             };
 
             const conditions = await Promise.all(x.conditions.map(async x => {
@@ -92,7 +95,7 @@ For more information on role conditions and how they work, check out the [docume
                 const conditionLines = conditions.slice(i, i + 5);
 
                 fields.push({
-                    name: x.name + (i > 0 ? " (Continued)" : ""),
+                    name: x.name + (i > 0 ? " " + t.command_roles_continued : ""),
                     value: i > 0
                         ? conditionLines.join("\n")
                         : (conditionLines.length === 1 ? conditionLines[0] : (formatCombinator(x.combinator) + "\n" + conditionLines.join("\n")))
@@ -103,8 +106,8 @@ For more information on role conditions and how they work, check out the [docume
         })));
         
         return paginate(ctx, roleFields, {
-            title: "📖 Server Roles",
-            description: "The following roles are configured on this server:"
+            title: t.command_roles_message_title,
+            description: t.command_roles_message_description
         }, 6);
     }
 };

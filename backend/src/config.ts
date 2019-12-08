@@ -1,4 +1,5 @@
 import { ConnectionConfig } from "knex";
+import { Translator } from "./i18n";
 
 interface Configuration {
     riot: {
@@ -6,7 +7,7 @@ interface Configuration {
         tftApiKey: string;
         tiers: string[];
         refreshToken: string;
-        rankedQueues: { [key: string]: string };
+        rankedQueueTranslationKeys: { [key: string]: keyof Translator };
     };
     discord: {
         clientId: string;

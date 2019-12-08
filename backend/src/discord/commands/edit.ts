@@ -5,22 +5,18 @@ import config from "../../config";
 
 const EditCommand: Command = {
     name: "Edit Profile",
-    smallDescription: "Sends you a link to your personal profile settings page.",
-    description: `
-This command will send you a single-use link to your [personal online settings page](${config.web.url}/me) for managing and adding all League accounts linked to your Orianna Bot profile.
-
-For more information on your personal profile and how to set up your League commands, check out the [relevant documentation page](${config.web.url}/docs/link).
-`.trim(),
+    smallDescriptionKey: "command_edit_small_description",
+    descriptionKey: "command_edit_description",
     keywords: ["edit", "config", "configure", "add", "remove"],
     noTyping: true,
-    async handler({ ctx, client, bot, msg, error, info }) {
+    async handler({ ctx, client, bot, msg, error, info, t }) {
         const normalizedContent = msg.content.toLowerCase();
 
         // Catch edit server attempts.
-        if (normalizedContent.includes("server") || normalizedContent.includes("guild")) {
+        if (normalizedContent.includes("server") || normalizedContent.includes("guild") || normalizedContent.includes("role")) {
             return info({
-                title: "ℹ Server Editing Works Differently",
-                description: "With Orianna v2, there is no longer a separate configuration URL for editing server settings. Instead, you can simply login with your own link or Discord account, then select your server from the sidebar. Note that you must have `Manage Server` permissions to edit server settings."
+                title: t.command_edit_server_title,
+                description: t.command_edit_server_description
             });
         }
 
@@ -35,16 +31,16 @@ For more information on your personal profile and how to set up your League comm
         try {
             const channel = await bot.getDMChannel(msg.author.id);
             await client.createResponseContext(channel, msg.author, msg).info({
-                title: "🔗 Authentication Link",
-                description: `To edit accounts, configure your personal servers and more, you can access your profile page on the [Orianna Web Panel](${link}). Clicking the link below will automatically log you in. You can only use this link _once_ before it expires. It will also expire if you do not use it within 24 hours.\n\n${link}\n\n**:warning: Do not share this link unless you're absolutely sure what you're doing!** Anyone with this link will have access to your profile.`
+                title: t.command_edit_dm_title,
+                description: t.command_edit_dm_description({ link })
             });
 
             await msg.addReaction("✅");
         } catch (e) {
             // DMs are probably off.
             error({
-                title: "📪 Your mailbox is private!",
-                description: "You seem to have configured your account to only allow direct messages from friends. This unfortunately means that I can't send you DMs. To enable direct messages from server members, right click on this server's icon, choose `Privacy Settings` and turn `Allow direct messages from server members` on.",
+                title: t.command_edit_dm_failed_title,
+                description: t.command_edit_dm_failed_description,
                 image: "https://i.imgur.com/qLgkXiv.png"
             });
         }

@@ -3,6 +3,7 @@ import { ResponseOptions } from "./response";
 import { User, Server } from "../database";
 import Response from "./response";
 import DiscordClient from "./client";
+import { Translator } from "../i18n";
 
 export interface Command {
     /**
@@ -14,13 +15,13 @@ export interface Command {
      * A small description of a few words about what this command does.
      * Used in the list of commands.
      */
-    smallDescription: string;
+    smallDescriptionKey: keyof Translator;
 
     /**
      * A description of the command, as shown in the help. This description
      * can span multiple lines and use markdown.
      */
-    description: string;
+    descriptionKey: keyof Translator;
 
     /**
      * Keywords that trigger this command if they appear in the message.
@@ -77,6 +78,12 @@ export interface ResponseContext {
      * the user does not reply within `timeout`ms, undefined is returned instead.
      */
     listen: (timeout: number) => Promise<eris.Message | undefined>;
+
+    /**
+     * The appropriate translation instance for the language context in which
+     * this response is located.
+     */
+    t: Translator;
 }
 
 export interface CommandContext extends ResponseContext {

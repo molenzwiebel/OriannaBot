@@ -10,6 +10,7 @@ export interface ProfileGraphicValue {
 }
 
 export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
+    // TODO: Translate graphics
     const { document } = new JSDOM(`<svg id="svg" width="399" height="240"></svg>`).window;
     (<any>global).document = document; // d3 expects this
 

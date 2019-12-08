@@ -4,21 +4,10 @@ import { badge } from "../../util/format-name";
 
 const PointsCommand: Command = {
     name: "Show Mastery Points",
-    smallDescription: "Show how many mastery points you have on a champion.",
-    description: `
-This command shows a user's mastery score on the specified champion.
-
-To choose a champion, simply include a champion name or [alias](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92) in your message. If no champion name is included, Orianna will fall back to the default champion of the current Discord server, or show an error message if there is no default champion configured.
-
-To see someone else's mastery, simply mention their name in the command.
-
-Examples:
-- \`@Orianna Bot points mf\` - shows your mastery on Miss Fortune
-- \`@Orianna Bot score lee @molenzwiebel\` - shows molenzwiebel's mastery on Lee Sin
-- \`@Orianna Bot mastery\` - shows your mastery on the default champion
-`.trim(),
+    smallDescriptionKey: "command_points_small_description",
+    descriptionKey: "command_points_description",
     keywords: ["points", "mastery", "score"],
-    async handler({ ctx, ok }) {
+    async handler({ ctx, ok, t }) {
         // Remove the keywords since they can combine with champion names (e.g. **mastery i**relia).
         ctx.content = ctx.content.replace(/\b(points|mastery|score)\b/g, "");
 
@@ -30,11 +19,15 @@ Examples:
         if (!champ) return;
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
-        const text = points && points.score ? emote(ctx, "Level_" + points.level) + " **" + points.score.toLocaleString() : "**0";
+        const text = points && points.score ? emote(ctx, "Level_" + points.level) + " " + points.score.toLocaleString() : "0";
 
         return ok({
-            title: "📖 Mastery Points",
-            description: `<@!${user.snowflake}>${badge(user)} has ${text} points** on ${emote(ctx, champ)} ${champ.name}.`
+            title: t.command_points_message_title,
+            description: t.command_points_message_description({
+                user: `<@!${user.snowflake}>${badge(user)}`,
+                points: text,
+                champion: `${emote(ctx, champ)} ${champ.name}`
+            })
         });
     }
 };

@@ -115,6 +115,7 @@ const SPLASH_OFFSETS: { [key: string]: number } = {
  * a fake canvas object to retrieve the operations needed to render the specified image statically.
  */
 export async function generateChampionTopGraphic(options: TopGraphicOptions): Promise<Buffer> {
+    // TODO: Translate graphics.
     const splash = await StaticData.getChampionSplash(options.champion!);
     const icon = await StaticData.getChampionIcon(options.champion!);
 
