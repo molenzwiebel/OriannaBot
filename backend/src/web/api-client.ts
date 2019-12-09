@@ -241,8 +241,21 @@ export default class WebAPIClient {
             default_champion: Joi.number().allow(null).optional(),
 
             // Completed intro must be a boolean. Optional
-            completed_intro: Joi.boolean().optional()
+            completed_intro: Joi.boolean().optional(),
+
+            // Engagement mode. Must match one of the patterns.
+            engagement: Joi.alt([
+                { type: Joi.any().valid("on_command") },
+                { type: Joi.any().valid("on_join") },
+                { type: Joi.any().valid("on_react"), channel: Joi.string(), emote: Joi.string() }
+            ])
         }, req, res)) return;
+
+        // Convert engagement to the JSON representation.
+        if (req.body.engagement) {
+            req.body.engagement_json = JSON.stringify(req.body.engagement);
+            delete req.body.engagement;
+        }
 
         await server.$query().update(req.body);
         return res.json({ ok: true });

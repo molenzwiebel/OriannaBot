@@ -396,6 +396,7 @@ export default class DiscordClient {
             const engagement = server.engagement;
             if (engagement.type !== "on_react") return;
             if (msg.channel.id !== engagement.channel) return;
+            if (!engagement.emote.includes(":")) return;
 
             const [name, id] = engagement.emote.split(":");
             if (emoji.name !== name || emoji.id !== id) return;
