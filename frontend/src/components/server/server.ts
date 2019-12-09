@@ -47,7 +47,16 @@ export interface ServerDetails {
         channels: { id: string, name: string }[];
         roles: DiscordRole[];
         highestRole: number;
-    }
+    };
+    engagement: {
+        type: "on_join"
+    } | {
+        type: "on_command"
+    } | {
+        type: "on_react",
+        channel: string,
+        emote: string // customName:id
+    };
 }
 
 @Component({
@@ -90,6 +99,38 @@ export default class ServerProfile extends Vue {
         } else {
             this.showMessage("Announcements are now turned off.");
         }
+    }
+
+    /**
+     * Updates the selected announcement channel with the server.
+     */
+    private async updateEngagement(evt: Event) {
+        const type = (<HTMLSelectElement>evt.target).value;
+
+        if (type === "on_command" || type === "on_join") {
+            this.server.engagement = {
+                type
+            };
+        } else {
+            this.server.engagement = {
+                type: "on_react",
+                channel: this.server.discord.channels[0].id,
+                emote: "Orianna:411977322510680067" // use a "sensible" default
+            };
+        }
+
+        await this.saveEngagement();
+    }
+
+    /**
+     * Saves the current engagement options for the server.
+     */
+    private async saveEngagement() {
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
+            engagement: this.server.engagement
+        });
+
+        this.showMessage("Saved engagement options.");
     }
 
     /**
@@ -220,5 +261,18 @@ export default class ServerProfile extends Vue {
      */
     get roleNames() {
         return this.server.discord.roles.map(x => x.name);
+    }
+
+    /**
+     * @returns the URL to the discord CDN for the current engagement emote
+     */
+    get emoteImage() {
+        if (this.server.engagement.type !== "on_react") return "";
+
+        const emote = this.server.engagement.emote;
+        if (!emote.includes(":")) return "";
+
+        const [name, id] = emote.split(":");
+        return `https://cdn.discordapp.com/emojis/${id}.png?v=1`;
     }
 }

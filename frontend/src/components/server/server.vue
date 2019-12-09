@@ -18,6 +18,47 @@
                     </select>
                     <p>The channel in which role announcements are made. Role announcements are made whenever a user becomes eligible for a role with the announce setting enabled.</p>
                 </div>
+
+                <div class="setting">
+                    <b>Engagement Mode</b>
+
+                    <select @change="updateEngagement">
+                        <option value="on_command" :selected="server.engagement.type === 'on_command'">When the user first uses an Orianna command</option>
+                        <option value="on_join" :selected="server.engagement.type === 'on_join'">When the user joins the server</option>
+                        <option value="on_react" :selected="server.engagement.type === 'on_react'">When the user reacts to a certain message</option>
+                    </select>
+
+                    <template v-if="server.engagement.type === 'on_react'">
+                        <p class="padded bold">In which channel should Orianna listen for reactions?</p>
+
+                        <select v-model="server.engagement.channel" @change="saveEngagement">
+                            <option v-for="channel in server.discord.channels" :value="channel.id">#{{ channel.name }}</option>
+                        </select>
+
+                        <p class="padded bold">Which reaction emote should Orianna listen to? Enter the emote as <code>emoteName:emoteID</code>. You can find the emote ID by sending a Discord message with the emote with a backslash in front of it (<code>\:wow:</code> for example).</p>
+
+                        <div class="emote-alongside-text">
+                            <img :src="emoteImage">
+                            <input type="text" v-model="server.engagement.emote" placeholder="emoteName:emoteID" @blur="saveEngagement">
+                        </div>
+                    </template>
+
+                    <p class="padded">
+                        This option configures when Orianna will first introduce herself to any members of the server. This introduction will be done through private messages and contains a small explanation about Orianna alongside instructions on how to add an account.
+                    </p>
+
+                    <p v-if="server.engagement.type === 'on_command'">
+                        With the current setting, Orianna will send a message when the user first uses an Orianna command such as <code>@Orianna Bot configure</code>. If the user has previously received a message, they will not receive it again.
+                    </p>
+
+                    <p v-if="server.engagement.type === 'on_join'">
+                        With the current setting, Orianna will send a message when the user joins the server. If the user has previously received a message or already has commands set up, they will not receive the message. Please note that users are usually suspicious of bot DMs that arrive immediately when they join a server.
+                    </p>
+
+                    <p v-if="server.engagement.type === 'on_react'">
+                        With the current setting, Orianna will send a message to anyone that reacts with <span class="bold">:{{ server.engagement.emote.split(":")[0] || "emote" }}:</span> in #{{ server.discord.channels.find(x => x.id === server.engagement.channel).name }}. Usually this configuration is used with a general introduction channel where a single reaction is already added, so that a user can proceed with a single click. Orianna will automatically remove the added reaction and always send the message, regardless of whether the user already has experience with Orianna.
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -119,6 +160,12 @@
                 font-size 16px
                 color #424242
                 margin 8px 0 0 0
+
+                &.padded
+                    margin 8px 0
+
+            .bold
+                font-weight bold
 
         .setting + .setting
             margin-top 20px
@@ -246,6 +293,18 @@
 
             &:hover
                 border-color #1f9fde
+
+    .emote-alongside-text
+        display flex
+
+        img
+            display inline-block
+            margin-right 10px
+            height 40px
+
+        input[type=text]
+            display inline-block
+            padding-right 20px
 
     // Animation for unsaved roles.
     .slide-enter-active

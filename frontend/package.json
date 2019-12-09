@@ -20,7 +20,7 @@
     "stylus-loader": "^3.0.1",
     "text-mask-addons": "^3.7.2",
     "ts-loader": "^3.4.0",
-    "typescript": "^2.7.1",
+    "typescript": "3",
     "vue": "^2.5.13",
     "vue-class-component": "^6.1.2",
     "vue-form-wizard": "^0.8.4",
