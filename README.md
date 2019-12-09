@@ -25,6 +25,8 @@ To create tables in the Postgres database, ensure that you have setup the config
 
 If everything is setup correctly, running `yarn start` will compile the typescript sources and start the bot with the specified config values. Note that you may not see any output, since Orianna uses `debug` which displays nothing by default. To see all debug messages, set your `DEBUG` environment variable to `orianna*`.
 
+If you are developing, you can use `yarn watch` to automatically compile typescript as you work. Note that if you make any changes to the translations, you will need to rebuild translations first. This can be done by simply running `build.js` in the translation folder.
+
 # License
 
 [MIT](http://opensource.org/licenses/MIT)

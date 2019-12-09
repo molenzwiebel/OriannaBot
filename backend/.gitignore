@@ -5,3 +5,4 @@ temp/
 generated-images/
 dev.sqlite3
 config.json
+src/translations.json
