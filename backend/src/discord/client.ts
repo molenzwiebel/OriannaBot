@@ -4,10 +4,9 @@ import config from "../config";
 import randomstring = require("randomstring");
 import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
-import { Server, User, BlacklistedChannel, UserAuthKey, Role } from "../database";
+import { Server, User, BlacklistedChannel, Role } from "../database";
 import RiotAPI from "../riot/api";
 import PuppeteerController from "../puppeteer";
-import { randomBytes } from "crypto";
 import elastic from "../elastic";
 import * as DBL from "dblapi.js";
 import { Commit, getLastCommit } from "git-last-commit";
@@ -130,14 +129,14 @@ export default class DiscordClient {
     /**
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
-    public async findOrCreateUser(id: string, t: Translator, discordUser?: { username: string, avatar?: string }): Promise<User> {
+    public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string }): Promise<User> {
         let user = await User.query().where("snowflake", "=", id).first();
         if (user) return user;
 
         discordUser = discordUser || this.bot.users.get(id);
         if (!discordUser) throw new Error("No common server shared with server " + id);
 
-        user = await User.query().insertAndFetch({
+        return User.query().insertAndFetch({
             snowflake: id,
             username: discordUser.username,
             avatar: discordUser.avatar || "none",
@@ -146,26 +145,6 @@ export default class DiscordClient {
                 readable: true
             })
         });
-
-        const key = await UserAuthKey.query().insertAndFetch({
-            user_id: user.id,
-            created_at: "2100-01-01 10:10:10", // have this one never expire, just for a bit more user friendliness
-            key: randomBytes(16).toString("hex")
-        });
-        const link = config.web.url + "/login/" + key.key;
-
-        // Try send them a message since this is the first time we met them.
-        await this.notify(id, {
-            title: t.first_use_title({ username: discordUser.username }),
-            url: link,
-            color: 0x49bd1a,
-            description: t.first_use_message({ link }),
-            timestamp: new Date().getTime(),
-            thumbnail: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png",
-            footer: "Orianna Bot v2"
-        });
-
-        return user;
     }
 
     /**
@@ -292,6 +271,18 @@ export default class DiscordClient {
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, content);
         await elastic.logCommand(matchedCommand.name, msg);
 
+        // Check if this is the first time that this user has used an orianna command.
+        // If in a server and yes, check if engagement should apply.
+        if (!isDM) {
+            const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
+            const user = await User.query().where("snowflake", msg.author.id).first();
+
+            // If on command and no user, engage.
+            if (server.engagement.type === "on_command" && !user) {
+                this.engageUser(msg.author, server);
+            }
+        }
+
         // If this is in a server, we need to check if the channel is blacklisted.
         if (!isDM && !fromMute) {
             const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
@@ -325,7 +316,7 @@ export default class DiscordClient {
             channel: msg.channel,
             msg,
             content,
-            user: () => this.findOrCreateUser(msg.author.id, t),
+            user: () => this.findOrCreateUser(msg.author.id),
             ctx: <any>null
         };
 
@@ -397,6 +388,26 @@ export default class DiscordClient {
             } else {
                 this.displayHelp(t, msg.channel, msg.author, msg);
             }
+        }
+
+        // If this react was in a server, check if we should engage.
+        if (inServer) {
+            const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
+            const engagement = server.engagement;
+            if (engagement.type !== "on_react") return;
+            if (msg.channel.id !== engagement.channel) return;
+
+            const [name, id] = engagement.emote.split(":");
+            if (emoji.name !== name || emoji.id !== id) return;
+
+            // Everything checks out. Delete the react and engage.
+            await msg.removeReaction(emoji.name + ":" + emoji.id, userID);
+
+            // Always engage if from an invite, regardless of whether or not the user is already registered.
+            const user = this.bot.users.get(userID);
+            if (!user) return;
+
+            this.engageUser(user, server);
         }
     };
 
@@ -514,6 +525,14 @@ export default class DiscordClient {
 
         // Don't use findOrCreateUser since it will message the user.
         const user = await User.query().where("snowflake", "=", member.id).first();
+        const server = await this.findOrCreateServer(guild.id);
+
+        // If we engage on join and the user doesn't have an account yet, engage now.
+        if (server.engagement.type === "on_join" && !user) {
+            this.engageUser(member.user, server);
+        }
+
+        // Else, do nothing.
         if (!user) return;
 
         // This should assign new roles, if appropriate.
@@ -592,6 +611,33 @@ export default class DiscordClient {
         if (user && user.language) language = user.language;
 
         return getTranslator(language);
+    }
+
+    /**
+     * Introduces Orianna to the user. Note that this function does not check if the user
+     * has previously done any introductions. The server parameter is used to dynamically
+     * select which message to use.
+     */
+    private async engageUser(discordUser: eris.User, server: Server) {
+        const t = getTranslator(server.language); // use the language of the server
+
+        const user = await this.findOrCreateUser(discordUser.id, discordUser);
+        const link = await user.generateInfiniteLoginToken();
+
+        const intro =
+            server.engagement.type === "on_command" ? t.first_use_intro_on_command
+            : server.engagement.type === "on_join" ? t.first_use_intro_on_join({ server: server.name })
+            : t.first_use_intro_on_react({ server: server.name });
+
+        await this.notify(discordUser.id, {
+            title: t.first_use_title({ username: discordUser.username }),
+            url: link,
+            color: 0x49bd1a,
+            description: t.first_use_message({ intro, link }),
+            timestamp: new Date().getTime(),
+            thumbnail: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png",
+            footer: "Orianna Bot v2"
+        });
     }
 
     /**

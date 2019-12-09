@@ -3,6 +3,16 @@ import omit = require("lodash.omit");
 import * as decorators from "../util/objection";
 import Role from "./role";
 
+export type EngagementMode = {
+    type: "on_join"
+} | {
+    type: "on_command"
+} | {
+    type: "on_react",
+    channel: string,
+    emote: string // customName:id
+};
+
 @decorators.table("servers")
 export default class Server extends Model {
     /**
@@ -53,6 +63,12 @@ export default class Server extends Model {
     language: string;
 
     /**
+     * The engagement mode that Orianna is configured to use for members of this server.
+     * @see Server#engagement
+     */
+    engagement_json: string;
+
+    /**
      * Optionally eager-loaded blacklisted channels.
      */
     blacklisted_channels?: BlacklistedChannel[];
@@ -66,7 +82,17 @@ export default class Server extends Model {
      * Omit id from the JSON object.
      */
     $formatJson(json: Pojo) {
-        return omit(super.$formatJson(json), ["id"]);
+        return {
+            ...omit(super.$formatJson(json), ["id", "engagement_json"]),
+            engagement: this.engagement
+        };
+    }
+
+    /**
+     * @returns the engagement mode for this server
+     */
+    get engagement(): EngagementMode {
+        return JSON.parse(this.engagement_json);
     }
 }
 

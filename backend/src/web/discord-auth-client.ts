@@ -34,7 +34,7 @@ export default function register(app: express.Application, client: DiscordClient
             });
             const me: { id: string, username: string, avatar?: string } = await meReq.json();
 
-            const user = await client.findOrCreateUser(me.id, getTranslator("en-US"), me);
+            const user = await client.findOrCreateUser(me.id, me);
             if (!user) throw new Error("Missing user.");
 
             res.cookie("token", user.token);

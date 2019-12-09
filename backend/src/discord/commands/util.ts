@@ -27,9 +27,9 @@ export async function expectServer({ guild, error, server, t }: CommandContext):
  * targeting. This looks for the first non-bot mention, or otherwise the sender
  * of the message.
  */
-export async function expectUser({ msg, client, user, t }: CommandContext): Promise<User> {
+export async function expectUser({ msg, client, user }: CommandContext): Promise<User> {
     const mentionTarget = msg.mentions.find(x => !x.bot);
-    return mentionTarget ? client.findOrCreateUser(mentionTarget.id, t) : user();
+    return mentionTarget ? client.findOrCreateUser(mentionTarget.id) : user();
 }
 
 /**

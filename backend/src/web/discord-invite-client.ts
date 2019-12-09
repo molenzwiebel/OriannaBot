@@ -46,7 +46,7 @@ export default function register(app: express.Application, client: DiscordClient
 
             // First, ensure that we create a user and sign them in. That way we can immediately redirect
             // the user to the setup page.
-            const user = await client.findOrCreateUser(me.id, getTranslator("en-US"), me);
+            const user = await client.findOrCreateUser(me.id, me);
             res.cookie("token", user.token);
 
             // Next, if the discord server doesn't exist, register it.

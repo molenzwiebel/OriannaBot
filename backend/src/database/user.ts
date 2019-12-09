@@ -2,6 +2,8 @@ import { Model, Pojo } from "objection";
 import LeagueAccount from "./league_account";
 import * as decorators from "../util/objection";
 import omit = require("lodash.omit");
+import config from "../config";
+import { randomBytes } from "crypto";
 
 @decorators.table("users")
 export default class User extends Model {
@@ -131,6 +133,20 @@ export default class User extends Model {
             tft_account_id: tftSummoner.accountId,
             tft_puuid: tftSummoner.puuid
         });
+    }
+
+    /**
+     * Generates a new login token that never expires. Used during engagement when a player first
+     * meets Orianna and starts using her. Returns the full login URL.
+     */
+    async generateInfiniteLoginToken(): Promise<string> {
+        const key = await UserAuthKey.query().insertAndFetch({
+            user_id: this.id,
+            created_at: "2100-01-01 10:10:10", // have this one never expire, just for a bit more user friendliness
+            key: randomBytes(16).toString("hex")
+        });
+
+        return config.web.url + "/login/" + key.key;
     }
 }
 
