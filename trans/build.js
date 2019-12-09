@@ -126,6 +126,7 @@ process.exit((() => {
     }
 
     // Write the result.
-    fs.writeFileSync(process.argv[2] || "./translations.json", JSON.stringify(result, null, 4));
-    console.log("[+] OK: Written translations to './translations.json'. Do NOT commit this file into source control.");
+    const target = process.argv[2] || "./translations.json";
+    fs.writeFileSync(target, JSON.stringify(result, null, 4));
+    console.log(`[+] OK: Written translations to '${target}'. Do NOT commit this file into source control.`);
 })());
