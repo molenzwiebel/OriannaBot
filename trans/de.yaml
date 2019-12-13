@@ -1,0 +1,293 @@
+metadata:
+  code: "de-DE"
+  name: "Deutsch"
+  ddragonLanguage: "de_DE"
+
+# ======================================= Generic =======================================
+
+empty: ""
+
+## Ranked tiers.
+# using official translations from plugin rcp-fe-lol-league-tier-names
+ranked_tier_unranked: "Ungewertet"
+ranked_tier_iron: "Eisen"
+ranked_tier_bronze: "Bronze"
+ranked_tier_silver: "Silber"
+ranked_tier_gold: "Gold"
+ranked_tier_platinum: "Platin"
+ranked_tier_diamond: "Diamant"
+ranked_tier_master: "Meister"
+ranked_tier_grandmaster: "Großmeister"
+ranked_tier_challenger: "Herausforderer"
+
+## Queue names
+queue_ranked_solo: "Solo/Duo Rangliste"
+queue_ranked_flex: "Flexi Rangliste"
+queue_ranked_tft: "TFT Rangliste"
+queue_ranked_any: "beliebige Rangliste"
+queue_ranked_highest: "dein höchster Rang (ohne TFT)"
+queue_ranked_highest_tft: "dein höchster Rang (mit TFT)"
+
+## Time ago
+time_ago_today: "Heute"
+time_ago_yesterday: "Gestern"
+time_ago_days_ago: "vor {days} Tagen"
+
+# ======================================= Bot =======================================
+
+## General Discord stuff.
+
+# The message sent when a user uses Orianna for the first time.
+first_use_title: "👋 Hey {username}!"
+first_use_intro_on_join: "Willkommen zu **{server}**! Ich bin **Orianna Bot**, ein Discord Bot verantwortlich für die Rollenverteilung basierend auf deinem League of Legends Rang and Meisterschaftspunkten."
+first_use_intro_on_command: "Du hast soeben ein Befehl von mir ausgeführt, aber ich glaube wir sind uns noch nicht begegnet. Ich bin **Orianna Bot**, ein Discord Bot verantwortlich für die Rollenverteilung basierend auf deinem League of Legends Rang and Meisterschaftspunkten."
+first_use_intro_on_react: "Sieht so aus, als würdest du Rollen auf **{server}** konfigurieren wollen. Ich bin **Orianna Bot**, der Discord Bot verantwortlich für die Rollenverteilung."
+first_use_message: |-
+  {intro}
+
+  Wenn du möchtest, dass ich dir folge und dir alle Rollen die du verdienst geben soll, kannst du dein League-Konto mit dem [Online-Konfigurationsportal]({link}) hinzufügen. Du kannst deine League-Konten auch über Discord und dem Reddit [ChampionMains Flairs](https://flairs.championmains.com)-System hinzufügen.
+
+  Um loszulegen, klicke auf den Link unten!
+  {link}
+
+  Verwirrt, fasziniert, wütend, glücklich? Schaue die alle meine verfügbaren Befehle mit `@Orianna Bot help` an und kontaktiere meinen Ersteller mit `@Orianna Bot about`.
+
+# Command errored.
+command_error_title: "💥 Autsch!"
+command_error_description: "Bei der Ausführung dieses Befehls ist ein furchtbarer Fehler aufgetreten, bitte versuche es in Kürze erneut. Falls dieser Fehler bestehen bleibt, sende bitte einen Fehlerbericht in [den Orianna Bot Support Server](https://discord.gg/bfxdsRC)."
+command_error_description_incident: "Bei der Ausführung dieses Befehls ist ein furchtbarer Fehler aufgetreten, bitte versuche es in Kürze erneut. Falls dieser Fehler bestehen bleibt, sende bitte einen Fehlerbericht in [den Orianna Bot Support Server](https://discord.gg/bfxdsRC) mit dem folgenden Fehlercode: `{incident}`."
+
+# Message sent in a muted channel.
+command_muted_preamble: "Ich habe keine Rechte um in {channel} zu sprechen, aber ich kann trotzdem heimlich deinen Befehl ausführen. Hier ist, was du angefordert hast:"
+
+# Promotion image.
+promotion_title: "{username} wurde gerade zu {role} befördert!"
+
+# User transfered to a different server.
+transfer_title: "✈ Konto transferiert?"
+transfer_body: |-
+  Du hast dein League-Konto **{username}** ({region}) vor einer Weile bei mir registriert. Nachdem ich heute nachgeschaut habe, scheint das Konto nicht mehr zu existieren. Hast du dein Konto zu einer anderen Region transferiert?
+
+  Ich habe dein League-Konto von deinem Discord Profil entfernt. Wenn du tatsächlich transferiert hast, kannst du dein Konto einfach wieder in der neuen Region hinzufügen.
+
+## Commands
+
+# Generic error messages
+command_error_no_server: "🔍 Welcher Server?"
+command_error_no_server_description: "Ich müsste wissen, über welchen Server du redest. Versuche das noch einmal, aber in einem Server statt in DMs."
+command_error_no_accounts: "🔍 {user} hat kein Konto konfiguriert."
+command_error_no_accounts_description: "Dieser Befehl ist viel nützlicher, wenn ich Daten anzuzeigen hätte, aber leider dieser Benutzer kein Konto bei mir eingerichtet. Konten können mit `@Orianna Bot configure` hinzugefügt werden."
+command_error_no_permissions: "✋ Halt, Stopp!"
+command_error_no_permissions_description: "Du musst Nachrichten verwalten können, um dieses Feature benutzen zu können. Tut mir leid :("
+command_error_no_champion: "🔎 Welcher Champion?"
+command_error_no_champion_description: "Ich habe nach einem Championnamen in deiner Nachricht gesucht, aber konnte keinen finden. Entweder hattest du einen Tippfehler irgendwo oder du hast vergessen den Championnamen zu nennen."
+
+# Generic command text
+command_page_n_of_n: "Seite {n} von {total}"
+
+# About command.
+command_about_title: "🤖 Über"
+command_about_field_author: "Autor"
+command_about_field_version: "Version"
+command_about_field_source: "Quellcode"
+command_about_field_servers: "Server"
+command_about_field_channels: "Kanäle"
+command_about_field_users: "Benutzer"
+command_about_field_memory_usage: "Speicherverbrauch"
+command_about_field_support: "Support Server"
+command_about_field_vote: "Für Orianna Bot abstimmen"
+
+# Edit command.
+command_edit_small_description: "Sendet dir einen Link zu deiner persönlichen Profileinstellungsseite."
+command_edit_description: |-
+  Dieser Befehl wird dir einen Einweg-Link zu deiner [persönlichen Profileinstellungsseite](https://orianna.molenzwiebel.xyz/me) schicken, um alle League-Konten, die mit Orianna Bot verbunden sind, zu verwalten und hinzuzufügen.
+
+  Für mehr Informationen zu deinem persönlichen Profil und wie du deine League-Befehle einrichten kannst, schaue dir die [relevante Dokumentationsseite](https://orianna.molenzwiebel.xyz/docs/link) an.
+command_edit_server_title: "ℹ Server ändern funktioniert anders"
+command_edit_server_description: "Seit Orianna v2, gibt es keine separate Konfigurations-URL, um Servereinstellungen zu ändern. Stattdessen, kannst du dich einfach mit deinem eigenen Link oder Discord-Konto einloggen, dann deinen Server von der Seitenleiste auswählen. Beachte, dass du die Rechte zu `Server verwalten` haben musst, um Servereinstellungen zu ändern."
+command_edit_dm_title: "🔗 Authentifizierungslink"
+command_edit_dm_description: |-
+  Um Konten zu ändern, deine persönlichen Server zu konfigurieren und mehr, kannst du deine Profilseite auf dem [Orianna Web Panel]({link}) aufrufen. Mit einem Klick auf den Link unten wirst du automatisch eingeloggt. Du kannst diesen Link nur _einmal_ verwenden bevor er abläuft. Er läuft auch ab, wenn du ihn nicht innerhalb 24 Stunden benutzt.
+
+  {link}
+
+  **:Warnung: Teile diesen Link nicht, wenn du dir nicht absolut sicher bist, was du tust!** Jeder mit diesem Link hat Zugriff auf dein Profil.
+command_edit_dm_failed_title: "📪 Deine Mailbox ist privat!"
+command_edit_dm_failed_description: "Du scheinst dein Konto so konfiguriert zu haben, sodass du nur Direktnachrichten von Freunden erhalten kannst. Das bedeutet leider, dass ich dir deine DMs schicken kann. Um Direktnachrichten von Servermitglieder zu aktivieren, rechts-klicke auf das Icon von diesem Server, wähle `Privatsphäreeinstellungen` aus und schalte `Erlaube Direktnachrichten von Servermitgliedern` ein."
+
+# Help command
+command_help_title: "🔖 Orianna Hilfe"
+command_help_description: "Ich versuche herrauszufinden, was du meinst, wenn du mich mit bestimmten Kennwörtern erwähnst. Hier ist eine simple Liste von Befehlen, die ich verstehe. Klicke auf die entsprechende Nummer für mehr Information und Beispielen zu dem Befehl. Klicke auf 🔖 um diesen Index anzuzeigen."
+command_help_command_title: "🔖 Hilfe für {name}"
+command_help_command_description: "**Beschreibung**\n{description}"
+command_help_command_keywords: "Kennwörter"
+
+# Invite command.
+command_invite_small_description: "Sendet dir einen Link, um Orianna einzuladen."
+command_invite_description: "Sendet einen simplen Link, den du benutzen kannst, um Orianna Bot auf deinen eigenen Server einzuladen."
+command_invite_title: "🤖 Du willst also eine Einladung?"
+command_invite_message_description: "Um Orianna Bot zu deinem Discord Server einzuladen, benutze einfach [diesen]({link}) Link. Danke, dass du Orianna Bot magst und dir überlegst sie zu deinem Server hinzuzufügen!"
+
+# Message sent whenever someone uses a different bot with an ori role.
+command_other_bot_title: "💡 Pro Tipp!"
+command_other_bot_description: "Die `{role}` Rolle wird von mir verwaltet. Du kannst dein Konto (mit `@Orianna Bot configure`) verbinden um die automatische Rollenzuweisung zu aktivieren. Schon ein Konto hinzugefügt? Warte bis ich dich aktualisiere oder benutze `@Orianna Bot refresh` um sofort zu aktualisieren."
+
+# Points command.
+command_points_small_description: "Zeigt wie viele Meisterschaftspunkte du auf einem Champion hast."
+command_points_description: |-
+  Dieser Befehl zeigt die Meisterschaftspunkte eines Benutzers auf dem spezifizierten Champion an.
+
+  Um einen Champion auszuwählen, schreibe einfach einen Championnamen oder einen [Alias](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92) in deine Nachricht. Sollte kein Championname genannt worden sein, wird Orianna auf den Standardchampion des aktuellen Discord-Server zurückfallen oder eine Fehlermeldung anzeigen, wenn kein Standardchampion konfiguriert wurde.
+
+  Um die Meisterschaftspunkte von jemand anderem anzuzeigen, erwähne einfach deren Namen im Befehl.
+
+  Beispiele:
+  - `@Orianna Bot points mf` - zeigt deine Meisterschaft auf Miss Fortune
+  - `@Orianna Bot score lee @molenzwiebel` - zeigt molenzwiebel's Meisterschaft auf Lee Sin
+  - `@Orianna Bot mastery` - zeigt deine Meisterschaft auf dem Standardchampion
+command_points_message_title: "📖 Meisterschaftspunkte"
+command_points_message_description: "{user} hat **{points} Punkte** auf {champion}."
+
+# Profile command.
+command_profile_small_description: "Zeigt die League-Konten und allgemeine Statistiken für einen Discord Benutzer an."
+command_profile_description: |-
+  Dieser Befehl zeigt dir einen Überblick von deinem Orianna Bot Profil an, die von den gesammelten Daten von allen Konten, die du mit Orianna verbunden hast, berechnet wurden. Um dein eigenes Profil zu sehen, benutze einfach `@Orianna Bot profile`.
+
+  Um das Profil von jemand anderem anzuzeigen, erwähne einfach deren Namen im Befehl. Beachte, dass der Benutzer Konten mit Orianna verbunden haben muss.
+
+  Wenn du deinen Rang oder Kontonamen verstecken möchstest, kannst du dies tun, in dem du die Privatsspäreeinstellungen in deinem [Web-Dashboard](https://orianna.molenzwiebel.xyz/me) änderst.
+
+  Beispiele:
+  - `@Orianna Bot profile` - zeigt dein persönliches Profil
+  - `@Orianna Bot profile @molenzwiebel` - zeigt molenzwiebel's Profil
+command_profile_title: "📖 {name}'s Profil"
+command_profile_top_champions: "Top Champions"
+command_profile_statistics: "Meisterschaftsstatistiken"
+command_profile_statistics_total_points: "{amount} **Punkte insgesammt**"
+command_profile_statistics_avg_champ: "{amount} **Durchschn/Champ**"
+command_profile_recently_played: "Zuletzt gespielt"
+command_profile_recently_played_no_games: "_Keine Spiele verfolgt_"
+command_profile_ranked_tiers: "Rangstufen"
+command_profile_account: "Konto"
+command_profile_accounts: "Konten"
+
+# Refresh command.
+command_refresh_small_description: "Aktualisiert deine Daten und berechnet deine Rollen neu."
+command_refresh_description: |-
+  Dieser Befehl führt manuell eine volle Aktualisierung von deinen Meisterschafts- und Rangstatistiken über allen deinen Konten aus. Genaugenommen werden die folgenenden Dinge aktualisiert:
+  - Alle deine verbundenen Konten werden auf Namensänderung oder Regiontranfer überprüft.
+  - Alle deine Rangstufen werden aktualisiert.
+  - Alle deine Meisterschaftpunkte und Level werden aktualisiert.
+
+  Nachdem alle Werte aktualisiert worden, wird Orianna deine Rollen in jedem Server, den du mit ihr teilst, neuberechnen und potenziel Rollen hinzufügen oder entfernen basieren auf den neuen Werten.
+
+  Beachte, dass du not manuell aktualisieren brauchst. Orianna wird periodisch automatisch deine Statistiken aktualisieren, also sollte dieser Befehl nur verwendet werden, wenn du Änderungen hast, die du sofort sehen willst.
+
+  Wenn du die Werte von jemand anderem aktualisieren willst, erwähnt einfach deren Namen im Befehl (z.B. `@Orianna Bot refresh @b1nzy#0001`).
+command_refresh_everyone_title: "ℹ Refresh everyone wurde entfernt"
+command_refresh_everyone_description: |-
+  Mit der Einführung von Orianna Bot v2 wurde der Befehl refresh everyone entfernt. Ich aktualisiere jeden Benutzer ungefähr jede Stunde automatisch, also tat der Befehl sehr wenig, aber hat gleichzeitig viel Arbeit in kurzer Zeit mit sich gebracht. Wenn du kürzlich Änderungen gemacht hast und diese in Aktion sehen willst, warte einfach bis ich alle aktualisiert habe.
+
+  Wenn deine Rollen sich komisch verhalten und du der Meinung bist, dass alle zu aktualisieren helfen würde, überlege dir meinen Ersteller um Hilfe zu fragen. Siehe `@Orianna Bot about` für mehr Info.
+
+# Roles command.
+command_roles_small_description: "Zeigt alle Rollen, die auf dem aktuellen Server konfiguriert sind."
+command_roles_description: |-
+  Zeigt alle Rollen und ihre Anforderungen, wie konfiguriert, auf dem aktuellen Discord Server an. Dies wird eine Liste von allen Rollen, inklusive einer Indikation ob du für sie berechtigt bist.
+
+  Beachte, dass die gleiche Rolle mehrmals in der Liste mit verschiedenen Anforderungen auftauchen kann. Wenn dies der Fall ist, wirst du die Rolle erhalten, solange du mindestens nach einem "Set" der Anforderungen berechtigt bist.
+
+  Für mehr Informationen zu Rollenanforderungen und wie sie funktionieren, schaue dir die [Dokumentation](https://orianna.molenzwiebel.xyz/docs/conditions) an.
+command_roles_no_server_title: "🛑 Server fehlt"
+command_roles_no_server_description: "Dieser Befehl sagt ausdrücklich, dass er _Server_informationen anzeigt, trotzdem versuchst du ihn in DMs? Verrückter."
+command_roles_no_roles_title: "🔍 Scheint nichts hier zu sein..."
+command_roles_no_roles_description: "Der aktuelle Server scheint keine Rollen konfiguriert zu haben."
+command_roles_at_least: "ist mindestens {value}"
+command_roles_at_most: "ist maximal {value}"
+command_roles_exactly: "ist genau {value}"
+command_roles_ranked_tier_equal: "ist {tier} in {queue}"
+command_roles_between: "zwischen {min} und {max}"
+command_roles_ranked_tier_lower: "niedriger als {tier} in {queue}"
+command_roles_ranked_tier_higher: "höher als {tier} in {queue}"
+command_roles_mastery_level: "Hat {range} Meisterschaftlevel auf {champion}"
+command_roles_mastery_score: "Hat {range} Meisterschaftpunkte auf {champion}"
+command_roles_total_mastery_score: "Hat insgesamt {range} Meisterschaftpunkte"
+command_roles_ranked_tier: "Hat einen Rang {ranked}"
+command_roles_region: "Hat ein aktives Konto auf {region}"
+command_roles_all_match: "**Alle müssen übereinstimmen:**"
+command_roles_any_match: "**Eines muss übereinstimmen:**"
+command_roles_at_least_n: "**Wenigstens {amount} müssen übereinstimmen:**"
+command_roles_no_conditions: "_Keine Bedingungen_"
+command_roles_continued: "(Fortsetzung)"
+command_roles_message_title: "📖 Serverrollen"
+command_roles_message_description: "Die folgenden Rollen sind auf diesem Server konfiguriert:"
+
+# Stats command.
+command_stats_small_description: "Zeigt einen Graphen mit deiner Meisterschaftsentwicklung auf einem Champion an."
+command_stats_description: |-
+  Dieser Befehl generiert einen Graphen von deiner Meisterschaftsentwicklung basierend auf den Werten die periodisch von Orianna Bot abgerufen wurden. Beachte, dass nur Spiele nachdem du dich mit Orianna Bot registiert hast angezeigt werden können.
+
+  Um dem Graph zu einem bestimmen Champion anzuzeigen, erwähnt einfach den Championnamen. Wenn du die Statistiken von jemand anderem sehen willst, erwähne einfach deren Namen im Befehl.
+
+  Beachte: Einige Werte in diesem Befehl, wie die Siegesrate, sind Schätzungen basierend auf dem Betrag der erhaltenen Meisterschaftspunkte für ein Spiel. Diese sind wahrscheinlich nicht 100% genau.
+
+  Beispiele:
+  - `@Orianna Bot chart my annie progression`
+  - `@Orianna Bot chart @molenzwiebel`
+  - `@Orianna Bot show @molenzwiebel's stats on annie`
+command_stats_no_values_title: "🔍 Hier gibt's nichts!"
+command_stats_no_values_description: "{user} hat keine verfolgten Spiele auf {champion}. Einige Spiele müssen gespielt werden bevor ich Statistiken anzeigen kann."
+command_stats_message_title: "📈 Meisterschaftsstatistiken - {name} - {champion}"
+command_stats_message_data: "Daten"
+command_stats_message_data_value: |-
+  **{numGames}** Spiele verfolgt
+  **{firstGameDate}** Erstes Spiel
+  **{lastGameDate}** Letztes Spiel
+command_stats_message_games: "Spiele"
+command_stats_message_games_value: |-
+  **{win}** Siege
+  **{loss}** Niederlagen
+  **{winrate}%** Siegesrate
+
+# Top command
+command_top_small_description: "Zeigt Bestenlisten und andere nützliche Statistiken!"
+command_top_description: |-
+  Dieser Befehl kann eine Menge von verschiedenen Bestenlisten anzeigen, basierend entweder auf deinen persönlichen Werten oder allen Personen, die mit Orianna verbunden sind.
+
+  **Champion Bestenlisten**
+  Die häufigste Verwendung ist um eine Bestenlisten für alle Höchstpunktzahlen von Benutzern für einen bestimmten Champion anzuzeigen. Hierfür, benutze einfach `@Orianna Bot top <Championname>`, wo der Championname irgendein Champion or [Alias](https://bit.ly/2wwGVMi) ist.
+
+  Sollte kein Championname genannt worden sein, wird Orianna auf den Standardchampion des aktuellen Discord-Server zurückfallen oder eine Fehlermeldung anzeigen, wenn kein Standardchampion konfiguriert wurde.
+
+  Um Ergebnisse nur auf Personen in dem aktuellen Discord Server einzugrenzen schreibe `server` in deinen Befehl.
+
+  Beispiele:
+  - `@Orianna Bot top mf` - zeigt Höchstpunktzahlen auf Miss Fortune über alle mit Orianna verbundenen Konten an
+  - `@Orianna Bot top thresh server` - zeigt Höchstpunktzahlen auf Thresh für alle aktuellen Servermitglieder
+
+  **Allgemeine Bestenlisten**
+  Für eine Bestenliste aller wahren Champion-Fanatiker, kannst du auch eine Bestenliste aller höchsten Meisterschaftspunkte auf egal welchem Champion anzeigen lassen. Hierfür, benutze einfach `@Orianna Bot top all`. Dieser Befehl wird dir alle wahren Champion-Fanatiker anzeigen mit Millionen von Punkten investiert auf einen einzigen Champion.
+
+  Um Ergebnisse nur auf Personen in dem aktuellen Discord Server einzugrenzen schreibe `server` in deinen Befehl.
+
+  Beispiele:
+  - `@Orianna Bot top all champions` - zeigt Höchstpunktzahlen für alle Benutzer auf jedem Champion an
+  - `@Orianna Bot top all champions in this server` - zeigt Höchstpunktzahlen für alle Benutzer auf dem aktuellen Server
+
+  **Persönliche Top Champions**
+  Du kannst auch eine Bestenliste für deine persönlichen Meisterschaftspunkte anzeigen lassen, in dem du `me` zum Befehl hinzufügst. Somit wird dir eine Liste aller deiner Championmeisterschaftspunkten angezeigt.
+
+  Um die Bestenliste eines anderen anzuzeigen, erwähne einfach deren Namen im Befehl.
+
+  Examples:
+  - `@Orianna Bot top me` - zeigt deine Top Champions
+  - `@Orianna Bot top @molenzwiebel` - zeigt molenzwiebel's Top Champions
+command_top_points: "Punkte"
+command_top_rank: "Dein Rang: {rank}"
+command_top_personal_title: "📊 Top Champions für {name}"
+command_top_no_server_title: "❓ Was tust du da?!?!"
+command_top_no_server_description: "Bestenlisten nur auf Mitglieder des aktuellen Servers zu limitieren, während du mir dies als DM schickst, ist etwas komisch, findest du nicht? Überlege dir `server` aus deinem Befehl zu entfernen."
+command_top_title: "{champ} Bestenliste"
+command_top_server_title: "{champ} Server Bestenliste"
+command_top_global_title: "Globale Bestenliste"
+command_top_global_server_title: "Globale Server Bestenliste"
