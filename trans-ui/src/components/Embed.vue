@@ -1,0 +1,129 @@
+<template>
+    <div class="theme-dark">
+        <div class="embedWrapper-3AbfJJ embedFull-2tM8-- embed-IeVjo6 markup-2BOw-j" :style="pillColor">
+            <div class="grid-1nZz7S">
+                <!-- Title. -->
+                <div class="embedTitle-3OXDkz embedMargin-UO5XwE" v-if="embed.title">
+                    <DiscordMarkdownText :content="embed.title" />
+                </div>
+
+                <!-- Description. -->
+                <div class="embedDescription-1Cuq9a embedMargin-UO5XwE" v-if="embed.description">
+                    <DiscordMarkdownText :content="embed.description" />
+                </div>
+
+                <!-- Fields. -->
+                <div class="embedFields-2IPs5Z" v-if="fieldsWithSizes.length">
+                    <div class="embedField-1v-Pnh" :style="field.gridSize" v-for="field in fieldsWithSizes">
+                        <div class="embedFieldName-NFrena"><DiscordMarkdownText :content="field.name" /></div>
+                        <div class="embedFieldValue-nELq2s"><DiscordMarkdownText :content="field.value" /></div>
+                    </div>
+                </div>
+
+                <!-- Thumbnail -->
+                <a class="anchor-3Z-8Bb anchorUnderlineOnHover-2ESHQB imageWrapper-2p5ogY imageZoom-1n-ADA clickable-3Ya1ho embedThumbnail-2Y84-K" rel="noreferrer noopener" target="_blank" role="button" style="width: 80px; height: 80px;" v-if="embed.thumbnail.url">
+                    <img :src="embed.thumbnail.url" style="width: 80px; height: 80px;">
+                </a>
+
+                <!-- Footer -->
+                <div class="embedFooter-3yVop- embedMargin-UO5XwE" v-if="embed.footer">
+                    <img class="embedFooterIcon-239O1f" :src="embed.footer.icon_url" v-if="embed.footer.icon_url">
+                    <span class="embedFooterText-28V_Wb" v-if="embed.footer.text">
+                        {{ embed.footer.text }}
+                        <template v-if="embed.timestamp">
+                            <span class="embedFooterSeparator-3klTIQ">•</span>
+                            Today at 13:37
+                        </template>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+    import { Component, Prop, Vue } from "vue-property-decorator";
+    import DiscordMarkdownText from "@/components/DiscordMarkdownText.vue";
+
+    interface Field {
+        name: string;
+        value: string;
+        inline?: boolean;
+    }
+
+    interface EmbedObject {
+        title: string;
+        color: number;
+        timestamp: string;
+        description?: string;
+        fields?: Field[];
+        footer: {
+            text?: string;
+            icon_url?: string;
+        };
+        thumbnail?: {
+            url: string
+        };
+    }
+
+    @Component({
+        components: { DiscordMarkdownText }
+    })
+    export default class Embed extends Vue {
+        @Prop()
+        embed!: EmbedObject;
+
+        get pillColor() {
+            const r = (this.embed.color >> 16) & 0xFF;
+            const g = (this.embed.color >>  8) & 0xFF;
+            const b = (this.embed.color >>  0) & 0xFF;
+
+            return `border-color: rgb(${r}, ${g}, ${b})`;
+        }
+
+        get fieldsWithSizes() {
+            const groups = [];
+            let currentGroup: Field[] = [];
+
+            // Group fields into lines.
+            for (const field of this.embed.fields || []) {
+                if (!field.inline || currentGroup.length === 3) {
+                    if (currentGroup.length) {
+                        groups.push(currentGroup);
+                        currentGroup = [];
+                    }
+                }
+
+                currentGroup.push(field);
+
+                if (!field.inline) {
+                    groups.push(currentGroup);
+                    currentGroup = [];
+                }
+            }
+
+            if (currentGroup.length) {
+                groups.push(currentGroup);
+            }
+
+            const ret: (Field & { gridSize: string })[] = [];
+
+            // Figure out the size for each field.
+            for (const group of groups) {
+                const step = group.length === 1 ? 12 : group.length === 2 ? 7 : 4;
+                let start = 1;
+
+                for (const field of group) {
+                    ret.push({
+                        ...field,
+                        gridSize: `grid-column: ${start} / ${start + step};`
+                    });
+
+                    start += step;
+                }
+            }
+
+            return ret;
+        }
+    }
+</script>

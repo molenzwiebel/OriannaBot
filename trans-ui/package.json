@@ -1,0 +1,25 @@
+{
+    "name": "trans-ui",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build"
+    },
+    "dependencies": {
+        "babel-runtime": "^6.26.0",
+        "markdown-it": "^10.0.0",
+        "vue": "^2.6.10",
+        "vue-class-component": "^7.0.2",
+        "vue-property-decorator": "^8.3.0"
+    },
+    "devDependencies": {
+        "@types/markdown-it": "^0.0.9",
+        "@vue/cli-plugin-typescript": "^4.1.0",
+        "@vue/cli-service": "^4.1.0",
+        "stylus": "^0.54.7",
+        "stylus-loader": "^3.0.2",
+        "typescript": "~3.5.3",
+        "vue-template-compiler": "^2.6.10"
+    }
+}
