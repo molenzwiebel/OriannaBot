@@ -1,13 +1,17 @@
 {
-  "name": "orianna-trans",
-  "version": "1.0.0",
-  "description": "Translations for Orianna Bot.",
-  "main": "build.js",
-  "repository": "https://github.com/molenzwiebel/oriannabot",
-  "author": "Thijs Molendijk (molenzwiebel)",
-  "license": "MIT",
-  "dependencies": {
-    "glob": "^7.1.6",
-    "yaml": "^1.7.2"
-  }
+    "name": "orianna-trans",
+    "version": "1.0.0",
+    "description": "Translations for Orianna Bot.",
+    "main": "src/index.js",
+    "repository": "https://github.com/molenzwiebel/oriannabot",
+    "author": "Thijs Molendijk (molenzwiebel)",
+    "types": "src/types.d.ts",
+    "license": "MIT",
+    "dependencies": {
+        "glob": "^7.1.6",
+        "yaml": "^1.7.2"
+    },
+    "bin": {
+        "build-translations": "cli.js"
+    }
 }
