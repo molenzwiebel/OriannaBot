@@ -7,6 +7,12 @@
                     <DiscordMarkdownText :content="embed.title" />
                 </div>
 
+                <!-- Author -->
+                <div class="embedAuthor-3l5luH embedMargin-UO5XwE" v-if="embed.author">
+                    <img class="embedAuthorIcon--1zR3L" :src="embed.author.icon_url" v-if="embed.author.icon_url">
+                    <span class="embedAuthorName-3mnTWj"><DiscordMarkdownText :content="embed.author.name" /></span>
+                </div>
+
                 <!-- Description. -->
                 <div class="embedDescription-1Cuq9a embedMargin-UO5XwE" v-if="embed.description">
                     <DiscordMarkdownText :content="embed.description" />
@@ -19,6 +25,11 @@
                         <div class="embedFieldValue-nELq2s"><DiscordMarkdownText :content="field.value" /></div>
                     </div>
                 </div>
+
+                <!-- Image. -->
+                <a class="anchor-3Z-8Bb anchorUnderlineOnHover-2ESHQB imageWrapper-2p5ogY imageZoom-1n-ADA clickable-3Ya1ho embedWrapper-3AbfJJ embedMedia-1guQoW embedImage-2W1cML" :href="embed.image.url" rel="noreferrer noopener" target="_blank" role="button" :style="`width: ${embed.image.width}px; height: ${embed.image.height}px;`" v-if="embed.image">
+                    <img :src="embed.image.url" :style="`width: ${embed.image.width}px; height: ${embed.image.height}px;`">
+                </a>
 
                 <!-- Thumbnail -->
                 <a class="anchor-3Z-8Bb anchorUnderlineOnHover-2ESHQB imageWrapper-2p5ogY imageZoom-1n-ADA clickable-3Ya1ho embedThumbnail-2Y84-K" rel="noreferrer noopener" target="_blank" role="button" style="width: 80px; height: 80px;" v-if="embed.thumbnail">

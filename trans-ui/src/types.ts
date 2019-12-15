@@ -11,17 +11,26 @@ export interface Field<T> {
  * Represents an embed.
  */
 export interface EmbedObject<T> {
-    title: T;
+    title?: T;
     color: number;
-    timestamp: string;
+    timestamp?: string;
     description?: T;
     fields?: Field<T>[];
+    author?: {
+        name: T;
+        icon_url?: string;
+    };
     footer?: {
         text?: T;
         icon_url?: string;
     };
     thumbnail?: {
-        url: string
+        url: string;
+    };
+    image?: {
+        url: string;
+        width: number;
+        height: number;
     };
 }
 

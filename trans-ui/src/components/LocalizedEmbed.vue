@@ -30,13 +30,23 @@
             const ret: Partial<DiscordEmbedObject> = {
                 color: this.embed.color,
                 timestamp: this.embed.timestamp,
-                thumbnail: this.embed.thumbnail
+                thumbnail: this.embed.thumbnail,
+                image: this.embed.image
             };
 
-            ret.title = convertLocalizedString(this.embed.title);
+            if (this.embed.title) {
+                ret.title = convertLocalizedString(this.embed.title);
+            }
 
             if (this.embed.description) {
                 ret.description = convertLocalizedString(this.embed.description);
+            }
+
+            if (this.embed.author) {
+                ret.author = {
+                    name: convertLocalizedString(this.embed.author.name),
+                    icon_url: this.embed.author.icon_url
+                };
             }
 
             for (const field of this.embed.fields || []) {
