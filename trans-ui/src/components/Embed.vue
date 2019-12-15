@@ -107,3 +107,11 @@
         }
     }
 </script>
+
+<style lang="stylus">
+    // Remove vuetify styles
+    .embedFull-2tM8-- code
+        background-color var(--background-tertiary) !important
+        color var(--text-normal) !important
+        box-shadow none
+</style>

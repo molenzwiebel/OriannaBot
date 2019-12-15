@@ -33,6 +33,19 @@ export type LocalizedString = (
     string | { name: string, args: null | { [key: string]: string | number | LocalizedString } }
 )[];
 
+/**
+ * Represents a section of translation that is automatically rendered.
+ */
+export interface TranslationSectionDefinition {
+    title: string;
+    description: string;
+    keyGroups: {
+        keys: string[],
+        embed?: number
+    }[];
+    embeds: (LocalizedEmbedObject & { header: string })[];
+}
+
 export type DiscordField = Field<string>;
 export type DiscordEmbedObject = EmbedObject<string>;
 

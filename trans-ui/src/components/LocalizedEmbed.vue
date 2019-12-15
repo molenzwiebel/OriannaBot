@@ -35,6 +35,10 @@
 
             ret.title = convertLocalizedString(this.embed.title);
 
+            if (this.embed.description) {
+                ret.description = convertLocalizedString(this.embed.description);
+            }
+
             for (const field of this.embed.fields || []) {
                 (ret.fields || (ret.fields = [])).push({
                     name: convertLocalizedString(field.name),
@@ -65,6 +69,10 @@
                 if (element.args) {
                     for (const [k, v] of Object.entries(element.args)) {
                         let value = v.toString();
+                        if (typeof v === "number") {
+                            value = v.toLocaleString(store.language!.metadata.code);
+                        }
+
                         if (typeof v === "object") {
                             value = convertLocalizedString(v);
                         }
