@@ -12,7 +12,8 @@
         "sourceMap": true,
         "baseUrl": ".",
         "types": [
-            "webpack-env"
+            "webpack-env",
+            "vuetify"
         ],
         "paths": {
             "@/*": [
@@ -24,6 +25,10 @@
             "dom",
             "dom.iterable",
             "scripthost"
+        ],
+        "typeRoots": [
+            "./node_modules/@types",
+            "./node_modules/vuetify/types"
         ]
     },
     "include": [

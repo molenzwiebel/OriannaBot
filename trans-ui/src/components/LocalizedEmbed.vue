@@ -1,0 +1,81 @@
+<template>
+    <div>
+        <Embed :embed="discordEmbed" />
+    </div>
+</template>
+
+<script lang="ts">
+    import { Component, Prop, Vue } from "vue-property-decorator";
+    import { DiscordEmbedObject, LocalizedEmbedObject, LocalizedString } from "@/types";
+    import Embed from "@/components/Embed.vue";
+    import store from "@/store";
+    import { highlightClass } from "@/highlighter";
+
+    @Component({
+        components: { Embed }
+    })
+    export default class LocalizedEmbed extends Vue {
+        @Prop()
+        embed!: LocalizedEmbedObject;
+
+        highlight() {
+            highlightClass("ranked_tier_challenger");
+        }
+
+        get store() {
+            return store;
+        }
+
+        get discordEmbed() {
+            const ret: Partial<DiscordEmbedObject> = {
+                color: this.embed.color,
+                timestamp: this.embed.timestamp,
+                thumbnail: this.embed.thumbnail
+            };
+
+            ret.title = convertLocalizedString(this.embed.title);
+
+            for (const field of this.embed.fields || []) {
+                (ret.fields || (ret.fields = [])).push({
+                    name: convertLocalizedString(field.name),
+                    value: convertLocalizedString(field.value),
+                    inline: field.inline
+                });
+            }
+
+            if (this.embed.footer) {
+                ret.footer = {
+                    text: this.embed.footer.text ? convertLocalizedString(this.embed.footer.text) : void 0,
+                    icon_url: this.embed.footer.icon_url
+                };
+            }
+
+            return ret;
+        }
+    }
+
+    function convertLocalizedString(localizedString: LocalizedString): string {
+        let ret = "";
+
+        for (const element of localizedString) {
+            if (typeof element === "string") {
+                ret += element;
+            } else {
+                let translation = `<span class="translation ${element.name}">` + store.language![element.name];
+                if (element.args) {
+                    for (const [k, v] of Object.entries(element.args)) {
+                        let value = v.toString();
+                        if (typeof v === "object") {
+                            value = convertLocalizedString(v);
+                        }
+
+                        translation = translation.replace(new RegExp("{" + k + "}", "g"), value);
+                    }
+                }
+                ret += translation + `</span>`;
+            }
+        }
+
+        return ret;
+    }
+</script>

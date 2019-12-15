@@ -21,7 +21,7 @@
                 </div>
 
                 <!-- Thumbnail -->
-                <a class="anchor-3Z-8Bb anchorUnderlineOnHover-2ESHQB imageWrapper-2p5ogY imageZoom-1n-ADA clickable-3Ya1ho embedThumbnail-2Y84-K" rel="noreferrer noopener" target="_blank" role="button" style="width: 80px; height: 80px;" v-if="embed.thumbnail.url">
+                <a class="anchor-3Z-8Bb anchorUnderlineOnHover-2ESHQB imageWrapper-2p5ogY imageZoom-1n-ADA clickable-3Ya1ho embedThumbnail-2Y84-K" rel="noreferrer noopener" target="_blank" role="button" style="width: 80px; height: 80px;" v-if="embed.thumbnail">
                     <img :src="embed.thumbnail.url" style="width: 80px; height: 80px;">
                 </a>
 
@@ -29,7 +29,7 @@
                 <div class="embedFooter-3yVop- embedMargin-UO5XwE" v-if="embed.footer">
                     <img class="embedFooterIcon-239O1f" :src="embed.footer.icon_url" v-if="embed.footer.icon_url">
                     <span class="embedFooterText-28V_Wb" v-if="embed.footer.text">
-                        {{ embed.footer.text }}
+                        <span v-html="embed.footer.text" />
                         <template v-if="embed.timestamp">
                             <span class="embedFooterSeparator-3klTIQ">•</span>
                             Today at 13:37
@@ -44,34 +44,14 @@
 <script lang="ts">
     import { Component, Prop, Vue } from "vue-property-decorator";
     import DiscordMarkdownText from "@/components/DiscordMarkdownText.vue";
-
-    interface Field {
-        name: string;
-        value: string;
-        inline?: boolean;
-    }
-
-    interface EmbedObject {
-        title: string;
-        color: number;
-        timestamp: string;
-        description?: string;
-        fields?: Field[];
-        footer: {
-            text?: string;
-            icon_url?: string;
-        };
-        thumbnail?: {
-            url: string
-        };
-    }
+    import { DiscordEmbedObject, DiscordField } from "@/types";
 
     @Component({
         components: { DiscordMarkdownText }
     })
     export default class Embed extends Vue {
         @Prop()
-        embed!: EmbedObject;
+        embed!: DiscordEmbedObject;
 
         get pillColor() {
             const r = (this.embed.color >> 16) & 0xFF;
@@ -83,7 +63,7 @@
 
         get fieldsWithSizes() {
             const groups = [];
-            let currentGroup: Field[] = [];
+            let currentGroup: DiscordField[] = [];
 
             // Group fields into lines.
             for (const field of this.embed.fields || []) {
@@ -106,7 +86,7 @@
                 groups.push(currentGroup);
             }
 
-            const ret: (Field & { gridSize: string })[] = [];
+            const ret: (DiscordField & { gridSize: string })[] = [];
 
             // Figure out the size for each field.
             for (const group of groups) {
