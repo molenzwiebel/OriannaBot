@@ -122,7 +122,8 @@ export default class DiscordClient {
             avatar: guild.icon || "none",
             announcement_channel: null,
             default_champion: null,
-            completed_intro: false
+            completed_intro: false,
+            engagement_json: JSON.stringify({ type: "on_command" })
         });
     }
 
