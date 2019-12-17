@@ -352,8 +352,7 @@ export default class DiscordClient {
 
             await template.error({
                 title: t.command_error_title,
-                description:
-                    incident ? t.command_error_description_incident({ incident }) : t.command_error_description,
+                description: t.command_error_description,
                 image: "https://i.imgur.com/SBpi54R.png"
             });
         } finally {

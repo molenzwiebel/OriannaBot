@@ -7,22 +7,6 @@ import formatName from "../../util/format-name";
 import getTranslator from "../../i18n";
 
 /**
- * Utility method that takes a command context and either gets the current server or
- * sends an error to the user (if the command was used in a DM).
- */
-export async function expectServer({ guild, error, server, t }: CommandContext): Promise<Server | undefined> {
-    if (!guild) {
-        await error({
-            title: t.command_error_no_server,
-            description: t.command_error_no_server_description
-        });
-        return;
-    }
-
-    return server();
-}
-
-/**
  * Utility method that takes a command context and finds the user the message is
  * targeting. This looks for the first non-bot mention, or otherwise the sender
  * of the message.

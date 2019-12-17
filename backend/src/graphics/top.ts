@@ -248,7 +248,7 @@ export async function generateChampionTopGraphic(t: Translator, options: TopGrap
     ctx.clip();
     ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
-    ctx.fillText("NAME", 5, 102.5);
+    ctx.fillText(t.command_top_graphic_name, 5, 102.5);
     ctx.restore();
     ctx.save();
     ctx.beginPath();
@@ -260,7 +260,7 @@ export async function generateChampionTopGraphic(t: Translator, options: TopGrap
     ctx.clip();
     ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
-    ctx.fillText("SCORE", 294, 102.5);
+    ctx.fillText(t.command_top_graphic_score, 294, 102.5);
     ctx.restore();
 
     for (let i = 0; i < options.players.length; i++) {
@@ -369,7 +369,7 @@ export async function generateChampionTopGraphic(t: Translator, options: TopGrap
         ctx.clip();
         ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
+        ctx.fillText(t.number(player.score), 314, 127 + 24 * i);
         ctx.restore();
     }
 
@@ -498,7 +498,7 @@ export async function generateGlobalTopGraphic(t: Translator, options: TopGraphi
     ctx.clip();
     ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
-    ctx.fillText("NAME", 5, 102.5);
+    ctx.fillText(t.command_top_graphic_name, 5, 102.5);
     ctx.restore();
     ctx.save();
     ctx.beginPath();
@@ -510,7 +510,7 @@ export async function generateGlobalTopGraphic(t: Translator, options: TopGraphi
     ctx.clip();
     ctx.font = "11px \"Noto Sans KR\", \"Noto Sans\", sans-serif";
     ctx.fillStyle = "#898991";
-    ctx.fillText("SCORE", 273, 102.5);
+    ctx.fillText(t.command_top_graphic_score, 273, 102.5);
     ctx.restore();
 
     for (let i = 0; i < options.players.length; i++) {
@@ -626,7 +626,7 @@ export async function generateGlobalTopGraphic(t: Translator, options: TopGraphi
         ctx.clip();
         ctx.font = "bold 13px \"Noto Sans KR\", \"Noto Sans Small\", sans-serif";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(player.score.toLocaleString(), 314, 127 + 24 * i);
+        ctx.fillText(t.number(player.score), 314, 127 + 24 * i);
         ctx.restore();
     }
 

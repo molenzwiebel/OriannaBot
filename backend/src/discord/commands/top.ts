@@ -108,10 +108,21 @@ const TopCommand: Command = {
 
             // Query more information about those players.
             const players = await Promise.all(userIds.map(async (x, i) => {
-                const entry = allChamps
+                let entry = allChamps
                     ? await UserChampionStat.query().where("user_id", +x).orderBy("score", "DESC").first()
                     : await UserChampionStat.query().where("champion_id", +champ!.key).where("user_id", +x).first();
                 const user = await User.query().where("id", +x).first();
+
+                if (!entry) {
+                    return {
+                        championAvatar: "",
+                        place: offset + i + 1,
+                        username: "Deleted Account",
+                        avatar: "",
+                        score: 0,
+                        level: 0
+                    };
+                }
 
                 return {
                     championAvatar: await t.staticData.getChampionIcon(entry!.champion_id),

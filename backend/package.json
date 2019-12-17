@@ -6,9 +6,9 @@
   "author": "Thijs Molendijk (molenzwiebel)",
   "license": "MIT",
   "scripts": {
-    "start": "node ../trans/build.js src/translations.json && tsc -p . && node ./dist/index.js",
+    "start": "build-translations ../trans/languages src/translations.json && tsc -p . && node ./dist/index.js",
     "watch": "tsc -p . -w",
-    "bundle": "node ../trans/build.js src/translations.json && tsc -p ."
+    "bundle": "build-translations ../trans/languages src/translations.json && tsc -p ."
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -32,6 +32,7 @@
     "lodash.omit": "^4.5.0",
     "node-fetch": "^2.0.0",
     "objection": "^1.1.10",
+    "orianna-trans": "file:../trans/",
     "pg": "^7.4.3",
     "puppeteer": "1.3.0",
     "randomstring": "^1.1.5",
