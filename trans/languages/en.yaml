@@ -54,7 +54,6 @@ first_use_message: |-
 # Command errored.
 command_error_title: "💥 Ouch!"
 command_error_description: "Something went horribly wrong executing that command, please try again in a bit. If this error keeps happening, please send a bug report in [the Orianna Bot support server](https://discord.gg/bfxdsRC)."
-command_error_description_incident: "Something went horribly wrong executing that command, please try again in a bit. If this error keeps happening, please send a bug report in [the Orianna Bot support server](https://discord.gg/bfxdsRC) with the following error code: `{incident}`."
 
 # Message sent in a muted channel.
 command_muted_preamble: "I don't have permission to talk in {channel}, but I can still secretly perform your command. Here's what you requested:"
@@ -72,8 +71,6 @@ transfer_body: |-
 ## Commands
 
 # Generic error messages
-command_error_no_server: "🔍 What server?"
-command_error_no_server_description: "I'll need to know what server you are talking about. Try doing this again, but in a server instead of DMs."
 command_error_no_accounts: "🔍 {user} has no accounts configured."
 command_error_no_accounts_description: "This command is a lot more useful if I actually have some data to show, but unfortunately this user has no accounts setup with me. Accounts can be added using `@Orianna Bot configure`."
 command_error_no_permissions: "✋ Stop Right There!"
@@ -110,7 +107,7 @@ command_edit_dm_description: |-
 
   {link}
 
-  **:warning: Do not share this link unless you're absolutely sure what you're doing!** Anyone with this link will have access to your profile.
+  **⚠ Do not share this link unless you're absolutely sure what you're doing!** Anyone with this link will have access to your profile.
 command_edit_dm_failed_title: "📪 Your mailbox is private!"
 command_edit_dm_failed_description: "You seem to have configured your account to only allow direct messages from friends. This unfortunately means that I can't send you DMs. To enable direct messages from server members, right click on this server's icon, choose `Privacy Settings` and turn `Allow direct messages from server members` on."
 
@@ -122,8 +119,6 @@ command_help_command_description: "**Description**\n{description}"
 command_help_command_keywords: "Keywords"
 
 # Invite command.
-command_invite_small_description: "Sends you a link to invite Orianna."
-command_invite_description: "Sends a simple link that you can use to invite Orianna Bot to your own server."
 command_invite_title: "🤖 So You Want An Invite?"
 command_invite_message_description: "To add Orianna Bot to your own Discord server, simply use [this]({link}) link. Thanks for liking Orianna Bot enough to consider adding her to your own server!"
 
@@ -183,11 +178,6 @@ command_refresh_description: |-
   Note that you do not need to manually refresh. Orianna will periodically update your statistics automatically, so this command should only be used if you have any changes that you want to see immediately.
 
   If you want to refresh someone else's scores, simply mention them when invoking the command (e.g. `@Orianna Bot refresh @b1nzy#0001`).
-command_refresh_everyone_title: "ℹ Refresh Everyone Was Removed"
-command_refresh_everyone_description: |-
-  With the introduction of Orianna Bot v2, the refresh everyone command was removed. I refresh every user approximately once an hour automatically, so the command did fairly little while at the same time causing a large amount of work in a short timespan. If you've recently made changes and want to see them in action, simply wait until I've refreshed everyone.
-
-  If your roles are misbehaving and you figured that a refresh everyone would work, consider contacting my creator for help. See `@Orianna Bot about` for more info.
 
 # Roles command.
 command_roles_small_description: "Shows all roles configured on the current server."
@@ -290,3 +280,5 @@ command_top_title: "{champ} Leaderboard"
 command_top_server_title: "{champ} Server Leaderboard"
 command_top_global_title: "Global Leaderboard"
 command_top_global_server_title: "Global Server Leaderboard"
+command_top_graphic_name: "NAME"
+command_top_graphic_score: "SCORE"

@@ -23,7 +23,7 @@
 
                 <div class="right">
                     <div class="localized-embed" v-if="keyGroup.embed >= 0">
-                        <span class="subtitle-2 blue-grey--text lighten-2">{{ section.embeds[keyGroup.embed].header }}</span>
+                        <div class="subtitle-2 blue-grey--text lighten-2">{{ section.embeds[keyGroup.embed].header }}</div>
                         <LocalizedEmbed :embed="section.embeds[keyGroup.embed]" />
                     </div>
                 </div>
@@ -95,4 +95,7 @@
 
         .localized-embed
             margin-bottom 10px
+
+            .subtitle-2
+                margin-bottom 4px
 </style>
