@@ -4,8 +4,8 @@ import config from "../../config";
 const InviteCommand: Command = {
     name: "Invite To Server",
     keywords: ["invite"],
-    smallDescriptionKey: "command_invite_small_description",
-    descriptionKey: "command_invite_description",
+    smallDescriptionKey: "empty",
+    descriptionKey: "empty",
     hideFromHelp: true,
     async handler({ info, t }) {
         info({

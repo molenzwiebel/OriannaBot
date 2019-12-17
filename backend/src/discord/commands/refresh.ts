@@ -8,14 +8,7 @@ const RefreshCommand: Command = {
     descriptionKey: "command_refresh_description",
     noTyping: true,
     keywords: ["refresh", "reload", "update", "recalculate"],
-    async handler({ ctx, msg, content, info, t }) {
-        if (content.toLowerCase().includes("everyone")) {
-            return info({
-                title: t.command_refresh_everyone_title,
-                description: t.command_refresh_everyone_description
-            });
-        }
-
+    async handler({ ctx, msg }) {
         const user = await expectUser(ctx);
         if (!user) return;
 
