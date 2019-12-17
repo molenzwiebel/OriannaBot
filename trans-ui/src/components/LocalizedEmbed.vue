@@ -68,12 +68,19 @@
         }
     }
 
+    // Need this useless function or typescript yells at me.
+    function isChampionNode(str: LocalizedString[0]): str is { champion: string } {
+        return typeof (<any>str).champion !== "undefined";
+    }
+
     function convertLocalizedString(localizedString: LocalizedString): string {
         let ret = "";
 
         for (const element of localizedString) {
             if (typeof element === "string") {
                 ret += element;
+            } else if (isChampionNode(element)) {
+                ret += store.loadingLanguage ? "" : store.getChampionTranslation(element.champion);
             } else {
                 let translation = `<span class="translation ${element.name}">` + store.language![element.name];
                 if (element.args) {

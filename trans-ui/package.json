@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "lodash.debounce": "^4.0.8",
     "markdown-it": "^10.0.0",
     "orianna-trans": "file:../trans/",
     "vue": "^2.6.10",
@@ -17,6 +18,7 @@
     "yaml": "^1.7.2"
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.6",
     "@types/markdown-it": "^0.0.9",
     "@types/yaml": "^1.2.0",
     "@vue/cli-plugin-typescript": "^4.1.0",

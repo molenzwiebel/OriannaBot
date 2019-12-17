@@ -653,7 +653,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> Syndra - **790k**\n<:Soraka:411977195506892802> Soraka - **220k**\n<:Xayah:411977428718714900> Xayah - **130k**"
+                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -693,17 +693,17 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Amumu:411977195532189708> Amumu - **",
+                    "<:Amumu:411977195532189708> ", { champion: "Amumu" }, " - **",
                     {
                         "name": "time_ago_today",
                         "args": null
                     },
-                    "**\n<:Diana:411977428311736340> Diana - **",
+                    "**\n<:Diana:411977428311736340> ", { champion: "Diana" }, " - **",
                     {
                         "name": "time_ago_yesterday",
                         "args": null
                     },
-                    "**\n<:Leona:411977323806720011> Leona - **",
+                    "**\n<:Leona:411977323806720011> ", { champion: "Leona" }, " - **",
                     {
                         "name": "time_ago_days_ago",
                         "args": {
@@ -1631,7 +1631,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "<:Level_7:411977489707958282> 787,562"
                     ],
                     "champion": [
-                        "<:Syndra:411977428227850241> Syndra"
+                        "<:Syndra:411977428227850241> ", { champion: "Syndra" }
                     ]
                 }
             }
@@ -1742,7 +1742,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> Syndra - **790k**\n<:Soraka:411977195506892802> Soraka - **220k**\n<:Xayah:411977428718714900> Xayah - **130k**\n<:__:447420442819690506>"
+                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -1770,7 +1770,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>\n<:__:447420442819690506>"
+                    "<:__:447420442819690506>"
                 ],
                 "inline": true
             },
@@ -1782,17 +1782,17 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Amumu:411977195532189708> Amumu - **",
+                    "<:Amumu:411977195532189708> ", { champion: "Amumu" }, " - **",
                     {
                         "name": "time_ago_today",
                         "args": null
                     },
-                    "**\n<:Diana:411977428311736340> Diana - **",
+                    "**\n<:Diana:411977428311736340> ", { champion: "Diana" }, " - **",
                     {
                         "name": "time_ago_yesterday",
                         "args": null
                     },
-                    "**\n<:Leona:411977323806720011> Leona - **",
+                    "**\n<:Leona:411977323806720011> ", { champion: "Leona" }, " - **",
                     {
                         "name": "time_ago_days_ago",
                         "args": {
@@ -1886,7 +1886,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> Syndra - **790k**\n<:Soraka:411977195506892802> Soraka - **220k**\n<:Xayah:411977428718714900> Xayah - **130k**\n<:__:447420442819690506>"
+                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -2462,7 +2462,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> Aatrox"
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
                             ]
                         }
                     }
@@ -2486,7 +2486,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> Aatrox"
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
                             ]
                         }
                     }
@@ -2612,7 +2612,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> Aatrox"
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
                             ]
                         }
                     }
@@ -2637,7 +2637,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> Aatrox"
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
                             ]
                         }
                     }
@@ -2662,7 +2662,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> Aatrox"
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
                             ]
                         }
                     }
@@ -2775,7 +2775,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "<@!86540964021161984> <a:Bot_Owner:468045368517722153>"
                     ],
                     "champion": [
-                        "Syndra"
+                        { champion: "Syndra" }
                     ]
                 }
             }
@@ -2798,7 +2798,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "molenzwiebel"
                     ],
                     "champion": [
-                        "Vel'Koz"
+                        { champion: "Velkoz" }
                     ]
                 }
             }
@@ -2992,7 +2992,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
         "fields": [
             {
                 "name": [
-                    "**<:Syndra:411977428227850241>  1 - Syndra**"
+                    "**<:Syndra:411977428227850241>  1 - ", { champion: "Syndra" }, "**"
                 ],
                 "value": [
                     "<:Level_7:411977489707958282> 787,562 ",
@@ -3005,7 +3005,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Soraka:411977195506892802>  2 - Soraka**"
+                    "**<:Soraka:411977195506892802>  2 - ", { champion: "Soraka" }, "**"
                 ],
                 "value": [
                     "<:Level_7:411977489707958282> 219,149 ",
@@ -3018,7 +3018,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Xayah:411977428718714900>  3 - Xayah**"
+                    "**<:Xayah:411977428718714900>  3 - ", { champion: "Xayah" }, "**"
                 ],
                 "value": [
                     "<:Level_7:411977489707958282> 133,159 ",
@@ -3031,7 +3031,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Orianna:411977322510680067>  4 - Orianna**"
+                    "**<:Orianna:411977322510680067>  4 - ", { champion: "Orianna" }, "**"
                 ],
                 "value": [
                     "<:Level_7:411977489707958282> 85,468 ",
@@ -3044,7 +3044,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Ashe:411977196606062602>  5 - Ashe**"
+                    "**<:Ashe:411977196606062602>  5 - ", { champion: "Ashe" }, "**"
                 ],
                 "value": [
                     "<:Level_6:411977489351704587> 76,798 ",
@@ -3057,7 +3057,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Lucian:411977427989037058>  6 - Lucian**"
+                    "**<:Lucian:411977427989037058>  6 - ", { champion: "Lucian" }, "**"
                 ],
                 "value": [
                     "<:Level_6:411977489351704587> 66,328 ",
@@ -3070,7 +3070,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Janna:411977195792105484>  7 - Janna**"
+                    "**<:Janna:411977195792105484>  7 - ", { champion: "Janna" }, "**"
                 ],
                 "value": [
                     "<:Level_7:411977489707958282> 56,379 ",
@@ -3083,7 +3083,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Thresh:411977428291026968>  8 - Thresh**"
+                    "**<:Thresh:411977428291026968>  8 - ", { champion: "Thresh" }, "**"
                 ],
                 "value": [
                     "<:Level_6:411977489351704587> 48,841 ",
@@ -3096,7 +3096,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Irelia:469632305699487755>  9 - Irelia**"
+                    "**<:Irelia:469632305699487755>  9 - ", { champion: "Irelia" }, "**"
                 ],
                 "value": [
                     "<:Level_6:411977489351704587> 44,741 ",
@@ -3109,7 +3109,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Lulu:411977323529895936>  10 - Lulu**"
+                    "**<:Lulu:411977323529895936>  10 - ", { champion: "Lulu" }, "**"
                 ],
                 "value": [
                     "<:Level_6:411977489351704587> 44,152 ",
@@ -3122,7 +3122,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Zyra:411977428378976286>  11 - Zyra**"
+                    "**<:Zyra:411977428378976286>  11 - ", { champion: "Zyra" }, "**"
                 ],
                 "value": [
                     "<:Level_5:411977803144364032> 41,927 ",
@@ -3135,7 +3135,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Karma:411977195297439745>  12 - Karma**"
+                    "**<:Karma:411977195297439745>  12 - ", { champion: "Karma" }, "**"
                 ],
                 "value": [
                     "<:Level_5:411977803144364032> 37,420 ",
@@ -3169,7 +3169,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_top_title",
                 "args": {
                     "champ": [
-                        "Syndra"
+                        { champion: "Syndra" }
                     ]
                 }
             },
@@ -3178,7 +3178,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_top_server_title",
                 "args": {
                     "champ": [
-                        "Syndra"
+                        { champion: "Syndra" }
                     ]
                 }
             },

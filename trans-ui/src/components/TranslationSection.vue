@@ -12,6 +12,7 @@
                                 v-model="language[key]"
                                 :label="key"
                                 :hint="hintForKey(key)"
+                                :error-messages="errorsForKey(key)"
                                 auto-grow
                                 rows="1"
                                 @focus="highlight(key)"
@@ -58,6 +59,10 @@
 
         removeHighlight(key: string) {
             removeHighlight(key);
+        }
+
+        errorsForKey(key: string) {
+            return store.errors[key] || [];
         }
 
         hintForKey(key: string) {

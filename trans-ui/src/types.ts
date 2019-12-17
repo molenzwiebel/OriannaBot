@@ -39,7 +39,7 @@ export interface EmbedObject<T> {
  * for demonstration purposes.
  */
 export type LocalizedString = (
-    string | { name: string, args: null | { [key: string]: string | number | LocalizedString } }
+    string | { name: string, args: null | { [key: string]: string | number | LocalizedString } } | { champion: string }
 )[];
 
 /**

@@ -24,4 +24,4 @@ interface LanguageError {
 }
 
 export function buildVariableMap(filename: string, language: Language): LanguageMapReference;
-export function verifyAndRegisterLanguage(reference: LanguageMapReference, filename: string, language: string): LanguageError[];
+export function verifyAndRegisterLanguage(reference: LanguageMapReference, filename: string, language: Language): LanguageError[];

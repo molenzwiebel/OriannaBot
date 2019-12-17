@@ -54,10 +54,8 @@
             }, { "text": "English (Australia)", "value": "en_AU" }, {
                 "text": "Russian (Russia)",
                 "value": "ru_RU"
-            }, { "text": "Turkish (Turkey)", "value": "tr_TR" }, {
-                "text": "Malay (Malaysia)",
-                "value": "ms_MY"
-            }, { "text": "English (Republic of the Philippines)", "value": "en_PH" }, {
+            }, { "text": "Turkish (Turkey)", "value": "tr_TR" },
+            { "text": "English (Republic of the Philippines)", "value": "en_PH" }, {
                 "text": "English (Singapore)",
                 "value": "en_SG"
             }, { "text": "Thai (Thailand)", "value": "th_TH" }, {
