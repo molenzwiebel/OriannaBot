@@ -82,7 +82,7 @@
             } else if (isChampionNode(element)) {
                 ret += store.loadingLanguage ? "" : store.getChampionTranslation(element.champion);
             } else {
-                let translation = `<span class="translation ${element.name}">` + store.language![element.name];
+                let translation = `<span class="translation ${element.name}">` + (store.language![element.name] || `{{ ${element.name} }}`);
                 if (element.args) {
                     for (const [k, v] of Object.entries(element.args)) {
                         let value = v.toString();

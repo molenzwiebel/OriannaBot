@@ -1,7 +1,7 @@
 import Vue from "vue";
 import YAML from "yaml";
 import debounce from "lodash.debounce";
-import { buildVariableMap, verifyAndRegisterLanguage, Language, LanguageMapReference } from "orianna-trans";
+import { buildVariableMap, Language, LanguageMapReference, verifyAndRegisterLanguage } from "orianna-trans";
 
 /**
  * This store contains both the reference language and the current values for the language.
@@ -36,6 +36,22 @@ const store = Vue.observable({
         const versions = await fetch("https://ddragon.leagueoflegends.com/api/versions.json").then(x => x.json());
         this.ddragonVersion = versions[0];
         await this.loadDDragonTranslation("en_US");
+
+        this.loading = false;
+    },
+
+    /**
+     * Only loads a language, assumes the reference is already loaded.
+     */
+    async loadLanguage(path: string) {
+        this.loading = true;
+
+        try {
+            const resp = await fetch(path).then(x => x.text());
+            this.language = YAML.parse(resp);
+        } catch {
+            alert("The language failed to parse as YAML. Is it a raw document and not a full page?");
+        }
 
         this.loading = false;
     },

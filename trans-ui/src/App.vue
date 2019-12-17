@@ -9,9 +9,23 @@
 
             <template v-else>
                 <v-container>
-                    <div class="display-1">Orianna Translation Tool</div>
+                    <div class="display-1 primary--text">Orianna Translation Tool</div>
                     <span>
-                        This site is an interactive tool to create translation files for <a href="https://orianna.molenzwiebel.xyz">Orianna Bot</a>. Start by loading an existing translation (such as English) using the import/export options below. Then, translate the fields using the previews on the right as a guide. Once you're done, head back to the import/export options to download your language file. Finally, make a pull request on the Orianna Bot repository to get your translation added!
+                        This site is an interactive tool to create translation files for <a href="https://orianna.molenzwiebel.xyz">Orianna Bot</a>. Start by loading an existing translation (such as English) using the import/export options below.
+                        Then, translate the fields using the previews on the right as a guide. Once you're done, head back to the import/export options to download your language file. Finally, make a pull request on the Orianna Bot repository to
+                        get your translation added!
+
+                        <br><br>
+
+                        The default English translation has already been loaded for you. You can opt to load a different translation in the save/load options, such as a different language or a work-in-progress language. You can also use the buttons
+                        there to save and load the current translation from/to a `.yaml` file. This yaml file is also the language that you will need to submit in the code repository.
+
+                        <br><br>
+
+                        As some general translation pointers, try to keep the general tone of the English message where possible. Do not blindly translate though, try to convey the same meaning in a way that your language would normally do it. To
+                        stay consistent with the English translation, refer to Orianna as a "she"/"me" unless your language has something more appropriate. For situations where the current translation tools are not capable of always being gramatically
+                        correct (such as order of words changing based on a gender), prefer the solution that works "most of the time". If there's no such solution, please send <code>@molenzwiebel#2773</code> a message on Discord and we can figure out
+                        a way around it.
                     </span>
                 </v-container>
 

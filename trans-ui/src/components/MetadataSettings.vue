@@ -1,6 +1,6 @@
 <template>
     <v-container class="metadata-settings">
-        <div class="title">Language Metadata</div>
+        <div class="headline primary--text">Language Metadata</div>
 
         <span>This section discusses the metadata properties of your language. These include the name, language code and in-game language of your translation.</span>
 

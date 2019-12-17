@@ -1,5 +1,9 @@
 <template>
     <div class="translation-sections">
+        <v-container>
+            <div class="headline primary--text">Translations</div>
+        </v-container>
+
         <TranslationSection :key="section.name" v-for="section in sections" :section="section" />
     </div>
 </template>
