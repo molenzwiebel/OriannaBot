@@ -47,7 +47,7 @@ first_use_message: |-
   If you'd like me to track you and give you all the roles you deserve, you can add your League account using the [online configuration panel]({link}). You can also import your League accounts from Discord and the Reddit [ChampionMains Flairs](https://flairs.championmains.com) system.
 
   To get started, click the link below!
-  {link}
+  [{link}]({link})
 
   Confused, intrigued, angry, happy? Check out all my available commands using `@Orianna Bot help` and contact my creator using `@Orianna Bot about`.
 
