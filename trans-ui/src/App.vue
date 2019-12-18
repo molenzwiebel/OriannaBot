@@ -53,7 +53,7 @@
     export default class App extends Vue {
         mounted() {
             this.$vuetify.theme.dark = true;
-            store.load("https://raw.githubusercontent.com/molenzwiebel/OriannaBot/trans-ui/trans/languages/en.yaml");
+            store.load("https://raw.githubusercontent.com/molenzwiebel/OriannaBot/master/trans/languages/en.yaml");
         }
 
         get loading() {

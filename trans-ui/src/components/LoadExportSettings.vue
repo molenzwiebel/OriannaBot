@@ -59,7 +59,7 @@
         }
 
         startEnglish() {
-            store.loadLanguage("https://raw.githubusercontent.com/molenzwiebel/OriannaBot/trans-ui/trans/languages/en.yaml");
+            store.loadLanguage("https://raw.githubusercontent.com/molenzwiebel/OriannaBot/master/trans/languages/en.yaml");
         }
 
         async loadFromURL() {

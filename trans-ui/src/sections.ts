@@ -2462,7 +2462,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2486,7 +2486,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2612,7 +2612,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2637,7 +2637,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2662,7 +2662,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox "}
+                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
                             ]
                         }
                     }
