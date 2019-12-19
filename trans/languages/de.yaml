@@ -208,6 +208,7 @@ command_refresh_description: >-
 
 
   Wenn du die Werte von jemand anderem aktualisieren willst, erwähne einfach deren Namen im Befehl (z.B. `@Orianna Bot refresh @b1nzy#0001`).
+command_roles_small_description: "Zeigt alle Rollen, die auf dem aktuellen Server konfiguriert sind."
 command_roles_description: >-
   Zeigt alle Rollen und ihre Anforderungen an, die auf dem aktuellen Discord
   Server konfiguriert sind. Dies wird eine Liste von allen Rollen anzeigen,
