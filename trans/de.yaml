@@ -50,11 +50,6 @@ command_error_description: Bei der Ausführung von diesem Befehl ist ein furchtb
   bitte versuche es in Kürze erneut. Falls dieser Fehler bestehen bleibt, sende
   bitte einen Fehlerbericht in [den Orianna Bot Support
   Server](https://discord.gg/bfxdsRC).
-command_error_description_incident: "Bei der Ausführung dieses Befehls ist ein furchtbarer Fehler aufgetreten,
-  bitte versuche es in Kürze erneut. Falls dieser Fehler bestehen bleibt, sende
-  bitte einen Fehlerbericht in [den Orianna Bot Support
-  Server](https://discord.gg/bfxdsRC) mit dem folgenden Fehlercode:
-  `{incident}`."
 command_muted_preamble: "Ich habe keine Rechte um in {channel} zu sprechen, aber ich kann trotzdem
   heimlich deinen Befehl ausführen. Hier ist, was du angefordert hast:"
 promotion_title: "{username} wurde gerade zu {role} befördert!"
@@ -66,9 +61,6 @@ transfer_body: >-
 
 
   Ich habe dein League-Konto von deinem Discord Profil entfernt. Wenn du tatsächlich transferiert hast, kannst du dein Konto einfach wieder in der neuen Region hinzufügen.
-command_error_no_server: 🔍 Welcher Server?
-command_error_no_server_description: Ich müsste wissen, über welchen Server du redest. Versuche das noch einmal,
-  aber in einem Server statt in DMs.
 command_error_no_accounts: 🔍 {user} hat keine konfigurierten Konten.
 command_error_no_accounts_description: Dieser Befehl ist viel nützlicher, wenn ich Daten anzuzeigen hätte, aber
   leider hat dieser Benutzer kein Konto bei mir eingerichtet. Konten können mit
@@ -136,9 +128,6 @@ command_help_command_description: |-
   **Beschreibung**
   {description}
 command_help_command_keywords: Kennwörter
-command_invite_small_description: Sendet dir einen Link, um Orianna einzuladen.
-command_invite_description: Sendet einen simplen Link, den du benutzen kannst, um Orianna Bot auf deinen
-  eigenen Server einzuladen.
 command_invite_title: 🤖 Du willst also eine Einladung?
 command_invite_message_description: Um Orianna Bot auf deinen Discord-Server einzuladen, benutze einfach
   [diesen]({link}) Link. Danke, dass du Orianna Bot magst und dir überlegst sie
@@ -219,17 +208,6 @@ command_refresh_description: >-
 
 
   Wenn du die Werte von jemand anderem aktualisieren willst, erwähne einfach deren Namen im Befehl (z.B. `@Orianna Bot refresh @b1nzy#0001`).
-command_refresh_everyone_title: ℹ Refresh everyone wurde entfernt
-command_refresh_everyone_description: >-
-  Mit der Einführung von Orianna Bot v2 wurde der Befehl refresh everyone
-  entfernt. Ich aktualisiere jeden Benutzer ungefähr jede Stunde automatisch,
-  also tat der Befehl sehr wenig, aber hat gleichzeitig viel Arbeit in kurzer
-  Zeit mit sich gebracht. Wenn du kürzlich Änderungen gemacht hast und diese in
-  Aktion sehen willst, warte einfach bis ich alle aktualisiert habe.
-
-
-  Wenn deine Rollen sich komisch verhalten und du der Meinung bist, dass alle zu aktualisieren helfen würde, überlege dir meinen Ersteller um Hilfe zu fragen. Siehe `@Orianna Bot about` für mehr Info.
-command_roles_small_description: Zeigt alle Rollen an, die auf dem aktuellen Server konfiguriert sind.
 command_roles_description: >-
   Zeigt alle Rollen und ihre Anforderungen an, die auf dem aktuellen Discord
   Server konfiguriert sind. Dies wird eine Liste von allen Rollen anzeigen,
