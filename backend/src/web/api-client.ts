@@ -8,7 +8,7 @@ import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
 import config from "../config";
 import * as ipc from "../cluster/master-ipc";
-import getTranslator from "../i18n";
+import { default as getTranslator, getLanguages as getI18nLanguages } from "../i18n";
 
 export default class WebAPIClient {
     private bot: eris.Client;
@@ -18,6 +18,7 @@ export default class WebAPIClient {
         this.bot = client.bot;
 
         app.get("/api/v1/commands", swallowErrors(this.serveCommands));
+        app.get("/api/v1/languages", swallowErrors(this.serveLanguages));
 
         app.get("/api/v1/user", swallowErrors(this.serveUserProfile));
         app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
@@ -43,11 +44,20 @@ export default class WebAPIClient {
      * for documentation purposes on the website.
      */
     private serveCommands = async (req: express.Request, res: express.Response) => {
+        const language = req.query.language || "en-US";
+
         res.json(this.client.commands.filter(x => !x.hideFromHelp).map(cmd => ({
             name: cmd.name,
-            description: getTranslator("en-US")[cmd.descriptionKey],
+            description: getTranslator(language)[cmd.descriptionKey],
             keywords: cmd.keywords
         })));
+    };
+
+    /**
+     * Serves a static list of all languages supported for discord translation.
+     */
+    private serveLanguages = async (req: express.Request, res: express.Response) => {
+        res.json(getI18nLanguages());
     };
 
     /**
@@ -87,7 +97,8 @@ export default class WebAPIClient {
     private patchUserProfile = requireAuth(async (req: express.Request, res: express.Response) => {
         if (!this.validate({
             hide_accounts: Joi.bool().optional(),
-            treat_as_unranked: Joi.bool().optional()
+            treat_as_unranked: Joi.bool().optional(),
+            language: Joi.any().valid("", ...getI18nLanguages().map(x => x.code)).optional()
         }, req, res)) return;
 
         if (typeof req.body.hide_accounts !== "undefined") {
@@ -99,6 +110,12 @@ export default class WebAPIClient {
         if (typeof req.body.treat_as_unranked !== "undefined") {
             await req.user.$query().patch({
                 treat_as_unranked: req.body.treat_as_unranked
+            });
+        }
+
+        if (typeof req.body.language !== "undefined") {
+            await req.user.$query().patch({
+                language: req.body.language
             });
         }
 
@@ -243,12 +260,15 @@ export default class WebAPIClient {
             // Completed intro must be a boolean. Optional
             completed_intro: Joi.boolean().optional(),
 
+            // Language must be a valid language.
+            language: Joi.any().valid(getI18nLanguages().map(x => x.code)).optional(),
+
             // Engagement mode. Must match one of the patterns.
             engagement: Joi.alt([
                 { type: Joi.any().valid("on_command") },
                 { type: Joi.any().valid("on_join") },
                 { type: Joi.any().valid("on_react"), channel: Joi.string(), emote: Joi.string() }
-            ])
+            ]).optional()
         }, req, res)) return;
 
         // Convert engagement to the JSON representation.

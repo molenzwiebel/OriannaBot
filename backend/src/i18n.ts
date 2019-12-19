@@ -78,6 +78,13 @@ function buildTranslator(language: {
 const translators = new Map(Object.values(translations.languages).map(x => [x.metadata.code, buildTranslator(x)]));
 
 /**
+ * Returns the metadata for all registered languages.
+ */
+export function getLanguages() {
+    return Object.values(translations.languages).map(x => x.metadata);
+}
+
+/**
  * Returns the translator for the specified language code, or en_US if none match.
  */
 export default function getTranslator(code: string): Translator {
