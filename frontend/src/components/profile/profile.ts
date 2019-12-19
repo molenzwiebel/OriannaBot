@@ -19,6 +19,7 @@ interface UserDetails {
     accounts: UserAccount[];
     hide_accounts: boolean;
     treat_as_unranked: boolean;
+    language: string | "";
     guilds: {
         id: string,
         name: string,
@@ -30,9 +31,15 @@ interface UserDetails {
 })
 export default class UserProfile extends Vue {
     $root: App;
+    languages = [{ code: "en-US", language: "English" }];
     user: UserDetails = <any>null; // required for vue to register the binding
 
     async mounted() {
+        // Load languages async.
+        this.$root.get<any[]>("/api/v1/languages").then(langs => {
+            this.languages = langs!;
+        });
+
         // Load user details. Will error if the user is not logged in.
         this.user = (await this.$root.get<UserDetails>("/api/v1/user"))!;
     }
@@ -88,6 +95,18 @@ export default class UserProfile extends Vue {
         this.$root.submit("/api/v1/user", "PATCH", {
             hide_accounts: this.user.hide_accounts,
             treat_as_unranked: this.user.treat_as_unranked
+        });
+    }
+
+    /**
+     * Updates the language if a user selects a different value.
+     */
+    updateLanguage(evt: InputEvent) {
+        const val: string = (<HTMLSelectElement>evt.target).value;
+
+        this.user.language = val;
+        this.$root.submit("/api/v1/user", "PATCH", {
+            language: val
         });
     }
 }

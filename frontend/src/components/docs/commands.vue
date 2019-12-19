@@ -6,6 +6,13 @@
         </div>
 
         <div class="body">
+            <div class="language-picker">
+                <div />
+                <select v-model="language">
+                    <option v-for="lang in languages" :value="lang.code" :key="lang.key">{{ lang.name }}</option>
+                </select>
+            </div>
+
             <div v-if="loading" class="loader">Loading...</div>
 
             <template v-else>
@@ -31,17 +38,31 @@
     export default {
         data: () => ({
             marked,
+            language: "en-US",
+            languages: [{
+                code: "en-US",
+                name: "English"
+            }],
             loading: true,
             commands: [],
             subtitle: SUBTITLES[Math.floor(Math.random() * SUBTITLES.length)]
         }),
         async mounted() {
-            this.commands = await this.$root.get("/api/v1/commands");
-            this.loading = false;
+            this.loadCommands("en-US");
+            this.languages = await this.$root.get("/api/v1/languages");
         },
         methods: {
+            async loadCommands(language: string) {
+                this.commands = await this.$root.get("/api/v1/commands?language=" + language);
+                this.loading = false;
+            },
             getKeywords(command: any) {
                 return `Keywords: ` + command.keywords.map((x: string) => `<code>${x}</code>`).join(", ");
+            }
+        },
+        watch: {
+            language(newValue: string) {
+                this.loadCommands(newValue);
             }
         }
     };
@@ -51,6 +72,20 @@
     title-width = 840px
 
     @import "./docs-common.styl"
+
+    .language-picker
+        display flex
+        align-items center
+        padding 10px
+        max-width title-width
+        margin 0 auto
+
+        & div
+            flex 1
+
+        & select
+            width auto
+            padding-right 30px
 
     .command
         padding 10px

@@ -20,6 +20,14 @@
                 </div>
 
                 <div class="setting">
+                    <b>Language</b>
+                    <select @change="updateLanguage">
+                        <option v-for="lang in languages" :value="lang.code" :selected="lang.code === server.language">{{ lang.name }}</option>
+                    </select>
+                    <p>The language used when Orianna responds to a command. Member language preferences will be prioritized over the server language. Don't see your language? <a href="/translate/">Contribute a translation!</a></p>
+                </div>
+
+                <div class="setting">
                     <b>Engagement Mode</b>
 
                     <select @change="updateEngagement">

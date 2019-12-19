@@ -32,10 +32,19 @@
         </div>
 
         <div class="box">
-            <div class="header"><h2>Privacy Settings</h2></div>
+            <div class="header"><h2>Account Settings</h2></div>
             <div class="body">
+                <div class="setting" style="margin-top: 4px">
+                    <b>Language</b>
+                    <select @change="updateLanguage">
+                        <option value="" :selected="user.language === ''">Use Server Language</option>
+                        <option v-for="lang in languages" :value="lang.code" :selected="lang.code === user.language">{{ lang.name }}</option>
+                    </select>
+                    <p>Orianna will always use this language when responding to you, regardless of the language of the server you're in. Don't see your language? <a href="/translate/">Contribute a translation!</a></p>
+                </div>
+
                 <div class="setting">
-                    <div style="margin-top: 4px">
+                    <div>
                         <input type="checkbox" v-model="user.hide_accounts" @change="updatePrivacySettings" style="margin-right: 5px; margin-bottom: 2px">
                         <b>Hide Accounts</b>
                     </div>
@@ -67,6 +76,9 @@
         .setting > div
             display flex
             align-items center
+
+        .setting > select
+            margin-top 10px
 
         .actions
             display flex

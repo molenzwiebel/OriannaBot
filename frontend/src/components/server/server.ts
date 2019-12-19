@@ -57,6 +57,7 @@ export interface ServerDetails {
         channel: string,
         emote: string // customName:id
     };
+    language: string;
 }
 
 @Component({
@@ -70,9 +71,13 @@ export default class ServerProfile extends Vue {
     message = "";
     rolesDirty = false;
     timeoutID: number = 0;
+    languages: { code: string, name: string }[] = [{ code: "en-US", name: "English" }];
     $refs: { roleElements: RoleConditionsTy[] };
 
     async mounted() {
+        // Load languages async.
+        this.$root.get<any[]>("/api/v1/languages").then(res => this.languages = res!);
+
         // Load user details. Will error if the user is not logged in.
         this.server = (await this.$root.get<ServerDetails>("/api/v1/server/" + this.$route.params.id))!;
 
@@ -120,6 +125,20 @@ export default class ServerProfile extends Vue {
         }
 
         await this.saveEngagement();
+    }
+
+    /**
+     * Updates the preferred language of the server.
+     */
+    private async updateLanguage(evt: Event) {
+        const val: string = (<HTMLSelectElement>evt.target).value;
+
+        this.server.language = val;
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
+            language: val
+        });
+
+        this.showMessage(`Updated server language.`);
     }
 
     /**

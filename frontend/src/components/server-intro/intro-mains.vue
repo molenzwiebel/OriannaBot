@@ -64,6 +64,34 @@
                 <span>You can toggle announcements individually per role. For now, if you choose to enable them, we will turn on promotion announcements for mastery roles.</span>
             </div>
 
+            <div class="section" :class="!champion && 'dimmed'">
+                <p>What language does your server speak?</p>
+
+                <select v-model="language">
+                    <option v-for="language in languages" :value="language.code">{{ language.name }}</option>
+                </select>
+
+                <span>What language do you want Orianna to respond in when someone uses a command? Member language preferences will be prioritized over the server language. Don't see your language? <a href="/translate/">Contribute a translation!</a></span>
+            </div>
+
+            <div class="section" :class="!champion && 'dimmed'">
+                <p>When should we introduce ourselves?</p>
+
+                <select v-model="engagementMode">
+                    <option value="on_command">When a member first uses a command.</option>
+                    <option value="on_join">When a member first joins the server.</option>
+                    <option value="on_react" disabled>When a member reacts with a certain emote in a certain channel.</option>
+                </select>
+
+                <span>
+                    Orianna will introduce herself to users and prompt them to add their accounts. By default, this happens when the user first interacts with Orianna (to prevent bothering people). If you intend to require your server members to register with Orianna, you can opt to change this setting to have Orianna message new users when they join the server.
+                </span>
+
+                <span>
+                    You can also configure Orianna to message people when they react with an emote in a certain channel. Due to this option requiring a bit more configuration, you will need to do that after you finish the introduction.
+                </span>
+            </div>
+
             <div class="section finish" :class="!champion && 'dimmed'">
                 <p>You're all set!</p>
 
@@ -90,13 +118,18 @@
                 masteryRoleType: "levels",
                 announceChannel: "null",
                 channels: [],
-                finishing: false
+                finishing: false,
+                engagementMode: "on_command",
+                language: "en-US",
+                languages: [{ code: "en-US", name: "English" }]
             };
         },
-        mounted() {
+        async mounted() {
             this.$root.get("/api/v1/server/" + this.$route.params.id).then((res: ServerDetails) => {
                 this.channels = res.discord.channels;
             });
+
+            this.languages = await this.$root.get("/api/v1/languages");
         },
         methods: {
             async finish() {
@@ -108,7 +141,9 @@
                 // Mark as intro complete, announce and champion.
                 await this.$root.submit(`/api/v1/server/${id}`, "PATCH", {
                     completed_intro: true,
+                    language: this.language,
                     default_champion: +this.champion,
+                    engagement: { type: this.engagementMode },
                     announcement_channel: this.announceChannel === "null" ? null : this.announceChannel
                 });
 
