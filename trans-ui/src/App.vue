@@ -12,8 +12,12 @@
                     <div class="display-1 primary--text">Orianna Translation Tool</div>
                     <span>
                         This site is an interactive tool to create translation files for <a href="https://orianna.molenzwiebel.xyz">Orianna Bot</a>. Start by loading an existing translation (such as English) using the import/export options below.
-                        Then, translate the fields using the previews on the right as a guide. Once you're done, head back to the import/export options to download your language file. Finally, make a pull request on the Orianna Bot repository to
-                        get your translation added!
+                        Then, translate the fields using the previews on the right as a guide. Once you're done, head back to the import/export options to download your language file.
+
+                        <br><br>
+
+                        Once you've completed your translation (or if you want to make changes to an existing language), join the <a href="https://discord.gg/bfxdsRC">Orianna Discord Server</a> and send a message to molenzwiebel. You can also join
+                        the server if you are having trouble with something or have a question in general.
 
                         <br><br>
 
