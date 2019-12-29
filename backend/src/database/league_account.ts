@@ -10,6 +10,11 @@ export default class LeagueAccount extends Model {
     readonly id: number;
 
     /**
+     * The ID of the user that this account belongs to.
+     */
+    readonly user_id: number;
+
+    /**
      * The username of this league account. May lag behind
      * if the user changes their name.
      */
