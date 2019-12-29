@@ -30,6 +30,10 @@
                 </tab-content>
                 <tab-content title="Verification" :before-change="verifySummoner">
                     <div class="verification-step" v-if="summoner">
+                        <span class="details-error" v-if="summoner.taken">
+                            Warning: This account is currently linked with a different Discord account. Adding it to your account will remove it from the other account.
+                        </span>
+
                         <p>
                             To verify that you own <b>{{ summoner.username }}</b>, please change your third-party verification code to <code>{{ summoner.code }}</code>.
                             To change your third-party code, go to your <b>settings</b> inside the League client, followed by selecting <b>Verification</b> and entering the code. Click <b>Verify</b> after you've saved.
