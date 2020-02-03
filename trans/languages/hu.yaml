@@ -275,58 +275,60 @@ command_stats_message_games_value: |-
   **{win}** győzelem
   **{loss}** vereség
   **{winrate}%** győzelmi arány
-command_top_small_description: Show leaderboards and other neat statistics!
+command_top_small_description: Ranglisták és más menő statisztikák kimutatása
 command_top_description: >-
-  This command is capable of showing a variety of leaderboards and rankings,
-  based on either your individual score or all people linked with Orianna.
+  Ezzel a paranccsal számos ranglistát és rangbesorolásokat kimutathatsz a saját
+  eredményeidet és más játékosok teljesítményét felmérve, akik fiókjaikat
+  összekapcsolták Oriannával.
 
 
-  **Champion Leaderboards**
-
-  The most common usage is to show a leaderboard of all user's top scores on a specified champion. To do so, simply use `@Orianna Bot top <champion name>`, where champion name is any champion or [abbreviation](https://bit.ly/2wwGVMi).
+  **Hős ranglisták**
 
 
-  If you do not specify a champion name, Orianna will fall back to the default champion in your current server, or show an error if the server has no champion setup.
+  Leggyakrabban arra használjuk, hogy kimutassuk az összes játékos legjobb teljesítményét egyes hősöket tekintve. Hogy ez megtörténjen, egyszerűen használd az `@Orianna Bot top <hős neve>` parancsot, ahol a "<hős neve>" bármely a játékban jelenleg megtalálható hős neve, vagy annak [rövidítése](https://bit.ly/2wwGVMi) is lehet.
 
 
-  To limit results to just people in the current Discord server, include `server` in your message.
+  Ha nem határozol meg hősnevet, Orianna visszaugrik az adott szerveren alapértelmezettnek beállított hőshöz, vagy egy hibaüzenettel tér vissza, ha a szerveren nincs alapértelmezettnek beállított hős.
 
 
-  Examples:
-
-  - `@Orianna Bot top mf` - shows top scores on Miss Fortune across all linked Orianna accounts
-
-  - `@Orianna Bot top thresh server` - shows the top scores on Thresh of all current server members
+  Ahhoz, hogy korlátozd a kimutatott eredményeket a jelenlegi Discord szerveren lévő játékosokra, ne hagyd ki a parancsból a `server` kulcsszót.
 
 
-  **Overall Leaderboards**
+  Példák:
 
-  To get a leaderboard of true champion fanatics, you can also get a leaderboard of all highest champion mastery scores regardless of champion. To do so, simply use `@Orianna Bot top all`. This command will show you all true champion fanatics, with millions of points invested into a single champion.
+  - `@Orianna Bot top mf` - megmutatja a legmagasabb pontszámot elért játékosokat Miss Fortune-nel az összes valaha Orianna Bottal összekapcsolt játékosfiók statisztikáját összehasonlítva.
 
-
-  To limit results to just people in the current Discord server, include `server` in your message.
-
-
-  Examples:
-
-  - `@Orianna Bot top all champions` - shows top scores of all users on any champion
-
-  - `@Orianna Bot top all champions in this server` - shows top scores of all users in the current server
+  - `@Orianna Bot top thresh server` - megmutatja a legmagasabb pontszámot elért játékosokat Thresh-sel összehasonlítva az adott szerveren összekapcsolt játékosfiókok statisztikáit.
 
 
-  **Personal Top Champions**
+  **Átfogó ranglisták**
 
-  You can also see a leaderboard of your own personal mastery scores by adding `me` to the command. Doing so will show you a list of all your champion mastery values.
-
-
-  To see the leaderboard of someone else, simply mention them in your message.
+  Ha egy ranglistát szeretnél a hősök igaz fanatikusairól, kimutathatsz egy olyan ranglistát, amely a legmagasabb pontszámot elért játékost mutatja különféle hősöket tekintve. Hogy ez megtörténjen, egyszerűen használd az `@Orianna Bot top all` parancsot. Ez a parancs megmutatja az összes igaz hősfanatikust, akik esetlegesen pontok millióit gyűjtötték össze bizonyos hősökre.
 
 
-  Examples:
+  Ahhoz, hogy korlátozd a kimutatott eredményeket a jelenlegi Discord szerveren lévő játékosokra, ne hagyd ki a parancsból a `server` kulcsszót.
 
-  - `@Orianna Bot top me` - shows your top champions
 
-  - `@Orianna Bot top @molenzwiebel` - shows molenzwiebel's top champions
+  Példák:
+
+  - `@Orianna Bot top all champions` - megmutatja a legmagasabb pontszámot elért játékost egyes hősök esetében az összes Orianna Bottal valaha összekapcsolt játékosfiók statisztikáját összehasonlítva.
+
+  - `@Orianna Bot top all champions in this server` - megmutatja a legmagasabb pontszámot elért játékost egyes hősök esetében az összes Orianna Bottal összekapcsolt játékosfiók adatait az adott szerverről.
+
+
+  **Legjobb hősök számodra**
+
+  Lehetőséged van a saját hősmesterség eredményeidről készült kimutatás megjelenítésére, ehhez pedig egyszerűen add hozzá a parancshoz a `me` kulcsszót. Ezt követően az összes hősmesterség értékeid kimutatásra kerülnek.
+
+
+  Ha valaki más ranglistáját és statisztikáit szeretnéd kimutatni, egyszerűen említsd meg az adott játékost a parancs használatakor.
+
+
+  Példák:
+
+  - `@Orianna Bot top me` - megmutatja azon hősöket, amelyekkel a legjobb eredményeket érted el.
+
+  - `@Orianna Bot top @molenzwiebel` - megmutatja molenzwiebel azon hőseit, amelyekkel a legjobb eredményt érte el.
 command_top_points: Pontok
 command_top_rank: "A besorolásod: {rank}"
 command_top_personal_title: 📊 Legjobb hősök {name} számára
