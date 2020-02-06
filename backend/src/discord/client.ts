@@ -181,14 +181,31 @@ export default class DiscordClient {
         await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
 
         for (const cmd of commands) {
+            let description = t.command_help_command_description({ description: <string>t[cmd.descriptionKey] });
+            const fields = [{
+                name: t.command_help_command_keywords,
+                value: cmd.keywords.map(x => "`" + x + "`").join(", ")
+            }];
+
+            // If the description doesn't fit in a single field, split
+            // it on paragraphs and put half in a separate field.
+            if (description.length > 2000) {
+                const parts = description.split("\n\n");
+                const first = parts.slice(0, parts.length / 2).join("\n\n");
+                const second = parts.slice(parts.length / 2).join("\n\n");
+
+                description = first;
+                fields.unshift({
+                    name: "\u200b",
+                    value: second
+                });
+            }
+
             await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
                 resp.info({
                     title: t.command_help_command_title({ name: cmd.name }),
-                    description: t.command_help_command_description({ description: <string>t[cmd.descriptionKey] }),
-                    fields: [{
-                        name: t.command_help_command_keywords,
-                        value: cmd.keywords.map(x => "`" + x + "`").join(", ")
-                    }]
+                    description,
+                    fields
                 });
             });
         }
