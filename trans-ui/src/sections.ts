@@ -2864,7 +2864,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
 }, {
     title: "Discord - Command - Leaderboard",
     description: "All the strings used in the leaderboard command.",
-    // <editor-fold defaultstate="collapsed" desc="Discord - Command - Stats">
+    // <editor-fold defaultstate="collapsed" desc="Discord - Command - Leaderboard">
     keyGroups: [{
         keys: [
             "command_top_small_description",
@@ -2890,7 +2890,8 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             "command_top_global_title",
             "command_top_global_server_title",
             "command_top_graphic_name",
-            "command_top_graphic_score"
+            "command_top_graphic_score",
+            "command_top_rank"
         ],
         embed: 3
     }],
@@ -3200,6 +3201,11 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             "\n",
             {
                 "name": "command_top_graphic_score",
+                "args": null
+            },
+            "\n\nThe following strings are used in the footer:\n",
+            {
+                "name": "command_top_rank",
                 "args": null
             }
         ],

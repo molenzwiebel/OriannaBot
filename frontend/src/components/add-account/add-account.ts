@@ -6,7 +6,7 @@ import App from "../app/app";
 interface Summoner {
     username: string;
     code: string;
-    taken?: boolean;
+    taken: boolean;
 }
 
 @Component({
@@ -52,17 +52,6 @@ export default class AddAccountWizard extends Vue {
 
         if (!summ) {
             this.detailsError = "Summoner not found. Make sure to use your summoner name, not your login name.";
-            throw new Error("");
-        }
-
-        if (summ.taken) {
-            this.detailsError = `
-This account is already linked with a different Discord account. To prevent abuse, a League account can only be connected to one Discord account at a time.<br><br>
-
-If you previously linked this account to a different Discord that you still have access to, you can simply log in and remove the League account from your old Orianna profile.<br><br>
-
-If you did not add this account to an Orianna Bot profile, or if you do not have access to the old Discord account, please <a href="https://discord.gg/bfxdsRC">join the support server</a> or directly message @molenzwiebel#2773 on Discord and include the summoner name and region of the account you are trying to add.
-`.trim();
             throw new Error("");
         }
 

@@ -135,12 +135,11 @@ export default class WebAPIClient {
         const summ = await this.client.riotAPI.getLoLSummonerByName(req.body.region, req.body.username);
         if (!summ) return res.status(404).json(null);
 
+        let taken = false;
+
         // Check if this account has been taken by someone else already.
         if (await LeagueAccount.query().where("summoner_id", summ.id).where("region", req.body.region).first()) {
-            return res.json({
-                taken: true,
-                username: summ.name
-            });
+            taken = true;
         }
 
         // Generate a key and assign it for the current session.
@@ -156,6 +155,7 @@ export default class WebAPIClient {
         });
 
         return res.json({
+            taken,
             region: req.body.region,
             username: summ.name,
             account_id: summ.accountId,
@@ -175,6 +175,16 @@ export default class WebAPIClient {
         // Make sure that the code is valid.
         const summoner = this.summoners.get(req.body.code)!;
         if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, "" + summoner.id, req.body.code)) return res.json({ ok: false });
+
+        // Check if this account has been taken by someone else already.
+        // If it has, remove it from the old account.
+        const oldAccount = await LeagueAccount.query().where("summoner_id", summoner.id).where("region", summoner.region).first();
+        if (oldAccount) {
+            const user = await User.query().where("id", oldAccount.user_id).first();
+            await oldAccount.$query().delete();
+
+            await ipc.fetchAndUpdateUser(user!);
+        }
 
         // Find the matching TFT summoner.
         const tftSummoner = await this.client.riotAPI.getTFTSummonerByName(summoner.region, summoner.name);
