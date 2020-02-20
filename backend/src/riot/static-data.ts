@@ -15,6 +15,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "eve": "Evelynn",
     "ez": "Ezreal",
     "fiddle": "Fiddlesticks",
+    "fondlesticks": "Fiddlesticks",
     "fish": "Fizz",
     "gp": "Gangplank",
     "heca": "Hecarim",
