@@ -21,6 +21,8 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "heca": "Hecarim",
     "heim": "Heimerdinger",
     "heimer": "Heimerdinger",
+    "donger": "Heimerdinger",
+    "dinger": "Heimerdinger",
     "j4": "JarvanIV",
     "jarvan": "JarvanIV",
     "jarvan 4": "JarvanIV",
@@ -79,6 +81,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "trynd": "Tryndamere",
     "tf": "TwistedFate",
     "rat": "Twitch", // :^)
+    "urg": "Urgot",
     "dyr": "Udyr",
     "veig": "Veigar",
     "vel": "VelKoz",
@@ -90,6 +93,8 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "xer": "Xerath",
     "xin": "XinZhao",
     "yas": "Yasuo",
+    "cat": "Yuumi",
+    "yuu": "Yuumi",
     "zil": "Zilean"
 };
 
