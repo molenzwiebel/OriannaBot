@@ -1,0 +1,316 @@
+metadata:
+  code: ko-KR
+  name: 한국어
+  ddragonLanguage: ko_KR
+empty: ""
+ranked_tier_unranked: 언랭
+ranked_tier_iron: 아이언
+ranked_tier_bronze: 브론즈
+ranked_tier_silver: 실버
+ranked_tier_gold: 골드
+ranked_tier_platinum: 플래티넘
+ranked_tier_diamond: 다이아몬드
+ranked_tier_master: 마스터
+ranked_tier_grandmaster: 그랜드마스터
+ranked_tier_challenger: 챌린저
+queue_ranked_solo: 개인/2인 랭크 게임
+queue_ranked_flex: 자유 랭크 게임
+queue_ranked_tft: 전략적 팀 전투(랭크)
+queue_ranked_any: 아무 랭크 게임
+queue_ranked_highest: 가장 높은 랭크 (전략적 팀 전투 제외)
+queue_ranked_highest_tft: 가장 높은 랭크 (전략적 팀 전투 포함)
+time_ago_today: 오늘
+time_ago_yesterday: 어제
+time_ago_days_ago: "{days}일 전"
+first_use_title: 👋 {username}님 안녕하세요!
+first_use_intro_on_join: "**{server}** 서버에 오신 것을 환영합니다! 저는 **오리아나 봇**이에요. 당신의 리그 오브 레전드 랭크와 챔피언 숙련도를
+  바탕으로 역할을 할당하는 일을 하고 있죠."
+first_use_intro_on_command: 반가워요! 처음 제 명령어를 사용하셨네요. 저는 **오리아나 봇**이에요. 당신의 리그 오브 레전드 랭크와 챔피언 숙련도를 바탕으로 역할을
+  할당하는 일을 하고 있죠.
+first_use_intro_on_react: "**{server}** 서버의 역할을 할당받기를 원하시는군요! 저는 **오리아나 봇**이에요. 당신의 리그 오브 레전드 랭크와 챔피언
+  숙련도를 바탕으로 역할을 할당하는 일을 하고 있죠."
+first_use_message: >-
+  {intro}
+
+
+  저로부터 역할을 할당받기 원하신다면, 우선 [웹 설정 페이지]({link})를 브라우저로 접속해 리그 오브 레전드 계정을 연결하세요.
+
+  아니면 [ChampionMains Flairs](https://flairs.championmains.com)에서 Reddit과 연동할 수도 있습니다.
+
+
+  시작하려면 아래 링크를 클릭하세요!
+
+  [{link}]({link})
+
+
+  `@Orianna Bot help`를 입력하면 모든 명령어를 확인할 수 있습니다. 또 `@Orianna Bot about` 명령어로 제작자를 만나볼 수도 있어요.
+command_error_title: 💥 이런!
+command_error_description: |-
+  명령을 실행하는 도중에 오류가 발생했습니다. 잠시 후에 다시 시도하세요. 
+  만약 오류가 지속된다면, [오리아나 봇 지원 서버](https://discord.gg/bfxdsRC)에 버그 리포트를 보내주세요.
+command_muted_preamble: 저는 {channel} 채널에서 말할 권한이 없지만, 당신의 명령어를 실행할 수는 있어요. 실행 결과는 다음과 같습니다.
+promotion_title: "{username} 님이 {role} 역할을 받았습니다!"
+transfer_title: ✈ 지역이 바뀌었나요?
+transfer_body: >-
+  이전에 연결했던 **{username}** ({region}) 계정이 존재하지 않는다고 나오네요. 혹시 {region} 에서 다른 지역으로
+  변경하셨나요?
+
+
+  제가 당신의 디스코드 프로필에서 리그 오브 레전드 계정과의 연결을 해제했습니다. 정말로 지역을 옮긴거라면, 새 지역으로 다시 계정을 연결해 주세요.
+command_error_no_accounts: 🔍 {user} 님의 계정이 설정되지 않았어요.
+command_error_no_accounts_description: 안타깝게도, 설정된 계정이 없어 보여줄 정보가 없네요. `@Orianna Bot configure` 명령어를 이용해 계정을 추가한다면 더
+  많은 정보를 확인할 수 있을 거예요.
+command_error_no_permissions: ✋ 잠깐만요!
+command_error_no_permissions_description: 이 기능을 사용하려면 메시지 관리 권한이 있어야 합니다. 미안해요 :(
+command_error_no_champion: 🔎 어떤 챔피언을 찾고 계신가요?
+command_error_no_champion_description: |-
+  명령어에서 챔피언 이름을 찾으려고 노력했지만 찾을 수 없었어요. 
+  혹시 철자가 잘못되었거나 잘못된 챔피언 이름을 입력하지 않았는지 다시 한번 확인해 보세요.
+command_page_n_of_n: 총 {total}페이지 중 {n}페이지
+command_about_title: 🤖 봇 정보
+command_about_field_author: 제작자
+command_about_field_version: 버전
+command_about_field_source: 소스 코드
+command_about_field_servers: 서버 수
+command_about_field_channels: 채널 수
+command_about_field_users: 유저 수
+command_about_field_memory_usage: 메모리 사용량
+command_about_field_support: 지원 서버
+command_about_field_vote: 봇 추천하기
+command_edit_small_description: 프로필 설정 페이지 링크를 개인 메시지로 보냅니다.
+command_edit_description: >-
+  이 명령어를 사용하면 개인 메시지로 [프로필 설정 페이지](https://orianna.molenzwiebel.xyz/me) 링크를
+  보냅니다. 페이지에서 오리아나 봇에 연결된 리그 오브 레전드 계정을 관리할 수 있습니다.
+
+
+  프로필 설정 방법과 리그 오브 레전드 명령어 사용 방법에 대해 알고 싶다면 [관련 문서](https://orianna.molenzwiebel.xyz/docs/link)를 확인해 주세요.
+command_edit_server_title: ℹ 서버 설정 편집 방식이 바뀌었어요!
+command_edit_server_description: 오리아나 봇이 v2 버전이 되면서, 더 이상 서버 설정을 편집할 때 별도의 URL이 필요하지 않습니다. 웹 설정 페이지에서 디스코드 계정으로
+  로그인한 후, 사이드바에서 서버를 선택하세요. 물론 서버 설정을 편집하려면 `서버 관리하기` 권한이 있어야 합니다.
+command_edit_dm_title: 🔗 로그인 링크
+command_edit_dm_description: >-
+  계정을 연결하거나 본인 소유의 서버 설정을 편집하려면 우선 [웹 설정 페이지]({link})에 접속하세요. 아래 링크를 클릭하면 자동으로
+  로그인됩니다. 해당 링크는 오직 한 번만 사용 가능하며, 24시간 이내 사용하지 않으면 만료되어 사용이 불가능합니다.
+
+
+  [{link}]({link})
+
+
+  **⚠ 다른 사람에게 링크를 공유하지 마세요!** 
+
+  이 링크를 가지고 있는 사람은 당신의 프로필에 접근이 가능하므로 주의해 주세요.
+command_edit_dm_failed_title: 📪 개인 메시지 발송에 실패했어요!
+command_edit_dm_failed_description: 디스코드 개인 메시지를 친구로부터만 받을 수 있게 설정하셨군요. 이 경우 제가 개인 메시지를 보내드릴 수 없어요. 서버 멤버가 보내는 개인
+  메시지를 허용하려면, 서버의 아이콘을 우클릭한 다음 `개인정보 보호 설정`을 선택한 후 `서버 멤버가 보내는 개인 메시지 허용`을 켜
+  주세요.
+command_help_title: 🔖 오리아나 봇 도움말
+command_help_description: 입력하신 키워드를 바탕으로 명령어를 해석해 보았어요. 제가 해석한 명령어 목록을 아래 나열해 두었습니다. 번호 이모지를 누르면 해당하는
+  명령어에 관한 정보와 예제를 알려 드립니다. 그리고 🔖 를 누르면 다시 이 화면을 보여줍니다.
+command_help_command_title: 🔖 {name} 도움말
+command_help_command_description: |-
+  **설명**
+  {description}
+command_help_command_keywords: 키워드
+command_invite_title: 🤖 오리아나 봇을 초대하고 싶나요?
+command_invite_message_description: |-
+  봇을 당신 소유의 서버에 초대하려면 [이 링크]({link})를 사용하세요. 
+  서버에 추가할 정도로 저를 좋아해 주신다니 무척 영광입니다!
+command_other_bot_title: 💡 알고 계셨나요?
+command_other_bot_description: >-
+  `{role}` 역할은 제가 관리하고 있어요. `@Orianna Bot configure` 명령어를 입력하면 계정을 연결하고 역할을 부여받을
+  수 있습니다. 
+
+  이미 계정을 추가하셨다구요? 업데이트가 될 때까지 기다리거나 `@Orianna Bot refresh` 명령어를 입력해 즉시 업데이트해 보세요.
+command_points_small_description: 챔피언 숙련도 점수가 몇점인지 보여줍니다.
+command_points_description: >-
+  이 명령어를 사용하면 해당 챔피언에 대한 숙련도 점수를 보여줍니다.
+
+
+  명령어를 사용할 때 챔피언의 이름(영어) 혹은 [약어](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92)를 함께 입력하세요. 만약 챔피언 이름이 포함되지 않으면, 현재 서버에서 지정한 기본 챔피언으로 동작합니다. 서버에서 기본 챔피언을 설정하지 않았다면 오류 메시지를 보여주게 됩니다.
+
+
+  다른 사람의 챔피언 숙련도 점수를 확인하려면 그 유저의 닉네임을 언급하세요.
+
+
+  예:
+
+  - `@Orianna Bot points mf` - 미스 포츈 챔피언 숙련도 점수 확인
+
+  - `@Orianna Bot score lee @molenzwiebel` -  _molenzwiebel_ 유저의 리 신 챔피언 숙련도 점수 확인
+
+  - `@Orianna Bot mastery` - 기본 챔피언 숙련도 점수 확인
+command_points_message_title: 📖 챔피언 숙련도 점수
+command_points_message_description: "{user} 님의 {champion} 숙련도 점수는 **{points} 점**  입니다!"
+command_profile_small_description: 디스코드 유저의 연결된 리그 오브 레전드 계정과 플레이 통계를 보여줍니다.
+command_profile_description: >-
+  이 명령어를 사용하면 당신이 연결한 계정으로부터 얻은 정보를 바탕으로 프로필을 보여줍니다. 자기 자신의 프로필을 확인하고 싶다면
+  `@Orianna Bot profile`을 입력하세요.
+
+
+  다른 사람의 프로필을 확인하고 싶다면, 그 사람들을 언급하면 됩니다. 단, 해당 유저가 오리아나 봇에 계정이 연결되어 있어야 합니다.
+
+
+  만약 당신의 랭크 티어나 계정 이름을 숨기고 싶다면, [웹 설정 페이지](https://orianna.molenzwiebel.xyz/me)에서 개인정보 보호 설정을 변경하세요.
+
+
+  예:
+
+  - `@Orianna Bot profile` - 당신의 개인 프로필 확인
+
+  - `@Orianna Bot profile @molenzwiebel` - molenzwiebel 유저의 프로필 확인
+command_profile_title: 📖 {name} 님의 프로필
+command_profile_top_champions: 모스트 챔피언
+command_profile_statistics: 숙련도 점수 통계
+command_profile_statistics_total_points: "**총 점수** {amount} **점**"
+command_profile_statistics_avg_champ: "**평균** {amount} **점**"
+command_profile_recently_played: 최근 플레이
+command_profile_recently_played_no_games: _플레이 기록 없음_
+command_profile_ranked_tiers: 랭크 티어
+command_profile_account: 계정
+command_profile_accounts: 계정
+command_refresh_small_description: 계정 데이터를 업데이트하고 역할을 다시 계산하여 할당합니다.
+command_refresh_description: >-
+  이 명령어를 사용하면 당신의 챔피언 숙련도 점수나 랭크 게임 통계 등 연결된 모든 계정에 대한 정보를 전부 업데이트됩니다. 업데이트되는
+  사항은 다음과 같습니다.
+
+
+  - 소환사 이름 변경이나 지역 변경 여부
+
+  - 랭크 티어
+
+  - 챔피언 숙련도 점수 및 레벨
+
+
+  업데이트가 이루어진 후, 오리아나 봇이 당신과 함께하는 모든 서버에 대해 역할을 다시 계산하여 할당합니다.
+
+
+  첨언하자면, 매번 일일이 Refresh 명령어를 사용할 필요는 없습니다. 오리아나 봇이 주기적으로 정보를 업데이트하기 떄문입니다. 이 명령어는 즉시 역할을 변경하고 싶을 때만 사용하는 것을 추천합니다.
+
+
+  만약 다른 사람의 정보를 업데이트하고 싶다면, 명령어를 사용할 때 그 유저를 언급하세요. (예: `@Orianna Bot refresh @b1nzy#0001`)
+command_roles_small_description: 현재 서버에 설정된 모든 역할을 보여줍니다.
+command_roles_description: >-
+  현재 서버에 설정된 모든 역할과 해당 역할을 얻기 위해 필요한 사항을 보여줍니다. 또한 해당 역할 요구 조건을 만족하는지도 알려줍니다.
+
+
+  주의할 점은 동일한 역할이 리스트 내에 서로 다른 요구 조건으로 여러 번 등장할 수 있다는 점입니다. 이 경우, 한 가지 요구 조건만 만족하면 역할을 부여받을 수 있습니다.
+
+
+  역할 요구 조건이 어떻게 동작하는지 알고 싶다면 [관련 문서](https://orianna.molenzwiebel.xyz/docs/conditions)를 참조하세요.
+command_roles_no_server_title: 🛑 서버에서 실행해 주세요
+command_roles_no_server_description: 이 명령어는 _서버_ 정보를 보여주는 명령어입니다. 그런데 개인 메시지에서 실행하셨네요...?
+command_roles_no_roles_title: 🔍 아무것도 없어요
+command_roles_no_roles_description: 현재 서버에는 아무 역할도 설정되어 있지 않습니다.
+command_roles_at_least: "{value} 이상"
+command_roles_at_most: "{value} 이하"
+command_roles_exactly: 정확히 {value}
+command_roles_between: "{min}에서 {max} 사이"
+command_roles_ranked_tier_equal: "{queue}에서 {tier}"
+command_roles_ranked_tier_lower: "{queue}에서 {tier} 이하"
+command_roles_ranked_tier_higher: "{queue}에서 {tier} 이상"
+command_roles_mastery_level: "{champion} 숙련도 레벨이 {range}"
+command_roles_mastery_score: "{champion} 숙련도 점수가 {range}"
+command_roles_total_mastery_score: Have a total mastery score {range}
+command_roles_ranked_tier: 랭크 티어가 {ranked}
+command_roles_region: "{region} 지역의 계정 보유"
+command_roles_all_match: "**모든 조건 만족**"
+command_roles_any_match: "**아무 조건이나 만족**"
+command_roles_at_least_n: "**최소 {amount}개의 조건 만족**"
+command_roles_no_conditions: _조건 없음_
+command_roles_continued: (지속)
+command_roles_message_title: 📖 서버 규칙
+command_roles_message_description: 서버에 설정되어 있는 규칙은 다음과 같습니다.
+command_stats_small_description: 챔피언 숙련도 점수의 그래프를 보여줍니다.
+command_stats_description: >-
+  이 명령어를 사용하면 오리아나 봇이 주기적으로 추적한 챔피언 숙련도 점수를 기반으로 한 그래프를 생성합니다. 오리아나 봇에 계정을 등록한
+  이후의 게임 데이터만 반영된다는 점을 참고하세요.
+
+
+  특정 챔피언에 대한 그래프를 확인하려면 명령어에 해당 챔피언 이름을 포함하세요. 만약 다른 사람의 그래프를 확인하고 싶다면 명령어와 함께 유저를 언급하면 됩니다.
+
+
+  주의: 승률과 같은 데이터는 게임 플레이 후 숙련도 점수의 변화를 바탕으로 예측한 값이므로 100% 일치하지 않을 수 있습니다.
+
+
+  예:
+
+  - `@Orianna Bot chart my annie progression`
+
+  - `@Orianna Bot chart @molenzwiebel`
+
+  - `@Orianna Bot show @molenzwiebel's stats on annie`
+command_stats_no_values_title: 🔍 아무것도 없어요!
+command_stats_no_values_description: "{user} 님의 {champion} 플레이 데이터가 존재하지 않아요. 제가 통계를 내기 위해서는 게임 플레이 기록이 필요합니다."
+command_stats_message_title: 📈 {name} 님의 {champion} 숙련도
+command_stats_message_data: 기록
+command_stats_message_data_value: |-
+  **{numGames}** 게임 추적됨
+  최초 플레이 **{firstGameDate}**
+  최근 플레이 **{lastGameDate}**
+command_stats_message_games: 승패
+command_stats_message_games_value: |-
+  승리 **{win}** 회
+  패배 **{loss}** 회
+  승률 **{winrate}%**
+command_top_small_description: 챔피언 장인 랭킹을 보여줍니다.
+command_top_description: >-
+  이 명령어를 사용하면 오리아나 봇에 연결된 계정 정보를 기반으로 한 다양한 장인 랭킹과 통계를 보여줍니다.
+
+
+  **챔피언 장인 랭킹**
+
+  가장 기본적인 사용 방법은 `@Orianna Bot top <챔피언 이름>`입니다. 특정 챔피언에 대한 모든 유저 간 랭킹을 보여주죠. 챔피언 이름(영어) 또는 [약어](https://bit.ly/2wwGVMi)를 입력해야 합니다.
+
+
+  만약 챔피언 이름이 포함되지 않으면, 현재 서버에서 지정한 기본 챔피언으로 동작합니다. 서버에서 기본 챔피언을 설정하지 않았다면 오류 메시지를 보여주게 됩니다.
+
+
+  대상을 현재 디스코드 서버의 사람들로 제한하고 싶을 경우에는 `server`를 명령어에 포함하세요.
+
+
+  예:
+
+  - `@Orianna Bot top mf` - 오리아나 봇에 연결된 계정 중 미스 포츈 장인 랭킹을 보여줍니다.
+
+  - `@Orianna Bot top thresh server` - 현재 서버 멤버 중 쓰레쉬 장인 랭킹을 보여줍니다.
+
+
+  **전체 장인 랭킹**
+
+  유저의 가장 높은 챔피언 숙련도 점수를 기반으로 한 장인 랭킹을 볼 수도 있습니다. `@Orianna Bot top all` 명령어를 사용해 보세요. 한 챔피언으로 수 백만 점의 숙련도 점수를 쌓을 만큼 롤에 인생을 갈아 넣은(...) 유저들을 만나볼 수 있어요.
+
+
+  대상을 현재 디스코드 서버의 사람들로 제한하고 싶을 경우에는 `server`를 명령어에 포함하세요.
+
+
+  예:
+
+  - `@Orianna Bot top all champions` - 오리아나 봇에 연결된 계정 중 전체 챔피언 장인 랭킹을 보여줍니다.
+
+  - `@Orianna Bot top all champions in this server` - 현재 서버 멤버 중 전체 챔피언 장인 랭킹을 보여줍니다.
+
+
+  **개인 숙련도 랭킹**
+
+  자신의 챔피언 숙련도 랭킹도 확인할 수 있습니다. 명령어에 `me`를 추가하세요. 모든 챔피언의 숙련도 점수를 보여줄겁니다.
+
+
+  다른 사람의 숙련도 랭킹을 보고 싶다면, 명령어와 함께 해당 유저를 언급하세요.
+
+
+  예:
+
+  - `@Orianna Bot top me` - 자신의 개인 숙련도 랭킹을 보여줍니다.
+
+  - `@Orianna Bot top @molenzwiebel` - molenzwiebel의 숙련도 랭킹을 보여줍니다.
+command_top_points: 점
+command_top_rank: "당신의 순위: {rank}등"
+command_top_personal_title: 📊 {name} 님의 모스트 챔피언
+command_top_no_server_title: ❓ 뭐하세요?!?!
+command_top_no_server_description: 명령어를 개인 메시지로 보내면서 장인 순위를 서버 내 멤버로 하는 것은 좀 이상하지 않나요? 명령어에서 `server`를 지워 보세요.
+command_top_title: "{champ} 장인 랭킹"
+command_top_server_title: "{champ} 서버 내 장인 랭킹"
+command_top_global_title: 전체 장인 랭킹
+command_top_global_server_title: 서버 내 전체 장인 랭킹
+command_top_graphic_name: 유저명
+command_top_graphic_score: 점수
