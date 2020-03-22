@@ -13,10 +13,14 @@ export class WorkerIPC extends IPCBase {
     }
 
     /**
-     * Finds all guilds that the specified user is on. Returns an array of guild ID and
-     * the roles that the user has on that specified guild.
+     * Finds all guilds that the specified user is on. Note that this depends on our local
+     * cache and thus may not _always_ be 100% correct.
      */
-    public searchUser(snowflake: string): Promise<[string, string[]][]> {
+    public searchUser(snowflake: string): Promise<{
+        guild: string,
+        nick: string | null,
+        roles: string[]
+    }[]> {
         return this.sendRequest({
             action: "search-user",
             args: snowflake
@@ -62,6 +66,16 @@ export class WorkerIPC extends IPCBase {
         this.send({
             action: "announce-promotion",
             args: [user.id, role.id, guildId]
+        });
+    }
+
+    /**
+     * Changes the nickname of `user` on `guildId` to `nickname`. If nickname is empty, removes it.
+     */
+    public setNickname(guildId: string, user: User, nickname: string) {
+        this.send({
+            action: "set-nickname",
+            args: [guildId, user.snowflake, nickname]
         });
     }
 

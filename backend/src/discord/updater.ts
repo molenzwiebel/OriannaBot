@@ -91,11 +91,11 @@ export default class Updater {
 
         try {
             // Find all guilds this user is on.
-            const userGuilds = await this.ipc.searchUser(user.snowflake);
+            const userData = await this.ipc.searchUser(user.snowflake);
 
             // Update all of them in parallel.
-            await Promise.all(userGuilds.map(data => {
-                return this.updateUserOnGuild(user, data[1], data[0]);
+            await Promise.all(userData.map(data => {
+                return this.updateUserOnGuild(user, data.roles, data.nick, data.guild);
             }));
         } catch (e) {
             logUpdate("Failed to update roles for user %s (%s): %s", user.username, user.snowflake, e.message);
@@ -167,7 +167,7 @@ export default class Updater {
      * Recalculates all the roles for the specified user in the specified
      * Discord guild. Does nothing if the guild is not registered in the database.
      */
-    private async updateUserOnGuild(user: User, userRoles: string[], guildId: string) {
+    private async updateUserOnGuild(user: User, userRoles: string[], userNickname: string | null, guildId: string) {
         const server = await Server
             .query()
             .where("snowflake", guildId)

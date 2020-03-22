@@ -69,6 +69,12 @@ export default class Server extends Model {
     engagement_json: string;
 
     /**
+     * The pattern for nicknames that have to be assigned for this server. Empty
+     * if nicknames should not be assigned for this server.
+     */
+    nickname_pattern: string;
+
+    /**
      * Optionally eager-loaded blacklisted channels.
      */
     blacklisted_channels?: BlacklistedChannel[];

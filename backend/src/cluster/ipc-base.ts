@@ -25,6 +25,9 @@ export type IPCRequest = { isRequest: true } & ({
     id: number;
     action: "fetch-update"; // trigger an update for the specified user
     args: string; // snowflake
+} | {
+    action: "set-nickname"; // set the nickname of the specified user on the specified guild to the specified text, unless it already is that nick
+    args: string[]; // [guild id, user id, nickname]
 });
 
 /**

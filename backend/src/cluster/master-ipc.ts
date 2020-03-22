@@ -23,8 +23,12 @@ class MasterIPC extends IPCBase {
 
     protected async handleRequest(msg: IPCRequest) {
         if (msg.action === "search-user") {
-            // Return response in the format of [[snowflake, roles], [snowflake, roles]]
-            return this.client.bot.guilds.filter(x => x.members.has(msg.args)).map(x => [x.id, x.members.get(msg.args)!.roles]);
+            // Return response in the appropriate format.
+            return this.client.bot.guilds.filter(x => x.members.has(msg.args)).map(x => ({
+                guild: x.id,
+                roles: x.members.get(msg.args)!.roles,
+                nick: x.members.get(msg.args)!.nick || null
+            }));
         } else if (msg.action === "add-role") {
             // Run it directly, ignoring any errors.
             return this.client.bot.addGuildMemberRole.apply(this.client.bot, msg.args).then(() => true, () => false);
@@ -38,7 +42,13 @@ class MasterIPC extends IPCBase {
             const role = await Role.query().where("id", msg.args[1]).first().eager("[conditions]");
             if (!user || !role) return;
 
-            this.client.announcePromotion(user, role, msg.args[2]).catch(e => { /* Ignored */ });
+            this.client.announcePromotion(user, role, msg.args[2]).catch(e => { /* Ignored */
+            });
+        } else if (msg.action === "set-nickname") {
+            this.client.bot.editGuildMember(msg.args[0], msg.args[1], {
+                nick: msg.args[2] || undefined
+            }, "Orianna - Updating nickname to match server pattern.").catch(e => { /* Ignored */
+            });
         } else {
             throw new Error("IPC operation not supported by master: " + msg.action);
         }

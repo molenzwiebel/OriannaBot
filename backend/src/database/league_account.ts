@@ -57,6 +57,12 @@ export default class LeagueAccount extends Model {
     tft_puuid: string;
 
     /**
+     * Whether this account is the primary account for the specified user.
+     * Primary accounts are used for automatic nicknaming, if enabled.
+     */
+    primary: boolean;
+
+    /**
      * Omit id and user_id from the JSON object.
      */
     $formatJson(json: Pojo) {
