@@ -123,6 +123,9 @@ export default class User extends Model {
         await this.$loadRelated("accounts");
         if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
 
+        // this is a primary account if this is the user's first account
+        const isPrimary = this.accounts!.length === 0;
+
         await this.$relatedQuery<LeagueAccount>("accounts").insert({
             username: lolSummoner.name,
             region: region,
@@ -131,7 +134,8 @@ export default class User extends Model {
             puuid: lolSummoner.puuid,
             tft_summoner_id: tftSummoner.id,
             tft_account_id: tftSummoner.accountId,
-            tft_puuid: tftSummoner.puuid
+            tft_puuid: tftSummoner.puuid,
+            primary: isPrimary
         });
     }
 

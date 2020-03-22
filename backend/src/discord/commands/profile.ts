@@ -1,3 +1,4 @@
+import LeagueAccount from "../../database/league_account";
 import { Command } from "../command";
 import { differenceInDays } from "date-fns";
 import { emote, expectUserWithAccounts } from "./util";
@@ -87,6 +88,7 @@ const ProfileCommand: Command = {
         if (!target.hide_accounts) {
             // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
             const sorted = target.accounts!.slice(0).sort((a, b) => a.region.localeCompare(b.region));
+            const formatAccount = (acc: LeagueAccount) => (acc.primary ? emote(ctx, "Primary_Account") + " " : "") + acc.region + "\u00a0-\u00a0" + acc.username;
 
             // Split up in columns if more than two, single field else.
             if (sorted.length > 1) {
@@ -98,17 +100,17 @@ const ProfileCommand: Command = {
 
                 fields.push({
                     name: t.command_profile_accounts,
-                    value: left.map(x => x.region + "\u00a0-\u00a0" + x.username).join("\n") + "\n" + emote(ctx, "__"),
+                    value: left.map(formatAccount).join("\n") + "\n" + emote(ctx, "__"),
                     inline: true
                 }, {
                     name: "\u200b", // renders as an empty title in discord
-                    value: right.map(x => x.region + "\u00a0-\u00a0" + x.username).join("\n") + "\n" + emote(ctx, "__"),
+                    value: right.map(formatAccount).join("\n") + "\n" + emote(ctx, "__"),
                     inline: true
                 })
             } else {
                 fields.push({
                     name: t.command_profile_account,
-                    value: sorted[0].region + "\u00a0-\u00a0" + sorted[0].username + "\n" + emote(ctx, "__"),
+                    value: formatAccount(sorted[0]) + emote(ctx, "__"),
                     inline: true
                 });
             }

@@ -46,7 +46,7 @@ class MasterIPC extends IPCBase {
             });
         } else if (msg.action === "set-nickname") {
             this.client.bot.editGuildMember(msg.args[0], msg.args[1], {
-                nick: msg.args[2] || undefined
+                nick: msg.args[2] || ""
             }, "Orianna - Updating nickname to match server pattern.").catch(e => { /* Ignored */
             });
         } else {

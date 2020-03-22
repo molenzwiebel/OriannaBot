@@ -24,6 +24,7 @@ export default class WebAPIClient {
         app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
+        app.post("/api/v1/user/accounts/primary", swallowErrors(this.setPrimaryAccount));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
 
         app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
@@ -198,6 +199,39 @@ export default class WebAPIClient {
     });
 
     /**
+     * Marks the specified account as the primary account for the current user.
+     */
+    private setPrimaryAccount = requireAuth(async (req: express.Request, res: express.Response) => {
+        await req.user.$loadRelated("accounts");
+
+        if (!this.validate({
+            account_id: Joi.any().valid(...req.user.accounts!.map(x => x.account_id)) // must be a valid account
+        }, req, res)) return;
+
+        // Un-primary any accounts that were previously primary.
+        for (const acc of req.user.accounts!) {
+            if (acc.primary) {
+                acc.primary = false;
+                await acc.$query().patch({
+                    primary: false
+                });
+            }
+        }
+
+        // Make the account primary.
+        const newPrimary = req.user.accounts!.find(x => x.account_id === req.body.account_id)!;
+        newPrimary.primary = true;
+        await newPrimary.$query().patch({
+            primary: false
+        });
+
+        // Run an update in the background.
+        ipc.fetchAndUpdateUser(req.user);
+
+        return res.json({ ok: true });
+    });
+
+    /**
      * Deletes the specified account from the user's profile.
      */
     private deleteUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
@@ -212,6 +246,19 @@ export default class WebAPIClient {
         if (!toDelete) return res.status(400).json(null);
 
         await toDelete.$query().delete();
+
+        // If this was the primary account, and we have other accounts, mark a random other account as primary.
+        if (toDelete.primary) {
+            toDelete.primary = false;
+
+            const newPrimary = req.user.accounts!.find(x => x.id !== toDelete.id && !x.primary);
+            if (newPrimary) {
+                newPrimary.primary = true;
+                await newPrimary.$query().patch({
+                    primary: true
+                });
+            }
+        }
 
         // Don't await so we can return without doing this.
         // TODO: Maybe instead of updating now just put it in the queue?

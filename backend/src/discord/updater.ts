@@ -175,7 +175,7 @@ export default class Updater {
             .first();
         if (!server) return;
 
-        logUpdate("Updating roles for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
+        logUpdate("Updating roles and nickname for user %s (%s) on guild %s (%s)", user.username, user.snowflake, server.name, server.snowflake);
 
         // Compute all roles that this server may assign, then compute all roles that the user should have.
         // Subtract those two sets to figure out which roles the user should and shouldn't have, then make
@@ -210,6 +210,25 @@ export default class Updater {
                     // Prevents us from announcing promotions if we didn't actually assign the role.
                     this.ipc.announcePromotion(user, dbRole, guildId);
                 }).catch(() => { /* Ignored */ });
+            }
+        }
+
+        // Update the user nickname if the server has one and the user has a primary account.
+        const primaryAccount = user.accounts!.find(x => x.primary);
+        if (primaryAccount && server.nickname_pattern) {
+            const targetNick = server.nickname_pattern
+                .replace("{region}", primaryAccount.region)
+                .replace("{username}", primaryAccount.username)
+                .slice(0, 32);
+            logUpdate("Setting the nickname of %s (%s) to %s", user.username, user.snowflake, targetNick);
+
+            if (userNickname !== targetNick) {
+                this.ipc.setNickname(guildId, user, targetNick);
+            }
+        } else if (!primaryAccount && server.nickname_pattern) {
+            // Reset the nick for this user as they have no primary account but the server mandates one.
+            if (userNickname) {
+                this.ipc.setNickname(guildId, user, "");
             }
         }
     }
