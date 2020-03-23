@@ -63,6 +63,18 @@ export default class LeagueAccount extends Model {
     primary: boolean;
 
     /**
+     * Whether this account should be included in the profile overview
+     * for the user.
+     */
+    show_in_profile: boolean;
+
+    /**
+     * Whether this account should be included in any region-based role
+     * condition computation.
+     */
+    include_region: boolean;
+
+    /**
      * Omit id and user_id from the JSON object.
      */
     $formatJson(json: Pojo) {

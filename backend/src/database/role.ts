@@ -165,7 +165,7 @@ export class RoleCondition extends Model {
             return evaluateRankedTier(condition, tier);
         } else if (condition.type === "server") {
             // Check if we have an account in the specified region.
-            return user.accounts.some(x => x.region === condition.options.region);
+            return user.accounts.filter(x => x.include_region).some(x => x.region === condition.options.region);
         } else {
             throw new Error("Invalid RoleCondition type.");
         }

@@ -84,10 +84,11 @@ const ProfileCommand: Command = {
             inline: true
         }];
 
-        // Only add accounts if the user has not toggled them off.
-        if (!target.hide_accounts) {
+        // Only show the accounts section if the user has at least one visible account.
+        const visibleAccounts = target.accounts!.filter(x => x.show_in_profile);
+        if (visibleAccounts.length) {
             // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
-            const sorted = target.accounts!.slice(0).sort((a, b) => a.region.localeCompare(b.region));
+            const sorted = visibleAccounts.slice(0).sort((a, b) => a.region.localeCompare(b.region));
             const formatAccount = (acc: LeagueAccount) => (acc.primary ? emote(ctx, "Primary_Account") + " " : "") + acc.region + "\u00a0-\u00a0" + acc.username;
 
             // Split up in columns if more than two, single field else.

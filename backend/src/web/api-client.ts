@@ -24,7 +24,7 @@ export default class WebAPIClient {
         app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
-        app.post("/api/v1/user/accounts/primary", swallowErrors(this.setPrimaryAccount));
+        app.patch("/api/v1/user/account/:accountId", swallowErrors(this.updateAccountSettings));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
 
         app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
@@ -97,16 +97,9 @@ export default class WebAPIClient {
      */
     private patchUserProfile = requireAuth(async (req: express.Request, res: express.Response) => {
         if (!this.validate({
-            hide_accounts: Joi.bool().optional(),
             treat_as_unranked: Joi.bool().optional(),
             language: Joi.any().valid("", ...getI18nLanguages().map(x => x.code)).optional()
         }, req, res)) return;
-
-        if (typeof req.body.hide_accounts !== "undefined") {
-            await req.user.$query().patch({
-                hide_accounts: req.body.hide_accounts
-            });
-        }
 
         if (typeof req.body.treat_as_unranked !== "undefined") {
             await req.user.$query().patch({
@@ -199,31 +192,45 @@ export default class WebAPIClient {
     });
 
     /**
-     * Marks the specified account as the primary account for the current user.
+     * Updates various settings for the specified account, such as if it is primary and if it should be included in profile.
      */
-    private setPrimaryAccount = requireAuth(async (req: express.Request, res: express.Response) => {
+    private updateAccountSettings = requireAuth(async (req: express.Request, res: express.Response) => {
         await req.user.$loadRelated("accounts");
 
+        const target = req.user.accounts!.find(x => x.account_id === req.params.accountId);
+        if (!target) return res.status(404).json({ ok: false, error: "Unknown account" });
+
         if (!this.validate({
-            account_id: Joi.any().valid(...req.user.accounts!.map(x => x.account_id)) // must be a valid account
+            primary: Joi.bool().optional(),
+            show_in_profile: Joi.bool().optional(),
+            include_region: Joi.bool().optional()
         }, req, res)) return;
 
-        // Un-primary any accounts that were previously primary.
-        for (const acc of req.user.accounts!) {
-            if (acc.primary) {
-                acc.primary = false;
-                await acc.$query().patch({
-                    primary: false
-                });
+        // Update the primary if it is toggled to true. We don't handle toggling to false.
+        if (typeof req.body.primary !== "undefined" && req.body.primary) {
+            // Un-primary any accounts that were previously primary.
+            for (const acc of req.user.accounts!) {
+                if (acc.primary) {
+                    acc.primary = false;
+                    await acc.$query().patch({
+                        primary: false
+                    });
+                }
             }
+
+            // Make the account primary.
+            target.primary = true;
+            await target.$query().patch({
+                primary: true
+            });
         }
 
-        // Make the account primary.
-        const newPrimary = req.user.accounts!.find(x => x.account_id === req.body.account_id)!;
-        newPrimary.primary = true;
-        await newPrimary.$query().patch({
-            primary: false
-        });
+        // Update other settings as appropriate.
+        if (typeof req.body.show_in_profile !== "undefined" || typeof req.body.include_region !== "undefined") {
+            delete req.body.primary;
+
+            await target.$query().patch(req.body);
+        }
 
         // Run an update in the background.
         ipc.fetchAndUpdateUser(req.user);
@@ -319,6 +326,9 @@ export default class WebAPIClient {
 
             // Language must be a valid language.
             language: Joi.any().valid(getI18nLanguages().map(x => x.code)).optional(),
+
+            // Nickname pattern must be a string
+            nickname_pattern: Joi.string().allow("").optional(),
 
             // Engagement mode. Must match one of the patterns.
             engagement: Joi.alt([

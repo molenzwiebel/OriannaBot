@@ -68,6 +68,8 @@ export default class User extends Model {
 
     /**
      * If the accounts for this user should not be publicly shown.
+     *
+     * @deprecated No longer used. The individual toggles on accounts should be used instead.
      */
     hide_accounts: boolean;
 
@@ -135,7 +137,9 @@ export default class User extends Model {
             tft_summoner_id: tftSummoner.id,
             tft_account_id: tftSummoner.accountId,
             tft_puuid: tftSummoner.puuid,
-            primary: isPrimary
+            primary: isPrimary,
+            show_in_profile: true,
+            include_region: true
         });
     }
 
