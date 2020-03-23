@@ -10,6 +10,9 @@ interface UserAccount {
     region: string;
     account_id: string;
     summoner_id: string;
+    primary: boolean;
+    show_in_profile: boolean;
+    include_region: boolean;
 }
 
 interface UserDetails {
@@ -17,7 +20,6 @@ interface UserDetails {
     username: string;
     avatar: string;
     accounts: UserAccount[];
-    hide_accounts: boolean;
     treat_as_unranked: boolean;
     language: string | "";
     guilds: {
@@ -93,7 +95,6 @@ export default class UserProfile extends Vue {
      */
     updatePrivacySettings() {
         this.$root.submit("/api/v1/user", "PATCH", {
-            hide_accounts: this.user.hide_accounts,
             treat_as_unranked: this.user.treat_as_unranked
         });
     }
@@ -107,6 +108,25 @@ export default class UserProfile extends Vue {
         this.user.language = val;
         this.$root.submit("/api/v1/user", "PATCH", {
             language: val
+        });
+    }
+
+    async handlePrimarySet(acc: UserAccount) {
+        if (acc.primary) return;
+
+        for (const account of this.user.accounts) {
+            account.primary = acc === account;
+        }
+
+        this.$root.submit("/api/v1/user/account/" + acc.account_id, "PATCH", {
+            primary: true
+        });
+    }
+
+    async handlePrivacyUpdate(acc: UserAccount) {
+        this.$root.submit("/api/v1/user/account/" + acc.account_id, "PATCH", {
+            show_in_profile: acc.show_in_profile,
+            include_region: acc.include_region
         });
     }
 }

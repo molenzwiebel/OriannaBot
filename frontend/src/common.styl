@@ -79,6 +79,10 @@ input[type=text], input[type=number], input[type=date], select, textarea
     font-family Roboto
     transition border-color 0.2s ease
 
+    &:disabled
+        background #dfdfdf
+        cursor not-allowed
+
     &::-webkit-input-placeholder
         color #c7c7c7
         font-family Roboto
