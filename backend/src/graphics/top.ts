@@ -173,7 +173,7 @@ export async function generateChampionTopGraphic(t: Translator, options: TopGrap
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.fillStyle = "rgb(52,54,60)";
+    ctx.fillStyle = "rgb(47,49,54)";
     ctx.fill();
     ctx.restore();
     ctx.save();
@@ -437,7 +437,7 @@ export async function generateGlobalTopGraphic(t: Translator, options: TopGraphi
     ctx.lineTo(0, 300);
     ctx.closePath();
     ctx.clip();
-    ctx.fillStyle = "rgb(52,54,60)";
+    ctx.fillStyle = "rgb(47,49,54)";
     ctx.fill();
     ctx.restore();
     ctx.save();
