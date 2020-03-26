@@ -8,7 +8,7 @@
             <v-text-field v-model="metadata.name" label="Language Name"
                           hint="The name of your language, in your local tongue (for example Deutsch)."
                           persistent-hint/>
-            <v-text-field v-model="metadata.code" label="Language Code" hint="The BCP 49 code for your language (en, fr, de, kr, etc...)."
+            <v-text-field v-model="metadata.code" label="Language Code" hint="The BCP 47 code for your language (en, fr, de, kr, etc...)."
                           persistent-hint/>
             <v-select v-model="metadata.ddragonLanguage" :items="ddragonLanguages" label="Static Data Language"
                             hint="The language that should be used for champion names." persistent-hint/>
