@@ -117,6 +117,14 @@ const ProfileCommand: Command = {
             }
         }
 
+        // TFT-only accounts don't have mastery, so don't attempt to generate an image.
+        if (!topMastery.length) {
+            return info({
+                title: t.command_profile_title({ name: formatName(target) }),
+                fields
+            });
+        }
+
         // Render a neat bar chart with the top 8 champions.
         const colors: { [key: string]: string } = {
             Mage: "#6cace2",
