@@ -195,7 +195,15 @@ export function emote(ctx: CommandContext, name: string | riot.Champion) {
  * Returns the "raw" emote name for the specified name, which can be used to react to a message.
  */
 export function rawEmote({ bot }: CommandContext, name: string | riot.Champion) {
-    if (typeof name !== "string") name = name.name.replace(/\W/g, "");
+    if (typeof name !== "string") {
+        // We have to translate to english as the emotes are in english.
+        const en = getTranslator("en-US");
+        if (!en.staticData.lazyLoad()) {
+            name = "Missing_Champion";
+        } else {
+            name = en.staticData.championByInternalNameSync(name.id).name.replace(/\W/g, "");
+        }
+    }
 
     const servers = config.discord.emoteServers.map(x => bot.guilds.get(x)!).filter(x => !!x);
     const allEmotes = (<eris.Emoji[]>[]).concat(...servers.map(x => x.emojis));

@@ -142,6 +142,14 @@ export default class StaticData {
     }
 
     /**
+     * Returns whether the current data is loaded. If it is, returns true.
+     * If it is not, schedules the load and returns false.
+     */
+    public lazyLoad() {
+        return !!this.data;
+    }
+
+    /**
      * Finds the champion with the specified name.
      */
     public async championByName(name: string) {
@@ -154,6 +162,14 @@ export default class StaticData {
      */
     public async championByInternalName(name: string) {
         await this.dataPromise;
+        return this.data.find(x => x.id === name)!;
+    }
+
+    /**
+     * Synchronous version of championByInternalName that does not wait for data.
+     * This will crash if data has not yet been loaded.
+     */
+    public championByInternalNameSync(name: string) {
         return this.data.find(x => x.id === name)!;
     }
 
