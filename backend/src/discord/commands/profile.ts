@@ -53,7 +53,7 @@ const ProfileCommand: Command = {
             return t.time_ago_days_ago({ days: diff });
         };
 
-        const fields: { name: string, value: string, inline: boolean }[] = [{
+        let fields: { name: string, value: string, inline: boolean }[] = [{
             name: t.command_profile_top_champions,
             value: (await Promise.all(topMastery.slice(0, 3).map(async x =>
                 `${await champ(x)}\u00a0-\u00a0**${amount(x)}**`
@@ -83,6 +83,11 @@ const ProfileCommand: Command = {
             ].join("\n") + "\n" + emote(ctx, "__"),
             inline: true
         }];
+
+        // If the user has no mastery, just show ranked tiers.
+        if (!topMastery.length) {
+            fields = fields.slice(3);
+        }
 
         // Only show the accounts section if the user has at least one visible account.
         const visibleAccounts = target.accounts!.filter(x => x.show_in_profile);
