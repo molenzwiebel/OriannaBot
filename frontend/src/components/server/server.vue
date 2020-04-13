@@ -110,7 +110,7 @@
         </div>
 
         <div class="box">
-            <div class="header"><h2>Roles</h2></div>
+            <div class="header"><h2>Assign Rules</h2></div>
 
             <div v-if="server.roles.length">
                 <role-conditions
@@ -127,7 +127,7 @@
 
             <div class="no-roles" v-if="!server.roles.length">
                 <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
-                <p><b>There are no roles configured.</b> Add your own or import a preset below!</p>
+                <p><b>There are no rules configured.</b> Add your own or import a preset below!</p>
             </div>
 
             <div class="add-role">
@@ -139,7 +139,7 @@
                             :filter-by-query="true">
                     </vue-suggest>
 
-                    <a class="button" @click="addRole">Add Role</a>
+                    <a class="button" @click="addRole">Add Rule</a>
                 </div>
 
                 <a class="button" @click="openPresetsModal">Presets</a>

@@ -7,27 +7,44 @@
                 <i
                         class="ion-alert-circled"
                         v-if="!matchingDiscord"
-                        title="There is no Discord role linked with this role. Click 'Create Discord Role' to create and/or link the Discord role now. This role will not be assigned until it has an accompanying Discord role."
+                        title="There is no Discord role linked with this rule. Click 'Create Discord Role' to create and/or link the Discord role now. This role will not be assigned until it has an accompanying Discord role."
                         v-tippy>
                 </i>
 
                 <i
                         class="ion-alert-circled"
                         v-if="isBelowRole"
-                        title="Orianna Bot's highest role is below this role. Due to how Discord's permission system works, Orianna Bot can only assign roles below her role. Move this role down, or move Orianna Bot's role up, in order to assign this role."
+                        title="Orianna Bot's highest role is below this role. Due to how Discord's permission system works, Orianna Bot can only assign roles below her role. Move this role down (or move Orianna Bot's role up) in order to assign this role."
                         v-tippy>
                 </i>
 
                 <i
                         class="ion-clipboard"
                         v-if="dirty"
-                        title="This role has unsaved changes. Click here to save now."
+                        title="This rule has unsaved changes. Click here to save now."
                         @click="save"
                         v-tippy>
                 </i>
 
-                <span :style="'color: ' + color">{{ role.name }}</span>
-                <i v-if="expanded" class="ion-edit" title="Rename Role" v-tippy @click="renameRole"></i>
+                <!-- Show just the role if they are equal. -->
+                <span v-if="matchingDiscord && matchingDiscord.name === role.name" :style="'color: ' + color">
+                    {{ role.name }}
+                </span>
+
+                <!-- Else, show both role and what they are connected to. -->
+                <span v-else>
+                    <span v-tippy title="The name of this Orianna rule.">
+                        {{ role.name }}
+                    </span>
+                    <span class="ion-link" />
+                    <span :style="'color: ' + color" v-if="matchingDiscord" v-tippy title="The Discord role this rule is attached to.">
+                        {{ matchingDiscord.name }}
+                    </span>
+                    <span v-else>
+                        <em>Not Connected</em>
+                    </span>
+                </span>
+                <i v-if="expanded" class="ion-edit" title="Rename Rule" v-tippy @click="renameRole"></i>
             </div>
 
             <div>
@@ -45,7 +62,7 @@
             </div>
 
             <div class="no-conditions" v-if="!conditions.length">
-                <b>This role has no conditions.</b> It will not be assigned to anyone until you add some conditions. <a href="#" @click.prevent="addCondition">Add a condition?</a>
+                <b>This rule has no conditions.</b> It will not be assigned to anyone until you add some conditions. <a href="#" @click.prevent="addCondition">Add a condition?</a>
             </div>
 
             <div class="conditions" v-else>
@@ -58,7 +75,7 @@
             <span class="body-header">Settings</span>
             <div class="settings">
                 <label><input type="checkbox" v-model="role.announce" @change="(dirty = true, $emit('dirty'))"> <b>Announce Promotions</b></label>
-                <p>If this is checked, a promotion message will be sent in the configured announcement channel whenever a member receives the roles. Use this if you'd like to announce milestones.</p>
+                <p>If this is checked, a promotion message will be sent in the configured announcement channel whenever a member receives the role. Use this if you'd like to announce milestones.</p>
             </div>
         </div>
     </div>
