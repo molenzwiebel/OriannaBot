@@ -19,6 +19,8 @@ import LinkDocs from "./components/docs/link.vue";
 import SetupDocs from "./components/docs/setup.vue";
 import ConditionDocs from "./components/docs/conditions.vue";
 
+import Privacy from "./components/privacy/privacy.vue";
+
 import ServerIntro from "./components/server-intro/server-intro.vue";
 import IntroMains from "./components/server-intro/intro-mains.vue";
 import IntroGeneric from "./components/server-intro/intro-generic.vue";
@@ -48,6 +50,8 @@ const router = new VueRouter({
         { path: "/docs/link", component: LinkDocs },
         { path: "/docs/setup", component: SetupDocs },
         { path: "/docs/conditions", component: ConditionDocs },
+
+        { path: "/privacy", component: Privacy },
 
         { path: "/invite", beforeEnter: () => location.href = API_HOST + "/api/v1/discord-invite" },
         { path: "/me", component: UserProfile },

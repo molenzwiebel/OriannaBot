@@ -59,8 +59,11 @@
 
         <div class="about">
             <span>
-                Orianna <a :href="gitCommitUrl">v{{ gitCommit }}</a> -
+                Orianna <a :href="gitCommitUrl">v{{ gitCommit }}</a>
+            </span>
+            <span>
                 <span style="border-bottom: 1px dashed lightgray" title="Orianna Bot isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc." v-tippy="{ 'arrow': true, animation: 'shift-away' }">Legal</span>
+                - <router-link to="/privacy">Privacy</router-link>
             </span>
             <span>Made with <span style="color: red">♥</span> by molenzwiebel</span>
         </div>
