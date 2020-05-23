@@ -163,11 +163,12 @@ export default class WebAPIClient {
      */
     private addUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
         if (!this.validate({
-            code: Joi.any().valid(...this.summoners.keys()) // must be a valid code
+            code: Joi.string().required() // must be a valid code
         }, req, res)) return;
 
         // Make sure that the code is valid.
-        const summoner = this.summoners.get(req.body.code)!;
+        const summoner = this.summoners.get(req.body.code);
+        if (!summoner) return res.status(400).json({ ok: false, error: "Invalid code." });
         if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, "" + summoner.id, req.body.code)) return res.json({ ok: false });
 
         // Check if this account has been taken by someone else already.
