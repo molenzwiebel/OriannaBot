@@ -64,12 +64,13 @@ export async function expectModerator({ msg, error, guild, t }: CommandContext):
  * If none of those are matched, sends a message and returns undefined instead.
  */
 export async function expectChampion({ content, guild, server, error, t }: CommandContext): Promise<riot.Champion | undefined> {
-    const match = await t.staticData.findChampion(content);
-    if (match) return match;
-
-    // Fall back to english for other languages, to prevent _some_ confusion.
+    // Prioritize english champion matches over native language.
     const englishMatch = await getTranslator("en-US").staticData.findChampion(content);
     if (englishMatch) return await t.staticData.championById(englishMatch.key);
+
+    // Then, check the native language.
+    const match = await t.staticData.findChampion(content);
+    if (match) return match;
 
     if (guild) {
         const serverDefault = (await server()).default_champion;

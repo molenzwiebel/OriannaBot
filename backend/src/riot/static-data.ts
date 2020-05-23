@@ -115,12 +115,12 @@ export default class StaticData {
      * null if no champion could be find, returns the champion otherwise.
      */
     public async findChampion(content: string) {
-        const normalized = content.toLowerCase().replace(/\W/g, "");
+        const normalized = content.toLowerCase().replace(/['`\s".&]/g, "");
 
         // Try normal names first.
         const valid = [];
         for (const champ of this.data) {
-            if (normalized.includes(champ.name.toLowerCase().replace(/\W/g, ""))) {
+            if (normalized.includes(champ.name.toLowerCase().replace(/['`\s".&]/g, ""))) {
                 valid.push(champ);
             }
         }
