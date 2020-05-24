@@ -136,7 +136,7 @@ const TopCommand: Command = {
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly}`, async () => genFunction(
+            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly ? guild.id : "false"}`, async () => genFunction(
                 t, {
                 champion: champ,
                 title: champ
