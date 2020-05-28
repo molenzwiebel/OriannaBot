@@ -19,7 +19,7 @@ export default function register(app: express.Application, client: DiscordClient
     const redirectUrl = config.web.url + "/api/v1/discord-invite/callback";
 
     app.get("/api/v1/discord-invite", (req, res) => {
-        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${config.discord.clientId}&permissions=8&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=code&scope=identify%20bot`);
+        res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${config.discord.clientId}&permissions=8&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=code&scope=identify%20bot`);
     });
 
     app.get("/api/v1/discord-invite/callback", async (req, res) => {
@@ -27,17 +27,18 @@ export default function register(app: express.Application, client: DiscordClient
 
         try {
             // Ask for an access token.
-            const tokenReq = await fetch(`https://discordapp.com/api/oauth2/token?grant_type=authorization_code&code=${req.query.code}&redirect_uri=${redirectUrl}` ,{
+            const tokenReq = await fetch(`https://discord.com/api/oauth2/token` ,{
                 method: "POST",
                 headers: {
-                    Authorization: "Basic " + Buffer.from(config.discord.clientId + ":" + config.discord.clientSecret).toString("base64")
-                }
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `client_id=${config.discord.clientId}&client_secret=${config.discord.clientSecret}&grant_type=authorization_code&code=${req.query.code}&redirect_uri=${encodeURIComponent(redirectUrl)}`
             });
             const tokenRes: DiscordAuthToken = await tokenReq.json();
             if (!tokenRes.access_token) throw new Error("Missing access token.");
 
             // Ask discord for our username (or more importantly, our ID).
-            const meReq = await fetch("https://discordapp.com/api/users/@me", {
+            const meReq = await fetch("https://discord.com/api/users/@me", {
                 headers: {
                     Authorization: "Bearer " + tokenRes.access_token
                 }
