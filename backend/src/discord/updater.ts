@@ -82,6 +82,7 @@ export default class Updater {
      * or whenever the role configuration for a specific server is updated.
      */
     public async updateUser(user: User) {
+        if (user.ignore) return;
         logUpdate("Updating roles for user %s (%s)", user.username, user.snowflake);
 
         // Load data if not already loaded.

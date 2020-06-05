@@ -74,6 +74,12 @@ export default class User extends Model {
     hide_accounts: boolean;
 
     /**
+     * Whether or not this user should be ignored completely. Ignored users
+     * don't receive any roles, even on a manual refresh.
+     */
+    ignore: boolean;
+
+    /**
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
     accounts?: LeagueAccount[];
