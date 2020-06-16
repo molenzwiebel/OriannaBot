@@ -5,6 +5,7 @@
         "alwaysStrict": true,
         "resolveJsonModule": true,
         "experimentalDecorators": true,
+        "sourceMap": true,
         "outDir": "dist",
         "module": "commonjs",
         "target": "es2017",

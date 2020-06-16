@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "callsites": "^3.1.0",
     "canvas": "^2.5.0",
     "canvg": "^2.0.0",
     "cookie-parser": "^1.4.3",
@@ -37,6 +38,7 @@
     "puppeteer": "1.3.0",
     "randomstring": "^1.1.5",
     "snoowrap": "^1.15.2",
+    "source-map-support": "^0.5.19",
     "sqlite3": "^4.0.6",
     "teemojs": "1.3.4",
     "xmldom": "^0.1.27"
@@ -58,6 +60,7 @@
     "@types/puppeteer": "^1.3.0",
     "@types/randomstring": "^1.1.6",
     "@types/request": "^2.48.3",
+    "@types/source-map-support": "^0.5.1",
     "typescript": "3"
   }
 }

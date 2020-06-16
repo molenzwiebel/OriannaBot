@@ -1,5 +1,9 @@
 import { ConnectionConfig } from "knex";
 import { Translator } from "./i18n";
+import callsites from "callsites";
+import { wrapCallSite } from "source-map-support";
+import * as path from "path";
+import debug = require("debug");
 
 interface Configuration {
     riot: {
@@ -50,7 +54,22 @@ interface Configuration {
     db: ConnectionConfig;
     ffmpeg: string;
     dblToken: string;
+    traceLogLines: boolean;
 }
 
 const config: Configuration = require("../config.json");
 export default config;
+
+if (config.traceLogLines) {
+    const orig = (debug as any).formatArgs;
+    (debug as any).formatArgs = function (args: any) {
+        const callsite = callsites();
+        const relevantCallsite = wrapCallSite(callsite[2]);
+        const relativePath = path.relative(path.join(__dirname, ".."), relevantCallsite.getFileName()).replace(/\\/g, "/");
+
+        args[0] = `${relativePath}:${relevantCallsite.getLineNumber()} - ${args[0]}`;
+
+        // call original implementation
+        orig.call(this, args);
+    };
+}
