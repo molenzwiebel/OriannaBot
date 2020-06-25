@@ -1,18 +1,18 @@
+import * as DBL from "dblapi.js";
 import * as eris from "eris"
-import debug = require("debug");
+import { Commit, getLastCommit } from "git-last-commit";
+import * as ipc from "../cluster/master-ipc";
 import config from "../config";
-import randomstring = require("randomstring");
+import { BlacklistedChannel, Role, Server, User } from "../database";
+import elastic from "../elastic";
+import generatePromotionGraphic from "../graphics/promotion";
+import getTranslator, { Translator } from "../i18n";
+import RiotAPI from "../riot/api";
+import formatName from "../util/format-name";
 import { Command, ResponseContext } from "./command";
 import Response, { ResponseOptions } from "./response";
-import { Server, User, BlacklistedChannel, Role } from "../database";
-import RiotAPI from "../riot/api";
-import PuppeteerController from "../puppeteer";
-import elastic from "../elastic";
-import * as DBL from "dblapi.js";
-import { Commit, getLastCommit } from "git-last-commit";
-import formatName from "../util/format-name";
-import * as ipc from "../cluster/master-ipc";
-import getTranslator, { Translator } from "../i18n";
+import debug = require("debug");
+import randomstring = require("randomstring");
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -48,7 +48,7 @@ export default class DiscordClient {
     private statusIndex = 0;
     private presenceTimeouts = new Map<string, number>();
 
-    constructor(public readonly riotAPI: RiotAPI, public readonly puppeteer: PuppeteerController) {
+    constructor(public readonly riotAPI: RiotAPI) {
         if (config.dblToken) {
             const dbl = new DBL(config.dblToken, this.bot);
 
@@ -174,7 +174,10 @@ export default class DiscordClient {
             color: 0x0a96de,
             title: t.command_help_title,
             description: t.command_help_description,
-            fields: commands.map((x, i) => ({ name: (i + 1) + " - " + x.name, value: <string>t[x.smallDescriptionKey] }))
+            fields: commands.map((x, i) => ({
+                name: (i + 1) + " - " + x.name,
+                value: <string>t[x.smallDescriptionKey]
+            }))
         };
 
         const resp = await this.createResponse(channel, user, trigger).respond(index);
@@ -212,6 +215,81 @@ export default class DiscordClient {
 
         await resp.option("🗑", () => {
             resp.remove();
+        });
+    }
+
+    /**
+     * Creates a new ResponseContext for the specified user and channel, and optionally the trigger message.
+     */
+    public createResponseContext(t: Translator, channel: eris.Textable, user: eris.User, msg?: eris.Message): ResponseContext {
+        return {
+            ok: embed => this.createResponse(channel, user, msg).respond({ color: 0x49bd1a, ...embed }),
+            info: embed => this.createResponse(channel, user, msg).respond({ color: 0x0a96de, ...embed }),
+            error: embed => this.createResponse(channel, user, msg).respond({ color: 0xfd5c5c, ...embed }),
+            respond: embed => this.createResponse(channel, user, msg).respond(embed),
+            listen: (timeout = 30000) => {
+                return Promise.race([new Promise<eris.Message>(resolve => {
+                    const fn = (msg: eris.Message) => {
+                        if (msg.channel !== channel) return;
+                        if (msg.author.id !== user.id) return;
+
+                        resolve(msg);
+                        this.bot.removeListener("messageCreate", fn);
+                    };
+
+                    this.bot.on("messageCreate", fn);
+                }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
+            },
+            t
+        };
+    }
+
+    /**
+     * Announces promotion for the specified user and the specified role on the
+     * specified guild, if enabled.
+     */
+    public async announcePromotion(user: User, role: Role, guildId: string) {
+        const guild = this.bot.guilds.get(guildId);
+        if (!guild) return;
+
+        // Find announcement channel ID.
+        const server = await Server.query().where("id", role.server_id).first();
+        if (!server) return;
+
+        const announceChannelId = server.announcement_channel;
+        if (!announceChannelId) return;
+
+        // Ensure that that channel exists.
+        const announceChannel = guild.channels.get(announceChannelId);
+        if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
+
+        // Get a translator. Note that we ignore the users preferred language here.
+        const t = getTranslator(server.language);
+
+        // Figure out what images to show for the promotion.
+        const champion = role.findChampionFor(user);
+
+        // Enqueue rendering of the gif.
+        const image = await generatePromotionGraphic({
+            name: user.username,
+            title: role.name,
+            icon: user.avatarURL,
+            champion: champion ? await t.staticData.getChampionIcon(champion) : undefined,
+            background: champion ? await t.staticData.getRandomCenteredSplash(champion) : undefined
+        });
+
+        // Send image!
+        announceChannel.createMessage({
+            embed: {
+                color: 0x49bd1a,
+                timestamp: new Date().toISOString(),
+                image: { url: "attachment://promotion.gif" },
+                author: {
+                    name: t.promotion_title({ username: formatName(user, true), role: role.name }),
+                    icon_url: user.avatarURL
+                }
+            }
+        }, { file: image, name: "promotion.gif" }).catch(() => { /* We don't care. */
         });
     }
 
@@ -459,7 +537,7 @@ export default class DiscordClient {
                 name: guild.name,
                 avatar: guild.icon || "none"
             })
-        .execute();
+            .execute();
     };
 
     /**
@@ -473,7 +551,7 @@ export default class DiscordClient {
                 username: user.username,
                 avatar: user.avatar || "none"
             })
-        .execute();
+            .execute();
     };
 
     /**
@@ -585,32 +663,6 @@ export default class DiscordClient {
     }
 
     /**
-     * Creates a new ResponseContext for the specified user and channel, and optionally the trigger message.
-     */
-    public createResponseContext(t: Translator, channel: eris.Textable, user: eris.User, msg?: eris.Message): ResponseContext {
-        return {
-            ok: embed => this.createResponse(channel, user, msg).respond({ color: 0x49bd1a, ...embed }),
-            info: embed => this.createResponse(channel, user, msg).respond({ color: 0x0a96de, ...embed }),
-            error: embed => this.createResponse(channel, user, msg).respond({ color: 0xfd5c5c, ...embed }),
-            respond: embed => this.createResponse(channel, user, msg).respond(embed),
-            listen: (timeout = 30000) => {
-                return Promise.race([new Promise<eris.Message>(resolve => {
-                    const fn = (msg: eris.Message) => {
-                        if (msg.channel !== channel) return;
-                        if (msg.author.id !== user.id) return;
-
-                        resolve(msg);
-                        this.bot.removeListener("messageCreate", fn);
-                    };
-
-                    this.bot.on("messageCreate", fn);
-                }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
-            },
-            t
-        };
-    }
-
-    /**
      * Returns the relevant translator for the specified user, possibly in the specified guild.
      * Precedence is user language > guild language > en-US.
      */
@@ -644,8 +696,8 @@ export default class DiscordClient {
 
         const intro =
             server.engagement.type === "on_command" ? t.first_use_intro_on_command
-            : server.engagement.type === "on_join" ? t.first_use_intro_on_join({ server: server.name })
-            : t.first_use_intro_on_react({ server: server.name });
+                : server.engagement.type === "on_join" ? t.first_use_intro_on_join({ server: server.name })
+                : t.first_use_intro_on_react({ server: server.name });
 
         await this.notify(discordUser.id, {
             title: t.first_use_title({ username: discordUser.username }),
@@ -656,64 +708,5 @@ export default class DiscordClient {
             thumbnail: "https://ddragon.leagueoflegends.com/cdn/7.7.1/img/champion/Orianna.png",
             footer: "Orianna Bot v2"
         });
-    }
-
-    /**
-      * Announces promotion for the specified user and the specified role on the
-      * specified guild, if enabled.
-      */
-    public async announcePromotion(user: User, role: Role, guildId: string) {
-        const guild = this.bot.guilds.get(guildId);
-        if (!guild) return;
-
-        // Find announcement channel ID.
-        const server = await Server.query().where("id", role.server_id).first();
-        if (!server) return;
-
-        const announceChannelId = server.announcement_channel;
-        if (!announceChannelId) return;
-
-        // Ensure that that channel exists.
-        const announceChannel = guild.channels.get(announceChannelId);
-        if (!announceChannel || !(announceChannel instanceof eris.TextChannel)) return;
-
-        // Get a translator. Note that we ignore the users preferred language here.
-        const t = getTranslator(server.language);
-
-        // Figure out what images to show for the promotion.
-        const champion = role.findChampionFor(user);
-        const championIcon = champion ? await t.staticData.getChampionIcon(champion) : "https://i.imgur.com/uW9gZWO.png";
-        const championBg = champion ? await t.staticData.getRandomCenteredSplash(champion) : "https://i.imgur.com/XVKpmRV.png";
-
-        // Enqueue rendering of the gif.
-        const image = await this.puppeteer.render("./graphics/promotion.html", {
-            gif: {
-                width: 800,
-                height: 220,
-                length: 2.4,
-                fpsScale: 1.4
-            },
-            timeout: 10000,
-            args: {
-                name: user.username,
-                title: role.name,
-                icon: user.avatarURL,
-                champion: championIcon,
-                background: championBg
-            }
-        });
-
-        // Send image!
-        announceChannel.createMessage({
-            embed: {
-                color: 0x49bd1a,
-                timestamp: new Date().toISOString(),
-                image: { url: "attachment://promotion.gif" },
-                author: {
-                    name: t.promotion_title({ username: formatName(user, true), role: role.name }),
-                    icon_url: user.avatarURL
-                }
-            }
-        }, { file: image, name: "promotion.gif" }).catch(() => { /* We don't care. */ });
     }
 }

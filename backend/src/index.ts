@@ -22,7 +22,6 @@ import createApplication from "./web/web";
 
 import config from "./config";
 import RiotAPI from "./riot/api";
-import PuppeteerController from "./puppeteer";
 import DiscordClient from "./discord/client";
 import Updater from "./discord/updater";
 
@@ -43,10 +42,7 @@ process.on("unhandledRejection", (err: Error) => {
         // Give the master process 10% of our rate limits.
         const riotAPI = new RiotAPI(config.riot.lolApiKey, config.riot.tftApiKey, 0.1);
 
-        const puppeteer = new PuppeteerController();
-        await puppeteer.initialize();
-
-        const discord = new DiscordClient(riotAPI, puppeteer);
+        const discord = new DiscordClient(riotAPI);
         await discord.connect();
 
         // Fork update processes and register handlers for them.

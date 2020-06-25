@@ -10,11 +10,11 @@ let didRegisterFonts = false;
  */
 export function createCanvas(width: number, height: number): Canvas {
     if (!didRegisterFonts) {
-        registerFont("./assets/NotoSans-Regular.ttf", { family: "Noto Sans", weight: "500" });
-        registerFont("./assets/NotoSans-Bold.ttf", { family: "Noto Sans", weight: "700" });
-        registerFont("./assets/NotoSansCJKkr-Regular.otf", { family: "Noto Sans KR", weight: "500" });
-        registerFont("./assets/NotoSansCJKkr-Bold.otf", { family: "Noto Sans KR", weight: "700" });
-        registerFont("./assets/NotoSansSmall-Bold.ttf", { family: "Noto Sans Small", weight: "700" });
+        registerFont("./assets/fonts/NotoSans-Regular.ttf", { family: "Noto Sans", weight: "500" });
+        registerFont("./assets/fonts/NotoSans-Bold.ttf", { family: "Noto Sans", weight: "700" });
+        registerFont("./assets/fonts/NotoSansCJKkr-Regular.otf", { family: "Noto Sans KR", weight: "500" });
+        registerFont("./assets/fonts/NotoSansCJKkr-Bold.otf", { family: "Noto Sans KR", weight: "700" });
+        registerFont("./assets/fonts/NotoSansSmall-Bold.ttf", { family: "Noto Sans Small", weight: "700" });
 
         didRegisterFonts = true;
     }
