@@ -26,7 +26,7 @@ const DEFAULT_BACKGROUND = path.join(ASSETS_DIR, "./background.jpg");
 
 const NAME_FONTS = [
     path.join(ASSETS_DIR, "../fonts/BeaufortforLOL-Bold.ttf"),
-    path.join(ASSETS_DIR, "../fonts/NotoSansCJKKr-Bold.otf"),
+    path.join(ASSETS_DIR, "../fonts/NotoSansCJKkr-Bold.otf"),
     path.join(ASSETS_DIR, "../fonts/NotoColorEmoji.ttf"),
     path.join(ASSETS_DIR, "../fonts/NotoEmoji-Regular.ttf"),
     path.join(ASSETS_DIR, "../fonts/NotoSans-Bold.ttf")
@@ -34,7 +34,7 @@ const NAME_FONTS = [
 
 const TITLE_FONTS = [
     path.join(ASSETS_DIR, "../fonts/BeaufortforLOL-Regular.ttf"),
-    path.join(ASSETS_DIR, "../fonts/NotoSansCJKKr-Regular.otf"),
+    path.join(ASSETS_DIR, "../fonts/NotoSansCJKkr-Regular.otf"),
     path.join(ASSETS_DIR, "../fonts/NotoColorEmoji.ttf"),
     path.join(ASSETS_DIR, "../fonts/NotoEmoji-Regular.ttf"),
     path.join(ASSETS_DIR, "../fonts/NotoSans-Regular.ttf")
