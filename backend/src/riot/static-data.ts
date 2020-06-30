@@ -127,7 +127,10 @@ export default class StaticData {
 
         // If we had a valid full match, go for the longest name (to prevent Viktor from returning Vi for example).
         if (valid.length) {
-            return valid.sort((a, b) => b.name.length - a.name.length)[0];
+            // Give a bonus to names that appear standalone (prefer **Jax** progression over jax progres*sion*).
+            const computeValue = (x: string) => x.length + (new RegExp("\\b" + x + "\\b", "i").test(content) ? 1000 : 0);
+
+            return valid.sort((a, b) => computeValue(b.name) - computeValue(a.name))[0];
         }
 
         // If that doesn't work, try abbreviations.
