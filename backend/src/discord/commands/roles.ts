@@ -57,6 +57,7 @@ const RolesCommand: Command = {
 
         const formatCondition = async (cond: TypedRoleCondition): Promise<string> => {
             if (cond.type === "mastery_level") return t.command_roles_mastery_level({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
+            if (cond.type === "total_mastery_level") return t.command_roles_total_mastery_level({ range: formatRange(cond.options) });
             if (cond.type === "mastery_score") return t.command_roles_mastery_score({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
             if (cond.type === "total_mastery_score") return t.command_roles_total_mastery_score({ range: formatRange(cond.options) });
             if (cond.type === "ranked_tier") return t.command_roles_ranked_tier({ ranked: formatRanked(cond) });

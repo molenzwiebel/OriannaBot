@@ -28,6 +28,11 @@ export interface MasteryLevelCondition {
     }>;
 }
 
+export interface TotalMasteryLevelCondition {
+    type: "total_mastery_level";
+    options: RangeCondition<{}>;
+}
+
 export interface MasteryScoreCondition {
     type: "mastery_score";
     options: RangeCondition<{
@@ -58,6 +63,7 @@ export interface ServerCondition {
 
 export type TypedRoleCondition =
     MasteryLevelCondition
+    | TotalMasteryLevelCondition
     | MasteryScoreCondition
     | TotalMasteryScoreCondition
     | RankedTierCondition

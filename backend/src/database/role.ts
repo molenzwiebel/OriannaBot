@@ -135,6 +135,10 @@ export class RoleCondition extends Model {
             return user.stats.some(x =>
                 x.champion_id === condition.options.champion
                 && evaluateRangeCondition(condition.options, x.level));
+        } else if (condition.type === "total_mastery_level") {
+            // Sum total level, then evaluate the range condition.
+            const total = user.stats.reduce((p, c) => p + c.level, 0);
+            return evaluateRangeCondition(condition.options, total);
         } else if (condition.type === "mastery_score") {
             // Check if we have a stats entry for the specified champion that matches the range.
             return user.stats.some(x =>
@@ -167,6 +171,7 @@ export class RoleCondition extends Model {
             // Check if we have an account in the specified region.
             return user.accounts.filter(x => x.include_region).some(x => x.region === condition.options.region);
         } else {
+            ((x: never) => {})(condition); // ensure typescript infers all type coverage
             throw new Error("Invalid RoleCondition type.");
         }
     }
