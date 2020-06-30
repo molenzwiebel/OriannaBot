@@ -5,6 +5,7 @@
         <span>The player </span>
         <select v-model="state.type">
             <option value="mastery_level">has a mastery level of</option>
+            <option value="total_mastery_level">has a total mastery level of</option>
             <option value="mastery_score">has a mastery score of</option>
             <option value="total_mastery_score">has a total mastery score of</option>
             <option value="ranked_tier">has a ranked tier</option>
@@ -35,6 +36,25 @@
                 <masked-input :mask="numberMask" v-model="state.max" placeholder="5"></masked-input>
                 <span> on </span>
                 <champion-dropdown v-model="state.champion"></champion-dropdown>
+            </template>
+        </template>
+
+        <template v-if="state.type === 'total_mastery_level'">
+            <select v-model="state.compare_type">
+                <option value="at_least">at least</option>
+                <option value="at_most">at most</option>
+                <option value="between">between</option>
+                <option value="exactly">exactly</option>
+            </select>
+
+            <template v-if="state.compare_type === 'at_least' || state.compare_type === 'at_most' || state.compare_type === 'exactly'">
+                <masked-input :mask="numberMask" v-model="state.value" placeholder="100"></masked-input>
+            </template>
+
+            <template v-if="state.compare_type === 'between'">
+                <masked-input :mask="numberMask" v-model="state.min" placeholder="100"></masked-input>
+                <span> and </span>
+                <masked-input :mask="numberMask" v-model="state.max" placeholder="500"></masked-input>
             </template>
         </template>
 
@@ -141,8 +161,9 @@
     import ChampionDropdown from "../champion-dropdown/champion-dropdown.vue";
     import createNumberMask from "text-mask-addons/dist/createNumberMask";
 
-    const KEYS: { [key: string]: string[] | ((data: any) => string[]) } = {
+    const KEYS: { [key: string]: string[ ] | ((data: any) => string[]) } = {
         mastery_level: d => d.compare_type === "between" ? ["compare_type", "champion", "min", "max"] : ["compare_type", "champion", "value"],
+        total_mastery_level: d => d.compare_type === "between" ? ["compare_type", "min", "max"] : ["compare_type", "value"],
         mastery_score: d => d.compare_type === "between" ? ["compare_type", "champion", "min", "max"] : ["compare_type", "champion", "value"],
         total_mastery_score: d => d.compare_type === "between" ? ["compare_type", "min", "max"] : ["compare_type", "value"],
         ranked_tier: ["compare_type", "tier", "queue"],
