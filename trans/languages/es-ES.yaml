@@ -225,6 +225,7 @@ command_roles_ranked_tier_equal: de {tier} en {queue}
 command_roles_ranked_tier_lower: menor que {tier} en {queue}
 command_roles_ranked_tier_higher: mayor que {tier} en {queue}
 command_roles_mastery_level: Ten un nivel de maestría {range} en {champion}
+command_roles_total_mastery_level: Tener una puntuación de maestría total de {range}
 command_roles_mastery_score: Ten una puntuación de maestría {range} en {champion}
 command_roles_total_mastery_score: Ten una puntuación de maestría total {range}
 command_roles_ranked_tier: Ten un rango clasificatorio {ranked}

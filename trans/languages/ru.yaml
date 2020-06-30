@@ -229,6 +229,7 @@ command_roles_ranked_tier_equal: "{tier} в {queue}"
 command_roles_ranked_tier_lower: меньше чем {tier} в {queue}
 command_roles_ranked_tier_higher: больше чем {tier} в {queue}
 command_roles_mastery_level: Иметь уровень мастерства {range} на {champion}
+command_roles_total_mastery_level: Иметь общий уровень мастерства {range}
 command_roles_mastery_score: Иметь кол-во очков мастерства {range} на {champion}
 command_roles_total_mastery_score: Иметь общее кол-во очков мастерства {range}
 command_roles_ranked_tier: Иметь ранг {ranked}

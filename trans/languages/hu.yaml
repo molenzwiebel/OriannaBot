@@ -229,6 +229,7 @@ command_roles_ranked_tier_equal: pontosan {tier} {queue} mérkőzéseken.
 command_roles_ranked_tier_lower: kisebb mint {tier} {queue} mérkőzéseken.
 command_roles_ranked_tier_higher: magasabb mint {tier} {queue} mérkőzéseken.
 command_roles_mastery_level: Hősmesterség pontja {range} {champion} hőssel.
+command_roles_total_mastery_level: Összesített hősmesterség szintje {range}
 command_roles_mastery_score: Hősmesterség pontja {range} {champion} hőssel.
 command_roles_total_mastery_score: Összesített hősmesterség pontja {range}
 command_roles_ranked_tier: Rangsorolt besorolása {ranked}

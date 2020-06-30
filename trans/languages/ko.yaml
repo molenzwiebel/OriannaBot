@@ -209,6 +209,7 @@ command_roles_ranked_tier_equal: "{queue}에서 {tier}"
 command_roles_ranked_tier_lower: "{queue}에서 {tier} 이하"
 command_roles_ranked_tier_higher: "{queue}에서 {tier} 이상"
 command_roles_mastery_level: "{champion} 숙련도 레벨이 {range}"
+command_roles_total_mastery_level: Have a total mastery level {range}
 command_roles_mastery_score: "{champion} 숙련도 점수가 {range}"
 command_roles_total_mastery_score: Have a total mastery score {range}
 command_roles_ranked_tier: 랭크 티어가 {ranked}

@@ -233,6 +233,7 @@ command_roles_ranked_tier_equal: de {tier} en {queue}
 command_roles_ranked_tier_lower: plus bas que {tier} en {queue}
 command_roles_ranked_tier_higher: plus haut que {tier} en {queue}
 command_roles_mastery_level: A un niveau de maîtrise {range} sur {champion}
+command_roles_total_mastery_level: A un niveau de maîtrise total {range}
 command_roles_mastery_score: A un score de maîtrise {range} sur {champion}
 command_roles_total_mastery_score: A un score de maîtrise total {range}
 command_roles_ranked_tier: A un niveau classé {ranked}

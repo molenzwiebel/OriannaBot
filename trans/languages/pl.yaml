@@ -227,6 +227,7 @@ command_roles_ranked_tier_equal: "{tier} w kolejce {queue}"
 command_roles_ranked_tier_lower: niżej niż {tier} w kolejce {queue}
 command_roles_ranked_tier_higher: wyżej niż {tier} w kolejce {queue}
 command_roles_mastery_level: Musisz posiadać poziom maestrii {range} na {champion}
+command_roles_total_mastery_level: Musisz posiadać następujący poziom wszystkich maestrii {range}
 command_roles_mastery_score: Musisz posiadać wynik maestrii {range} na {champion}
 command_roles_total_mastery_score: Musisz posiadać wynik wszystkich maestrii {range}
 command_roles_ranked_tier: Have a ranked tier {ranked}

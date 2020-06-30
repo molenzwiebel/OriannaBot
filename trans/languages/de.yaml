@@ -232,6 +232,7 @@ command_roles_between: zwischen {min} und {max}
 command_roles_ranked_tier_lower: niedriger als {tier} in {queue}
 command_roles_ranked_tier_higher: höher als {tier} in {queue}
 command_roles_mastery_level: Habe {range} Meisterschaftslevel auf {champion}
+command_roles_total_mastery_level: Habe insgesamt {range} Meisterschaftsstufen
 command_roles_mastery_score: Habe {range} Meisterschaftspunkte auf {champion}
 command_roles_total_mastery_score: Habe insgesamt {range} Meisterschaftspunkte
 command_roles_ranked_tier: Habe einen Rang von {ranked}

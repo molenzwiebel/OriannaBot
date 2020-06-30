@@ -2094,6 +2094,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
     }, {
         keys: [
             "command_roles_mastery_level",
+            "command_roles_total_mastery_level",
             "command_roles_mastery_score",
             "command_roles_total_mastery_score",
             "command_roles_ranked_tier",
@@ -2487,6 +2488,27 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ],
                             "champion": [
                                 "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": [
+                    "Gold"
+                ],
+                "value": [
+                    "❌ ",
+                    {
+                        "name": "command_roles_total_mastery_level",
+                        "args": {
+                            "range": [
+                                {
+                                    "name": "command_roles_exactly",
+                                    "args": {
+                                        "value": 100
+                                    }
+                                }
                             ]
                         }
                     }
