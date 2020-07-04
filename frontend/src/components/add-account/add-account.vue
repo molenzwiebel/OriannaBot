@@ -35,12 +35,12 @@
                         </span>
 
                         <p>
-                            To verify that you own <b>{{ summoner.username }}</b>, please change your third-party verification code to <code>{{ summoner.code }}</code>.
-                            To change your third-party code, go to your <b>settings</b> inside the League client, followed by selecting <b>Verification</b> and entering the code. Click <b>Verify</b> after you've saved.
+                            To verify that you own <b>{{ summoner.username }}</b>, please change your summoner icon to the following:<br>
+                            <img :src="'https://cdn.communitydragon.org/latest/profile-icon/' + summoner.targetSummonerIcon" />
                             <br><br>
-                            Note: The third-party code feature is unstable at this time. It may take a few tries before the change gets detected. You may also need to restart your League client for it to work. Riot is aware of the issues and is working on a fix.
+                            After changing your icon, click <b>Validate</b> to add link your account. You can change your icon back after you have successfully verified.
                         </p>
-                        <verification v-if="summoner" :code="summoner.code"></verification>
+
                         <span class="details-error">{{ verificationError }}</span>
                     </div>
                 </tab-content>

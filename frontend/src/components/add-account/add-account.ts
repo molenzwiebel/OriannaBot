@@ -6,6 +6,7 @@ import App from "../app/app";
 interface Summoner {
     username: string;
     code: string;
+    targetSummonerIcon: number;
     taken: boolean;
 }
 
@@ -68,7 +69,7 @@ export default class AddAccountWizard extends Vue {
         });
 
         if (!req || !req.ok) {
-            this.verificationError = "Failed to verify. Note that it may take a moment for the code to update.";
+            this.verificationError = "Failed to verify. Ensure that you have equipped the relevant icon. Note that it may take a moment for your icon to update.";
             throw new Error("");
         }
 
