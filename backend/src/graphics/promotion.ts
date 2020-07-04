@@ -73,9 +73,19 @@ function selectFont(options: string[], text: string): string {
  * Runs ffmpeg with the specified args and returns a promise that
  * resolves when the command finishes executing.
  */
-function runFfmpeg(args: string[]): Promise<void> {
+async function runFfmpeg(args: string[], timeout = 20000): Promise<void> {
     const cmd = child_process.spawn(config.ffmpeg, args);
-    return new Promise(r => cmd.once("exit", r));
+
+    // Wait for ffmpeg to exit, or else for the timeout to expire.
+    const result = await Promise.race([
+        new Promise<false>(r => setTimeout(() => r(false), timeout)),
+        new Promise<true>(r => cmd.once("exit", () => r(true)))
+    ]);
+
+    if (!result) {
+        cmd.kill("SIGKILL");
+        throw new Error("ffmpeg timed out after " + timeout + "ms");
+    }
 }
 
 /**
