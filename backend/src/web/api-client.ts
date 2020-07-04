@@ -12,7 +12,7 @@ import { default as getTranslator, getLanguages as getI18nLanguages } from "../i
 
 export default class WebAPIClient {
     private bot: eris.Client;
-    private summoners: Map<string, riot.Summoner & { region: string }> = new Map();
+    private summoners: Map<string, riot.Summoner & { region: string, targetSummonerIcon: number }> = new Map();
 
     constructor(private client: DiscordClient, private app: express.Application) {
         this.bot = client.bot;
@@ -143,9 +143,15 @@ export default class WebAPIClient {
             readable: true
         });
 
+        let targetSummonerIcon = 0;
+        do {
+            targetSummonerIcon = Math.floor(Math.random() * 28);
+        } while (targetSummonerIcon === summ.profileIconId);
+
         this.summoners.set(key,  {
             ...summ,
-            region: req.body.region
+            region: req.body.region,
+            targetSummonerIcon
         });
 
         return res.json({
@@ -154,6 +160,7 @@ export default class WebAPIClient {
             username: summ.name,
             account_id: summ.accountId,
             summoner_id: summ.id,
+            targetSummonerIcon,
             code: key
         });
     };
@@ -169,7 +176,12 @@ export default class WebAPIClient {
         // Make sure that the code is valid.
         const summoner = this.summoners.get(req.body.code);
         if (!summoner) return res.status(400).json({ ok: false, error: "Invalid code." });
-        if (!await this.client.riotAPI.isThirdPartyCode(summoner.region, "" + summoner.id, req.body.code)) return res.json({ ok: false });
+
+        // Ensure that the summoner icon was updated properly.
+        const refreshedSummoner = await this.client.riotAPI.getLoLSummonerById(summoner.region, summoner.id);
+        if (!refreshedSummoner || refreshedSummoner.profileIconId !== summoner.targetSummonerIcon) {
+            return res.json({ ok: false });
+        }
 
         // Check if this account has been taken by someone else already.
         // If it has, remove it from the old account.
