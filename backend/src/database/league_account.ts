@@ -75,6 +75,11 @@ export default class LeagueAccount extends Model {
     include_region: boolean;
 
     /**
+     * In-game avatar linked to the account.
+     */
+    profile_icon_id: number;
+
+    /**
      * Omit id and user_id from the JSON object.
      */
     $formatJson(json: Pojo) {
