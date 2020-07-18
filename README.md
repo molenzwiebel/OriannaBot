@@ -3,7 +3,6 @@ Orianna Bot</h1>
 
 [![Discord](https://discordapp.com/api/guilds/249481856687407104/widget.png?style=shield)](https://discord.gg/bfxdsRC)
 
-
 This is the source code for the Discord bot and website portions that compromise [Orianna Bot](https://orianna.molenzwiebel.xyz). Note that Orianna Bot is not intended for self-hosting (although it is theoretically possible), so if you want Orianna Bot on your Discord server the easiest solution is to simply press the large button [here](https://orianna.molenzwiebel.xyz).
 
 # Components
@@ -11,7 +10,8 @@ This is the source code for the Discord bot and website portions that compromise
 This project consists of two components, creatively named frontend and backend. Frontend is a single-page app Vue.js application bundled by Webpack. Backend is both an express web server that powers the frontend, as well as an Eris Discord bot.
 
 ## Developing Frontend
-To get started with developing on frontend, you'll need to install dependencies. I recommend getting [yarn](https://yarnpkg.com), then simply running `yarn install` to install all dependencies.
+
+To get started with developing on frontend, you'll need to install dependencies. First of all you need to have [Node.js](https://nodejs.org) installed and it should have version 10 or lower. In case if you already have Node.js installed and its version is higher than 10 [nvm](https://github.com/nvm-sh/nvm) is a good choice to reconsider. Then I recommend to get [yarn](https://yarnpkg.com) and simply run `yarn install` to install all dependencies.
 
 `yarn watch` will start a hot-reloading webserver on `http://localhost:8081` which will automatically reflect your changes. Running `yarn bundle` will produce an optimized minified bundle that backend can find.
 
