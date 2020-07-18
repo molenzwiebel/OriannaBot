@@ -31,7 +31,7 @@
 
                 <div v-for="account in user.accounts" class="account" :key="account.region + account.summoner_id">
                     <div class="avatar-container">
-                        <img :src="`https://avatar.leagueoflegends.com/${account.region}/${encodeURIComponent(account.username)}.png`">
+                        <img :src="`http://ddragon.leagueoflegends.com/cdn/10.14.1/img/profileicon/${user.profileIconId}.png`">
                     </div>
                     <span class="username">{{ account.region }} - {{ account.username }}</span>
                     <div class="primary">
