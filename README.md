@@ -11,7 +11,7 @@ This project consists of two components, creatively named frontend and backend. 
 
 ## Developing Frontend
 
-To get started with developing on frontend, you'll need to install dependencies. First of all [Node.js](https://nodejs.org) installed on your hardware should have version 10 or lower. In case if you already have Node.js installed and its version is higher than 10 [nvm](https://github.com/nvm-sh/nvm) is a good choice. Then I recommend to get [yarn](https://yarnpkg.com) and simply run `yarn install` to install all dependencies.
+To get started with developing on frontend, you'll need to install dependencies. First of all you need to have [Node.js](https://nodejs.org) installed and it should have version 10 or lower. In case if you already have Node.js installed and its version is higher than 10 [nvm](https://github.com/nvm-sh/nvm) is a good choice to reconsider. Then I recommend to get [yarn](https://yarnpkg.com) and simply run `yarn install` to install all dependencies.
 
 `yarn watch` will start a hot-reloading webserver on `http://localhost:8081` which will automatically reflect your changes. Running `yarn bundle` will produce an optimized minified bundle that backend can find.
 
