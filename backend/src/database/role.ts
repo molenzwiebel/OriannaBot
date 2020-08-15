@@ -131,19 +131,17 @@ export class RoleCondition extends Model {
 
         const condition: TypedRoleCondition = <TypedRoleCondition>this;
         if (condition.type === "mastery_level") {
-            // Check if we have a stats entry for the specified champion that matches the range.
-            return user.stats.some(x =>
-                x.champion_id === condition.options.champion
-                && evaluateRangeCondition(condition.options, x.level));
+            // Default to level zero for champs that we don't have a mastery on.
+            const level = user.stats.find(x => x.champion_id === condition.options.champion)?.level || 0;
+            return evaluateRangeCondition(condition.options, level);
         } else if (condition.type === "total_mastery_level") {
             // Sum total level, then evaluate the range condition.
             const total = user.stats.reduce((p, c) => p + c.level, 0);
             return evaluateRangeCondition(condition.options, total);
         } else if (condition.type === "mastery_score") {
-            // Check if we have a stats entry for the specified champion that matches the range.
-            return user.stats.some(x =>
-                x.champion_id === condition.options.champion
-                && evaluateRangeCondition(condition.options, x.score));
+            // Default to zero points for champs that we don't have a mastery on.
+            const score = user.stats.find(x => x.champion_id === condition.options.champion)?.score || 0;
+            return evaluateRangeCondition(condition.options, score);
         } else if (condition.type === "total_mastery_score") {
             // Sum total score, then evaluate the range condition.
             const total = user.stats.reduce((p, c) => p + c.score, 0);
