@@ -129,6 +129,10 @@ export class RoleCondition extends Model {
             || typeof user.stats === "undefined"
             || typeof user.accounts === "undefined") throw new Error("User must have all fields loaded.");
 
+        // Users without accounts never qualify for a role. This prevents users that have no roles
+        // from being able to qualify for roles that exhibit a maximum (as we default to zero).
+        if (!user.accounts.length) return false;
+
         const condition: TypedRoleCondition = <TypedRoleCondition>this;
         if (condition.type === "mastery_level") {
             // Default to level zero for champs that we don't have a mastery on.
