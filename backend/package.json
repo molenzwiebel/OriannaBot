@@ -32,7 +32,7 @@
     "jsdom": "^15.1.1",
     "knex": "^0.14.2",
     "lodash.omit": "^4.5.0",
-    "node-fetch": "^2.0.0",
+    "node-fetch": "^2.6.1",
     "objection": "^1.1.10",
     "orianna-trans": "file:../trans/",
     "pg": "^7.4.3",
