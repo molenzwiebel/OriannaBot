@@ -368,8 +368,9 @@ export default class DiscordClient {
         await elastic.logCommand(matchedCommand.name, msg);
 
         // Check if this is the first time that this user has used an orianna command.
-        // If in a server and yes, check if engagement should apply.
-        if (!isDM) {
+        // If in a server and yes, check if engagement should apply (only on commands
+        // that are not no-mention, such as the nadeko/etc bot compat commands).
+        if (!isDM && matchedCommand.noMention !== true) {
             const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
             const user = await User.query().where("snowflake", msg.author.id).first();
 
