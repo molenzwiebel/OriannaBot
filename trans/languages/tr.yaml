@@ -1,0 +1,335 @@
+metadata:
+  code: tr-TR
+  name: Türkçe
+  ddragonLanguage: tr_TR
+empty: ""
+ranked_tier_unranked: Derecesiz
+ranked_tier_iron: Demir
+ranked_tier_bronze: Bronz
+ranked_tier_silver: Gümüş
+ranked_tier_gold: Altın
+ranked_tier_platinum: Platin
+ranked_tier_diamond: Elmas
+ranked_tier_master: Usta
+ranked_tier_grandmaster: Üstat
+ranked_tier_challenger: Şampiyonluk
+queue_ranked_solo: Tekli Dereceli'de
+queue_ranked_flex: Esnek Dereceli'de
+queue_ranked_tft: TFT Dereceli'de
+queue_ranked_any: Herhangi bir dereceli sırada
+queue_ranked_highest: En yüksek dereceli sırada (TFT hariç)
+queue_ranked_highest_tft: En yüksek dereceli sırada (TFT dahil)
+time_ago_today: Bugün
+time_ago_yesterday: Dün
+time_ago_days_ago: "{days} gün önce"
+first_use_title: 👋 Hey {username}!
+first_use_intro_on_join: "**{server}** sunucusuna hoş geldiniz! Ben **Orianna Bot**, League of Legends
+  derecenize ve ustalık puanlarınıza göre size roller veren bir Discord
+  botuyum."
+first_use_intro_on_command: Az önce benim bir komutumu kullandınız ancak daha önce tanıştığımızı
+  hatırlamıyorum. Ben **Orianna Bot**, League of Legends derecenize ve ustalık
+  puanlarınıza göre size rol veren bir Discord botuyum.
+first_use_intro_on_react: Görünüşe göre **{server}** sunucusundaki rollerinizi ayarlamak istiyorsunuz.
+  Ben **Orianna Bot**, rol tanımlamadan sorumlu bir Discord botuyum.
+first_use_message: >-
+  {intro}
+
+
+  Eğer sizi takip edip hak ettiğiniz tüm rolleri vermemi istiyorsanız, [çevrimiçi ayarlardan]({link}) League hesabınızı ekleyebilirsiniz. Ayrıca League hesaplarınızı Discord'dan ve Reddit [ChampionMains Flairs](https://flairs.championmains.com) sisteminden de aktarabilirsiniz.
+
+
+  Başlamak için aşağıdaki linke tıklayın!
+
+  [{link}]({link})
+
+
+  Kafanız mı karıştı, merak ettiğiniz bir şey mi var, sinirli veya mutlu musunuz? Tüm komutlarıma `@Orianna Bot help` ile, geliştiricime ise `@Orianna Bot about` kullanarak ulaşabilirsiniz.
+command_error_title: 💥 Ah!
+command_error_description: Bu komutu uygularken çok korkunç şeyler oldu, lütfen daha sonra tekrar
+  deneyin. Eğer bu hata devam ederse, lütfen [Orianna Bot destek
+  sunucusuna](https://discord.gg/bfxdsRC) hata raporu gönderin.
+command_muted_preamble: "{channel} kanalında konuşma yetkim yok, ama yine de gizlice komutunuzu
+  uygulayabilirim. İşte istediğiniz şey:"
+promotion_title: "{username} az önce {role} rolüne yükseldi!"
+transfer_title: ✈ Hesap Aktarıldı mı?
+transfer_body: >-
+  Bir süre önce **{username}** ({region}) hesabınızı kayıt ettiniz. Bugün
+  kontrol ederken hesabın artık var olmadığını gördük. Hesabınızı başka bir
+  bölgeye mi aktardınız?
+
+
+  League hesabınızı Discord profilinizden ayırdım. Eğer aktarım yaptıysanız yeni bölgedeki hesabı tekrar tanımlamanız yeterlidir.
+command_error_no_accounts: 🔍 {user} kullanıcısının tanımlı hesabı yok.
+command_error_no_accounts_description: Eğer gösterebileceğim veriler olsa bu komut daha da kullanışlı olurdu, ancak
+  kullanıcının bana tanımlı bir hesabı yok. Hesaplarınızı `@Orianna Bot
+  configure` komutunu kullanarak ekleyebilirsiniz.
+command_error_no_permissions: ✋ Orada Dur!
+command_error_no_permissions_description: Bu özelliği kullanabilmek için mesajları yönetme izniniz olmalı. Üzgünüm :(
+command_error_no_champion: 🔎 Hangi Şampiyon?
+command_error_no_champion_description: Mesajınızda bir şampiyon adı aradım, ancak bulamadım. Ya şampiyonu yanlış
+  yazdınız, ya da yazmayı unuttunuz.
+command_page_n_of_n: Sayfa {n}/{total}
+command_about_title: 🤖 Hakkında
+command_about_field_author: Yapımcı
+command_about_field_version: Sürüm
+command_about_field_source: Kaynak Kodu
+command_about_field_servers: Sunucular
+command_about_field_channels: Kanallar
+command_about_field_users: Kullanıcılar
+command_about_field_memory_usage: Bellek Kullanımı
+command_about_field_support: Destek Sunucusu
+command_about_field_vote: Orianna Bot için Oy Ver
+command_edit_small_description: Kişisel profil ayarları sayfanıza giden bir bağlantı yollar.
+command_edit_description: >-
+  Bu komut, Orianna Bot hesabınıza bağlı hesaplarınızı ayarlamakta
+  kullanabileceğiniz [kişisel çevrimiçi ayarlar
+  sayfanıza](https://orianna.molenzwiebel.xyz/me) giden tek kullanımlık bir link
+  gönderir.
+
+
+  Kişisel profiliniz ve League komutlarını ayarlamak hakkında daha fazla bilgi için, [bununla alakalı dokümantasyon sayfasına](https://orianna.molenzwiebel.xyz/docs/link) göz atabilirsiniz.
+command_edit_server_title: ℹ Sunucu Düzenlemek Daha Farklı
+command_edit_server_description: Orianna v2'de artık sunucu ayarlarını düzenlemek için ayrı bir URL yok. Bunun
+  yerine kendi linkiniz veya Discord hesabınızla giriş yapıp yan taraftan sunucu
+  ayarlarını seçebilirsiniz. Sunucu ayarlarını değiştirmek için `Sunucuyu Yönet`
+  izninizin olması gerektiğini unutmayın.
+command_edit_dm_title: 🔗 Doğrulama Linki
+command_edit_dm_description: >-
+  Hesaplarınızı, özel sunucularınızı ve daha fazlasını ayarlamak için [Orianna
+  Web Panelini]({link}) kullanarak profil sayfanıza ulaşabilirsiniz. Aşağıdaki
+  linke tıklayınca otomatik olarak giriş yapacaksınız. Bu linki sadece _bir kez_
+  kullanabilirsiniz. 24 saat boyunca kullanmazsanız da süresi dolar.
+
+
+  [{link}]({link})
+
+
+  **⚠ Ne yaptığınızdan emin değilseniz bu linki paylaşmayın!** Bu linke sahip olan herkes profilinize erişebilir.
+command_edit_dm_failed_title: 📪 Mesaj kutunuz özel!
+command_edit_dm_failed_description: Hesabınızı sadece arkadaşlarınızdan özel mesaj alacak şekilde ayarlamışsınız.
+  Ne yazık ki bu yüzden size DM gönderemiyorum. Sunucu üyelerinden direkt mesaj
+  almak için, sunucunun simgesine sağ tıklayıp `Gizlilik Ayarları`nı seçtikten
+  sonra `Sunucu üyelerinden gelen direkt mesajlara izin ver` seçeneğini
+  açmalısınız.
+command_help_title: 🔖 Orianna Yardımı
+command_help_description: Bazı kelimeleri kullanarak beni etiketlediğinizde ne istediğinizi anlamaya
+  çalışırım. Anladığım komutların listesini veriyorum. Komut hakkında daha fazla
+  bilgi ve öğrnekler için yanındaki numaraya tıklayabilirsiniz. Bu indeksi
+  göstermek için 🔖'e basın.
+command_help_command_title: 🔖 {name} için yardım
+command_help_command_description: |-
+  **Açıklama**
+  {description}
+command_help_command_keywords: Anahtar kelimeler
+command_invite_title: 🤖 Davet mi İstiyorsun?
+command_invite_message_description: Orianna Bot'u kendi Discord sunucunuza eklemek istiyorsanız [bu linki]({link})
+  kullanabilirsiniz. Orianna Bot'u kendi sunucunuza ekleyecek kadar sevdiğiniz
+  için teşekkür ederiz!
+command_other_bot_title: 💡 İpucu!
+command_other_bot_description: "`{role}` rolü benim tarafımdan yönetiliyor. Otomatik rol alımını
+  etkinleştirmek için hesabınızı (`@Orianna Bot configure` diyerek)
+  ayarlayabilirsiniz. Zaten hesabınız var mı? Sizi güncellememi bekleyebilir
+  veya `@Orianna Bot refresh` diyerek hemen güncelleyebilirsiniz."
+command_points_small_description: Bir şampiyonda ne kadar ustalık puanınız olduğunu gösterir.
+command_points_description: >-
+  Bu komut kullanıcının belirtilen şampiyonda sahip olduğu ustalık puanını
+  gösterir.
+
+
+  Şampiyon seçmek için şampiyon adını veya [kısaltmasını](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92) mesajınıza ekleyebilirsiniz. Eğer şampiyon adı eklenmezse, Orianna mevcut Discord sunucusunun varsayılan şampiyonunu seçer, eğer Discord sunucusunda varsayılan şampiyon seçili değilse de hata mesajı gösterir.
+
+
+  Başka birinin ustalık puanını görmek istiyorsanız mesajda ondan bahsedebilirsiniz.
+
+
+  Örnekler:
+
+  - `@Orianna Bot points mf` - Miss Fortune'da sahip olduğunuz ustalık puanını gösterir
+
+  - `@Orianna Bot score lee @molenzwiebel` - molenzwiebel'ın Lee Sin'deki ustalık puanını gösterir
+
+  - `@Orianna Bot mastery` - varsayılan şampiyondaki ustalık puanını gösterir
+command_points_message_title: 📖 Ustalık Puanı
+command_points_message_description: "{user} kullanıcısının {champion} şampiyonunda **{points} puanı** var."
+command_profile_small_description: Discord kullanıcısının League hesabı ve genel istatistiklerini gösterir.
+command_profile_description: >-
+  Bu komut sizin Orianna Bot profilinize bağlı olan tüm hesaplardan toplanan
+  veriden oluşan bir özet gösterir. Kendi profilinizi görmek için `@Orianna Bot
+  profile` kullanmanız yeterlidir.
+
+
+  Başkasının profilini görmek için mesajda etiketlemeniz yeterlidir. Bahsi geçen kullanıcının Orianna'ya bağlı hesapları olması gerektiğini unutmayın.
+
+
+  Dereceli sıralamalarınızı veya hesap isimlerinizi gizlemek isterseniz [web panelindeki](https://orianna.molenzwiebel.xyz/me) gizlilik ayarlarınızı değiştirebilirsiniz.
+
+
+  Örnekler:
+
+  - `@Orianna Bot profile` - sizin profilinizi gösterir
+
+  - `@Orianna Bot profile @molenzwiebel` - molenzwiebel'ın profilini gösterir
+command_profile_title: 📖 {name} Profili
+command_profile_top_champions: En İyi Şampiyonlar
+command_profile_statistics: Ustalık İstatistikleri
+command_profile_statistics_total_points: "{amount} **Toplam Puan**"
+command_profile_statistics_avg_champ: "{amount} **Ortalama/Şampiyon**"
+command_profile_recently_played: Son Oynananlar
+command_profile_recently_played_no_games: _İzlenmiş Oyun Yok_
+command_profile_ranked_tiers: Dereceli Sıralaması
+command_profile_account: Hesap
+command_profile_accounts: Hesaplar
+command_refresh_small_description: Verinizi günceller ve rollerinizi yeniden hesaplar.
+command_refresh_description: >-
+  Bu komut tüm hesaplarınızdaki ustalık ve dereceli istatistiklerini manuel
+  olarak günceller. Tam olarak şu veriler güncellenir:
+
+  - Tüm hesaplarınızın isim ve bölge değişiklikleri kontrol edilir.
+
+  - Tüm dereceli ligleri güncellenir.
+
+  - Tüm şampiyon ustalığı değerleri ve seviyeleri güncellenir.
+
+
+  Tüm değerler güncellendikten sonra Orianna ile birlikte bulunduğunuz tüm sunuculardaki rollerinizi tekrar hesaplar ve gerektiği gibi değiştirir.
+
+
+  Manuel yenilemenize gerek olmadığını unutmayın. Orianna otomatik olarak belirli aralıklarla istatistiklerinizi günceller, yani bu komut sadece hemen görmek istediğiniz değişiklikler varsa kullanılmalıdır.
+
+
+  Eğer başka birinin puanlarını güncellemek isterseniz, komutu girerken adından etiketlemeniz yeterlidir (örn. `@Orianna Bot refresh @b1nzy#0001`).
+command_roles_small_description: Mevcut sunucuda ayarlı tüm rolleri gösterir.
+command_roles_description: >-
+  Mevcut Discord sunucusundaki tüm rolleri ve gereksinimlerini gösterir. Bu
+  liste tüm rolleri ve bu role layık olup olmadığınızı gösterir.
+
+
+  Aynı rol listede farklı gereksinimlerle beraber birden fazla kez gözükebilir. Bu durumda herhangi gereksinim "setinden" birini karşılamanız role layık olmanız için yeterlidir.
+
+
+  Rol gereksinimleri ve çalışma mantığıyla ilgili daha fazla bilgi için [dokümatasyona](https://orianna.molenzwiebel.xyz/docs/conditions) göz atabilirsiniz.
+command_roles_no_server_title: 🛑 Sunucu Yok
+command_roles_no_server_description: Bu komut _sunucu_ bilgilerini gösterdiğini açık açık ifade ediyor ve siz bu
+  komutu DM'de kullanmaya uğraşıyorsunuz? İlginç.
+command_roles_no_roles_title: 🔍 Burada Bir Şey Yok Gibi...
+command_roles_no_roles_description: Sunucuda hiç ayarlı rol yokmuş gibi gözüküyor.
+command_roles_at_least: en az {value}
+command_roles_at_most: en fazla {value}
+command_roles_exactly: tam olarak {value}
+command_roles_between: "{min} ila {max} arası"
+command_roles_ranked_tier_equal: "{queue} {tier} "
+command_roles_ranked_tier_lower: "{queue} {tier}'dan düşük"
+command_roles_ranked_tier_higher: "{queue} {tier}'dan yüksek"
+command_roles_mastery_level: "{champion} ustalık seviyen {range} olsun"
+command_roles_total_mastery_level: Have a total mastery level {range}
+command_roles_mastery_score: "{champion} ustalık seviyen {range} olsun"
+command_roles_total_mastery_score: "Toplam ustalık puanın {range} olsun "
+command_roles_ranked_tier: "{ranked} ol"
+command_roles_region: "{region} sunucusunda aktif hesabın olsun"
+command_roles_all_match: "**Hepsi uymalı:**"
+command_roles_any_match: "**Herhangi biri uymalı:**"
+command_roles_at_least_n: "**En az {amount} tanesi uymalı:**"
+command_roles_no_conditions: _Koşul yok_
+command_roles_continued: (Devamı var)
+command_roles_message_title: 📖 Sunucu Rolleri
+command_roles_message_description: "Bu sunucuda bu roller ayarlı:"
+command_stats_small_description: Bir şampiyondaki ustalık puanının gelişimini gösteren bir şema gösterir.
+command_stats_description: >-
+  Bu komut Orianna Bot'un periyodik olarak gördüğü verilere dayanarak ustalık
+  puanınızın gelişimini gösteren bir grafik oluşturur. Sadece Orianna Bot'a
+  hesabınızı kaydettikten sonra oynadığınız oyunların değerlendirildiğini
+  unutmayın.
+
+
+  Belirli bir şampiyonun grafiğini görmek için mesajda onun adını kullanmanız yeterli. Başka birinin değerlerine bakmak isterseniz mesajda ondan etiketlemeniz yeterli.
+
+
+  Not: Bu komuttaki kazanma oranı gibi veriler, oyunda kazanılan ustalık puanlarına göre tahmin edilir ve %100 doğru olmayabilir.
+
+
+  Örnekler:
+
+  - `@Orianna Bot chart my annie progression`
+
+  - `@Orianna Bot chart @molenzwiebel`
+
+  - `@Orianna Bot show @molenzwiebel's stats on annie`
+command_stats_no_values_title: 🔍 Burada Hiçbir Şey Yok!
+command_stats_no_values_description: "{user} {champion} ile hiç oyun oynamamış. İstatistik göstermeden önce
+  oynadığınızı görmem gerek."
+command_stats_message_title: 📈 Ustalık Verileri - {name} - {champion}
+command_stats_message_data: Veriler
+command_stats_message_data_value: |-
+  **{numGames}** oyun takip edildi
+  **{firstGameDate}** ilk oyun
+  **{lastGameDate}** son oyun
+command_stats_message_games: Oyunlar
+command_stats_message_games_value: |-
+  **{win}** oyun kazanıldı
+  **{loss}** oyun kaybedildi
+  **%{winrate}** kazanma oranı
+command_top_small_description: Liderlik tablosunu ve diğer istatistikleri gösterir!
+command_top_description: >-
+  Bu komut Orianna'ya kayıt olanlar veya sunucudaki insanlar arasındaki
+  liderlerin tablosunu ve sıralamasını gösterir.
+
+
+  **Şampiyon Liderler Tablosu**
+
+  Bu komutun en yaygın kullanım alanı, belirli bir şampiyonun liderlik tablosunu göstermektir. Bunun için `@Orianna Bot top <şampiyon adı>` demeniz yeterlidir, şampiyon adı olarak herhangi bir şampiyon adını veya [kısaltmasını](https://bit.ly/2wwGVMi) kullanabilirsiniz.
+
+
+  Bir şampiyon adı belirtmezseniz, Orianna mevcut Discord sunucusundaki varsayılan şampiyonu kullanır, veya varsayılan şampiyon seçilmediyse hata mesajı gösterir.
+
+
+  Sonuçları mevcut Discord sunucusundaki kişilerle sınırlamak için mesajınıza `server` ekleyebilirsiniz.
+
+
+  Örnekler:
+
+  - `@Orianna Bot top mf` - Orianna'ya bağlanmış tüm hesaplar arasındaki en yüksek Miss Fortune skorlarını gösterir
+
+  - `@Orianna Bot top thresh server` - mevcut sunucu üyeleri arasındaki en yüksek Thresh skorlarını gösterir
+
+
+  **Kapsamlı Liderlik Tabloları**
+
+  Şampiyon fanatiklerinin liderlik verilerini görmek için şampiyondan bağımsız en yüksek şampiyon ustalık puanlarını görebilirsiniz. Bunun için `@Orianna Bot top all` diyebilirsniz. Bu komutla bir şampiyonda milyonlarca ustalık puanı biriktiren fanatikleri görebilirsiniz.
+
+
+  Sonuçları mevcut Discord sunucusundaki insanlarla sınırlamak için mesaja `server` ekleyebilirsiniz.
+
+
+  Örnekler:
+
+  - `@Orianna Bot top all champions` - herhangi şampiyondaki en yüksek puanları gösterir
+
+  - `@Orianna Bot top all champions in this server` - mevcut sunucudaki kişilerin en yüksek puanlarını gösterir
+
+
+  **Kişisel En Yüksek Şampiyon Puanları**
+
+  Komuta `me` ekleyerek kendi kişisel ustalık puanlarınızın taplosunu görebilirsiniz. Böyle yaparsanız tüm şampiyon ustalık değerlerinizi görebilirsiniz.
+
+
+  Başka birinin ustalık tablosunu görmek için mesajınızda etiketleyin.
+
+
+  Examples:
+
+  - `@Orianna Bot top me` - en yüksek şampiyonlarınızı gösterir
+
+  - `@Orianna Bot top @molenzwiebel` - molenzwiebel'ın en yüksek şampiyonlarını gösterir
+command_top_points: Puan
+command_top_rank: "Sizin Sıralamanız: {rank}"
+command_top_personal_title: 📊 {name} Kullanıcısının En Yüksek Şampiyonları
+command_top_no_server_title: ❓ Neyin Peşindesiniz?!?!
+command_top_no_server_description: Liderlik tablolarını mevcut sunucuyla sınırlandırmak istediğinizi DM'den
+  belirtmek sizce de biraz garip değil mi? Mesajınızdan `server` ibaresini
+  kaldırmayı deneyin.
+command_top_title: "{champ} Liderlik Tablosu"
+command_top_server_title: Sunucudaki {champ} Liderleri
+command_top_global_title: Global Liderlik Tablosu
+command_top_global_server_title: Sunucudaki Global Liderlik Tablosu
+command_top_graphic_name: İSİM
+command_top_graphic_score: PUAN
