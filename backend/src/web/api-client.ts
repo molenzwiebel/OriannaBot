@@ -7,6 +7,7 @@ import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
 import config from "../config";
+import * as crypto from "crypto";
 import * as ipc from "../cluster/master-ipc";
 import { default as getTranslator, getLanguages as getI18nLanguages } from "../i18n";
 
@@ -26,6 +27,8 @@ export default class WebAPIClient {
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
         app.patch("/api/v1/user/account/:accountId", swallowErrors(this.updateAccountSettings));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
+
+        app.get("/api/v1/user/:id/accounts", swallowErrors(this.serveUserAccounts));
 
         app.get("/api/v1/server/:id", swallowErrors(this.serveServer));
         app.patch("/api/v1/server/:id", swallowErrors(this.patchServer));
@@ -286,6 +289,24 @@ export default class WebAPIClient {
 
         return res.json({ ok: true });
     });
+
+    /**
+     * Exposes a list of all accounts connected to the specified user id, similar to
+     * the list command, but in JSON format.
+     */
+    private serveUserAccounts = async (req: express.Request, res: express.Response) => {
+        const user = await User.query().where("snowflake", req.params.id).eager("accounts").first();
+
+        if (!user) {
+            return res.status(200).json([]);
+        }
+
+        return res.status(200).json(user.accounts!.filter(x => x.show_in_profile).map(x => ({
+            id: crypto.createHash("md5").update(x.account_id).digest("hex"),
+            region: x.region,
+            summonerName: x.username
+        })));
+    };
 
     /**
      * Serves the settings and roles for the specified discord server id.

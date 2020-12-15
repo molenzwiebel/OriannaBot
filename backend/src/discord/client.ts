@@ -45,15 +45,15 @@ const STATUSES: [eris.BotActivityType, string][] = [
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token, {
         maxShards: "auto",
-        // intents: [
-        //     "guilds",
-        //     "guildMembers",
-        //     "guildPresences",
-        //     "guildMessages",
-        //     "guildMessageReactions",
-        //     "directMessages",
-        //     "directMessageReactions"
-        // ]
+        intents: [
+            "guilds",
+            "guildMembers",
+            "guildPresences",
+            "guildMessages",
+            "guildMessageReactions",
+            "directMessages",
+            "directMessageReactions"
+        ]
     });
     public readonly commands: Command[] = [];
     private responses: Response[] = [];
