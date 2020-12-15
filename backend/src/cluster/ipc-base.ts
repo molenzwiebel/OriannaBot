@@ -51,8 +51,19 @@ export type IPCMessage = IPCRequest | IPCResponse;
 export default abstract class IPCBase {
     private counter = 0;
     private callbacks = new Map<number, Function>();
+    private tunnel: any;
 
-    constructor(private tunnel: any) {
+    constructor(tunnel: any) {
+        this.setWorker(tunnel);
+    }
+
+    /**
+     * Sets or updates the current worker. Invoked on process start and when the worker
+     * process dies.
+     */
+    protected setWorker(tunnel: any) {
+        this.tunnel = tunnel;
+
         tunnel.on("message", async (msg: IPCMessage) => {
             // If this is a request, have the subclass handle it.
             if (msg.isRequest) {

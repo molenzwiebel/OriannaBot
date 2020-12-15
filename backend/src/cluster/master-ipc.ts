@@ -2,6 +2,9 @@ import * as cluster from "cluster";
 import DiscordClient from "../discord/client";
 import { Role, User } from "../database";
 import IPCBase, { IPCRequest } from "./ipc-base";
+import debug = require("debug");
+
+const log = debug("orianna:ipc:master");
 
 /**
  * Class that handles all IPC messaging on the master process.
@@ -9,6 +12,11 @@ import IPCBase, { IPCRequest } from "./ipc-base";
 class MasterIPC extends IPCBase {
     constructor(private client: DiscordClient, worker: cluster.Worker) {
         super(worker);
+
+        worker.on("exit", () => {
+            log("Updater IPC crashed! Attempting to start a new updater...");
+            this.setWorker(cluster.fork());
+        });
     }
 
     /**

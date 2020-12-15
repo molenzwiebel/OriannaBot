@@ -16,7 +16,11 @@ const RefreshCommand: Command = {
 
         msg.addReaction(loadingEmoji);
 
-        await ipc.fetchAndUpdateUser(user);
+        // Attempt to update user or time out after 20 seconds.
+        await Promise.race([
+            ipc.fetchAndUpdateUser(user),
+            new Promise((_, reject) => setTimeout(reject, 20000))
+        ]);
 
         // Update timestamps.
         user.$query().patch({

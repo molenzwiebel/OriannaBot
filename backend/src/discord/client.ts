@@ -15,6 +15,7 @@ import debug = require("debug");
 import randomstring = require("randomstring");
 
 const info = debug("orianna:discord");
+const presenceInfo = debug("orianna:discord:presence");
 const error = debug("orianna:discord:error");
 
 const HELP_REACTION = "❓";
@@ -23,7 +24,7 @@ const MUTE_REACTION = "🔇";
 
 const LOL_APPLICATION_ID = "401518684763586560";
 
-const STATUSES: [number, string][] = [
+const STATUSES: [eris.BotActivityType, string][] = [
     [0, "on-hit Orianna"],
     [0, "with the Ball"],
     [2, "time ticking away"],
@@ -42,7 +43,18 @@ const STATUSES: [number, string][] = [
 ];
 
 export default class DiscordClient {
-    public readonly bot = new eris.Client(config.discord.token, { maxShards: "auto" });
+    public readonly bot = new eris.Client(config.discord.token, {
+        maxShards: "auto",
+        // intents: [
+        //     "guilds",
+        //     "guildMembers",
+        //     "guildPresences",
+        //     "guildMessages",
+        //     "guildMessageReactions",
+        //     "directMessages",
+        //     "directMessageReactions"
+        // ]
+    });
     public readonly commands: Command[] = [];
     private responses: Response[] = [];
     private statusIndex = 0;
@@ -130,7 +142,7 @@ export default class DiscordClient {
     /**
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
-    public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string }): Promise<User> {
+    public async findOrCreateUser(id: string, discordUser?: { username: string, avatar?: string | null }): Promise<User> {
         let user = await User.query().where("snowflake", "=", id).first();
         if (user) return user;
 
@@ -461,7 +473,12 @@ export default class DiscordClient {
      * for dispatching to responses and for handling mute/help reacts.
      */
     private handleReaction = async (msg: eris.Message, emoji: eris.Emoji, userID: string) => {
-        msg = await this.bot.getMessage(msg.channel.id, msg.id);
+        try {
+            msg = await this.bot.getMessage(msg.channel.id, msg.id);
+        } catch {
+            return; // message was deleted or otherwise errored
+        }
+
         this.responses.forEach(x => x.onReactionAdd(msg, emoji, userID));
 
         // Find the translation context for this message.
@@ -559,7 +576,7 @@ export default class DiscordClient {
      * Potentially queues an update for the specified user if their discord presence
      * has just gone from Rich Presence Ingame to out of game.
      */
-    private handlePresenceUpdate = async (other: eris.Member | eris.Relationship, oldPresence?: eris.OldPresence) => {
+    private handlePresenceUpdate = async (other: eris.Member | eris.Relationship, oldPresence?: eris.Presence) => {
         // If there was no old game, or if the old game was not League, abort.
         if (
             !oldPresence                                                        // no old presence cached
@@ -591,7 +608,7 @@ export default class DiscordClient {
             // If we've recently processed something from this user, abort.
             if (this.presenceTimeouts.has(user.snowflake) && Date.now() < this.presenceTimeouts.get(user.snowflake)!) return;
 
-            info(
+            presenceInfo(
                 "User %s (%s) got out of a League game according to their presence, queueing an update. They were ingame for %im%is",
                 user.username,
                 user.snowflake,

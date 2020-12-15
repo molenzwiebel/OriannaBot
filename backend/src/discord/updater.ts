@@ -316,7 +316,7 @@ export default class Updater {
         if (toInsert.length) await UserMasteryDelta.query().insert(toInsert);
 
         // Run redis pipeline.
-        await pipeline.exec();
+        await pipeline.exec().catch(() => {}); // ignore errors
 
         // Refetch stats now that we updated stuff.
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
