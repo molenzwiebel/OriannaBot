@@ -472,7 +472,7 @@ export default class DiscordClient {
      * Handles a new reaction added to a message by a user. Responsible
      * for dispatching to responses and for handling mute/help reacts.
      */
-    private handleReaction = async (msg: eris.Message, emoji: eris.Emoji, userID: string) => {
+    private handleReaction = async (msg: eris.Message, emoji: eris.Emoji, { id: userID }: { id: string }) => {
         try {
             msg = await this.bot.getMessage(msg.channel.id, msg.id);
         } catch {
