@@ -10,8 +10,8 @@ const EvalCommand: Command = {
     descriptionKey: "empty",
     hideFromHelp: true,
     keywords: ["eval"],
-    async handler({ msg, bot, error, ok, ctx }) {
-        if (msg.author.id !== config.discord.owner) return error({
+    async handler({ msg, bot, error, ok, ctx, author }) {
+        if (author.id !== config.discord.owner) return error({
             title: "Only the bot owner may use this command."
         });
 
@@ -40,7 +40,7 @@ const EvalCommand: Command = {
             const evalContext = {
                 ...ctx,
                 ...db,
-                user: buildDBAccess(db.User, "[accounts]", { snowflake: msg.author.id }),
+                user: buildDBAccess(db.User, "[accounts]", { snowflake: author.id }),
                 role: buildDBAccess(db.Role, "[conditions]"),
                 account: buildDBAccess(db.LeagueAccount, "[]"),
                 server: buildDBAccess(db.Server, "[roles, roles.conditions]", { snowflake: ctx.guild && ctx.guild.id }),

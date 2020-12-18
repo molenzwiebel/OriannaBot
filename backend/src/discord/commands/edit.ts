@@ -9,7 +9,7 @@ const EditCommand: Command = {
     descriptionKey: "command_edit_description",
     keywords: ["edit", "config", "configure", "add", "remove"],
     noTyping: true,
-    async handler({ ctx, client, bot, msg, error, info, t }) {
+    async handler({ ctx, client, bot, msg, error, info, t, author }) {
         const normalizedContent = msg.content.toLowerCase();
 
         // Catch edit server attempts.
@@ -29,13 +29,13 @@ const EditCommand: Command = {
         const link = config.web.url + "/login/" + key.key;
 
         try {
-            const channel = await bot.getDMChannel(msg.author.id);
-            await client.createResponseContext(t, channel, msg.author, msg).info({
+            const channel = await bot.getDMChannel(author.id);
+            await client.createResponseContext(t, channel.id, author, msg).info({
                 title: t.command_edit_dm_title,
                 description: t.command_edit_dm_description({ link })
             });
 
-            await msg.addReaction("✅");
+            if (msg.id) await bot.addMessageReaction(msg.channelID, msg.id, "✅");
         } catch (e) {
             // DMs are probably off.
             error({

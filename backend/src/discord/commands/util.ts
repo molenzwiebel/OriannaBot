@@ -25,7 +25,7 @@ export async function expectUserWithAccounts(ctx: CommandContext): Promise<User 
     await user.$loadRelated("[accounts]");
 
     if (!user.accounts!.length)  {
-        const authorWasTarget = ctx.msg.author.id === user.snowflake;
+        const authorWasTarget = ctx.author.id === user.snowflake;
         await ctx.error({
             title: ctx.t.command_error_no_accounts({ user: formatName(user) }),
             description: ctx.t.command_error_no_accounts_description
@@ -41,15 +41,16 @@ export async function expectUserWithAccounts(ctx: CommandContext): Promise<User 
  * the command has moderator permissions. If the user does, it returns true. If
  * the user does not, it will print a message and return false.
  */
-export async function expectModerator({ msg, error, guild, t }: CommandContext): Promise<boolean> {
+export async function expectModerator({ ctx, msg, error, guild, t }: CommandContext): Promise<boolean> {
     // If this was sent in DMs, this is illegal and should really throw, but we will abort.
     if (!guild) return false;
 
     // Bot and server owner can obviously do anything.
-    if (msg.author.id === config.discord.owner || msg.author.id === guild.ownerID) return true;
+    if (ctx.author.id === config.discord.owner || ctx.author.id === guild.ownerID) return true;
 
     // If the user can manage messages, they are considered a moderator.
-    if (msg.member!.permission.has("manageMessages")) return true;
+    const member = guild.members.get(ctx.author.id);
+    if (member && member.permissions.has("manageMessages")) return true;
 
     await error({
         title: t.command_error_no_permissions,
@@ -89,7 +90,7 @@ export async function expectChampion({ content, guild, server, error, t }: Comma
  * with only the fields swapped for every list element. The process function is used to lazily compute the contents on
  * every page.
  */
-export async function advancedPaginate<T>({ info, msg, t }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
+export async function advancedPaginate<T>({ info, msg, t, bot }: CommandContext, elements: T[], template: ResponseOptions, process: (elements: T[], offset: number) => Promise<{ name: string, value: string, inline?: boolean }[]>, perPage = 10) {
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
 
@@ -115,7 +116,11 @@ export async function advancedPaginate<T>({ info, msg, t }: CommandContext, elem
         await res.globalOption("➡", () => showPage(+1));
     }
 
-    await res.option("🗑", () => msg.delete("Deleted By User"));
+    await res.option("🗑", () => {
+        if (msg.id) {
+            bot.deleteMessage(msg.channelID, msg.id, "Deleted By User");
+        }
+    });
 
     return res;
 }
@@ -132,7 +137,7 @@ export async function paginate(ctx: CommandContext, elements: { name: string, va
  * fields are used as pagination. Instead, a raw callback can edit the page itself. It also takes a maximum amount of
  * entries instead of a fully materialized list of entries.
  */
-export async function paginateRaw<T>({ info, msg, ctx, t }: CommandContext, elementCount: number, process: (offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
+export async function paginateRaw<T>({ info, msg, ctx, t, bot }: CommandContext, elementCount: number, process: (offset: number, page: number, maxPages: number) => Promise<ResponseOptions>, perPage = 10) {
     const pages = Math.ceil(elementCount / perPage);
     let curPage = 0;
     let loading = false;
@@ -170,7 +175,11 @@ export async function paginateRaw<T>({ info, msg, ctx, t }: CommandContext, elem
         await res.globalOption("➡", () => showPage(+1));
     }
 
-    await res.option("🗑", () => msg.delete("Deleted By User"));
+    await res.option("🗑", () => {
+        if (msg.id) {
+            bot.deleteMessage(msg.channelID, msg.id, "Deleted By User");
+        }
+    });
 
     return res;
 }

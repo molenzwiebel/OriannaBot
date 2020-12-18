@@ -8,9 +8,16 @@ import elastic from "../elastic";
 import generatePromotionGraphic from "../graphics/promotion";
 import getTranslator, { Translator } from "../i18n";
 import RiotAPI from "../riot/api";
+import fetch from "node-fetch";
 import formatName from "../util/format-name";
-import { Command, ResponseContext } from "./command";
-import Response, { ResponseOptions } from "./response";
+import { Command, CommandContext, ResponseContext, SlashCapableCommand } from "./command";
+import Response, { ResponseOptions, TriggerMessage } from "./response";
+import {
+    applicationCommandToNames, commandInvocationFindParams,
+    commandInvocationParamsToName,
+    SlashCommandDescription,
+    SlashCommandInvocationData
+} from "./slash-commands";
 import debug = require("debug");
 import randomstring = require("randomstring");
 
@@ -56,6 +63,7 @@ export default class DiscordClient {
         ]
     });
     public readonly commands: Command[] = [];
+    private commandsBySlashPath = new Map<string, SlashCapableCommand>();
     private responses: Response[] = [];
     private statusIndex = 0;
     private presenceTimeouts = new Map<string, number>();
@@ -85,6 +93,7 @@ export default class DiscordClient {
 
         this.bot.on("ready", () => {
             info("Connected to discord as %s (%s)", this.bot.user.username, this.bot.user.id);
+            this.registerSlashCommands();
         });
 
         this.bot.on("messageCreate", this.handleMessage);
@@ -95,6 +104,16 @@ export default class DiscordClient {
         this.bot.on("userUpdate", this.handleUserUpdate);
         this.bot.on("guildMemberAdd", this.handleGuildMemberAdd);
         this.bot.on("presenceUpdate", this.handlePresenceUpdate);
+
+        this.bot.on("unknown", async (packet, id) => {
+            console.log(JSON.stringify(packet, null, 4));
+            console.log(id);
+
+            if (packet.t === "INTERACTION_CREATE") {
+                const d = <any> packet.d;
+                await this.handleSlashCommandInvocation(d);
+            }
+        });
 
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
         const formatStatus = (stat: string) => {
@@ -171,7 +190,7 @@ export default class DiscordClient {
 
             const user = this.bot.users.get(id)!;
             const dm = await this.bot.getDMChannel(id);
-            await this.createResponse(dm, user).respond(embed);
+            await this.createResponse(dm.id, user).respond(embed);
         } catch (e) {
             // Do nothing.
         }
@@ -180,7 +199,7 @@ export default class DiscordClient {
     /**
      * Displays an interactive list of all commands in the specified channel.
      */
-    public async displayHelp(t: Translator, channel: eris.Textable, user: eris.User, trigger: eris.Message) {
+    public async displayHelp(t: Translator, channelID: string, user: eris.User, trigger: TriggerMessage) {
         const commands = this.commands.filter(x => !x.hideFromHelp);
         const index: ResponseOptions = {
             color: 0x0a96de,
@@ -192,7 +211,7 @@ export default class DiscordClient {
             }))
         };
 
-        const resp = await this.createResponse(channel, user, trigger).respond(index);
+        const resp = await this.createResponse(channelID, user, trigger).respond(index);
         await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
 
         for (const cmd of commands) {
@@ -233,16 +252,16 @@ export default class DiscordClient {
     /**
      * Creates a new ResponseContext for the specified user and channel, and optionally the trigger message.
      */
-    public createResponseContext(t: Translator, channel: eris.Textable, user: eris.User, msg?: eris.Message): ResponseContext {
+    public createResponseContext(t: Translator, channelID: string, user: eris.User, msg?: TriggerMessage): ResponseContext {
         return {
-            ok: embed => this.createResponse(channel, user, msg).respond({ color: 0x49bd1a, ...embed }),
-            info: embed => this.createResponse(channel, user, msg).respond({ color: 0x0a96de, ...embed }),
-            error: embed => this.createResponse(channel, user, msg).respond({ color: 0xfd5c5c, ...embed }),
-            respond: embed => this.createResponse(channel, user, msg).respond(embed),
+            ok: embed => this.createResponse(channelID, user, msg).respond({ color: 0x49bd1a, ...embed }),
+            info: embed => this.createResponse(channelID, user, msg).respond({ color: 0x0a96de, ...embed }),
+            error: embed => this.createResponse(channelID, user, msg).respond({ color: 0xfd5c5c, ...embed }),
+            respond: embed => this.createResponse(channelID, user, msg).respond(embed),
             listen: (timeout = 30000) => {
                 return Promise.race([new Promise<eris.Message>(resolve => {
                     const fn = (msg: eris.Message) => {
-                        if (msg.channel !== channel) return;
+                        if (msg.channel.id !== channelID) return;
                         if (msg.author.id !== user.id) return;
 
                         resolve(msg);
@@ -316,41 +335,7 @@ export default class DiscordClient {
         // Don't respond to ourselves or other bots.
         if (msg.author.id === this.bot.user.id || msg.author.bot) return;
 
-        // Clean content.
-        const content = msg.content
-            .replace(new RegExp(`<@!?${this.bot.user.id}>`, "g"), "")
-            .replace(/\s+/g, " ").trim();
-        msg.mentions = msg.mentions.filter(x => x.id !== this.bot.user.id);
-
-        // Treat any ID inside the content as mentions as well.
-        content.replace(/\d{16,}/g, (match) => {
-            const user = this.bot.users.get(match);
-            if (user && !msg.mentions.find(x => x.id === user.id)) msg.mentions.push(user);
-            return "";
-        });
-
-        // AAA#0000 mentions are a bit more effort since a command like `@Ori top Some User#1234` is ambiguous between
-        // "Some User#1234", "User#1234" and even "top Some User#1234". We use a hacky solution by instead relying on finding
-        // all users with the discriminator, then find the user whose name is contained inside the message, preferring longer
-        // matches over shorter ones (User#1234 > er#1234)
-        content.replace(/\b(.*)#(\d{4})\b/g, (_, username, discrim) => {
-            const usersWithDiscrim = this.bot.users.filter(x => x.discriminator === discrim);
-
-            const bestUser = usersWithDiscrim.reduce<eris.User | null>((prev, cur) => {
-                // If the username of this user is not in the query, continue.
-                if (!username.includes(cur.username)) return prev;
-
-                // If this is the first match, just return it.
-                if (!prev) return cur;
-
-                return prev.username.length >= cur.username.length ? prev : cur;
-            }, null);
-
-            if (bestUser && !msg.mentions.find(x => x.id === bestUser.id)) msg.mentions.push(bestUser);
-            return "";
-        });
-
-        const words = content.toLowerCase().split(" ");
+        const words = msg.content.toLowerCase().split(" ");
 
         // Find a command that is matched.
         const matchedCommand = this.commands.find(command => {
@@ -376,7 +361,7 @@ export default class DiscordClient {
         // If this matched command requires a mention, but we have none, abort.
         if (!isDM && !hasMention && matchedCommand.noMention !== true) return;
 
-        info("[%s] [%s] %s", msg.author.username, matchedCommand.name, content);
+        info("[%s] [%s] %s", msg.author.username, matchedCommand.name, msg.content);
         await elastic.logCommand(matchedCommand.name, msg);
 
         // Check if this is the first time that this user has used an orianna command.
@@ -407,46 +392,28 @@ export default class DiscordClient {
             }
         }
 
-        // Create a translation instance for this message.
-        const t = await this.getTranslatorForUser(msg.author.id, isDM ? void 0 : (<eris.TextChannel>msg.channel).guild.id);
-
         // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
+        const t = await this.getTranslatorForUser(msg.author.id, msg.guildID);
         const targetChannel = fromMute ? await this.bot.getDMChannel(msg.author.id) : msg.channel;
-        const responseContext = this.createResponseContext(t, targetChannel, msg.author, msg);
 
         // Send typing during computing time, unless disabled for this specific command.
         if (!matchedCommand.noTyping) await targetChannel.sendTyping();
 
-        // Do things a bit differently depending on if the message was sent in a server or not.
-        const template = {
-            ...responseContext,
-            client: this,
-            bot: this.bot,
-            channel: msg.channel,
-            msg,
-            content,
-            user: () => this.findOrCreateUser(msg.author.id),
-            ctx: <any>null
-        };
+        const responseCtx = await this.createCommandContext({
+            userID: msg.author.id,
+            message: {
+                content: msg.content,
+                channelID: msg.channel.id,
+                id: msg.id,
+                mentions: this.parseMentions(msg.content)
+            },
+            guildID: msg.guildID,
+            respondInChannelID: targetChannel.id
+        });
 
         const transaction = elastic.startCommandTransaction(matchedCommand.name);
         try {
-            const obj = isDM ? {
-                ...template,
-                guildChannel: <any>null,
-                privateChannel: <eris.PrivateChannel>msg.channel,
-                guild: <any>null,
-                server: () => Promise.reject("Message was not sent in a server.")
-            } : {
-                ...template,
-                guildChannel: <eris.TextChannel>msg.channel,
-                privateChannel: <any>null,
-                guild: (<eris.TextChannel>msg.channel).guild,
-                server: () => this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id)
-            };
-            obj.ctx = obj;
-
-            await matchedCommand.handler(obj);
+            await matchedCommand.handler(responseCtx);
             if (transaction) transaction.result = 200;
         } catch (e) {
             // Send a message to the user and log the error.
@@ -458,7 +425,7 @@ export default class DiscordClient {
             const incident = await elastic.reportError(e, "command handler");
             if (transaction) transaction.result = 404;
 
-            await template.error({
+            await responseCtx.error({
                 title: t.command_error_title,
                 description: t.command_error_description,
                 image: "https://i.imgur.com/SBpi54R.png"
@@ -467,6 +434,49 @@ export default class DiscordClient {
             if (transaction) transaction.end();
         }
     };
+
+    private async createCommandContext(options: {
+        userID: string,
+        message: TriggerMessage,
+        respondInChannelID: string,
+        guildID?: string,
+    }): Promise<CommandContext> {
+        // Create a translation instance for this message.
+        const t = await this.getTranslatorForUser(options.userID, options.guildID);
+
+        // Fetch data from cache.
+        // TODO: review this, stuff may not be in cache?
+        const user = this.bot.users.get(options.userID)!;
+        const guild = options.guildID ? this.bot.guilds.get(options.guildID) : undefined;
+
+        // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
+        const responseContext = this.createResponseContext(t, options.respondInChannelID, user, options.message);
+
+        // Do things a bit differently depending on if the message was sent in a server or not.
+        const template = {
+            ...responseContext,
+            client: this,
+            bot: this.bot,
+            msg: options.message,
+            content: options.message.content,
+            author: user,
+            user: () => this.findOrCreateUser(options.userID),
+            ctx: <any>null
+        };
+
+        const obj = !guild ? {
+            ...template,
+            guild: <any>null,
+            server: () => Promise.reject("Message was not sent in a server.")
+        } : {
+            ...template,
+            guild,
+            server: () => this.findOrCreateServer(options.guildID!)
+        };
+        obj.ctx = obj
+
+        return obj;
+    }
 
     /**
      * Handles a new reaction added to a message by a user. Responsible
@@ -499,7 +509,12 @@ export default class DiscordClient {
                     // We don't have permissions to message the user. They're most likely set to private.
                 }
             } else {
-                this.displayHelp(t, msg.channel, msg.author, msg);
+                this.displayHelp(t, msg.channel.id, msg.author, {
+                    content: msg.content,
+                    channelID: msg.channel.id,
+                    id: msg.id,
+                    mentions: []
+                });
             }
         }
 
@@ -656,8 +671,8 @@ export default class DiscordClient {
     /**
      * Utility method to create a new response and add it to the list of emitted responses.
      */
-    private createResponse(channel: eris.Textable, user: eris.User, msg?: eris.Message) {
-        const resp = new Response(this.bot, user, channel, msg);
+    private createResponse(channelID: string, user: eris.User, msg?: TriggerMessage) {
+        const resp = new Response(this.bot, user, channelID, msg);
 
         this.responses.push(resp);
 
@@ -669,11 +684,6 @@ export default class DiscordClient {
             if (idx !== -1) {
                 resp.removeAllOptions();
                 this.responses.splice(idx, 1);
-            }
-
-            if (msg) {
-                // Remove the message from our local cache too.
-                msg.channel.messages.delete(msg.id);
             }
         }, 30 * 60 * 1000); // expire after 30 mins
 
@@ -727,4 +737,107 @@ export default class DiscordClient {
             footer: "Orianna Bot v2"
         });
     }
+
+    /**
+     * Handles a slash command invocation received from the gateway.
+     */
+    private async handleSlashCommandInvocation(data: SlashCommandInvocationData) {
+        const matchingCommand = this.commandsBySlashPath.get(commandInvocationParamsToName(data.data));
+        if (!matchingCommand) return; // ???, should never happen unless discord fucks up
+
+        // Acknowledge with either an empty message or nothing, depending on command settings.
+        await fetch(`https://discord.com/api/v8/interactions/${data.id}/${data.token}/callback`, {
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+            body: JSON.stringify({
+                type: matchingCommand.hideInvocation ? 2 : 5
+            })
+        });
+
+        // Convert params to a string command with equivalent meaning.
+        const params = commandInvocationFindParams(data.data);
+        const content = matchingCommand.keywords[0] + " " + params.map(x => matchingCommand.convertSlashParameter!(x.name, x.value)).filter(x => x).join(" ");
+    }
+
+    /**
+     * Attempts to parse all user mentions from the specified content and
+     * returns a list of users. Will also parse raw IDs and names that do
+     * not contain mentions.
+     */
+    private parseMentions(content: string): eris.User[] {
+        let mentions = (content.match(/<@!?[0-9]+>/g) || []).map(mention => {
+            const [, id] = /\d+/.exec(mention)!;
+            return this.bot.users.get(id);
+        }).filter((x): x is eris.User => !!x);
+
+        // Don't include ourselves.
+        mentions = mentions.filter(x => x.id !== this.bot.user.id);
+
+        // Treat any ID inside the content as mentions as well.
+        content.replace(/\d{16,}/g, (match) => {
+            const user = this.bot.users.get(match);
+            if (user && !mentions.find(x => x.id === user.id)) mentions.push(user);
+            return "";
+        });
+
+        // AAA#0000 mentions are a bit more effort since a command like `@Ori top Some User#1234` is ambiguous between
+        // "Some User#1234", "User#1234" and even "top Some User#1234". We use a hacky solution by instead relying on finding
+        // all users with the discriminator, then find the user whose name is contained inside the message, preferring longer
+        // matches over shorter ones (User#1234 > er#1234)
+        content.replace(/\b(.*)#(\d{4})\b/g, (_, username, discrim) => {
+            const usersWithDiscrim = this.bot.users.filter(x => x.discriminator === discrim);
+
+            const bestUser = usersWithDiscrim.reduce<eris.User | null>((prev, cur) => {
+                // If the username of this user is not in the query, continue.
+                if (!username.includes(cur.username)) return prev;
+
+                // If this is the first match, just return it.
+                if (!prev) return cur;
+
+                return prev.username.length >= cur.username.length ? prev : cur;
+            }, null);
+
+            if (bestUser && !mentions.find(x => x.id === bestUser.id)) mentions.push(bestUser);
+            return "";
+        });
+
+        return mentions;
+    }
+
+    /**
+     * Registers all slash commands globally based on the current configuration.
+     */
+    private async registerSlashCommands() {
+        const toplevelCommand: SlashCommandDescription = {
+            name: "orianna",
+            description: "All things Orianna Bot!",
+            options: []
+        };
+
+        // TODO: register per server so we can respect translation?
+        for (const command of this.commands) {
+            const cmd = <SlashCapableCommand> command;
+
+            if (cmd.asSlashCommand) {
+                const asSlash = cmd.asSlashCommand(getTranslator("en-US"));
+
+                for (const name of applicationCommandToNames(asSlash)) {
+                    console.log("registering " + name);
+                    this.commandsBySlashPath.set("orianna." + name, cmd);
+                }
+
+                toplevelCommand.options.push(asSlash);
+            }
+        }
+
+        await fetch(`https://discord.com/api/v8/applications/410079070668193793/guilds/260150758555648002/commands`, {
+            method: "POST",
+            headers: {
+                Authorization: this.bot.token!,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(toplevelCommand)
+        }).then(x => x.json());
+    }
+
 }

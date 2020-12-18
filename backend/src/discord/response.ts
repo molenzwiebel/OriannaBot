@@ -28,6 +28,16 @@ export interface ResponseOptions {
 }
 
 /**
+ * Represents the minimal information needed for a message that can be responded to.
+ */
+export interface TriggerMessage {
+    id?: string;
+    content: string;
+    channelID: string;
+    mentions: eris.User[];
+}
+
+/**
  * Represents a message containing an embed sent in response to some user action.
  * This class adds the ability to listen to events that happened on the response,
  * which abstracts out logic relating things like reactions and the creator removing
@@ -38,13 +48,13 @@ export default class Response {
      * The channel this response is sent to. This may differ from the channel
      * where the response was triggered (if we reply in DMs for example).
      */
-    private channel: eris.Textable;
+    private channelID: string;
 
     /**
      * The message that triggered this response. Used to delete the response
      * when the original message was deleted.
      */
-    private trigger?: eris.Message;
+    private trigger?: TriggerMessage;
 
     /**
      * The user that triggered this response. Used to limit reactions to only
@@ -63,8 +73,8 @@ export default class Response {
     private reactions = new Map<string, Function>();
     private globalReactions: string[] = [];
 
-    constructor(private bot: eris.Client, user: eris.User, channel: eris.Textable, trigger?: eris.Message) {
-        this.channel = channel;
+    constructor(private bot: eris.Client, user: eris.User, channelID: string, trigger?: TriggerMessage) {
+        this.channelID = channelID;
         this.user = user;
         this.trigger = trigger;
     }
@@ -76,9 +86,9 @@ export default class Response {
     async respond(responseContent: ResponseOptions): Promise<Response> {
         // Do not include embed if this is file-only.
         if (responseContent.file && responseContent.file.fileOnly) {
-            this.message = await this.channel.createMessage("", responseContent.file);
+            this.message = await this.bot.createMessage(this.channelID, "", responseContent.file);
         } else {
-            this.message = await this.channel.createMessage({
+            this.message = await this.bot.createMessage(this.channelID, {
                 embed: this.buildEmbed(responseContent)
             }, responseContent.file || void 0);
         }
@@ -134,7 +144,11 @@ export default class Response {
      */
     async remove() {
         try { await this.message.delete(); } catch (e) {} // might not be able to delete (perms)
-        try { if (this.trigger) await this.trigger.delete(); } catch (e) {} // might not be able to delete (in a pm)
+        try {
+            if (this.trigger && this.trigger.id) {
+                await this.bot.deleteMessage(this.trigger.channelID, this.trigger.id);
+            }
+        } catch (e) {} // might not be able to delete (in a pm)
     }
 
     /**
@@ -236,7 +250,7 @@ export default class Response {
         if (this.trigger) {
             obj = {
                 color: options.color,
-                footer: options.noFooter ? void 0 : { icon_url: this.trigger.author.avatarURL, text: (options.footer ? options.footer + (options.noFooterDefaults ? "" : " • ") : "") + (options.noFooterDefaults ? "" : formatName(this.user, true)) },
+                footer: options.noFooter ? void 0 : { icon_url: this.user.avatarURL, text: (options.footer ? options.footer + (options.noFooterDefaults ? "" : " • ") : "") + (options.noFooterDefaults ? "" : formatName(this.user, true)) },
                 timestamp: options.noFooter || options.noFooterDefaults ? void 0 : new Date(options.timestamp || Date.now()).toISOString()
             };
         } else {

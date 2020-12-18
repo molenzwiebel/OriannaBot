@@ -8,13 +8,13 @@ const RefreshCommand: Command = {
     descriptionKey: "command_refresh_description",
     noTyping: true,
     keywords: ["refresh", "reload", "update", "recalculate"],
-    async handler({ ctx, msg }) {
+    async handler({ ctx, bot, msg }) {
         const user = await expectUser(ctx);
         if (!user) return;
 
         const loadingEmoji = rawEmote(ctx, "Refreshing")!;
 
-        msg.addReaction(loadingEmoji);
+        if (msg.id) bot.addMessageReaction(msg.channelID, msg.id, loadingEmoji);
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
@@ -29,8 +29,10 @@ const RefreshCommand: Command = {
             last_score_update_timestamp: '' + Date.now()
         });
 
-        msg.removeReaction(loadingEmoji);
-        msg.addReaction("✅");
+        if (msg.id) {
+            bot.removeMessageReaction(msg.channelID, msg.id, loadingEmoji);
+            bot.addMessageReaction(msg.channelID, msg.id, "✅");
+        }
     }
 };
 export default RefreshCommand;

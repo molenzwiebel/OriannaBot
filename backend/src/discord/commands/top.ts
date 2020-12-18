@@ -1,19 +1,61 @@
-import { Command } from "../command";
 import { User, UserChampionStat } from "../../database";
-import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
-import formatName from "../../util/format-name";
-import redis from "../../redis";
-import randomstring = require("randomstring");
-import { ResponseOptions } from "../response";
 import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
+import redis from "../../redis";
+import formatName from "../../util/format-name";
 import { createGeneratedImagePath } from "../../web/generated-images";
+import { SlashCapableCommand } from "../command";
+import { ResponseOptions } from "../response";
+import { ApplicationCommandOptionType } from "../slash-commands";
+import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
+import randomstring = require("randomstring");
 
-const TopCommand: Command = {
+const TopCommand: SlashCapableCommand = {
     name: "Show Leaderboards",
     smallDescriptionKey: "command_top_small_description",
     descriptionKey: "command_top_description",
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
-    async handler({ msg, content, guild, ctx, error, t }) {
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+            name: "leaderboard",
+            description: t.command_top_small_description,
+            options: [{
+                type: ApplicationCommandOptionType.SUB_COMMAND,
+                name: "champion",
+                description: "Shows the players with the top mastery on the given champion.",
+                options: [{
+                    type: ApplicationCommandOptionType.STRING,
+                    required: true,
+                    default: true,
+                    description: "The champion to show statistics for.",
+                    name: "champion"
+                }, {
+                    type: ApplicationCommandOptionType.BOOLEAN,
+                    name: "server-only",
+                    default: false,
+                    description: "Whether to only show players on this server."
+                }]
+            }, {
+                type: ApplicationCommandOptionType.SUB_COMMAND,
+                name: "user",
+                description: "Shows the top played champions for the specified user.",
+                options: [{
+                    type: ApplicationCommandOptionType.USER,
+                    required: true,
+                    name: "user",
+                    default: true,
+                    description: "The user to show played champions for."
+                }]
+            }]
+        };
+    },
+    convertSlashParameter(key, value) {
+        if (key === "user") return `<@!${value}>`;
+        if (key === "server-only") return value ? "server" : "";
+        if (key === "champion") return value;
+        throw "Illegal key: " + key;
+    },
+    async handler({ msg, content, guild, ctx, error, t, author }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
         const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
@@ -136,7 +178,7 @@ const TopCommand: Command = {
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${msg.author.id}-${curPage}-${serverOnly ? guild.id : "false"}`, async () => genFunction(
+            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${author.id}-${curPage}-${serverOnly ? guild.id : "false"}`, async () => genFunction(
                 t, {
                 champion: champ,
                 title: champ

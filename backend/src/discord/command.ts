@@ -1,9 +1,9 @@
 import * as eris from "eris";
-import { ResponseOptions } from "./response";
-import { User, Server } from "../database";
-import Response from "./response";
-import DiscordClient from "./client";
+import { Server, User } from "../database";
 import { Translator } from "../i18n";
+import DiscordClient from "./client";
+import Response, { ResponseOptions, TriggerMessage } from "./response";
+import { ApplicationCommandOption } from "./slash-commands";
 
 export interface Command {
     /**
@@ -50,6 +50,34 @@ export interface Command {
      * This receives a CommandContext that it can use to communicate.
      */
     handler(context: CommandContext): Promise<any>;
+}
+
+/**
+ * Represents a command instance that additionally has the ability to register
+ * and respond to discord slash commands.
+ */
+export interface SlashCapableCommand extends Command {
+    /**
+     * The "slash command" representation of this command, or null if
+     * it cannot reasonably be represented as a command. All commands
+     * are registered as a subcommand of orianna's top-level command.
+     */
+    asSlashCommand: (trans: Translator) => ApplicationCommandOption;
+
+    /**
+     * If `asSlashCommand` is implemented, this function allows for
+     * parameters with the specified name to be converted to a string
+     * value that is treated as if the function was invoked using a text
+     * invocation.
+     */
+    convertSlashParameter: (key: string, value: any) => string;
+
+    /**
+     * Whether or not the invocation of the command should be shown
+     * in the channel or not. If not set, defaults to showing the
+     * invocation.
+     */
+    hideInvocation?: boolean;
 }
 
 export interface ResponseContext {
@@ -103,24 +131,6 @@ export interface CommandContext extends ResponseContext {
     bot: eris.Client;
 
     /**
-     * The channel in which the triggering message was sent. This
-     * is either a DM or a guild text channel.
-     */
-    channel: eris.Textable;
-
-    /**
-     * `channel`, but automatically cast to TextChannel. This is for
-     * convenience and may not always be a text channel.
-     */
-    guildChannel: eris.TextChannel;
-
-    /**
-     * `channel`, but automatically cast to PrivateChannel. This is for
-     * convenience and may not always be a private channel.
-     */
-    privateChannel: eris.PrivateChannel;
-
-    /**
      * The server in which this message was sent. Null if the message was
      * sent in DMs (but not marked as such since it makes it harder to
      * work with in 99% of all cases).
@@ -128,9 +138,14 @@ export interface CommandContext extends ResponseContext {
     guild: eris.Guild;
 
     /**
+     * The user that created this message.
+     */
+    author: eris.User;
+
+    /**
      * The original message that triggered the command.
      */
-    msg: eris.Message;
+    msg: TriggerMessage;
 
     /**
      * The content of the message with all Orianna Bot mentions filtered out.

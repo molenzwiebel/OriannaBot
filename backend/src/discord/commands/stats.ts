@@ -9,7 +9,7 @@ const StatsCommand: Command = {
     smallDescriptionKey: "command_stats_small_description",
     descriptionKey: "command_stats_description",
     keywords: ["stats", "graph", "chart", "progression", "progress"],
-    async handler({ info, msg, ctx, client, error, t }) {
+    async handler({ info, msg, ctx, author, error, t }) {
         // Find champion and target user.
         const champ = await expectChampion(ctx);
         if (!champ) return;
@@ -29,7 +29,7 @@ const StatsCommand: Command = {
             .orderBy("timestamp", "ASC");
 
         if (!values.length) {
-            const isUs = target.snowflake === msg.author.id;
+            const isUs = target.snowflake === author.id;
 
             return error({
                 title: t.command_stats_no_values_title,
