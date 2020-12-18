@@ -102,6 +102,12 @@ export interface ResponseContext {
     respond: (opts: ResponseOptions) => Promise<Response>;
 
     /**
+     * Sends a typing message to the gateway for the channel
+     * where this context is set to respond to.
+     */
+    sendTyping: () => Promise<void>;
+
+    /**
      * Waits for a message from the user that triggered the command. If
      * the user does not reply within `timeout`ms, undefined is returned instead.
      */

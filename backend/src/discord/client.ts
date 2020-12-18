@@ -106,9 +106,6 @@ export default class DiscordClient {
         this.bot.on("presenceUpdate", this.handlePresenceUpdate);
 
         this.bot.on("unknown", async (packet, id) => {
-            console.log(JSON.stringify(packet, null, 4));
-            console.log(id);
-
             if (packet.t === "INTERACTION_CREATE") {
                 const d = <any> packet.d;
                 await this.handleSlashCommandInvocation(d);
@@ -271,6 +268,7 @@ export default class DiscordClient {
                     this.bot.on("messageCreate", fn);
                 }), new Promise<undefined>(resolve => setTimeout(() => resolve(undefined), timeout))]);
             },
+            sendTyping: () => this.bot.sendChannelTyping(channelID),
             t
         };
     }
@@ -335,9 +333,8 @@ export default class DiscordClient {
         // Don't respond to ourselves or other bots.
         if (msg.author.id === this.bot.user.id || msg.author.bot) return;
 
-        const words = msg.content.toLowerCase().split(" ");
-
         // Find a command that is matched.
+        const words = msg.content.toLowerCase().split(" ");
         const matchedCommand = this.commands.find(command => {
             return command.keywords.some(x => words.includes(x));
         });
@@ -349,6 +346,7 @@ export default class DiscordClient {
             if (isDM || hasMention) {
                 await msg.addReaction(HELP_REACTION, "@me");
                 msg.channel.messages.add(msg);
+                return;
             }
 
             // Eris never deletes cached messages, even though we don't need them.
@@ -364,40 +362,7 @@ export default class DiscordClient {
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, msg.content);
         await elastic.logCommand(matchedCommand.name, msg);
 
-        // Check if this is the first time that this user has used an orianna command.
-        // If in a server and yes, check if engagement should apply (only on commands
-        // that are not no-mention, such as the nadeko/etc bot compat commands).
-        if (!isDM && matchedCommand.noMention !== true) {
-            const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
-            const user = await User.query().where("snowflake", msg.author.id).first();
-
-            // If on command and no user, engage.
-            if (server.engagement.type === "on_command" && !user) {
-                this.engageUser(msg.author, server);
-            }
-        }
-
-        // If this is in a server, we need to check if the channel is blacklisted.
-        if (!isDM && !fromMute) {
-            const server = await this.findOrCreateServer((<eris.TextChannel>msg.channel).guild.id);
-
-            // Find the first instance where snowflake = channel_snowflake. If it exists, we abort.
-            if (await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").where("snowflake", "=", msg.channel.id).first()) {
-                // If this server is muted and this is a command not triggered by a mention, just do not do anything.
-                if (matchedCommand.noMention) return;
-
-                await msg.addReaction(MUTE_REACTION, "@me");
-                msg.channel.messages.add(msg);
-                return;
-            }
-        }
-
-        // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
-        const t = await this.getTranslatorForUser(msg.author.id, msg.guildID);
         const targetChannel = fromMute ? await this.bot.getDMChannel(msg.author.id) : msg.channel;
-
-        // Send typing during computing time, unless disabled for this specific command.
-        if (!matchedCommand.noTyping) await targetChannel.sendTyping();
 
         const responseCtx = await this.createCommandContext({
             userID: msg.author.id,
@@ -411,72 +376,9 @@ export default class DiscordClient {
             respondInChannelID: targetChannel.id
         });
 
-        const transaction = elastic.startCommandTransaction(matchedCommand.name);
-        try {
-            await matchedCommand.handler(responseCtx);
-            if (transaction) transaction.result = 200;
-        } catch (e) {
-            // Send a message to the user and log the error.
-            error("Error during execution of '%s' by '%s' in '%s': %s'", matchedCommand.name, msg.author.id, msg.channel.id, e.message);
-            error(e.stack);
-            error("%O", e);
-
-            // Report to elastic, if enabled.
-            const incident = await elastic.reportError(e, "command handler");
-            if (transaction) transaction.result = 404;
-
-            await responseCtx.error({
-                title: t.command_error_title,
-                description: t.command_error_description,
-                image: "https://i.imgur.com/SBpi54R.png"
-            });
-        } finally {
-            if (transaction) transaction.end();
-        }
+        // Execute the command.
+        await this.executeCommandWithContext(matchedCommand, responseCtx, fromMute);
     };
-
-    private async createCommandContext(options: {
-        userID: string,
-        message: TriggerMessage,
-        respondInChannelID: string,
-        guildID?: string,
-    }): Promise<CommandContext> {
-        // Create a translation instance for this message.
-        const t = await this.getTranslatorForUser(options.userID, options.guildID);
-
-        // Fetch data from cache.
-        // TODO: review this, stuff may not be in cache?
-        const user = this.bot.users.get(options.userID)!;
-        const guild = options.guildID ? this.bot.guilds.get(options.guildID) : undefined;
-
-        // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
-        const responseContext = this.createResponseContext(t, options.respondInChannelID, user, options.message);
-
-        // Do things a bit differently depending on if the message was sent in a server or not.
-        const template = {
-            ...responseContext,
-            client: this,
-            bot: this.bot,
-            msg: options.message,
-            content: options.message.content,
-            author: user,
-            user: () => this.findOrCreateUser(options.userID),
-            ctx: <any>null
-        };
-
-        const obj = !guild ? {
-            ...template,
-            guild: <any>null,
-            server: () => Promise.reject("Message was not sent in a server.")
-        } : {
-            ...template,
-            guild,
-            server: () => this.findOrCreateServer(options.guildID!)
-        };
-        obj.ctx = obj
-
-        return obj;
-    }
 
     /**
      * Handles a new reaction added to a message by a user. Responsible
@@ -669,6 +571,119 @@ export default class DiscordClient {
     };
 
     /**
+     * Dispatches the given command with the specified context. Ensures that engagements
+     * are triggered appropriately and that the command is ignored if commands are muted
+     * in that channel.
+     */
+    private async executeCommandWithContext(command: Command, context: CommandContext, fromMute = false) {
+        const isDM = context.guild == null;
+
+        // Check if this is the first time that this user has used an orianna command.
+        // If in a server and yes, check if engagement should apply (only on commands
+        // that are not no-mention, such as the nadeko/etc bot compat commands).
+        if (!isDM && command.noMention !== true) {
+            const server = await this.findOrCreateServer(context.guild.id);
+            const user = await User.query().where("snowflake", context.author.id).first();
+
+            // If on command and no user, engage.
+            if (server.engagement.type === "on_command" && !user) {
+                this.engageUser(context.author, server);
+            }
+        }
+
+        // If this is in a server, we need to check if the channel is blacklisted.
+        if (!isDM && !fromMute) {
+            const server = await this.findOrCreateServer(context.guild.id);
+
+            // Find the first instance where snowflake = channel_snowflake. If it exists, we abort.
+            if (await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").where("snowflake", "=", context.msg.channelID).first()) {
+                // If this server is muted and this is a command not triggered by a mention, just do not do anything.
+                if (command.noMention) return;
+
+                if (context.msg.id) {
+                    await this.bot.addMessageReaction(context.msg.channelID, context.msg.id, MUTE_REACTION, "@me");
+                }
+
+                return;
+            }
+        }
+
+        // Send typing during computing time, unless disabled for this specific command.
+        if (!command.noTyping) await context.sendTyping();
+
+        const transaction = elastic.startCommandTransaction(command.name);
+        try {
+            await command.handler(context);
+            if (transaction) transaction.result = 200;
+        } catch (e) {
+            const t = await this.getTranslatorForUser(context.author.id, context.guild?.id);
+
+            // Send a message to the user and log the error.
+            error("Error during execution of '%s' by '%s' in '%s': %s'", command.name, context.author.id, context.msg.channelID, e.message);
+            error(e.stack);
+            error("%O", e);
+
+            // Report to elastic, if enabled.
+            await elastic.reportError(e, "command handler");
+            if (transaction) transaction.result = 404;
+
+            await context.error({
+                title: t.command_error_title,
+                description: t.command_error_description,
+                image: "https://i.imgur.com/SBpi54R.png"
+            });
+        } finally {
+            if (transaction) transaction.end();
+        }
+    }
+
+    /**
+     * Creates a new command context from the specified parameters.
+     */
+    private async createCommandContext(options: {
+        userID: string,
+        message: TriggerMessage,
+        respondInChannelID: string,
+        guildID?: string,
+    }): Promise<CommandContext> {
+        // Create a translation instance for this message.
+        const t = await this.getTranslatorForUser(options.userID, options.guildID);
+
+        // Fetch data from cache.
+        // TODO: review this, stuff may not be in cache?
+        const user = this.bot.users.get(options.userID)!;
+        const guild = options.guildID ? this.bot.guilds.get(options.guildID) : undefined;
+
+        // If we are responding to a muted command, respond in the DMs. Else, respond in the same channel.
+        const responseContext = this.createResponseContext(t, options.respondInChannelID, user, options.message);
+
+        // Do things a bit differently depending on if the message was sent in a server or not.
+        const template = {
+            ...responseContext,
+            client: this,
+            bot: this.bot,
+            msg: options.message,
+            content: options.message.content,
+            author: user,
+            user: () => this.findOrCreateUser(options.userID),
+            ctx: <any>null
+        };
+
+        const obj = !guild ? {
+            ...template,
+            guild: <any>null,
+            server: () => Promise.reject("Message was not sent in a server.")
+        } : {
+            ...template,
+            guild,
+            server: () => this.findOrCreateServer(options.guildID!)
+        };
+        obj.ctx = obj
+
+        return obj;
+    }
+
+    /**
      * Utility method to create a new response and add it to the list of emitted responses.
      */
     private createResponse(channelID: string, user: eris.User, msg?: TriggerMessage) {
@@ -742,8 +757,13 @@ export default class DiscordClient {
      * Handles a slash command invocation received from the gateway.
      */
     private async handleSlashCommandInvocation(data: SlashCommandInvocationData) {
-        const matchingCommand = this.commandsBySlashPath.get(commandInvocationParamsToName(data.data));
-        if (!matchingCommand) return; // ???, should never happen unless discord fucks up
+        const commandName = commandInvocationParamsToName(data.data)
+        const matchingCommand = this.commandsBySlashPath.get(commandName);
+        if (!matchingCommand) { // ???, should never happen unless discord fucks up
+            error("No matching command for name %s and data: %s", commandName, JSON.stringify(data, null, 4));
+            error("Commands registered: %O", [...this.commandsBySlashPath.keys()]);
+            return;
+        }
 
         // Acknowledge with either an empty message or nothing, depending on command settings.
         await fetch(`https://discord.com/api/v8/interactions/${data.id}/${data.token}/callback`, {
@@ -757,6 +777,20 @@ export default class DiscordClient {
         // Convert params to a string command with equivalent meaning.
         const params = commandInvocationFindParams(data.data);
         const content = matchingCommand.keywords[0] + " " + params.map(x => matchingCommand.convertSlashParameter!(x.name, x.value)).filter(x => x).join(" ");
+
+        const responseCtx = await this.createCommandContext({
+            userID: data.member.user.id,
+            message: {
+                content: content,
+                channelID: data.channel_id,
+                mentions: this.parseMentions(content)
+            },
+            guildID: data.guild_id,
+            respondInChannelID: data.channel_id
+        });
+
+        // Execute the command.
+        await this.executeCommandWithContext(matchingCommand, responseCtx);
     }
 
     /**

@@ -116,11 +116,11 @@ export async function advancedPaginate<T>({ info, msg, t, bot }: CommandContext,
         await res.globalOption("➡", () => showPage(+1));
     }
 
-    await res.option("🗑", () => {
-        if (msg.id) {
-            bot.deleteMessage(msg.channelID, msg.id, "Deleted By User");
-        }
-    });
+    if (msg.id) {
+        await res.option("🗑", () => {
+            bot.deleteMessage(msg.channelID, msg.id!, "Deleted By User");
+        });
+    }
 
     return res;
 }
@@ -175,11 +175,11 @@ export async function paginateRaw<T>({ info, msg, ctx, t, bot }: CommandContext,
         await res.globalOption("➡", () => showPage(+1));
     }
 
-    await res.option("🗑", () => {
-        if (msg.id) {
-            bot.deleteMessage(msg.channelID, msg.id, "Deleted By User");
-        }
-    });
+    if (msg.id) {
+        await res.option("🗑", () => {
+            bot.deleteMessage(msg.channelID, msg.id!, "Deleted By User");
+        });
+    }
 
     return res;
 }
