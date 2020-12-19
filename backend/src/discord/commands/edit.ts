@@ -1,14 +1,24 @@
-import { Command } from "../command";
+import { Command, SlashCapableCommand } from "../command";
 import { UserAuthKey } from "../../database";
 import { randomBytes } from "crypto";
 import config from "../../config";
+import { ApplicationCommandOptionType } from "../slash-commands";
 
-const EditCommand: Command = {
+const EditCommand: SlashCapableCommand = {
     name: "Edit Profile",
     smallDescriptionKey: "command_edit_small_description",
     descriptionKey: "command_edit_description",
     keywords: ["edit", "config", "configure", "add", "remove"],
     noTyping: true,
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "edit",
+            description: "Add, remove or edit the League accounts you've linked with Orianna Bot.",
+        };
+    },
+    convertSlashParameter: (k, v) => v,
+    hideInvocation: true,
     async handler({ ctx, client, bot, msg, error, info, t, author }) {
         const normalizedContent = msg.content.toLowerCase();
 

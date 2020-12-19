@@ -1,12 +1,21 @@
-import { Command } from "../command";
-import { getLastCommit, Commit } from "git-last-commit";
+import { Commit, getLastCommit } from "git-last-commit";
+import { SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
 
-const AboutCommand: Command = {
+const AboutCommand: SlashCapableCommand = {
     name: "About",
     keywords: ["about", "info", "author", "creator", "source", "github", "code"],
     smallDescriptionKey: "empty",
     descriptionKey: "empty",
     hideFromHelp: true,
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "about",
+            description: "Need help? Want to see who made Orianna Bot? This is the command for you.",
+        };
+    },
+    convertSlashParameter: (k, v) => v,
     async handler({ info, bot, t }) {
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
 

@@ -1,12 +1,36 @@
-import { Command } from "../command";
-import { emote, expectChampion, expectUserWithAccounts } from "./util";
 import { badge } from "../../util/format-name";
+import { SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
+import { emote, expectChampion, expectUserWithAccounts } from "./util";
 
-const PointsCommand: Command = {
+const PointsCommand: SlashCapableCommand = {
     name: "Show Mastery Points",
     smallDescriptionKey: "command_points_small_description",
     descriptionKey: "command_points_description",
     keywords: ["points", "mastery", "score"],
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "points",
+            description: "Check how many mastery points someone has on a champion.",
+            options: [{
+                type: ApplicationCommandOptionType.STRING,
+                name: "champion",
+                description: "The champion whose mastery points you'd like to look up.",
+                // default: true,
+                required: true
+            }, {
+                type: ApplicationCommandOptionType.USER,
+                name: "user",
+                description: "The Discord user whose mastery you'd like to look up.",
+            }]
+        };
+    },
+    convertSlashParameter(k, v) {
+        if (k === "champion") return v;
+        if (k === "user") return `<@!${v}>`;
+        throw "Unknown parameter: " + k;
+    },
     async handler({ ctx, ok, t }) {
         // Remove the keywords since they can combine with champion names (e.g. **mastery i**relia).
         ctx.content = ctx.content.replace(/\b(points|mastery|score)\b/g, "");

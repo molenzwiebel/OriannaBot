@@ -32,7 +32,6 @@ const TopCommand: SlashCapableCommand = {
                 }, {
                     type: ApplicationCommandOptionType.BOOLEAN,
                     name: "server-only",
-                    default: false,
                     description: "Whether to only show players on this server."
                 }]
             }, {
@@ -43,7 +42,7 @@ const TopCommand: SlashCapableCommand = {
                     type: ApplicationCommandOptionType.USER,
                     required: true,
                     name: "user",
-                    default: true,
+                    // default: true,
                     description: "The user to show played champions for."
                 }]
             }]

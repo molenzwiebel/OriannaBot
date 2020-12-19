@@ -1,12 +1,21 @@
-import { Command } from "../command";
 import config from "../../config";
+import { SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
 
-const InviteCommand: Command = {
+const InviteCommand: SlashCapableCommand = {
     name: "Invite To Server",
     keywords: ["invite"],
     smallDescriptionKey: "empty",
     descriptionKey: "empty",
     hideFromHelp: true,
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "invite",
+            description: "Want to add Orianna Bot to your own server? Just use this command.",
+        };
+    },
+    convertSlashParameter: (k, v) => v,
     async handler({ info, t }) {
         info({
             title: t.command_invite_title,

@@ -1,16 +1,33 @@
-import LeagueAccount from "../../database/league_account";
-import { Command } from "../command";
 import { differenceInDays } from "date-fns";
-import { emote, expectUserWithAccounts } from "./util";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
-import formatName from "../../util/format-name";
+import LeagueAccount from "../../database/league_account";
 import generateProfileGraphic from "../../graphics/profile";
+import formatName from "../../util/format-name";
+import { SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
+import { emote, expectUserWithAccounts } from "./util";
 
-const ProfileCommand: Command = {
+const ProfileCommand: SlashCapableCommand = {
     name: "Show User Profile",
     smallDescriptionKey: "command_profile_small_description",
     descriptionKey: "command_profile_description",
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "profile",
+            description: "View the mastery points, top played champions and League accounts of a Discord user.",
+            options: [{
+                type: ApplicationCommandOptionType.USER,
+                name: "user",
+                description: "The user whose profile you'd like to look up."
+            }]
+        };
+    },
+    convertSlashParameter(k, v) {
+        if (k === "user") return `<@!${v}>`;
+        throw "Unknown parameter " + k;
+    },
     async handler({ ctx, info, client, t }) {
         const target = await expectUserWithAccounts(ctx);
         if (!target) return;
@@ -28,8 +45,8 @@ const ProfileCommand: Command = {
         const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(ctx, await t.staticData.championById(entry.champion_id)) + " " + (await t.staticData.championById(entry.champion_id)).name;
         const amount = (entry: UserChampionStat) =>
             entry.score < 10000 ? entry.score.toLocaleString() :
-            entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
-            : `${Math.round(entry.score / 10000) * 10}k`;
+                entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
+                    : `${Math.round(entry.score / 10000) * 10}k`;
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
             "UNRANKED": t.ranked_tier_unranked + emote(ctx, "__"),
@@ -45,7 +62,7 @@ const ProfileCommand: Command = {
         })[rank];
         const queueRank = (queue: string) =>
             target.treat_as_unranked ? formatRank("UNRANKED") :
-            rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
+                rankedData.find(x => x.queue === queue) ? formatRank(rankedData.find(x => x.queue === queue)!.tier) : formatRank("UNRANKED");
         const daysAgo = (entry: UserMasteryDelta) => {
             const diff = Math.abs(differenceInDays(+entry.timestamp, new Date()));
             if (diff === 0) return t.time_ago_today;
