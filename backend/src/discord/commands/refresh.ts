@@ -1,6 +1,7 @@
-import { Command, SlashCapableCommand } from "../command";
+import { SlashCapableCommand } from "../command";
 import { ApplicationCommandOptionType } from "../slash-commands";
 import { expectUser, rawEmote } from "./util";
+import * as eris from "eris";
 import * as ipc from "../../cluster/master-ipc";
 
 const RefreshCommand: SlashCapableCommand = {
@@ -29,9 +30,16 @@ const RefreshCommand: SlashCapableCommand = {
         const user = await expectUser(ctx);
         if (!user) return;
 
+        // TODO: hack, but maybe no better way to do this?
+        let slashMessage: eris.Message | null = null;
+        if (!msg.id) {
+            const msgs = await bot.getMessages(msg.channelID, 5);
+            slashMessage = msgs.find(x => x.content.endsWith(" refresh")) || null;
+        }
+
         const loadingEmoji = rawEmote(ctx, "Refreshing")!;
 
-        if (msg.id) bot.addMessageReaction(msg.channelID, msg.id, loadingEmoji);
+        if (msg.id || slashMessage) bot.addMessageReaction(msg.channelID, msg.id || slashMessage!.id, loadingEmoji);
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
@@ -46,13 +54,9 @@ const RefreshCommand: SlashCapableCommand = {
             last_score_update_timestamp: '' + Date.now()
         });
 
-        if (msg.id) {
-            bot.removeMessageReaction(msg.channelID, msg.id, loadingEmoji);
-            bot.addMessageReaction(msg.channelID, msg.id, "✅");
-        } else {
-            // TODO: HACK
-            const msgs = bot.getMessages(msg.channelID, 5);
-            console.dir(msgs);
+        if (msg.id || slashMessage) {
+            bot.removeMessageReaction(msg.channelID, msg.id || slashMessage!.id, loadingEmoji);
+            bot.addMessageReaction(msg.channelID, msg.id || slashMessage!.id, "✅");
         }
     }
 };

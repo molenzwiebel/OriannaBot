@@ -42,6 +42,7 @@ export interface SlashCommandInvocationData {
     data: SlashCommandInvocationArgumentData;
     member: {
         user: {
+            username: string;
             id: string;
         };
     };

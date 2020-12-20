@@ -778,6 +778,8 @@ export default class DiscordClient {
         const params = commandInvocationFindParams(data.data);
         const content = matchingCommand.keywords[0] + " " + params.map(x => matchingCommand.convertSlashParameter!(x.name, x.value)).filter(x => x).join(" ");
 
+        info("%s (%s) used slash-command %s: %s", data.member.user.username, data.member.user.id, matchingCommand.name, content);
+
         const responseCtx = await this.createCommandContext({
             userID: data.member.user.id,
             message: {
@@ -843,7 +845,7 @@ export default class DiscordClient {
      */
     private async registerSlashCommands() {
         const toplevelCommand: SlashCommandDescription = {
-            name: "orianna",
+            name: "ori",
             description: "All things Orianna Bot!",
             options: []
         };
@@ -856,22 +858,20 @@ export default class DiscordClient {
                 const asSlash = cmd.asSlashCommand(getTranslator("en-US"));
 
                 for (const name of applicationCommandToNames(asSlash)) {
-                    console.log("registering " + name);
-                    this.commandsBySlashPath.set("orianna." + name, cmd);
+                    this.commandsBySlashPath.set("ori." + name, cmd);
                 }
 
                 toplevelCommand.options.push(asSlash);
             }
         }
 
-        await fetch(`https://discord.com/api/v8/applications/410079070668193793/guilds/260150758555648002/commands`, {
+        await fetch(`https://discord.com/api/v8/applications/${this.bot.user.id}/commands`, {
             method: "POST",
             headers: {
                 Authorization: this.bot.token!,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(toplevelCommand)
-        }).then(x => x.json());
+        });
     }
-
 }

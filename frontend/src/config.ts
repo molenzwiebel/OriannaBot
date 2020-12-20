@@ -33,4 +33,4 @@ export async function champions() {
     return _champions = Object.keys(champs.data).map(x => champs.data[x]);
 }
 
-export const API_HOST = "http://localhost:8002";
+export const API_HOST = "https://orianna.molenzwiebel.xyz";

@@ -50,17 +50,19 @@ process.on("unhandledRejection", (err: Error) => {
 
         // These should be in order of most importance.
         // They're matched from first to last, so `edit profile` will match edit before it matches profile.
-        discord.registerCommand(EvalCommand);
-        discord.registerCommand(HelpCommand);
-        discord.registerCommand(AboutCommand);
-        discord.registerCommand(EditCommand);
-        discord.registerCommand(RefreshCommand);
+        // Note that this is also roughly the order in which commands are shown in the slash autocomplete,
+        // so common commands should be included first.
         discord.registerCommand(TopCommand);
+        discord.registerCommand(EditCommand);
         discord.registerCommand(ProfileCommand);
         discord.registerCommand(PointsCommand);
-        discord.registerCommand(RolesCommand);
         discord.registerCommand(StatsCommand);
+        discord.registerCommand(RefreshCommand);
+        discord.registerCommand(RolesCommand);
+        discord.registerCommand(EvalCommand);
+        discord.registerCommand(HelpCommand);
         discord.registerCommand(InviteCommand);
+        discord.registerCommand(AboutCommand);
         discord.registerCommand(OtherBotsHelpfulCommand);
 
         const app = createApplication(discord);

@@ -17,7 +17,7 @@ const TopCommand: SlashCapableCommand = {
     asSlashCommand(t) {
         return {
             type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-            name: "leaderboard",
+            name: "top",
             description: t.command_top_small_description,
             options: [{
                 type: ApplicationCommandOptionType.SUB_COMMAND,
@@ -26,7 +26,7 @@ const TopCommand: SlashCapableCommand = {
                 options: [{
                     type: ApplicationCommandOptionType.STRING,
                     required: true,
-                    default: true,
+                    // default: true,
                     description: "The champion to show statistics for.",
                     name: "champion"
                 }, {

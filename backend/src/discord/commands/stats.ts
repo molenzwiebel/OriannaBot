@@ -1,14 +1,38 @@
-import { Command } from "../command";
+import { Command, SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
 import { emote, expectChampion, expectUser } from "./util";
 import { UserMasteryDelta } from "../../database";
 import formatName, { badge } from "../../util/format-name";
 import generateStatsGraphic from "../../graphics/stats";
 
-const StatsCommand: Command = {
+const StatsCommand: SlashCapableCommand = {
     name: "Show Stats",
     smallDescriptionKey: "command_stats_small_description",
     descriptionKey: "command_stats_description",
     keywords: ["stats", "graph", "chart", "progression", "progress"],
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "stats",
+            description: "View your mastery as it grows and evolves over time.",
+            options: [{
+                type: ApplicationCommandOptionType.STRING,
+                name: "champion",
+                description: "The champion whose mastery progression you'd like to look up.",
+                // default: true,
+                required: true
+            }, {
+                type: ApplicationCommandOptionType.USER,
+                name: "user",
+                description: "The Discord user whose mastery progression you'd like to look up.",
+            }]
+        };
+    },
+    convertSlashParameter(k, v) {
+        if (k === "champion") return v;
+        if (k === "user") return `<@!${v}>`;
+        throw "Unknown parameter: " + k;
+    },
     async handler({ info, msg, ctx, author, error, t }) {
         // Find champion and target user.
         const champ = await expectChampion(ctx);

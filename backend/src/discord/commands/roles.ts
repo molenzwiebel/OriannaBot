@@ -1,13 +1,30 @@
-import { Command } from "../command";
-import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
-import { emote, paginate } from "./util";
 import config from "../../config";
+import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
+import { SlashCapableCommand } from "../command";
+import { ApplicationCommandOptionType } from "../slash-commands";
+import { emote, paginate } from "./util";
 
-const RolesCommand: Command = {
+const RolesCommand: SlashCapableCommand = {
     name: "Show Server Roles",
     smallDescriptionKey: "command_roles_small_description",
     descriptionKey: "command_roles_description",
     keywords: ["roles", "config", "ranks"],
+    asSlashCommand(t) {
+        return {
+            type: ApplicationCommandOptionType.SUB_COMMAND,
+            name: "roles",
+            description: "Show all roles configured on the server and whether or not you qualify for them.",
+            options: [{
+                type: ApplicationCommandOptionType.USER,
+                name: "user",
+                description: "The user whose role eligibility should be checked."
+            }]
+        };
+    },
+    convertSlashParameter(k, v) {
+        if (k === "user") return `<@!${v}>`;
+        throw "Unknown parameter " + k;
+    },
     async handler({ guild, user: loadUser, server: loadServer, error, ctx, t }) {
         if (!guild) return error({
             title: t.command_roles_no_server_title,
@@ -56,9 +73,15 @@ const RolesCommand: Command = {
         };
 
         const formatCondition = async (cond: TypedRoleCondition): Promise<string> => {
-            if (cond.type === "mastery_level") return t.command_roles_mastery_level({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
+            if (cond.type === "mastery_level") return t.command_roles_mastery_level({
+                range: formatRange(cond.options),
+                champion: await formatChampion(cond.options.champion)
+            });
             if (cond.type === "total_mastery_level") return t.command_roles_total_mastery_level({ range: formatRange(cond.options) });
-            if (cond.type === "mastery_score") return t.command_roles_mastery_score({ range: formatRange(cond.options), champion: await formatChampion(cond.options.champion) });
+            if (cond.type === "mastery_score") return t.command_roles_mastery_score({
+                range: formatRange(cond.options),
+                champion: await formatChampion(cond.options.champion)
+            });
             if (cond.type === "total_mastery_score") return t.command_roles_total_mastery_score({ range: formatRange(cond.options) });
             if (cond.type === "ranked_tier") return t.command_roles_ranked_tier({ ranked: formatRanked(cond) });
             if (cond.type === "server") return t.command_roles_region({ region: cond.options.region });
@@ -83,7 +106,7 @@ const RolesCommand: Command = {
             };
 
             const conditions = await Promise.all(x.conditions.map(async x => {
-                return sign(x.test(user)) + " "+ await formatCondition(<TypedRoleCondition>x);
+                return sign(x.test(user)) + " " + await formatCondition(<TypedRoleCondition>x);
             }));
 
             // Group conditions per 5, to prevent exceeding the 1024 character limit
@@ -104,7 +127,7 @@ const RolesCommand: Command = {
 
             return fields;
         })));
-        
+
         return paginate(ctx, roleFields, {
             title: t.command_roles_message_title,
             description: t.command_roles_message_description
