@@ -1,4 +1,4 @@
-import * as DBL from "dblapi.js";
+import DBL from "topgg-autoposter";
 import * as eris from "eris"
 import { Commit, getLastCommit } from "git-last-commit";
 import * as ipc from "../cluster/master-ipc";
@@ -70,7 +70,7 @@ export default class DiscordClient {
 
     constructor(public readonly riotAPI: RiotAPI) {
         if (config.dblToken) {
-            const dbl = new DBL(config.dblToken, this.bot);
+            const dbl = DBL(config.dblToken, this.bot);
 
             dbl.on("posted", () => {
                 info("DBL statistics successfully posted.");
@@ -110,6 +110,10 @@ export default class DiscordClient {
                 const d = <any> packet.d;
                 await this.handleSlashCommandInvocation(d);
             }
+        });
+
+        this.bot.on("error", e => {
+            info("Eris encountered error, attempting to reconnect: %O", e);
         });
 
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
@@ -837,7 +841,7 @@ export default class DiscordClient {
             return "";
         });
 
-        return mentions;
+        return mentions.filter(x => x.id !== this.bot.user.id && !x.bot);
     }
 
     /**
