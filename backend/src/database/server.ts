@@ -75,6 +75,13 @@ export default class Server extends Model {
     nickname_pattern: string;
 
     /**
+     * The snowflake of the role that is being filtered on for server mastery leaderboards.
+     * If not null, server leaderboards will only include users that have the specific role.
+     * Will attempt to ignore this setting if the server does not have a role with that ID.
+     */
+    server_leaderboard_role_requirement: string | null;
+
+    /**
      * Optionally eager-loaded blacklisted channels.
      */
     blacklisted_channels?: BlacklistedChannel[];

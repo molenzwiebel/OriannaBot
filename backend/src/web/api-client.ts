@@ -369,7 +369,10 @@ export default class WebAPIClient {
                 { type: Joi.any().valid("on_command") },
                 { type: Joi.any().valid("on_join") },
                 { type: Joi.any().valid("on_react"), channel: Joi.string(), emote: Joi.string() }
-            ]).optional()
+            ]).optional(),
+
+            // Role requirement must be a role that exists, or null.
+            server_leaderboard_role_requirement: Joi.any().valid(null, ...guild.roles.map(x => x.id)).optional(),
         }, req, res)) return;
 
         // Convert engagement to the JSON representation.

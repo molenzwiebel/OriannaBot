@@ -54,7 +54,7 @@ const TopCommand: SlashCapableCommand = {
         if (key === "champion") return value;
         throw "Illegal key: " + key;
     },
-    async handler({ msg, content, guild, ctx, error, t, author }) {
+    async handler({ msg, content, guild, ctx, error, t, author, server }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
         const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
@@ -107,10 +107,18 @@ const TopCommand: SlashCapableCommand = {
         // If we are filtering on local server, do it on redis's end by creating an intermediate key.
         // Else, just return the standard collection as the redis key.
         if (serverOnly) {
+            // Check if we need to limit to a specific role. Ensure that that role exists.
+            const specifiedRoleFilter = (await server()).server_leaderboard_role_requirement;
+            const roleLimit = specifiedRoleFilter && guild.roles.has(specifiedRoleFilter) ? specifiedRoleFilter : null;
+
             const userIds = await User
                 .query()
                 .select("id")
-                .whereIn("snowflake", guild.members.map(x => x.id)).map<{ id: number }, number>(x => x.id);
+                .whereIn("snowflake", guild.members
+                    .filter(x => !roleLimit || x.roles.includes(roleLimit))
+                    .map(x => x.id)
+                )
+                .map<{ id: number }, number>(x => x.id);
 
             const userCollection = "temporary:" + randomstring.generate({ length: 32 });
             const intersectedCollection = "temporary:" + randomstring.generate({ length: 32 });
