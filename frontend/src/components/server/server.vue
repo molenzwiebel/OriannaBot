@@ -106,6 +106,21 @@
                         </template>
                     </p>
                 </div>
+
+                <div class="setting">
+                    <b>Server Leaderboard Role Requirement</b>
+
+                    <select @change="updateLeaderboardRoleRequirement">
+                        <option value="null" :selected="!server.server_leaderboard_role_requirement">Include All Members On The Server</option>
+                        <option disabled>──────────</option>
+                        <option v-for="role in server.discord.roles" :value="role.id" :selected="server.server_leaderboard_role_requirement === role.id">Require @{{ role.name }}</option>
+                    </select>
+
+                    <p>
+                        Which members to include in the server leaderboard (<code>@Orianna Bot top server</code>). If you require a role in order to view the server,
+                        use this setting to ensure that only members with that role show up in your server leaderboards.
+                    </p>
+                </div>
             </div>
         </div>
 

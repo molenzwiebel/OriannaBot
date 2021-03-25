@@ -44,6 +44,7 @@ export interface ServerDetails {
     roles: Role[];
     blacklisted_channels: string[];
     nickname_pattern: string;
+    server_leaderboard_role_requirement: string | null;
     discord: {
         channels: { id: string, name: string }[];
         roles: DiscordRole[];
@@ -106,6 +107,25 @@ export default class ServerProfile extends Vue {
             this.showMessage(`Announcements will now be sent in #${this.getChannelName(val)}!`);
         } else {
             this.showMessage("Announcements are now turned off.");
+        }
+    }
+
+    /**
+     * Updates the selected leaderboard role requirement channel with the server.
+     */
+    private async updateLeaderboardRoleRequirement(evt: Event) {
+        let val: string | null = (<HTMLSelectElement>evt.target).value;
+        if (val === "null") val = null;
+
+        this.server.server_leaderboard_role_requirement = val;
+        await this.$root.submit("/api/v1/server/" + this.$route.params.id, "PATCH", {
+            server_leaderboard_role_requirement: val
+        });
+
+        if (val) {
+            this.showMessage(`Only members with @${this.server.discord.roles.find(x => x.id == val)!.name} will be included in the server leaderboard.`);
+        } else {
+            this.showMessage("All members will be shown in the server leaderboard.");
         }
     }
 
