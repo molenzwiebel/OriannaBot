@@ -1,6 +1,6 @@
 metadata:
   code: fr
-  name: Francais
+  name: Français
   ddragonLanguage: fr_FR
 empty: ""
 ranked_tier_unranked: Non classé
@@ -9,16 +9,16 @@ ranked_tier_bronze: Bronze
 ranked_tier_silver: Argent
 ranked_tier_gold: Or
 ranked_tier_platinum: Platine
-ranked_tier_diamond: Diamand
+ranked_tier_diamond: Diamant
 ranked_tier_master: Maître
 ranked_tier_grandmaster: Grand Maître
 ranked_tier_challenger: Challenger
-queue_ranked_solo: Classé Solo
-queue_ranked_flex: Classé Flex
-queue_ranked_tft: Classé TFT
+queue_ranked_solo: file Classée Solo
+queue_ranked_flex: file Classée Flexible
+queue_ranked_tft: file Classée TFT
 queue_ranked_any: n'importe quelle file Classée
-queue_ranked_highest: votre meilleure Rang (TFT exclue)
-queue_ranked_highest_tft: votre meilleure Rang (TFT inclue)
+queue_ranked_highest: votre meilleur Rang (TFT exclu)
+queue_ranked_highest_tft: votre meilleur Rang (TFT inclus)
 time_ago_today: Aujourd'hui
 time_ago_yesterday: Hier
 time_ago_days_ago: Il y a {days} jours
@@ -40,7 +40,7 @@ first_use_message: >-
   Si vous souhaitez que je vous suive et vous donne tous les rôles que vous méritez, vous pouvez ajouter votre compte League of Legends en utilisant le [panneau de configuration en ligne]({link}). Vous pouvez également importer vos comptes depuis Discord et le système Reddit [ChampionMains Flairs](https://flairs.championmains.com).
 
 
-  Pour commencer clique sur le lien dessous!
+  Pour commencer, cliquez sur le lien dessous!
 
   [{link}]({link})
 
@@ -62,23 +62,23 @@ transfer_body: >-
 
   J'ai dissocié le compte League de votre profil Discord. Si vous avez effectivement transféré, vous pouvez simplement ajouter à nouveau le compte dans la nouvelle région.
 command_error_no_accounts: 🔍 {user} n'a aucun compte configuré.
-command_error_no_accounts_description: Cette commande est beaucoup plus utile si j'ai des données à afficher, mais
-  malheureusement, cet utilisateur n'a pas de compte configuré. Les comptes
+command_error_no_accounts_description: Cette commande est beaucoup plus utile si j'ai des données à afficher.
+  Malheureusement, cet utilisateur n'a pas de compte configuré. Les comptes
   peuvent être ajoutés en utilisant`@Orianna Bot configure`.
-command_error_no_permissions: ✋ Arrête toi là!
+command_error_no_permissions: ✋ Arrêtez-vous là!
 command_error_no_permissions_description: Vous devez être capable de gérer les messages pour utiliser cette
-  fonctionnalité. Pardon :(
-command_error_no_champion: 🔎 Quel champion?
-command_error_no_champion_description: J'ai essayé de chercher un nom de champion dans votre message, mais je n'ai
-  pas pu en trouver un. Soit vous avez fait une faute de frappe quelque part,
-  soit vous avez oublié de spécifier le nom d'un champion.
+  fonctionnalité. Désolé :(
+command_error_no_champion: 🔎 Quel champion ?
+command_error_no_champion_description: J'ai essayé de chercher un nom de champion dans votre message, mais je n'en ai
+  pas trouvé. Soit il y a une faute de frappe quelque part, soit il manque
+  spécifiquement le nom d'un champion.
 command_page_n_of_n: Page {n} sur {total}
-command_about_title: 🤖 A Propos
+command_about_title: 🤖 À Propos
 command_about_field_author: Auteur
 command_about_field_version: Version
 command_about_field_source: Code source
 command_about_field_servers: Serveurs
-command_about_field_channels: Channels
+command_about_field_channels: Salons
 command_about_field_users: Utilisateurs
 command_about_field_memory_usage: |
   Utilisation de la mémoire
@@ -128,16 +128,15 @@ command_help_command_description: |-
   **Description**
   {description}
 command_help_command_keywords: Mots clés
-command_invite_title: 🤖 Vous voulez donc une invitation?
+command_invite_title: 🤖 Donc vous voulez une invitation?
 command_invite_message_description: Pour ajouter Orianna Bot à votre propre serveur Discord, utilisez simplement
   [ce]({link}) lien. Merci d'avoir suffisamment aimé Orianna Bot pour envisager
   de l'ajouter à votre propre serveur!
-command_other_bot_title: 💡 Conseil de pro!
-command_other_bot_description: Le `{role}` rôle est géré par moi. Tu peux configurer ton compte (en utilisant
-  la commande`@Orianna Bot configure`) pour activer l'attribution automatique
-  des rôles. Tu as déjà ajouté un compte? Attend que je t'actualise
-  automatiquement, ou utilise la commande `@Orianna Bot refresh` pour actualiser
-  maintenant.
+command_other_bot_title: 💡 Conseil de pro !
+command_other_bot_description: Je gère le rôle `{role}`. Tu peux configurer ton compte (avec la
+  commande`@Orianna Bot configure`) pour activer l'attribution automatique des
+  rôles. Tu as déjà ajouté un compte ? Attend que j'actualise automatiquement,
+  ou utilise la commande `@Orianna Bot refresh` pour actualiser maintenant.
 command_points_small_description: Montrez combien de points de maîtrise vous avez sur un champion.
 command_points_description: >
   Cette commande affiche le score de maîtrise d'un utilisateur sur le champion
@@ -335,7 +334,7 @@ command_top_description: >-
 command_top_points: Points
 command_top_rank: "Votre Rang: {rank}"
 command_top_personal_title: 📊 Meilleurs champions pour {name}
-command_top_no_server_title: ❓ Qu'est-ce que tu fais?!?!
+command_top_no_server_title: ❓ Qu'est-ce que tu fais ?!?!
 command_top_no_server_description: Limiter les classements aux seuls membres du serveur actuel pendant que vous
   m'envoyez un DM est un peu bizarre, vous ne pensez pas? Pensez à supprimer
   `server` de votre commande.
