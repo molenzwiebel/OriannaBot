@@ -1,4 +1,3 @@
-<template>
     <div class="user-profile" v-if="user">
         <div class="box">
             <div class="header accounts-header">
@@ -31,7 +30,7 @@
 
                 <div v-for="account in user.accounts" class="account" :key="account.region + account.summoner_id">
                     <div class="avatar-container">
-                        <img :src="`https://avatar.leagueoflegends.com/${account.region}/${encodeURIComponent(account.username)}.png`">
+                        <img :src="`https://cdn.communitydragon.org/latest/profile-icon/${user.profileIconId}.png`">
                     </div>
                     <span class="username">{{ account.region }} - {{ account.username }}</span>
                     <div class="primary">

@@ -13,6 +13,7 @@ interface UserAccount {
     primary: boolean;
     show_in_profile: boolean;
     include_region: boolean;
+    profileIconId?: string;
 }
 
 interface UserDetails {
