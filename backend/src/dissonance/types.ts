@@ -22,7 +22,7 @@ namespace dissonance {
     export interface User {
         avatar?: string | null;
         bot: boolean;
-        discriminator: string;
+        discriminator: number | string;
         id: string;
         name: string;
     }
