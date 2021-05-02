@@ -1,4 +1,6 @@
 import { Commit, getLastCommit } from "git-last-commit";
+import { Member } from "../../database";
+import { dissonanceRedis } from "../../redis";
 import { SlashCapableCommand } from "../command";
 
 const AboutCommand: SlashCapableCommand = {
@@ -15,8 +17,11 @@ const AboutCommand: SlashCapableCommand = {
         };
     },
     convertSlashParameter: (k, v) => v,
-    async handler({ info, bot, t }) {
+    async handler({ info, t }) {
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
+
+        const numGuilds = (await dissonanceRedis.keys("guild:*")).length;
+        const numMembers = await Member.query().count();
 
         info({
             title: t.command_about_title,
@@ -31,15 +36,11 @@ const AboutCommand: SlashCapableCommand = {
                 value: "[Orianna Bot on Github](https://github.com/molenzwiebel/oriannabot)"
             }, {
                 name: t.command_about_field_servers,
-                value: bot.guilds.size.toLocaleString(),
-                inline: true
-            }, {
-                name: t.command_about_field_channels,
-                value: bot.guilds.map(x => x).reduce((p, c) => p + c.channels.size, 0).toLocaleString(),
+                value: numGuilds.toLocaleString(),
                 inline: true
             }, {
                 name: t.command_about_field_users,
-                value: bot.guilds.map(x => x).reduce((p, c) => p + c.memberCount, 0).toLocaleString(),
+                value: numMembers.toLocaleString(),
                 inline: true
             }, {
                 name: t.command_about_field_memory_usage,

@@ -1,4 +1,5 @@
-import { Response, ResponseOptions } from "./response";
+import fetch from "node-fetch";
+import { InitialInteractionWebhookResponse, Response, ResponseOptions, TextChannelResponse } from "./response";
 import * as eris from "eris";
 
 /**
@@ -27,6 +28,12 @@ export abstract class ResponseContext {
     public abstract indicateProgress(): Promise<void>;
 
     /**
+     * Indicate that we've responded to the message, by either reacting to
+     * message with a checkmark or editing the message to indicate we've acknowledged it.
+     */
+    public abstract acknowledgeProcessed(message: string): Promise<void>;
+
+    /**
      * Create a new textual response in the same channel as where the
      * initial command invocation took place.
      */
@@ -38,6 +45,12 @@ export abstract class ResponseContext {
      * author does not have private messages enabled, this may error.
      */
     public abstract createPrivateResponse(options: ResponseOptions): Promise<Response>;
+
+    /**
+     * Handle the given reaction add event, passing it to responses if desirable.
+     * This will only be invoked if `freeResponses` has not yet been called.
+     */
+    public abstract processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void>;
 
     /**
      * Delete all of the responses sent by this context, if possible. This should
@@ -68,7 +81,9 @@ export abstract class ResponseContext {
  * the user.
  */
 export class ChannelResponseContext extends ResponseContext {
-    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client) {
+    private responses: TextChannelResponse[] = [];
+
+    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private originalMessageId?: string) {
         super();
     }
 
@@ -80,20 +95,111 @@ export class ChannelResponseContext extends ResponseContext {
         await this.bot.sendChannelTyping(this.channelId);
     }
 
-    createPrivateResponse(options: ResponseOptions): Promise<Response> {
-        return Promise.resolve(undefined);
+    async acknowledgeProcessed(message: string): Promise<void> {
+        if (!this.originalMessageId) return;
+
+        await this.bot.addMessageReaction(this.channelId, this.originalMessageId, "✅");
+    }
+
+    async createPrivateResponse(options: ResponseOptions): Promise<Response> {
+        const privateChannel = await this.bot.getDMChannel(this.user.id);
+        const response = new TextChannelResponse(privateChannel.id, this.bot, this.user);
+        this.responses.push(response);
+        return response.reply(options);
     }
 
     createResponse(options: ResponseOptions): Promise<Response> {
-        return Promise.resolve(undefined);
+        const response = new TextChannelResponse(this.channelId, this.bot, this.user);
+        this.responses.push(response);
+        return response.reply(options);
     }
 
-    deleteResponses(): Promise<void> {
-        return Promise.resolve(undefined);
+    async deleteResponses(): Promise<void> {
+        await Promise.all(this.responses.map(x => x.remove()));
+        this.responses = [];
     }
 
-    freeResponses(): Promise<void> {
-        return Promise.resolve(undefined);
+    async freeResponses(): Promise<void> {
+        await Promise.all(this.responses.map(x => x.removeAllOptions()));
+        this.responses = [];
     }
 
+    async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
+        await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
+        return Promise.resolve(undefined);
+    }
+}
+
+/**
+ * A response context for some message that was sent through a slash-command interaction.
+ */
+export class InteractionResponseContext extends ResponseContext {
+    private firstResponse: InitialInteractionWebhookResponse | null = null;
+    private responses: TextChannelResponse[] = [];
+
+    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private token: string) {
+        super();
+    }
+
+    async acknowledgeReceival(): Promise<void> {
+        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.token}/callback`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                type: 5
+            })
+        });
+    }
+
+    async indicateProgress(): Promise<void> {
+        // Nothing to do.
+    }
+
+    async acknowledgeProcessed(message: string): Promise<void> {
+        await this.createResponse({
+            color: 0x49bd1a,
+            title: message
+        });
+    }
+
+    async createPrivateResponse(options: ResponseOptions): Promise<Response> {
+        // TODO: Check if we can do ephemeral here?
+        const privateChannel = await this.bot.getDMChannel(this.user.id);
+        const response = new TextChannelResponse(privateChannel.id, this.bot, this.user);
+        this.responses.push(response);
+        return response.reply(options);
+    }
+
+    createResponse(options: ResponseOptions): Promise<Response> {
+        if (!this.firstResponse) {
+            this.firstResponse = new InitialInteractionWebhookResponse(this.channelId, this.bot, this.user, this.token);
+            return this.firstResponse.reply(options);
+        }
+
+        const response = new TextChannelResponse(this.channelId, this.bot, this.user);
+        this.responses.push(response);
+        return response.reply(options);
+    }
+
+    async deleteResponses(): Promise<void> {
+        if (this.firstResponse) await this.firstResponse.remove();
+        await Promise.all(this.responses.map(x => x.remove()));
+        this.firstResponse = null;
+        this.responses = [];
+    }
+
+    async freeResponses(): Promise<void> {
+        if (this.firstResponse) await this.firstResponse.removeAllOptions();
+        await Promise.all(this.responses.map(x => x.removeAllOptions()));
+        this.firstResponse = null;
+        this.responses = [];
+    }
+
+    async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
+        if (this.firstResponse) await this.firstResponse.processReactionEvent(event);
+        await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
+        return Promise.resolve(undefined);
+    }
 }

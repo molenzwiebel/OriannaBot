@@ -2,7 +2,8 @@ import * as eris from "eris";
 import { Server, User } from "../database";
 import { Translator } from "../i18n";
 import DiscordClient from "./client";
-import Response, { ResponseOptions, TriggerMessage } from "./response";
+import { Response, ResponseOptions } from "./response";
+import { ResponseContext } from "./response-context";
 import ApplicationCommandInteractionDataOption = dissonance.ApplicationCommandInteractionDataOption;
 
 export interface Command {
@@ -71,92 +72,84 @@ export interface SlashCapableCommand extends Command {
      * invocation.
      */
     convertSlashParameter: (key: string, value: any) => string;
-
-    /**
-     * Whether or not the invocation of the command should be shown
-     * in the channel or not. If not set, defaults to showing the
-     * invocation.
-     */
-    hideInvocation?: boolean;
 }
 
-export interface ResponseContext {
+/**
+ * Represents all necessary information needed to respond to a command invoked.
+ * Contains information on the message itself, as well as its author, and several
+ * helper methods.
+ */
+export interface CommandContext {
     /**
-     * @see Response#ok
+     * Reference to ourselves.
+     */
+    ctx: CommandContext;
+
+    /**
+     * The main response context, suitable for doing more advanced responses.
+     */
+    responseContext: ResponseContext;
+
+    /**
+     * @see ResponseContext#ok
      */
     ok: (opts: ResponseOptions) => Promise<Response>;
 
     /**
-     * @see Response#info
+     * @see ResponseContext#info
      */
     info: (opts: ResponseOptions) => Promise<Response>;
 
     /**
-     * @see Response#error
+     * @see ResponseContext#error
      */
     error: (opts: ResponseOptions) => Promise<Response>;
 
     /**
-     * @see Response#respond
+     * @see ResponseContext#respond
      */
     respond: (opts: ResponseOptions) => Promise<Response>;
-
-    /**
-     * Sends a typing message to the gateway for the channel
-     * where this context is set to respond to.
-     */
-    sendTyping: () => Promise<void>;
-
-    /**
-     * Waits for a message from the user that triggered the command. If
-     * the user does not reply within `timeout`ms, undefined is returned instead.
-     */
-    listen: (timeout: number) => Promise<eris.Message | undefined>;
 
     /**
      * The appropriate translation instance for the language context in which
      * this response is located.
      */
     t: Translator;
-}
 
-export interface CommandContext extends ResponseContext {
     /**
-     * A reference to the current context, used to make destructuring easier.
+     * The ID of the channel in which this command was invoked.
      */
-    ctx: CommandContext;
+    channelId: string;
 
     /**
-     * The global discordclient instance.
+     * The ID of the guild in which this command was triggered, or
+     * null if it was not used in a guild.
      */
-    client: DiscordClient;
+    guildId?: string;
 
     /**
-     * The global Eris instance.
+     * The cached guild information for the guild in which this command
+     * was executed. Null if this was not executed in a guild or if there
+     * is no cached information for this guild (should be exceedingly rare).
      */
-    bot: eris.Client;
+    guild?: dissonance.Guild;
 
     /**
-     * The server in which this message was sent. Null if the message was
-     * sent in DMs (but not marked as such since it makes it harder to
-     * work with in 99% of all cases).
+     * The author of the message/slash-command that triggered this.
      */
-    guild: eris.Guild;
+    author: dissonance.User;
 
     /**
-     * The user that created this message.
-     */
-    author: eris.User;
-
-    /**
-     * The original message that triggered the command.
-     */
-    msg: TriggerMessage;
-
-    /**
-     * The content of the message with all Orianna Bot mentions filtered out.
+     * The content of the message, or the converted content if this was invoked
+     * by a slash command.
      */
     content: string;
+
+    /**
+     * A list of members mentioned in the command invocation. All bots and the user
+     * that invoked the command are not included in this.
+     */
+    mentions: dissonance.User[];
 
     /**
      * A promise for the User instance of the sender of the command.
@@ -167,4 +160,15 @@ export interface CommandContext extends ResponseContext {
      * A promise for the Server instance if the message was sent in a server.
      */
     server: () => Promise<Server>;
+
+    /**
+     * Discord client. Note that most of its properties are already exposed elsewhere.
+     */
+    client: DiscordClient;
+
+    /**
+     * The Eris instance. Should not be used unless actually needed, since Eris
+     * will be in REST-only mode.
+     */
+    bot: eris.Client;
 }

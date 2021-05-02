@@ -10,14 +10,14 @@ const EvalCommand: Command = {
     descriptionKey: "empty",
     hideFromHelp: true,
     keywords: ["eval"],
-    async handler({ msg, bot, error, ok, ctx, author }) {
+    async handler({ content, bot, error, ok, ctx, author }) {
         if (author.id !== config.discord.owner) return error({
             title: "Only the bot owner may use this command."
         });
 
         // Start a new scope for the eval command.
         try {
-            const rawContent = msg.content.replace(new RegExp("<@!?" + bot.user.id + ">", "g"), "").replace(/eval/g, "").trim();
+            const rawContent = content.replace(new RegExp("<@!?" + bot.user.id + ">", "g"), "").replace(/eval/g, "").trim();
 
             let exprBody;
             if (rawContent.startsWith("```")) {

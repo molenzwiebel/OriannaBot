@@ -1,8 +1,8 @@
-import { Command, SlashCapableCommand } from "../command";
-import { emote, expectChampion, expectUser } from "./util";
 import { UserMasteryDelta } from "../../database";
-import formatName, { badge } from "../../util/format-name";
 import generateStatsGraphic from "../../graphics/stats";
+import formatName, { badge } from "../../util/format-name";
+import { SlashCapableCommand } from "../command";
+import { emote, expectChampion, expectUser } from "./util";
 
 const StatsCommand: SlashCapableCommand = {
     name: "Show Stats",
@@ -32,7 +32,7 @@ const StatsCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter: " + k;
     },
-    async handler({ info, msg, ctx, author, error, t }) {
+    async handler({ info, ctx, author, error, t }) {
         // Find champion and target user.
         const champ = await expectChampion(ctx);
         if (!champ) return;
@@ -81,13 +81,13 @@ const StatsCommand: SlashCapableCommand = {
                     numGames: values.length,
                     firstGameDate: fmtDate(values[0].timestamp),
                     lastGameDate: fmtDate(values[values.length - 1].timestamp)
-                }) + emote(ctx, "__"),
+                }) + emote("__"),
                 inline: true
             }, {
                 name: t.command_stats_message_games,
                 value: t.command_stats_message_games_value({
                     win, loss, winrate: pct
-                }) + emote(ctx, "__"),
+                }) + emote("__"),
                 inline: true
             }],
             file: { name: "chart.png", file: chart }

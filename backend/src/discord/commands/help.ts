@@ -1,4 +1,4 @@
-import { Command, SlashCapableCommand } from "../command";
+import { SlashCapableCommand } from "../command";
 
 const HelpCommand: SlashCapableCommand = {
     name: "Help",
@@ -14,8 +14,8 @@ const HelpCommand: SlashCapableCommand = {
         };
     },
     convertSlashParameter: (k, v) => v,
-    async handler({ client, msg, author, t }) {
-        client.displayHelp(t, msg.channelID, author, msg);
+    async handler({ client, responseContext, t }) {
+        client.displayHelp(t, responseContext);
     }
 };
 export default HelpCommand;

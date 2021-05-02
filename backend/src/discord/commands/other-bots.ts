@@ -9,17 +9,17 @@ const OtherBotsHelpfulCommand: Command = {
     noMention: true,
     noTyping: true,
     keywords: COMMANDS,
-    async handler({ info, guild, server, msg , t }) {
+    async handler({ info, guild, server, content, t }) {
         // Abort if in a DM or keyword not at the start of the message.
         if (!guild) return;
-        if (!COMMANDS.some(c => msg.content.indexOf(c) === 0)) return;
+        if (!COMMANDS.some(c => content.indexOf(c) === 0)) return;
 
         // Find server and roles.
         const s = await server();
         await s.$loadRelated("roles");
 
         // Find raw role name.
-        let raw = msg.content.replace(/['"<>\[\]]/g, "");
+        let raw = content.replace(/['"<>\[\]]/g, "");
         for (const cmd of COMMANDS) raw = raw.replace(cmd, "");
         raw = raw.trim();
 

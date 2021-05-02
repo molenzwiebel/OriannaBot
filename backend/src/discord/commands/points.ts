@@ -42,14 +42,14 @@ const PointsCommand: SlashCapableCommand = {
         if (!champ) return;
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
-        const text = points && points.score ? emote(ctx, "Level_" + points.level) + " " + points.score.toLocaleString() : "0";
+        const text = points && points.score ? emote("Level_" + points.level) + " " + points.score.toLocaleString() : "0";
 
         return ok({
             title: t.command_points_message_title,
             description: t.command_points_message_description({
                 user: `<@!${user.snowflake}>${badge(user)}`,
                 points: text,
-                champion: `${emote(ctx, champ)} ${champ.name}`
+                champion: `${emote(champ)} ${champ.name}`
             })
         });
     }

@@ -1,7 +1,7 @@
-import { Command, SlashCapableCommand } from "../command";
-import { UserAuthKey } from "../../database";
 import { randomBytes } from "crypto";
 import config from "../../config";
+import { UserAuthKey } from "../../database";
+import { SlashCapableCommand } from "../command";
 
 const EditCommand: SlashCapableCommand = {
     name: "Edit Profile",
@@ -17,9 +17,8 @@ const EditCommand: SlashCapableCommand = {
         };
     },
     convertSlashParameter: (k, v) => v,
-    hideInvocation: true,
-    async handler({ ctx, client, bot, msg, error, info, t, author }) {
-        const normalizedContent = msg.content.toLowerCase();
+    async handler({ ctx, responseContext, content, error, info, t }) {
+        const normalizedContent = content.toLowerCase();
 
         // Catch edit server attempts.
         if (normalizedContent.includes("server") || normalizedContent.includes("guild") || normalizedContent.includes("role")) {
@@ -38,13 +37,13 @@ const EditCommand: SlashCapableCommand = {
         const link = config.web.url + "/login/" + key.key;
 
         try {
-            const channel = await bot.getDMChannel(author.id);
-            await client.createResponseContext(t, channel.id, author, msg).info({
+            await responseContext.createPrivateResponse({
+                color: 0x0a96de,
                 title: t.command_edit_dm_title,
                 description: t.command_edit_dm_description({ link })
             });
 
-            if (msg.id) await bot.addMessageReaction(msg.channelID, msg.id, "✅");
+            await responseContext.acknowledgeProcessed(`✅ Check your DMs!`);
         } catch (e) {
             // DMs are probably off.
             error({

@@ -27,7 +27,7 @@ const ProfileCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter " + k;
     },
-    async handler({ ctx, info, client, t }) {
+    async handler({ ctx, info, t }) {
         const target = await expectUserWithAccounts(ctx);
         if (!target) return;
 
@@ -41,23 +41,23 @@ const ProfileCommand: SlashCapableCommand = {
         const rankedData = await target.$relatedQuery<UserRank>("ranks");
 
         // Formatting helpers.
-        const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(ctx, await t.staticData.championById(entry.champion_id)) + " " + (await t.staticData.championById(entry.champion_id)).name;
+        const champ = async (entry: UserChampionStat | UserMasteryDelta) => emote(await t.staticData.championById(entry.champion_id)) + " " + (await t.staticData.championById(entry.champion_id)).name;
         const amount = (entry: UserChampionStat) =>
             entry.score < 10000 ? entry.score.toLocaleString() :
                 entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
                     : `${Math.round(entry.score / 10000) * 10}k`;
         const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
         const formatRank = (rank: string) => (<any>{
-            "UNRANKED": t.ranked_tier_unranked + emote(ctx, "__"),
-            "IRON": `${emote(ctx, "Iron")} ` + t.ranked_tier_iron,
-            "BRONZE": `${emote(ctx, "Bronze")} ` + t.ranked_tier_bronze,
-            "SILVER": `${emote(ctx, "Silver")} ` + t.ranked_tier_silver,
-            "GOLD": `${emote(ctx, "Gold")} ` + t.ranked_tier_gold,
-            "PLATINUM": `${emote(ctx, "Platinum")} ` + t.ranked_tier_platinum,
-            "DIAMOND": `${emote(ctx, "Diamond")} ` + t.ranked_tier_diamond,
-            "MASTER": `${emote(ctx, "Master")} ` + t.ranked_tier_master,
-            "GRANDMASTER": `${emote(ctx, "Grandmaster")} ` + t.ranked_tier_grandmaster,
-            "CHALLENGER": `${emote(ctx, "Challenger")} ` + t.ranked_tier_challenger
+            "UNRANKED": t.ranked_tier_unranked + emote("__"),
+            "IRON": `${emote("Iron")} ` + t.ranked_tier_iron,
+            "BRONZE": `${emote("Bronze")} ` + t.ranked_tier_bronze,
+            "SILVER": `${emote("Silver")} ` + t.ranked_tier_silver,
+            "GOLD": `${emote("Gold")} ` + t.ranked_tier_gold,
+            "PLATINUM": `${emote("Platinum")} ` + t.ranked_tier_platinum,
+            "DIAMOND": `${emote("Diamond")} ` + t.ranked_tier_diamond,
+            "MASTER": `${emote("Master")} ` + t.ranked_tier_master,
+            "GRANDMASTER": `${emote("Grandmaster")} ` + t.ranked_tier_grandmaster,
+            "CHALLENGER": `${emote("Challenger")} ` + t.ranked_tier_challenger
         })[rank];
         const queueRank = (queue: string) =>
             target.treat_as_unranked ? formatRank("UNRANKED") :
@@ -73,22 +73,22 @@ const ProfileCommand: SlashCapableCommand = {
             name: t.command_profile_top_champions,
             value: (await Promise.all(topMastery.slice(0, 3).map(async x =>
                 `${await champ(x)}\u00a0-\u00a0**${amount(x)}**`
-            ))).join("\n") + "\n" + emote(ctx, "__"),
+            ))).join("\n") + "\n" + emote("__"),
             inline: true
         }, {
             name: t.command_profile_statistics,
             value: [
-                `${levelCount(7)}x${emote(ctx, "Level_7")}\u00a0${levelCount(6)}x${emote(ctx, "Level_6")}\u00a0${levelCount(5)}x${emote(ctx, "Level_5")}${emote(ctx, "__")}`,
-                t.command_profile_statistics_total_points({ amount: +totalMastery[0] }) + emote(ctx, "__"),
-                t.command_profile_statistics_avg_champ({ amount: t.number(+avgMastery[0], 2) }) + emote(ctx, "__"),
-                `${emote(ctx, "__")}`
+                `${levelCount(7)}x${emote("Level_7")}\u00a0${levelCount(6)}x${emote("Level_6")}\u00a0${levelCount(5)}x${emote("Level_5")}${emote("__")}`,
+                t.command_profile_statistics_total_points({ amount: +totalMastery[0] }) + emote("__"),
+                t.command_profile_statistics_avg_champ({ amount: t.number(+avgMastery[0], 2) }) + emote("__"),
+                `${emote("__")}`
             ].join("\n"),
             inline: true
         }, {
             name: t.command_profile_recently_played,
             value: ((await Promise.all(uniqueRecentlyPlayed.slice(0, 3).map(async x =>
                 (await champ(x)) + "\u00a0-\u00a0**" + daysAgo(x) + "**"
-            ))).join("\n") || t.command_profile_recently_played_no_games) + "\n" + emote(ctx, "__"),
+            ))).join("\n") || t.command_profile_recently_played_no_games) + "\n" + emote("__"),
             inline: true
         }, {
             name: t.command_profile_ranked_tiers,
@@ -96,7 +96,7 @@ const ProfileCommand: SlashCapableCommand = {
                 `${t.queue_ranked_solo}:\u00a0**${queueRank("RANKED_SOLO_5x5")}**`,
                 `${t.queue_ranked_flex}:\u00a0**${queueRank("RANKED_FLEX_SR")}**`,
                 `${t.queue_ranked_tft}:\u00a0**${queueRank("RANKED_TFT")}**`
-            ].join("\n") + "\n" + emote(ctx, "__"),
+            ].join("\n") + "\n" + emote("__"),
             inline: true
         }];
 
@@ -110,7 +110,7 @@ const ProfileCommand: SlashCapableCommand = {
         if (visibleAccounts.length) {
             // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
             const sorted = visibleAccounts.slice(0).sort((a, b) => a.region.localeCompare(b.region));
-            const formatAccount = (acc: LeagueAccount) => (acc.primary ? emote(ctx, "Primary_Account") + " " : "") + acc.region + "\u00a0-\u00a0" + acc.username;
+            const formatAccount = (acc: LeagueAccount) => (acc.primary ? emote("Primary_Account") + " " : "") + acc.region + "\u00a0-\u00a0" + acc.username;
 
             // Split up in columns if more than two, single field else.
             if (sorted.length > 1) {
@@ -122,17 +122,17 @@ const ProfileCommand: SlashCapableCommand = {
 
                 fields.push({
                     name: t.command_profile_accounts,
-                    value: left.map(formatAccount).join("\n") + "\n" + emote(ctx, "__"),
+                    value: left.map(formatAccount).join("\n") + "\n" + emote("__"),
                     inline: true
                 }, {
                     name: "\u200b", // renders as an empty title in discord
-                    value: right.map(formatAccount).join("\n") + "\n" + emote(ctx, "__"),
+                    value: right.map(formatAccount).join("\n") + "\n" + emote("__"),
                     inline: true
                 })
             } else {
                 fields.push({
                     name: t.command_profile_account,
-                    value: formatAccount(sorted[0]) + emote(ctx, "__"),
+                    value: formatAccount(sorted[0]) + emote("__"),
                     inline: true
                 });
             }

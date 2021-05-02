@@ -53,13 +53,13 @@ const TopCommand: SlashCapableCommand = {
         if (key === "champion") return value;
         throw "Illegal key: " + key;
     },
-    async handler({ msg, content, guild, ctx, error, t, author, server }) {
+    async handler({ mentions, content, guild, ctx, error, t, author, server }) {
         const normalizedContent = content.toLowerCase();
         const serverOnly = normalizedContent.includes("server");
         const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
 
         // A player was mentioned, show their top.
-        if (msg.mentions.length || normalizedContent.includes(" me")) {
+        if (mentions.length || normalizedContent.includes(" me")) {
             const user = await expectUserWithAccounts(ctx);
             if (!user) return;
 
@@ -71,8 +71,8 @@ const TopCommand: SlashCapableCommand = {
                     const champion = await t.staticData.championById(x.champion_id);
 
                     return {
-                        name: `**${emote(ctx, champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
-                        value: `${emote(ctx, "Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
+                        name: `**${emote(champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
+                        value: `${emote("Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
                         inline: true
                     };
                 }));
@@ -108,15 +108,16 @@ const TopCommand: SlashCapableCommand = {
         if (serverOnly) {
             // Check if we need to limit to a specific role. Ensure that that role exists.
             const specifiedRoleFilter = (await server()).server_leaderboard_role_requirement;
-            const roleLimit = specifiedRoleFilter && guild.roles.has(specifiedRoleFilter) ? specifiedRoleFilter : null;
+            const roleLimit = specifiedRoleFilter && guild!.roles.some(x => x.id === specifiedRoleFilter) ? specifiedRoleFilter : null;
 
+            // TODO: Fix filtering based on role, probably need to do a join here.
             const userIds = await User
                 .query()
                 .select("id")
-                .whereIn("snowflake", guild.members
-                    .filter(x => !roleLimit || x.roles.includes(roleLimit))
-                    .map(x => x.id)
-                )
+                // .whereIn("snowflake", guild.members
+                //     .filter(x => !roleLimit || x.roles.includes(roleLimit))
+                //     .map(x => x.id)
+                // )
                 .map<{ id: number }, number>(x => x.id);
 
             const userCollection = "temporary:" + randomstring.generate({ length: 32 });
@@ -184,7 +185,7 @@ const TopCommand: SlashCapableCommand = {
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${author.id}-${curPage}-${serverOnly ? guild.id : "false"}`, async () => genFunction(
+            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${author.id}-${curPage}-${serverOnly ? guild!.id : "false"}`, async () => genFunction(
                 t, {
                 champion: champ,
                 title: champ

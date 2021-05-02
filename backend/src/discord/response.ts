@@ -1,6 +1,15 @@
 import * as eris from "eris";
 import formatName from "../util/format-name";
+import fetch from "node-fetch";
 
+/**
+ * The main class that represents a response. A response is a single message
+ * sent by us, which can contain emoji reactions that respond to interactions.
+ *
+ * This is abstracted out to allow responses that are created through both
+ * normal command invocations and slash-command invocations, without it
+ * requiring extra work on our end.
+ */
 export abstract class Response {
     /**
      * Map and array used to keep track of reactions for this specific response.
@@ -8,24 +17,37 @@ export abstract class Response {
     private reactions = new Map<string, Function>();
     private globalReactions = new Set<string>();
 
-    private messageId!: string;
+    protected messageId!: string;
 
-    constructor(private channelId: string, private bot: eris.Client, private user?: dissonance.User) {
+    constructor(protected channelId: string, protected bot: eris.Client, protected user?: dissonance.User) {
     }
 
-    public async reply(options: ResponseOptions) {
+    /**
+     * Creates a new reply for the given constructor options.
+     */
+    public async reply(options: ResponseOptions): Promise<this> {
         if (this.messageId) throw new Error("Cannot create initial reply twice.");
         this.messageId = await this.create(this.buildEmbed(options), options.file?.file);
+        return this;
     }
 
+    /**
+     * Edits this response with the given new options. The options
+     * may not contain a file.
+     */
     public async edit(options: ResponseOptions) {
         if (options.file) throw new Error("Cannot include file in edited response");
         if (!this.messageId) throw new Error("Cannot edit response if no initial reply was done.");
         await this.update(this.buildEmbed(options));
     }
 
+    /**
+     * Deletes the message created by this response. Does nothing if
+     * the message did not exist (was already deleted).
+     */
     public async remove() {
-        await this.delete();
+        if (!this.messageId) return;
+        try { await this.delete(); } catch { /* Ignored */ }
         this.messageId = null as any;
     }
 
@@ -73,6 +95,30 @@ export abstract class Response {
     }
 
     /**
+     * Handler for reaction adding that fires an event if the user added an existing reaction.
+     */
+    public readonly processReactionEvent = async (event: dissonance.ReactionAddEvent) => {
+        if (this.messageId !== event.message_id) return; // ignore other messages
+        if (event.user_id === this.bot.user.id) return; // ignore ourselves
+        if (!this.reactions.has(event.emoji.name!)) return; // ignore things we don't want to see
+
+        // If this wasn't the one that triggered the message, and the reaction cannot be used by everyone, delete the reaction.
+        // Reactions cannot be deleted in a PM, but that doesn't matter since this will always be false in a PM.
+        if (event.user_id !== this.user?.id && !this.globalReactions.has(event.emoji.name!)) {
+            this.bot.removeMessageReaction(this.channelId, this.messageId, event.emoji.name!, event.user_id).catch(() => { /* Ignored, we probably don't have permissions. */ });
+            return;
+        }
+
+        // Remove the reaction if we weren't in a PM.
+        if (event.guild_id) {
+            this.bot.removeMessageReaction(this.channelId, this.messageId, event.emoji.name!, event.user_id).catch(() => { /* Ignored, we probably don't have permissions. */ });
+        }
+
+        // Call the callback
+        this.reactions.get(event.emoji.name!)!();
+    };
+
+    /**
      * Create a new embed with the given content and optionally the given
      * file. Should return the message ID of the created message.
      */
@@ -89,6 +135,16 @@ export abstract class Response {
      */
     protected abstract delete(): Promise<void>;
 
+    /**
+     * Shorthands for various colored EDIT operations.
+     */
+    public readonly ok = (response: ResponseOptions = {}) => this.edit({ color: 0x49bd1a, ...response });
+    public readonly error = (response: ResponseOptions = {}) => this.edit({ color: 0xfd5c5c, ...response });
+    public readonly info = (response: ResponseOptions = {}) => this.edit({ color: 0x0a96de, ...response });
+
+    /**
+     * @returns string the URL of the user that triggered this request
+     */
     private get userAvatarURL(): string {
         if (!this.user!.avatar) {
             return `https://cdn.discordapp.com/embed/avatars/${+this.user!.discriminator % 5}.png`
@@ -97,6 +153,10 @@ export abstract class Response {
         return `https://cdn.discordapp.com/avatars/${this.user!.id}/${this.user!.avatar}.${this.user?.avatar?.startsWith("a") ? "gif" : "png"}`;
     }
 
+    /**
+     * Helper that converts our simpler {@link ResponseOptions} format into the
+     * format of embeds expected by Eris.
+     */
     private buildEmbed(options: ResponseOptions): eris.EmbedOptions {
         let obj: eris.EmbedOptions;
         if (this.user) {
@@ -124,6 +184,71 @@ export abstract class Response {
         }
 
         return obj;
+    }
+}
+
+/**
+ * Simple response in a text channel.
+ */
+export class TextChannelResponse extends Response {
+    protected create(embed: eris.EmbedOptions, file?: Buffer): Promise<string> {
+        return this.bot.createMessage(this.channelId, {
+            embed
+        }, file ? {
+            file,
+            name: "File"
+        } : undefined).then(x => x.id);
+    }
+
+    protected delete(): Promise<void> {
+        return this.bot.deleteMessage(this.channelId, this.messageId);
+    }
+
+    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
+        await this.bot.editMessage(this.channelId, this.messageId, {
+            embed: newEmbed
+        });
+    }
+}
+
+/**
+ * A response created if this is the first message as a response to
+ * some invocation through a slash command. This is different because
+ * we generally do the pending-acknowledge command, which means that we
+ * need to do an edit instead of a submit for our creation.
+ */
+export class InitialInteractionWebhookResponse extends Response {
+    constructor(channelId: string, bot: eris.Client, user: dissonance.User, private interactionToken: string) {
+        super(channelId, bot, user);
+    }
+
+    protected async create(embed: eris.EmbedOptions, file?: Buffer): Promise<string> {
+        if (file) throw new Error("TODO: File creation for slash command response.");
+        const response = await this.editOriginalMessage(embed);
+
+        return response.id;
+    }
+
+    protected async delete(): Promise<void> {
+        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/@original`, {
+            method: "DELETE"
+        });
+    }
+
+    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
+        await this.editOriginalMessage(newEmbed);
+    }
+
+    private async editOriginalMessage(embed: eris.EmbedOptions): Promise<any> {
+        return await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/@original`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                embeds: [embed]
+            })
+        }).then(x => x.json());
     }
 }
 

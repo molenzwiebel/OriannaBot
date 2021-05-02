@@ -1,7 +1,6 @@
+import * as ipc from "../../cluster/master-ipc";
 import { SlashCapableCommand } from "../command";
 import { expectUser, rawEmote } from "./util";
-import * as eris from "eris";
-import * as ipc from "../../cluster/master-ipc";
 
 const RefreshCommand: SlashCapableCommand = {
     name: "Refresh",
@@ -25,20 +24,15 @@ const RefreshCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter " + k;
     },
-    async handler({ ctx, bot, msg }) {
+    async handler({ ctx, author, info, responseContext }) {
         const user = await expectUser(ctx);
         if (!user) return;
 
-        // TODO: hack, but maybe no better way to do this?
-        let slashMessage: eris.Message | null = null;
-        if (!msg.id) {
-            const msgs = await bot.getMessages(msg.channelID, 5);
-            slashMessage = msgs.find(x => x.content.endsWith(" refresh")) || null;
-        }
+        const loadingEmoji = rawEmote("Refreshing")!;
 
-        const loadingEmoji = rawEmote(ctx, "Refreshing")!;
-
-        if (msg.id || slashMessage) bot.addMessageReaction(msg.channelID, msg.id || slashMessage!.id, loadingEmoji);
+        const msg = await info({
+            title: `${loadingEmoji} Refreshing${user.snowflake === author.id ? " your" : ""} data...`
+        });
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
@@ -53,10 +47,10 @@ const RefreshCommand: SlashCapableCommand = {
             last_score_update_timestamp: '' + Date.now()
         });
 
-        if (msg.id || slashMessage) {
-            bot.removeMessageReaction(msg.channelID, msg.id || slashMessage!.id, loadingEmoji);
-            bot.addMessageReaction(msg.channelID, msg.id || slashMessage!.id, "✅");
-        }
+        await Promise.all([
+            msg.remove(),
+            responseContext.acknowledgeProcessed("✅ Statistics Refreshed!")
+        ]);
     }
 };
 export default RefreshCommand;

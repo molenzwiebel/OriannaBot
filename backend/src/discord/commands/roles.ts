@@ -24,8 +24,8 @@ const RolesCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter " + k;
     },
-    async handler({ guild, user: loadUser, server: loadServer, error, ctx, t }) {
-        if (!guild) return error({
+    async handler({ guildId, user: loadUser, server: loadServer, error, ctx, t }) {
+        if (!guildId) return error({
             title: t.command_roles_no_server_title,
             description: t.command_roles_no_server_description
         });
@@ -33,7 +33,6 @@ const RolesCommand: SlashCapableCommand = {
         const server = await loadServer();
         const user = await loadUser();
         const sign = (x: boolean) => x ? "✅" : "❌";
-        const capitalize = (x: string) => x[0].toUpperCase() + x.slice(1);
 
         // Load data we need for showing eligibility.
         await server.$loadRelated("roles.conditions");
@@ -53,7 +52,7 @@ const RolesCommand: SlashCapableCommand = {
 
         const formatChampion = async (id: number) => {
             const champ = await t.staticData.championById(id);
-            return emote(ctx, champ) + " " + champ.name;
+            return emote(champ) + " " + champ.name;
         };
 
         const formatRanked = (cond: RankedTierCondition) => {
