@@ -1,5 +1,3 @@
-// THIS NEEDS TO BE THE FIRST LINE SO IT CAN HIJACK OTHER MODULES
-import elastic from "./elastic";
 import debug = require("debug");
 
 import * as cluster from "cluster";
@@ -30,7 +28,6 @@ const error = debug("orianna:error");
 
 process.on("unhandledRejection", (err: Error) => {
     error("Unhandled rejection: %O", err);
-    elastic.reportError(err, "unhandled global rejection");
 });
 
 (async() => {

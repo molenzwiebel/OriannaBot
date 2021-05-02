@@ -10,10 +10,10 @@ interface Configuration {
         lolApiKey: string;
         tftApiKey: string;
         tiers: string[];
-        refreshToken: string;
         rankedQueueTranslationKeys: { [key: string]: keyof Translator };
     };
     discord: {
+        proxyHost: string;
         clientId: string;
         clientSecret: string;
         owner: string;
@@ -28,10 +28,10 @@ interface Configuration {
         url: string;
         port: number;
     };
-    elastic: {
-        enabled: boolean;
-        host: string;
-        auth: string;
+    dissonance: {
+        amqpHost: string;
+        exchange: string;
+        queue: string;
     };
     redis: {
         host: string;

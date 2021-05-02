@@ -1,7 +1,6 @@
 import config from "../../config";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
 import { SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 import { emote, paginate } from "./util";
 
 const RolesCommand: SlashCapableCommand = {
@@ -11,11 +10,11 @@ const RolesCommand: SlashCapableCommand = {
     keywords: ["roles", "config", "ranks"],
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "roles",
             description: "Show all roles configured on the server and whether or not you qualify for them.",
             options: [{
-                type: ApplicationCommandOptionType.USER,
+                type: dissonance.ApplicationCommandOptionType.USER,
                 name: "user",
                 description: "The user whose role eligibility should be checked."
             }]

@@ -5,7 +5,6 @@ import { requireAuth } from "./decorators";
 import config from "../config";
 import RiotAPI from "../riot/api";
 import * as ipc from "../cluster/master-ipc";
-import elastic from "../elastic";
 
 export default function register(app: express.Application, riot: RiotAPI) {
     const redirectUrl = config.web.url + "/api/v1/reddit/callback";
@@ -49,7 +48,6 @@ export default function register(app: express.Application, riot: RiotAPI) {
 
             return ret({ ok: true });
         } catch (err) {
-            elastic.reportError(err, "reddit import accounts handler");
             return ret({ ok: false, error: err.message });
         }
     }));

@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 import config from "../config";
 import DiscordClient from "../discord/client";
 import { Server } from "../database";
-import elastic from "../elastic";
-import getTranslator from "../i18n";
 
 interface DiscordAuthToken {
     access_token?: string;
@@ -67,8 +65,6 @@ export default function register(app: express.Application, client: DiscordClient
             // and they'd already have roles setup.
             return res.redirect(`/server/${tokenRes.guild.id}`);
         } catch (err) {
-            elastic.reportError(err, "discord invitation handling");
-
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }
     });

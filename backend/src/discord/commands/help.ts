@@ -1,5 +1,4 @@
 import { Command, SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 
 const HelpCommand: SlashCapableCommand = {
     name: "Help",
@@ -9,7 +8,7 @@ const HelpCommand: SlashCapableCommand = {
     hideFromHelp: true,
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "help",
             description: "Need help figuring out all Orianna Bot commands? Try this command.",
         };

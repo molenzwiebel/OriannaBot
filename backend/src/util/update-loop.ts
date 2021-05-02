@@ -1,5 +1,4 @@
 import debug = require("debug");
-import elastic from "../elastic";
 
 const log = debug("orianna:updater:update_loop");
 
@@ -37,8 +36,7 @@ export default function scheduleUpdateLoop<T>(handler: (item: T) => Promise<any>
             await Promise.all(promises);
         } catch (e) {
             // Something happened that errored.
-            // We can't really do anything here, so just report it to elastic.
-            elastic.reportError(e, "update loop uncaught");
+            // We can't really do anything here.
 
             log("Error running update loop: %s", e.message);
             log("%O", e);

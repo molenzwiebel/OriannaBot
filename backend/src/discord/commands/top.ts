@@ -5,7 +5,6 @@ import formatName from "../../util/format-name";
 import { createGeneratedImagePath } from "../../web/generated-images";
 import { SlashCapableCommand } from "../command";
 import { ResponseOptions } from "../response";
-import { ApplicationCommandOptionType } from "../slash-commands";
 import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
 import randomstring = require("randomstring");
 
@@ -16,30 +15,30 @@ const TopCommand: SlashCapableCommand = {
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
             name: "top",
             description: t.command_top_small_description,
             options: [{
-                type: ApplicationCommandOptionType.SUB_COMMAND,
+                type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
                 name: "champion",
                 description: "Shows the players with the top mastery on the given champion.",
                 options: [{
-                    type: ApplicationCommandOptionType.STRING,
+                    type: dissonance.ApplicationCommandOptionType.STRING,
                     required: true,
                     // default: true,
                     description: "The champion to show statistics for.",
                     name: "champion"
                 }, {
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: dissonance.ApplicationCommandOptionType.BOOLEAN,
                     name: "server-only",
                     description: "Whether to only show players on this server."
                 }]
             }, {
-                type: ApplicationCommandOptionType.SUB_COMMAND,
+                type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
                 name: "user",
                 description: "Shows the top played champions for the specified user.",
                 options: [{
-                    type: ApplicationCommandOptionType.USER,
+                    type: dissonance.ApplicationCommandOptionType.USER,
                     required: true,
                     name: "user",
                     // default: true,

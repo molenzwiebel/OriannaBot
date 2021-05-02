@@ -1,5 +1,4 @@
 import { SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 import { expectUser, rawEmote } from "./util";
 import * as eris from "eris";
 import * as ipc from "../../cluster/master-ipc";
@@ -12,11 +11,11 @@ const RefreshCommand: SlashCapableCommand = {
     keywords: ["refresh", "reload", "update", "recalculate"],
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "refresh",
             description: "Fetch the latest statistics and update all roles for a user.",
             options: [{
-                type: ApplicationCommandOptionType.USER,
+                type: dissonance.ApplicationCommandOptionType.USER,
                 name: "user",
                 description: "The user who you'd like to refresh. Defaults to yourself."
             }]

@@ -1,10 +1,8 @@
-import DBL from "topgg-autoposter";
 import * as eris from "eris"
 import { Commit, getLastCommit } from "git-last-commit";
 import * as ipc from "../cluster/master-ipc";
 import config from "../config";
 import { BlacklistedChannel, Role, Server, User } from "../database";
-import elastic from "../elastic";
 import generatePromotionGraphic from "../graphics/promotion";
 import getTranslator, { Translator } from "../i18n";
 import RiotAPI from "../riot/api";
@@ -51,31 +49,21 @@ const STATUSES: [eris.BotActivityType, string][] = [
 
 export default class DiscordClient {
     public readonly bot = new eris.Client(config.discord.token, {
-        maxShards: "auto",
-        intents: [
-            "guilds",
-            "guildMembers",
-            "guildPresences",
-            "guildMessages",
-            "guildMessageReactions",
-            "directMessages",
-            "directMessageReactions"
-        ]
+        rest: {
+            https: false,
+            domain: config.discord.proxyHost,
+            baseURL: "/api/v8/"
+        },
+        restMode: true
     });
     public readonly commands: Command[] = [];
+
     private commandsBySlashPath = new Map<string, SlashCapableCommand>();
     private responses: Response[] = [];
     private statusIndex = 0;
     private presenceTimeouts = new Map<string, number>();
 
     constructor(public readonly riotAPI: RiotAPI) {
-        if (config.dblToken) {
-            const dbl = DBL(config.dblToken, this.bot);
-
-            dbl.on("posted", () => {
-                info("DBL statistics successfully posted.");
-            });
-        }
     }
 
     /**
@@ -364,7 +352,6 @@ export default class DiscordClient {
         if (!isDM && !hasMention && matchedCommand.noMention !== true) return;
 
         info("[%s] [%s] %s", msg.author.username, matchedCommand.name, msg.content);
-        await elastic.logCommand(matchedCommand.name, msg);
 
         const targetChannel = fromMute ? await this.bot.getDMChannel(msg.author.id) : msg.channel;
 
@@ -615,10 +602,8 @@ export default class DiscordClient {
         // Send typing during computing time, unless disabled for this specific command.
         if (!command.noTyping) await context.sendTyping();
 
-        const transaction = elastic.startCommandTransaction(command.name);
         try {
             await command.handler(context);
-            if (transaction) transaction.result = 200;
         } catch (e) {
             const t = await this.getTranslatorForUser(context.author.id, context.guild?.id);
 
@@ -627,17 +612,11 @@ export default class DiscordClient {
             error(e.stack);
             error("%O", e);
 
-            // Report to elastic, if enabled.
-            await elastic.reportError(e, "command handler");
-            if (transaction) transaction.result = 404;
-
             await context.error({
                 title: t.command_error_title,
                 description: t.command_error_description,
                 image: "https://i.imgur.com/SBpi54R.png"
             });
-        } finally {
-            if (transaction) transaction.end();
         }
     }
 

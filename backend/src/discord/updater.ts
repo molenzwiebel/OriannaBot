@@ -2,7 +2,6 @@ import RiotAPI from "../riot/api";
 import { Server, User, LeagueAccount, UserRank, UserChampionStat, UserMasteryDelta } from "../database";
 import config from "../config";
 import debug = require("debug");
-import elastic from "../elastic";
 import scheduleUpdateLoop from "../util/update-loop";
 import redis from "../redis";
 import createIPC from "../cluster/worker-ipc";
@@ -69,8 +68,6 @@ export default class Updater {
         } catch (e) {
             logFetch("Error fetching or updating for user %s (%s): %s", user.username, user.snowflake, e.message);
             logFetch("%O", e);
-
-            elastic.reportError(e, "fetchAndUpdateAll");
         }
     }
 

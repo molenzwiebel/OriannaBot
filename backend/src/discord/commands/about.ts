@@ -1,6 +1,5 @@
 import { Commit, getLastCommit } from "git-last-commit";
 import { SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 
 const AboutCommand: SlashCapableCommand = {
     name: "About",
@@ -10,7 +9,7 @@ const AboutCommand: SlashCapableCommand = {
     hideFromHelp: true,
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "about",
             description: "Need help? Want to see who made Orianna Bot? This is the command for you.",
         };

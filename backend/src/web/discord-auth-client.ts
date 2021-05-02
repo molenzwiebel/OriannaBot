@@ -2,8 +2,6 @@ import express = require("express");
 import fetch from "node-fetch";
 import config from "../config";
 import DiscordClient from "../discord/client";
-import elastic from "../elastic";
-import getTranslator from "../i18n";
 
 export default function register(app: express.Application, client: DiscordClient) {
     const redirectUrl = config.web.url + "/api/v1/discord/callback";
@@ -41,8 +39,6 @@ export default function register(app: express.Application, client: DiscordClient
             res.cookie("token", user.token);
             return res.redirect("/me");
         } catch (err) {
-            elastic.reportError(err, "discord auth handling");
-
             return res.status(500).send("We're sorry, something went wrong processing your request.");
         }
     });

@@ -4,7 +4,6 @@ import LeagueAccount from "../../database/league_account";
 import generateProfileGraphic from "../../graphics/profile";
 import formatName from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 import { emote, expectUserWithAccounts } from "./util";
 
 const ProfileCommand: SlashCapableCommand = {
@@ -14,11 +13,11 @@ const ProfileCommand: SlashCapableCommand = {
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "profile",
             description: "View the mastery points, top played champions and League accounts of a Discord user.",
             options: [{
-                type: ApplicationCommandOptionType.USER,
+                type: dissonance.ApplicationCommandOptionType.USER,
                 name: "user",
                 description: "The user whose profile you'd like to look up."
             }]

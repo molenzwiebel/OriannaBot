@@ -1,6 +1,5 @@
 import { badge } from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { ApplicationCommandOptionType } from "../slash-commands";
 import { emote, expectChampion, expectUserWithAccounts } from "./util";
 
 const PointsCommand: SlashCapableCommand = {
@@ -10,17 +9,17 @@ const PointsCommand: SlashCapableCommand = {
     keywords: ["points", "mastery", "score"],
     asSlashCommand(t) {
         return {
-            type: ApplicationCommandOptionType.SUB_COMMAND,
+            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
             name: "points",
             description: "Check how many mastery points someone has on a champion.",
             options: [{
-                type: ApplicationCommandOptionType.STRING,
+                type: dissonance.ApplicationCommandOptionType.STRING,
                 name: "champion",
                 description: "The champion whose mastery points you'd like to look up.",
                 // default: true,
                 required: true
             }, {
-                type: ApplicationCommandOptionType.USER,
+                type: dissonance.ApplicationCommandOptionType.USER,
                 name: "user",
                 description: "The Discord user whose mastery you'd like to look up.",
             }]

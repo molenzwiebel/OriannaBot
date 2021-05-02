@@ -3,7 +3,7 @@ import { Server, User } from "../database";
 import { Translator } from "../i18n";
 import DiscordClient from "./client";
 import Response, { ResponseOptions, TriggerMessage } from "./response";
-import { ApplicationCommandOption } from "./slash-commands";
+import ApplicationCommandInteractionDataOption = dissonance.ApplicationCommandInteractionDataOption;
 
 export interface Command {
     /**
@@ -62,7 +62,7 @@ export interface SlashCapableCommand extends Command {
      * it cannot reasonably be represented as a command. All commands
      * are registered as a subcommand of orianna's top-level command.
      */
-    asSlashCommand: (trans: Translator) => ApplicationCommandOption;
+    asSlashCommand: (trans: Translator) => ApplicationCommandInteractionDataOption;
 
     /**
      * If `asSlashCommand` is implemented, this function allows for
