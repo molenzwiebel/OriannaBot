@@ -42,8 +42,6 @@ const EditCommand: SlashCapableCommand = {
                 title: t.command_edit_dm_title,
                 description: t.command_edit_dm_description({ link })
             });
-
-            await responseContext.acknowledgeProcessed(`✅ Check your DMs!`);
         } catch (e) {
             // DMs are probably off.
             error({

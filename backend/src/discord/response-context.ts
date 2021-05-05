@@ -1,5 +1,11 @@
 import fetch from "node-fetch";
-import { InitialInteractionWebhookResponse, Response, ResponseOptions, TextChannelResponse } from "./response";
+import {
+    EphemeralInteractionFollowupWebhookResponse,
+    InitialInteractionWebhookResponse,
+    Response,
+    ResponseOptions,
+    TextChannelResponse
+} from "./response";
 import * as eris from "eris";
 
 /**
@@ -104,6 +110,12 @@ export class ChannelResponseContext extends ResponseContext {
     async createPrivateResponse(options: ResponseOptions): Promise<Response> {
         if (!this.user) throw new Error("Cannot create private response if original invocation user is unknown.");
 
+        // Acknowledge through a checkmark.
+        if (this.originalMessageId) {
+            this.bot.addMessageReaction(this.channelId, this.originalMessageId, "✅").catch(() => {
+            });
+        }
+
         const privateChannel = await this.bot.getDMChannel(this.user.id);
         const response = new TextChannelResponse(privateChannel.id, this.bot, this.user);
         this.responses.push(response);
@@ -137,7 +149,7 @@ export class ChannelResponseContext extends ResponseContext {
  */
 export class InteractionResponseContext extends ResponseContext {
     private firstResponse: InitialInteractionWebhookResponse | null = null;
-    private responses: TextChannelResponse[] = [];
+    private responses: Response[] = [];
 
     constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private interactionId: string, private token: string) {
         super();
@@ -167,9 +179,16 @@ export class InteractionResponseContext extends ResponseContext {
     }
 
     async createPrivateResponse(options: ResponseOptions): Promise<Response> {
-        // TODO: Check if we can do ephemeral here?
-        const privateChannel = await this.bot.getDMChannel(this.user.id);
-        const response = new TextChannelResponse(privateChannel.id, this.bot, this.user);
+        // Delete old pending response.
+        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.token}/messages/@original`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        // Create ephemeral one.
+        const response = new EphemeralInteractionFollowupWebhookResponse(this.channelId, this.bot, this.user, this.token);
         this.responses.push(response);
         return response.reply(options);
     }

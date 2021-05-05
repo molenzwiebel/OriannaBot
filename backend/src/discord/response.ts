@@ -263,6 +263,60 @@ export class InitialInteractionWebhookResponse extends Response {
 }
 
 /**
+ * A response that is ephemeral (can only be seen by the user that triggered the
+ * slash-command) in response to an event triggered by a webhook.
+ */
+export class EphemeralInteractionFollowupWebhookResponse extends Response {
+    constructor(channelId: string, bot: eris.Client, user: dissonance.User, private interactionToken: string) {
+        super(channelId, bot, user);
+    }
+
+    protected async create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
+        // We cannot upload files through webhook, so we need to host them locally.
+        if (file) {
+            const path = await createGeneratedFilePath(file.name, `image-${this.interactionToken}`, async () => file.file);
+
+            if (embed.image?.url === `attachment://${file.name}`) {
+                embed.image.url = path;
+            }
+
+            if (embed.thumbnail?.url === `attachment://${file.name}`) {
+                embed.thumbnail.url = path;
+            }
+        }
+
+        return fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                embeds: [embed],
+                flags: 64 // ephemeral
+            })
+        }).then(x => x.json()).then(x => x.id);
+    }
+
+    protected async delete(): Promise<void> {
+        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/${this.messageId}`, {
+            method: "DELETE"
+        });
+    }
+
+    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
+        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/${this.messageId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                embeds: [newEmbed]
+            })
+        });
+    }
+}
+
+/**
  * All extra options that can be supplied to the response edit/delete features.
  */
 export interface ResponseOptions {

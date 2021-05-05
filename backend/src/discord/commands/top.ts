@@ -1,4 +1,4 @@
-import { User, UserChampionStat } from "../../database";
+import { GuildMember, User, UserChampionStat } from "../../database";
 import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
 import redis from "../../redis";
 import formatName from "../../util/format-name";
@@ -110,14 +110,16 @@ const TopCommand: SlashCapableCommand = {
             const specifiedRoleFilter = (await server()).server_leaderboard_role_requirement;
             const roleLimit = specifiedRoleFilter && guild!.roles.some(x => x.id === specifiedRoleFilter) ? specifiedRoleFilter : null;
 
-            // TODO: Fix filtering based on role, probably need to do a join here.
+            let query = GuildMember.query().where("guild_id", guild!.id).select("user_id");
+            if (roleLimit) {
+                query = query.where("roles", "?", roleLimit);
+            }
+            const guildMembers: { user_id: string }[] = await query;
+
             const userIds = await User
                 .query()
                 .select("id")
-                // .whereIn("snowflake", guild.members
-                //     .filter(x => !roleLimit || x.roles.includes(roleLimit))
-                //     .map(x => x.id)
-                // )
+                .whereIn("snowflake", guildMembers.map(x => x.user_id))
                 .map<{ id: number }, number>(x => x.id);
 
             const userCollection = "temporary:" + randomstring.generate({ length: 32 });

@@ -190,7 +190,7 @@ export default class DiscordClient {
     private handleMessage = async (msg: dissonance.Message) => {
         const didHandle = await this.tryMatchAndExecuteCommand({
             content: msg.content,
-            mentions: msg.mentions,
+            mentions: msg.mentions || [],
             author: msg.author,
             responseContext: new ChannelResponseContext(msg.channel_id, msg.author, this.bot, msg.id),
             channelId: msg.channel_id,
@@ -218,6 +218,7 @@ export default class DiscordClient {
      * had deleted their old message and just created a new one.
      */
     private handleMessageEdit = async (msg: dissonance.Message) => {
+        if (!msg.author || !msg.content || !msg.channel_id) return; // we can receive a partial message
         this.handleMessageDelete(msg.id);
         this.handleMessage(msg);
     };
