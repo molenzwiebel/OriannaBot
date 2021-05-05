@@ -1,6 +1,6 @@
 import * as cluster from "cluster";
 import DiscordClient from "../discord/client";
-import { Role, User } from "../database";
+import { GuildMember, Role, User } from "../database";
 import IPCBase, { IPCRequest } from "./ipc-base";
 import debug = require("debug");
 
@@ -32,10 +32,12 @@ class MasterIPC extends IPCBase {
     protected async handleRequest(msg: IPCRequest) {
         if (msg.action === "search-user") {
             // Return response in the appropriate format.
-            return this.client.bot.guilds.filter(x => x.members.has(msg.args)).map(x => ({
-                guild: x.id,
-                roles: x.members.get(msg.args)!.roles,
-                nick: x.members.get(msg.args)!.nick || null
+            const matching = await GuildMember.query().where("user_id", msg.args);
+
+            return matching.map(x => ({
+                guild: x.guild_id,
+                roles: x.roles,
+                nick: x.nickname
             }));
         } else if (msg.action === "add-role") {
             // Run it directly, ignoring any errors.

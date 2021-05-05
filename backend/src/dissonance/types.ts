@@ -24,7 +24,7 @@ namespace dissonance {
         bot: boolean;
         discriminator: number | string;
         id: string;
-        name: string;
+        username: string;
     }
 
     export interface PartialMember {
@@ -42,7 +42,7 @@ namespace dissonance {
         discriminator: string;
         id: string;
         member?: PartialMember | null;
-        name: string;
+        username: string;
     }
 
     export interface Guild {
@@ -91,7 +91,7 @@ namespace dissonance {
         managed: boolean;
         mentionable: boolean;
         name: string;
-        permissions: number;
+        permissions: string;
         position: number;
     }
 
@@ -165,7 +165,7 @@ namespace dissonance {
         channel_id: string;
         emoji: ReactionEmoji;
         guild_id?: string | null;
-        member?: PartialMember | null;
+        member?: (PartialMember & { user: User }) | null;
         message_id: string;
         user_id: string;
     }
@@ -177,7 +177,7 @@ namespace dissonance {
         data?: ApplicationCommandInteractionData;
         guild_id?: string;
         channel_id?: string;
-        member?: PartialMember;
+        member?: PartialMember & { user: User };
         user?: User;
         token: string;
     }
@@ -185,12 +185,16 @@ namespace dissonance {
     export interface ApplicationCommandInteractionData {
         id: string;
         name: string;
+        resolved?: {
+            users?: { [key: string]: User };
+        };
         options: ApplicationCommandInteractionDataOption[];
     }
 
     export interface ApplicationCommandInteractionDataOption {
         name: string;
         type: ApplicationCommandOptionType;
+        description?: string;
         value?: any;
         options?: ApplicationCommandInteractionDataOption[];
     }

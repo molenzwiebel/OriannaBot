@@ -31,7 +31,7 @@ export default class AMQPClient extends EventEmitter {
     }
 
     public on(event: "messageCreate", handler: (msg: dissonance.Message) => any): this;
-    public on(event: "messageUpdate", handler: (msg: dissonance.MessageUpdateEvent) => any): this;
+    public on(event: "messageUpdate", handler: (msg: dissonance.Message) => any): this;
     public on(event: "messageDelete", handler: (msg: dissonance.MessageDeleteEvent) => any): this;
     public on(event: "messageReactionAdd", handler: (msg: dissonance.ReactionAddEvent) => any): this;
     public on(event: "interactionCreate", handler: (msg: dissonance.InteractionCreateEvent) => any): this;

@@ -11,6 +11,7 @@
     "bundle": "build-translations ../trans/languages src/translations.json && tsc -p ."
   },
   "dependencies": {
+    "amqplib": "^0.7.1",
     "body-parser": "^1.18.2",
     "callsites": "^3.1.0",
     "canvas": "^2.5.0",
@@ -34,7 +35,7 @@
     "node-fetch": "^2.0.0",
     "objection": "^1.1.10",
     "orianna-trans": "file:../trans/",
-    "pg": "^7.4.3",
+    "pg": "^8.6.0",
     "punycode": "^2.1.1",
     "randomstring": "^1.1.5",
     "rimraf": "^3.0.2",
@@ -46,6 +47,7 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.5.17",
     "@types/body-parser": "^1.16.8",
     "@types/cookie-parser": "^1.4.1",
     "@types/cors": "^2.8.3",

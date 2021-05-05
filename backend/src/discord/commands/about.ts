@@ -1,5 +1,5 @@
 import { Commit, getLastCommit } from "git-last-commit";
-import { Member } from "../../database";
+import { GuildMember } from "../../database";
 import { dissonanceRedis } from "../../redis";
 import { SlashCapableCommand } from "../command";
 
@@ -20,8 +20,8 @@ const AboutCommand: SlashCapableCommand = {
     async handler({ info, t }) {
         const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
 
-        const numGuilds = (await dissonanceRedis.keys("guild:*")).length;
-        const numMembers = await Member.query().count();
+        const numGuilds = (await dissonanceRedis.keys("dissonance:guild:*")).length;
+        const numMembers: { count: number } = await GuildMember.query().count().first() as any;
 
         info({
             title: t.command_about_title,
@@ -40,7 +40,7 @@ const AboutCommand: SlashCapableCommand = {
                 inline: true
             }, {
                 name: t.command_about_field_users,
-                value: numMembers.toLocaleString(),
+                value: numMembers.count.toLocaleString(),
                 inline: true
             }, {
                 name: t.command_about_field_memory_usage,

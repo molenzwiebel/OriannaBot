@@ -22,18 +22,18 @@ const imageCache = new ExpiringMap<string, string>(5 * 60 * 1000); // 5 minutes
  * to the specified image will be buffered by express until the image finishes rendering. This
  * way we can get our response out to Discord earlier while generating the image in the background.
  */
-export function createGeneratedImagePath(cacheKey: string, generate: () => Promise<Buffer>): string {
+export function createGeneratedFilePath(filenameSuffix: string, cacheKey: string, generate: () => Promise<Buffer>): string {
     if (imageCache.has(cacheKey)) return imageCache.get(cacheKey);
 
     const key = randomstring.generate({ length: 32 });
 
     const promise = generate().then(result => {
-        return new Promise(resolve => fs.writeFile(path.join(IMAGES, key + ".jpg"), result, () => resolve()));
+        return new Promise(resolve => fs.writeFile(path.join(IMAGES, key + filenameSuffix), result, () => resolve()));
     }).then(() => {
         generatingImages.delete(key);
     });
 
-    const url = config.web.url + "/img/generated/" + key + ".jpg";
+    const url = config.web.url + "/img/generated/" + key + filenameSuffix;
 
     generatingImages.set(key, promise);
     imageCache.set(cacheKey, url);
@@ -46,14 +46,14 @@ export function createGeneratedImagePath(cacheKey: string, generate: () => Promi
  * images and buffer until they are done loading. Forwards the rest to the next entry in the middleware.
  */
 export default function register(app: express.Application) {
-    app.get("/img/generated/:key.jpg", async (req, res, next) => {
+    app.get("/img/generated/:key", async (req, res, next) => {
         // If this is still generating, wait for it to finish.
         if (generatingImages.has(req.params.key)) {
             await generatingImages.get(req.params.key);
         }
 
         // Check if the file exists, return next if it doesn't.
-        const filePath = path.join(IMAGES, req.params.key + ".jpg");
+        const filePath = path.join(IMAGES, req.params.key);
         const exists = fs.existsSync(filePath);
         if (!exists) return next();
 

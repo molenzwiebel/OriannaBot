@@ -28,10 +28,10 @@ const RefreshCommand: SlashCapableCommand = {
         const user = await expectUser(ctx);
         if (!user) return;
 
-        const loadingEmoji = rawEmote("Refreshing")!;
+        const loadingEmojiId = rawEmote("Refreshing")!;
 
         const msg = await info({
-            title: `${loadingEmoji} Refreshing${user.snowflake === author.id ? " your" : ""} data...`
+            title: `<a:${loadingEmojiId}> Refreshing${user.snowflake === author.id ? " your" : ""} data...`
         });
 
         // Attempt to update user or time out after 20 seconds.

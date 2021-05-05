@@ -57,7 +57,7 @@ const RolesCommand: SlashCapableCommand = {
 
         const formatRanked = (cond: RankedTierCondition) => {
             const tier = cond.options.tier === 0 ? t.ranked_tier_unranked : (<any>t)["ranked_tier_" + config.riot.tiers[cond.options.tier - 1].toLowerCase()];
-            const queue = <string>t[config.riot.rankedQueueTranslationKeys[cond.options.queue]];
+            const queue = <string>t[config.riot.rankedQueueTranslationKeys[cond.options.queue]] ?? "Unknown Queue";
 
             if (cond.options.compare_type === "equal") {
                 return t.command_roles_ranked_tier_equal({ tier, queue });

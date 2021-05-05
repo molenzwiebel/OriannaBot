@@ -13,10 +13,7 @@ import { ResponseOptions } from "../response";
  */
 export async function expectUser({ mentions, client, user, author }: CommandContext): Promise<User> {
     const mentionTarget = mentions.find(x => !x.bot);
-    return mentionTarget ? client.findOrCreateUser(mentionTarget.id, {
-        username: author.name,
-        avatar: author.avatar
-    }) : user();
+    return mentionTarget ? client.findOrCreateUser(mentionTarget.id, author) : user();
 }
 
 /**
@@ -213,7 +210,7 @@ async function loadEmotes() {
         if (!guild) continue;
 
         for (const emote of guild.emojis) {
-            emoteCache.set(emote.name, emote.id);
+            emoteCache.set(emote.name, emote.name + ":" + emote.id);
         }
     }
 }

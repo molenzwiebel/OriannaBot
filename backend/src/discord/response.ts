@@ -1,6 +1,7 @@
 import * as eris from "eris";
 import formatName from "../util/format-name";
 import fetch from "node-fetch";
+import { createGeneratedFilePath } from "../web/generated-images";
 
 /**
  * The main class that represents a response. A response is a single message
@@ -27,7 +28,7 @@ export abstract class Response {
      */
     public async reply(options: ResponseOptions): Promise<this> {
         if (this.messageId) throw new Error("Cannot create initial reply twice.");
-        this.messageId = await this.create(this.buildEmbed(options), options.file?.file);
+        this.messageId = await this.create(this.buildEmbed(options), options.file);
         return this;
     }
 
@@ -104,7 +105,8 @@ export abstract class Response {
 
         // If this wasn't the one that triggered the message, and the reaction cannot be used by everyone, delete the reaction.
         // Reactions cannot be deleted in a PM, but that doesn't matter since this will always be false in a PM.
-        if (event.user_id !== this.user?.id && !this.globalReactions.has(event.emoji.name!)) {
+        // If this context was created without a user, we assume that everyone can use the reactions.
+        if (this.user && event.user_id !== this.user.id && !this.globalReactions.has(event.emoji.name!)) {
             this.bot.removeMessageReaction(this.channelId, this.messageId, event.emoji.name!, event.user_id).catch(() => { /* Ignored, we probably don't have permissions. */ });
             return;
         }
@@ -122,7 +124,7 @@ export abstract class Response {
      * Create a new embed with the given content and optionally the given
      * file. Should return the message ID of the created message.
      */
-    protected abstract create(embed: eris.EmbedOptions, file?: Buffer): Promise<string>;
+    protected abstract create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string>;
 
     /**
      * Update the message. This should update in-place and not recreate the
@@ -191,13 +193,10 @@ export abstract class Response {
  * Simple response in a text channel.
  */
 export class TextChannelResponse extends Response {
-    protected create(embed: eris.EmbedOptions, file?: Buffer): Promise<string> {
+    protected create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
         return this.bot.createMessage(this.channelId, {
             embed
-        }, file ? {
-            file,
-            name: "File"
-        } : undefined).then(x => x.id);
+        }, file).then(x => x.id);
     }
 
     protected delete(): Promise<void> {
@@ -222,10 +221,21 @@ export class InitialInteractionWebhookResponse extends Response {
         super(channelId, bot, user);
     }
 
-    protected async create(embed: eris.EmbedOptions, file?: Buffer): Promise<string> {
-        if (file) throw new Error("TODO: File creation for slash command response.");
-        const response = await this.editOriginalMessage(embed);
+    protected async create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
+        // We cannot upload files through webhook, so we need to host them locally.
+        if (file) {
+            const path = await createGeneratedFilePath(file.name, `image-${this.interactionToken}`, async () => file.file);
 
+            if (embed.image?.url === `attachment://${file.name}`) {
+                embed.image.url = path;
+            }
+
+            if (embed.thumbnail?.url === `attachment://${file.name}`) {
+                embed.thumbnail.url = path;
+            }
+        }
+
+        const response = await this.editOriginalMessage(embed);
         return response.id;
     }
 

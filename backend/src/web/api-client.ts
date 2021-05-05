@@ -1,8 +1,11 @@
 import express = require("express");
 import * as eris from "eris";
+import { Constants } from "eris";
 import randomstring = require("randomstring");
 import Joi = require("joi");
-import { Server, User, BlacklistedChannel, Role, RoleCondition, LeagueAccount } from "../database";
+import { Server, User, BlacklistedChannel, Role, RoleCondition, LeagueAccount, GuildMember } from "../database";
+import { getCachedGuild } from "../redis";
+import { hasPermission } from "../util/permissions";
 import { requireAuth, swallowErrors } from "./decorators";
 import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
@@ -69,19 +72,23 @@ export default class WebAPIClient {
      */
     private serveUserProfile = requireAuth(async (req: express.Request, res: express.Response) => {
         const guilds = [];
-        for (const guild of this.bot.guilds.filter(x => x.members.has(req.user.snowflake))) {
-            const member = guild.members.get(req.user.snowflake)!;
+        const members = await GuildMember.query().where("user_id", req.user.snowflake);
 
-            // Make sure the user can manage server (or is the owner).
-            if (!member.permission.has("manageGuild") && member.id !== config.discord.owner) continue;
+        for (const membership of members) {
+            const cached = await getCachedGuild(membership.guild_id);
+            if (!cached) continue;
+
+            if (!await hasPermission(membership.user_id, membership.roles, cached, Constants.Permissions.manageGuild)) {
+                continue;
+            }
 
             // Make sure that the server is configured with ori (should always be the case).
-            if (!(await Server.query().where("snowflake", guild.id).first())) continue;
+            if (!(await Server.query().where("snowflake", cached.id).first())) continue;
 
             guilds.push({
-                id: guild.id,
-                name: guild.name,
-                icon: guild.iconURL || "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png"
+                id: cached.id,
+                name: cached.name,
+                icon: cached.icon ? `https://cdn.discordapp.com/icons/${cached.id}/${cached.icon}.png` : "https://discord.com/assets/dd4dbc0016779df1378e7812eabaa04d.png"
             });
         }
 
@@ -319,8 +326,8 @@ export default class WebAPIClient {
         await server.$loadRelated("blacklisted_channels");
 
         // Find our highest rank, for web interface logic.
-        const us = guild.members.get(this.client.bot.user.id)!;
-        const highest = Math.max(...us.roles.map(x => guild.roles.get(x)!.position));
+        const us = await GuildMember.query().where("guild_id", guild.id).where("user_id", this.bot.user.id).first();
+        const highest = us ? Math.max(...us.roles.map(x => guild.roles.find(y => y.id === x)!.position)) : 0;
 
         const channels = guild.channels.filter(x => x.type === 0).map(x => ({ id: x.id, name: x.name }));
         const roles = guild.roles.filter(x => x.name !== "@everyone").map(x => ({
@@ -462,7 +469,7 @@ export default class WebAPIClient {
         const { server, guild } = await this.verifyServerRequest(req, res);
         if (!server) return;
 
-        const roleId = (name: string) => guild.roles.find(x => x.name === name) ? guild.roles.find(x => x.name === name)!.id : "";
+        const roleId = (name: string) => guild.roles.find(x => x.name === name)?.id ?? "";
 
         if (req.params.name === "region") {
             for (const region of REGIONS) {
@@ -609,11 +616,11 @@ export default class WebAPIClient {
         if (!role) return;
 
         // Find or create discord role.
-        let discordRole = guild.roles.find(x => x.name === role.name);
+        let discordRole: { id: string, name: string, color: number } | undefined = guild.roles.find(x => x.name === role.name);
         if (!discordRole) {
-            discordRole = (await guild.createRole({
+            discordRole = await this.bot.createRole(guild.id, {
                 name: role.name
-            }, "Linked to Orianna Bot role " + role.name))!;
+            }, "Linked to Orianna Bot role " + role.name);
         }
 
         // Write to database, return new/found discord role.
@@ -644,20 +651,20 @@ export default class WebAPIClient {
      * Checks that the requested server exists and that the current user has access. Returns a null
      * server if something went wrong, valid values otherwise.
      */
-    private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: eris.Guild }> {
+    private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: dissonance.Guild }> {
         const server = await Server.query().where("snowflake", req.params.id).first();
         if (!server) {
             res.status(400).send({ ok: false, error: "Invalid server" });
             return { server: null, guild: <any>null };
         }
 
-        const guild = this.bot.guilds.get(server.snowflake);
+        const guild = await getCachedGuild(server.snowflake);
         if (!guild) {
-            res.status(400).send({ ok: false, error: "Server missing guild" });
+            res.status(400).send({ ok: false, error: "No cached information for guild." });
             return { server: null, guild: <any>null };
         }
 
-        if (!this.hasAccess(req.user, server)) {
+        if (!await this.hasAccess(req.user, guild)) {
             res.status(403).send({ ok: false, error: "No permissions" });
             return { server: null, guild: <any>null };
         }
@@ -668,14 +675,14 @@ export default class WebAPIClient {
     /**
      * Checks if the specified user has permissions to edit the specified server.
      */
-    private hasAccess(user: User, server: Server): boolean {
-        const guild = this.bot.guilds.get(server.snowflake);
-        if (!guild) return false;
-
+    private async hasAccess(user: User, guild: dissonance.Guild): Promise<boolean> {
         // Owner always has access to server configs.
         if (user.snowflake === config.discord.owner) return true;
 
+        const membership = await GuildMember.query().where("guild_id", guild.id).where("user_id", user.snowflake).first();
+        if (!membership) return false;
+
         // Check if the current user has access.
-        return guild.members.has(user.snowflake) && guild.members.get(user.snowflake)!.permission.has("manageMessages");
+        return hasPermission(user.snowflake, membership.roles, guild, Constants.Permissions.manageGuild);
     }
 }

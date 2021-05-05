@@ -10,7 +10,7 @@ export default function formatName(subject: dissonance.User | User, small = fals
     let id = subject.id;
     if (subject instanceof User) id = subject.snowflake;
 
-    const username = (subject as dissonance.User).name || (subject as User).username;
+    const username = (subject as dissonance.User).username || (subject as User).username;
     const badge = config.badges[id];
     if (badge) return username + " " + (small ? badge.small : badge.big);
 

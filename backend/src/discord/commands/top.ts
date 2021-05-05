@@ -2,7 +2,7 @@ import { User, UserChampionStat } from "../../database";
 import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
 import redis from "../../redis";
 import formatName from "../../util/format-name";
-import { createGeneratedImagePath } from "../../web/generated-images";
+import { createGeneratedFilePath } from "../../web/generated-images";
 import { SlashCapableCommand } from "../command";
 import { ResponseOptions } from "../response";
 import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
@@ -185,7 +185,7 @@ const TopCommand: SlashCapableCommand = {
 
             // This will return a full path to the generated image, also taking care of caching/reusing.
             const genFunction = allChamps ? generateGlobalTopGraphic : generateChampionTopGraphic;
-            const imagePath = createGeneratedImagePath(`leaderboard-${champ ? champ.key : "all"}-${author.id}-${curPage}-${serverOnly ? guild!.id : "false"}`, async () => genFunction(
+            const imagePath = createGeneratedFilePath(".jpg", `leaderboard-${champ ? champ.key : "all"}-${author.id}-${curPage}-${serverOnly ? guild!.id : "false"}`, async () => genFunction(
                 t, {
                 champion: champ,
                 title: champ

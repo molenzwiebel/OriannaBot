@@ -79,6 +79,7 @@ async function runFfmpeg(args: string[], timeout = 20000): Promise<void> {
     // Wait for ffmpeg to exit, or else for the timeout to expire.
     const result = await Promise.race([
         new Promise<false>(r => setTimeout(() => r(false), timeout)),
+        new Promise<false>(r => cmd.once("error", () => r(false))),
         new Promise<true>(r => cmd.once("exit", () => r(true)))
     ]);
 

@@ -40,7 +40,6 @@ process.on("unhandledRejection", (err: Error) => {
         const riotAPI = new RiotAPI(config.riot.lolApiKey, config.riot.tftApiKey, 0.1);
 
         const discord = new DiscordClient(riotAPI);
-        await discord.connect();
 
         // Fork update processes and register handlers for them.
         ipc.initializeMasterRPC(discord, 1);
@@ -61,6 +60,8 @@ process.on("unhandledRejection", (err: Error) => {
         discord.registerCommand(InviteCommand);
         discord.registerCommand(AboutCommand);
         discord.registerCommand(OtherBotsHelpfulCommand);
+
+        await discord.connect();
 
         const app = createApplication(discord);
         app.listen(config.web.port);

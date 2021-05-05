@@ -83,7 +83,7 @@ export abstract class ResponseContext {
 export class ChannelResponseContext extends ResponseContext {
     private responses: TextChannelResponse[] = [];
 
-    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private originalMessageId?: string) {
+    constructor(private channelId: string, private user: dissonance.User | null, private bot: eris.Client, private originalMessageId?: string) {
         super();
     }
 
@@ -98,10 +98,12 @@ export class ChannelResponseContext extends ResponseContext {
     async acknowledgeProcessed(message: string): Promise<void> {
         if (!this.originalMessageId) return;
 
-        await this.bot.addMessageReaction(this.channelId, this.originalMessageId, "✅");
+        await this.bot.addMessageReaction(this.channelId, this.originalMessageId, "✅").catch(() => {});
     }
 
     async createPrivateResponse(options: ResponseOptions): Promise<Response> {
+        if (!this.user) throw new Error("Cannot create private response if original invocation user is unknown.");
+
         const privateChannel = await this.bot.getDMChannel(this.user.id);
         const response = new TextChannelResponse(privateChannel.id, this.bot, this.user);
         this.responses.push(response);
@@ -109,7 +111,7 @@ export class ChannelResponseContext extends ResponseContext {
     }
 
     createResponse(options: ResponseOptions): Promise<Response> {
-        const response = new TextChannelResponse(this.channelId, this.bot, this.user);
+        const response = new TextChannelResponse(this.channelId, this.bot, this.user || undefined);
         this.responses.push(response);
         return response.reply(options);
     }
@@ -137,13 +139,13 @@ export class InteractionResponseContext extends ResponseContext {
     private firstResponse: InitialInteractionWebhookResponse | null = null;
     private responses: TextChannelResponse[] = [];
 
-    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private token: string) {
+    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private interactionId: string, private token: string) {
         super();
     }
 
     async acknowledgeReceival(): Promise<void> {
-        await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.token}/callback`, {
-            method: "PATCH",
+        await fetch(`https://discord.com/api/v9/interactions/${this.interactionId}/${this.token}/callback`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
