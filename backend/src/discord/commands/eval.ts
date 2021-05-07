@@ -1,3 +1,4 @@
+import { getCachedGuild } from "../../redis";
 import { Command } from "../command";
 import config from "../../config";
 import * as db from "../../database";
@@ -40,10 +41,12 @@ const EvalCommand: Command = {
             const evalContext = {
                 ...ctx,
                 ...db,
+                getCachedGuild,
                 user: buildDBAccess(db.User, "[accounts]", { snowflake: author.id }),
                 role: buildDBAccess(db.Role, "[conditions]"),
                 account: buildDBAccess(db.LeagueAccount, "[]"),
                 server: buildDBAccess(db.Server, "[roles, roles.conditions]", { snowflake: ctx.guild && ctx.guild.id }),
+                member: buildDBAccess(db.GuildMember, "[]", { guild_id: ctx.guildId }),
                 StaticData
             };
 

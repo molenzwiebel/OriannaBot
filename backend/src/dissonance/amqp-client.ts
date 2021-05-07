@@ -35,6 +35,8 @@ export default class AMQPClient extends EventEmitter {
     public on(event: "messageDelete", handler: (msg: dissonance.MessageDeleteEvent) => any): this;
     public on(event: "messageReactionAdd", handler: (msg: dissonance.ReactionAddEvent) => any): this;
     public on(event: "interactionCreate", handler: (msg: dissonance.InteractionCreateEvent) => any): this;
+    public on(event: "presenceUpdate", handler: (msg: dissonance.PresenceUpdateEvent) => any): this;
+    public on(event: "guildMemberAdd", handler: (msg: dissonance.GuildMemberAddEvent) => any): this;
 
     public on(event: string | symbol, listener: (...args: any[]) => void): this {
         return super.on(event, listener);
@@ -55,6 +57,10 @@ export default class AMQPClient extends EventEmitter {
             this.emit("messageReactionAdd", message.d);
         } else if (message.t === "INTERACTION_CREATE") {
             this.emit("interactionCreate", message.d);
+        } else if (message.t === "PRESENCE_UPDATE") {
+            this.emit("presenceUpdate", message.d);
+        } else if (message.t === "GUILD_MEMBER_ADD") {
+            this.emit("guildMemberAdd", message.d);
         } else {
             log("Unknown gateway event received: %O", message as any);
         }

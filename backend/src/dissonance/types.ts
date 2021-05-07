@@ -27,6 +27,10 @@ namespace dissonance {
         username: string;
     }
 
+    export interface PresenceUpdateEvent {
+        user: Partial<User>;
+    }
+
     export interface PartialMember {
         deaf: boolean;
         joined_at: string | null;
@@ -144,6 +148,8 @@ namespace dissonance {
         GUILD_STAGE_VOICE = 13,
     }
 
+    export type GuildMemberAddEvent = PartialMember & { user: User, guild_id: string };
+
     export interface MessageDeleteEvent {
         channel_id: string;
         guild_id?: string | null;
@@ -244,5 +250,13 @@ namespace dissonance {
         | {
         t: "INTERACTION_CREATE";
         d: InteractionCreateEvent;
-    };
+    }
+        | {
+        t: "PRESENCE_UPDATE";
+        d: PresenceUpdateEvent;
+    }
+        | {
+        t: "GUILD_MEMBER_ADD";
+        d: GuildMemberAddEvent;
+    }
 }

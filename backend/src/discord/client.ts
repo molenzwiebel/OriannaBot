@@ -6,6 +6,7 @@ import AMQPClient from "../dissonance/amqp-client";
 import generatePromotionGraphic from "../graphics/promotion";
 import getTranslator, { Translator } from "../i18n";
 import { getCachedGuild } from "../redis";
+import * as ipc from "../cluster/master-ipc";
 import RiotAPI from "../riot/api";
 import formatName from "../util/format-name";
 import { Command, CommandContext, SlashCapableCommand } from "./command";
@@ -20,6 +21,7 @@ import {
 import debug = require("debug");
 import randomstring = require("randomstring");
 import ChannelType = dissonance.ChannelType;
+import GuildMemberAddEvent = dissonance.GuildMemberAddEvent;
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -82,9 +84,8 @@ export default class DiscordClient {
         this.amqpClient.on("messageDelete", ev => this.handleMessageDelete(ev.id));
         this.amqpClient.on("messageReactionAdd", this.handleMessageReaction);
         this.amqpClient.on("interactionCreate", this.handleInteraction);
-
-        // TODO this.bot.on("userUpdate", this.handleUserUpdate);
-        // TODO this.bot.on("guildMemberAdd", this.handleGuildMemberAdd);
+        this.amqpClient.on("presenceUpdate", this.handleUserUpdate);
+        this.amqpClient.on("guildMemberAdd", this.handleGuildMemberAdd);
         // TODO? this.bot.on("presenceUpdate", this.handlePresenceUpdate);
 
         // Fire off an emote request so we pull the information from redis.
@@ -301,6 +302,46 @@ export default class DiscordClient {
         for (const aliveContext of this.responseContexts) {
             aliveContext.processReactionEvent(ev);
         }
+    };
+
+    /**
+     * Updates the database representation of the user when it changes settings.
+     */
+    private handleUserUpdate = async ({ user }: dissonance.PresenceUpdateEvent) => {
+        if (!user.username) return;
+
+        await User
+            .query()
+            .where("snowflake", user.id)
+            .update({
+                username: user.username,
+                avatar: user.avatar || "none"
+            })
+            .execute();
+    };
+
+    /**
+     * Ensures that a user receives their appropriate roles when they join a server while
+     * already having accounts set up.
+     */
+    private handleGuildMemberAdd = async ({ user, guild_id }: GuildMemberAddEvent) => {
+        // Ignore bots. We can't assign them roles anyway.
+        if (user.bot) return;
+
+        // Don't use findOrCreateUser since it will message the user.
+        const oriUser = await User.query().where("snowflake", "=", user.id).first();
+        const server = await this.findOrCreateServer(guild_id);
+
+        // If we engage on join and the user doesn't have an account yet, engage now.
+        if (server.engagement.type === "on_join" && !oriUser) {
+            this.engageUser(user, server);
+        }
+
+        // Else, do nothing.
+        if (!oriUser) return;
+
+        // This should assign new roles, if appropriate.
+        ipc.fetchAndUpdateUser(user.id);
     };
 
     /**
