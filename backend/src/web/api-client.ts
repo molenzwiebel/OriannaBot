@@ -197,8 +197,14 @@ export default class WebAPIClient {
         // If it has, remove it from the old account.
         const oldAccount = await LeagueAccount.query().where("summoner_id", summoner.id).where("region", summoner.region).first();
         if (oldAccount) {
-            const user = await User.query().where("id", oldAccount.user_id).first();
+            const user = await User.query().where("id", oldAccount.user_id).eager("accounts").first();
             await oldAccount.$query().delete();
+
+            // ensure has_accounts is updated. Since the query still had one account,
+            // we need to check if they had more than one account
+            await user!.$query().patch({
+                has_accounts: user!.accounts!.length > 1
+            });
 
             await ipc.fetchAndUpdateUser(user!);
         }
@@ -289,6 +295,11 @@ export default class WebAPIClient {
                 });
             }
         }
+
+        // we removed one account which hasn't yet been reflected
+        await req.user.$query().patch({
+            has_accounts: req.user.accounts!.length > 1
+        });
 
         // Don't await so we can return without doing this.
         // TODO: Maybe instead of updating now just put it in the queue?

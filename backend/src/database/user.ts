@@ -80,6 +80,14 @@ export default class User extends Model {
     ignore: boolean;
 
     /**
+     * Computed value that indicates whether or not the given user has any
+     * accounts linked. This is used to speed up queries used to decide
+     * which users should be updated in the next request. This should always
+     * be in sync with the actual state of the accounts in the database.
+     */
+    has_accounts: boolean;
+
+    /**
      * Optionally eager-loaded accounts, null if not specified in the query.
      */
     accounts?: LeagueAccount[];
@@ -146,6 +154,10 @@ export default class User extends Model {
             primary: isPrimary,
             show_in_profile: true,
             include_region: true
+        });
+
+        await this.$query<User>().patch({
+            has_accounts: true
         });
     }
 

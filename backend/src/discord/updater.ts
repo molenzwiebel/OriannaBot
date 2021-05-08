@@ -109,8 +109,8 @@ export default class Updater {
     public startUpdateLoops() {
         const selectLeastRecentlyUpdated = (field: string) => (amount: number) => User
             .query()
-            .whereRaw(`(select count(*) from "league_accounts" as "accounts" where "accounts"."user_id" = "users"."id") > 0`)
-            .orderBy(field, "ASC")
+            .where("has_accounts", true)
+            .orderBy(field, "ASC NULLS LAST")
             .eager("[accounts, stats, ranks]")
             .limit(amount);
 

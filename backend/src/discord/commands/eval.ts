@@ -47,6 +47,13 @@ const EvalCommand: Command = {
                 account: buildDBAccess(db.LeagueAccount, "[]"),
                 server: buildDBAccess(db.Server, "[roles, roles.conditions]", { snowflake: ctx.guild && ctx.guild.id }),
                 member: buildDBAccess(db.GuildMember, "[]", { guild_id: ctx.guildId }),
+                addAccount: async (snowflake: string, region: string, username: string) =>
+                    (await db.User.query().where("snowflake", snowflake).first())!
+                        .addAccount(
+                            region,
+                            (await ctx.client.riotAPI.getLoLSummonerByName(region, username))!,
+                            (await ctx.client.riotAPI.getTFTSummonerByName(region, username))!
+                        ),
                 StaticData
             };
 
