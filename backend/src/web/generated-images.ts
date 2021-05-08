@@ -7,6 +7,9 @@ import * as path from "path";
 
 // Folder name for image storage.
 const IMAGES = path.join(__dirname, "../../generated-images");
+if (!fs.existsSync(IMAGES)) {
+    fs.mkdirSync(IMAGES);
+}
 
 // List of images that are still being generated. Those should buffer endlessly in
 // express until they are actually done.
@@ -35,7 +38,7 @@ export function createGeneratedFilePath(filenameSuffix: string, cacheKey: string
 
     const url = config.web.url + "/img/generated/" + key + filenameSuffix;
 
-    generatingImages.set(key, promise);
+    generatingImages.set(key + filenameSuffix, promise);
     imageCache.set(cacheKey, url);
 
     return url;

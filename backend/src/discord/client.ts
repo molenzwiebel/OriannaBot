@@ -643,7 +643,6 @@ export default class DiscordClient {
 
         // Ensure that that channel exists.
         const announceChannel = guild.channels.find(x => x.id === announceChannelId);
-        console.dir(announceChannel);
         if (!announceChannel || announceChannel.type !== ChannelType.GUILD_TEXT) return;
 
         // Get a translator. Note that we ignore the users preferred language here.

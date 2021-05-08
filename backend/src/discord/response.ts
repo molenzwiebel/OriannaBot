@@ -152,7 +152,7 @@ export abstract class Response {
             return `https://cdn.discordapp.com/embed/avatars/${+this.user!.discriminator % 5}.png`
         }
 
-        return `https://cdn.discordapp.com/avatars/${this.user!.id}/${this.user!.avatar}.${this.user?.avatar?.startsWith("a") ? "gif" : "png"}`;
+        return `https://cdn.discordapp.com/avatars/${this.user!.id}/${this.user!.avatar}.${this.user?.avatar?.startsWith("a_") ? "gif" : "png"}`;
     }
 
     /**

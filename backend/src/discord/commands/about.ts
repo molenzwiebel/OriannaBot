@@ -40,7 +40,7 @@ const AboutCommand: SlashCapableCommand = {
                 inline: true
             }, {
                 name: t.command_about_field_users,
-                value: numMembers.count.toLocaleString(),
+                value: (+numMembers.count).toLocaleString(),
                 inline: true
             }, {
                 name: t.command_about_field_memory_usage,
