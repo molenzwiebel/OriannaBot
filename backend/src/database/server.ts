@@ -66,7 +66,7 @@ export default class Server extends Model {
      * The engagement mode that Orianna is configured to use for members of this server.
      * @see Server#engagement
      */
-    engagement_json: string;
+    engagement_json: string | EngagementMode;
 
     /**
      * The pattern for nicknames that have to be assigned for this server. Empty
@@ -105,7 +105,8 @@ export default class Server extends Model {
      * @returns the engagement mode for this server
      */
     get engagement(): EngagementMode {
-        return JSON.parse(this.engagement_json);
+        if (typeof this.engagement_json === "string") return JSON.parse(this.engagement_json);
+        return this.engagement_json;
     }
 }
 

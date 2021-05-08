@@ -27,10 +27,6 @@ namespace dissonance {
         username: string;
     }
 
-    export interface PresenceUpdateEvent {
-        user: Partial<User>;
-    }
-
     export interface PartialMember {
         deaf: boolean;
         joined_at: string | null;
@@ -250,10 +246,6 @@ namespace dissonance {
         | {
         t: "INTERACTION_CREATE";
         d: InteractionCreateEvent;
-    }
-        | {
-        t: "PRESENCE_UPDATE";
-        d: PresenceUpdateEvent;
     }
         | {
         t: "GUILD_MEMBER_ADD";

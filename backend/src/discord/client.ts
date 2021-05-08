@@ -72,21 +72,19 @@ export default class DiscordClient {
      * Initially connects to discord and attaches listeners.
      */
     async connect() {
-        await this.amqpClient.connect();
+        this.amqpClient.connect();
 
         const user = this.bot.user = await this.bot.getSelf();
         info("Connected to discord as %s (%s)", user.username, user.id);
 
-        await this.registerSlashCommands();
+        this.registerSlashCommands();
 
         this.amqpClient.on("messageCreate", this.handleMessage);
         this.amqpClient.on("messageUpdate", this.handleMessageEdit);
         this.amqpClient.on("messageDelete", ev => this.handleMessageDelete(ev.id));
         this.amqpClient.on("messageReactionAdd", this.handleMessageReaction);
         this.amqpClient.on("interactionCreate", this.handleInteraction);
-        this.amqpClient.on("presenceUpdate", this.handleUserUpdate);
         this.amqpClient.on("guildMemberAdd", this.handleGuildMemberAdd);
-        // TODO? this.bot.on("presenceUpdate", this.handlePresenceUpdate);
 
         // Fire off an emote request so we pull the information from redis.
         emote("Missing_Champion");
@@ -189,6 +187,16 @@ export default class DiscordClient {
      * for the message, then forwards it to the command handling logic.
      */
     private handleMessage = async (msg: dissonance.Message) => {
+        // In the background, update the the user information for this user.
+        User
+            .query()
+            .where("snowflake", msg.author.id)
+            .update({
+                username: msg.author.username,
+                avatar: msg.author.avatar || "none"
+            })
+            .execute().catch(() => {});
+
         const didHandle = await this.tryMatchAndExecuteCommand({
             content: msg.content,
             mentions: msg.mentions || [],
@@ -210,7 +218,7 @@ export default class DiscordClient {
             setTimeout(() => {
                 this.aliveHelpReactions.delete(msg.id);
                 this.bot.removeMessageReaction(msg.channel_id, msg.id, HELP_REACTION).catch(() => {});
-            }, 15_000);
+            }, 15 * 60 * 1000);
         }
     };
 
@@ -299,25 +307,33 @@ export default class DiscordClient {
             return;
         }
 
+        // If this was in a server, we need to check for engagement.
+        if (ev.guild_id && (ev.emoji as any).id) {
+            const emojiName = ev.emoji.name + ":" + (ev.emoji as any).id;
+
+            const match = await Server
+                .query()
+                .where("snowflake", ev.guild_id)
+                .whereRaw(`engagement_json->'type' = '"on_react"'`)
+                .whereRaw(`engagement_json->'channel' = ?`, JSON.stringify(ev.channel_id))
+                .whereRaw(`engagement_json->'emote' = ?`, JSON.stringify(emojiName))
+                .first();
+
+            if (match) {
+                await this.bot.removeMessageReaction(ev.channel_id, ev.message_id, emojiName, ev.user_id);
+
+                if (!ev.member?.user) {
+                    return; // nothing we can do, but should never happen
+                }
+
+                this.engageUser(ev.member?.user, match);
+                return;
+            }
+        }
+
         for (const aliveContext of this.responseContexts) {
             aliveContext.processReactionEvent(ev);
         }
-    };
-
-    /**
-     * Updates the database representation of the user when it changes settings.
-     */
-    private handleUserUpdate = async ({ user }: dissonance.PresenceUpdateEvent) => {
-        if (!user.username) return;
-
-        await User
-            .query()
-            .where("snowflake", user.id)
-            .update({
-                username: user.username,
-                avatar: user.avatar || "none"
-            })
-            .execute();
     };
 
     /**

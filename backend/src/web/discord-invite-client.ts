@@ -17,7 +17,7 @@ export default function register(app: express.Application, client: DiscordClient
     const redirectUrl = config.web.url + "/api/v1/discord-invite/callback";
 
     app.get("/api/v1/discord-invite", (req, res) => {
-        res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${config.discord.clientId}&permissions=8&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=code&scope=identify%20bot`);
+        res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${config.discord.clientId}&permissions=8&redirect_uri=${encodeURIComponent(redirectUrl)}&response_type=code&scope=identify%20bot%20applications.commands`);
     });
 
     app.get("/api/v1/discord-invite/callback", async (req, res) => {
