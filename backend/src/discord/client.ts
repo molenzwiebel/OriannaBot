@@ -115,7 +115,7 @@ export default class DiscordClient {
      * Finds or creates a new User instance for the specified Discord snowflake.
      */
     public async findOrCreateUser(id: string, discordUser: { username: string, avatar?: string | null }): Promise<User> {
-        const user = await User.query().where("snowflake", "=", id).first();
+        const user = await User.query().where("snowflake", id).first();
         if (user) return user;
 
         return User.query().insertAndFetch({
@@ -188,14 +188,17 @@ export default class DiscordClient {
      */
     private handleMessage = async (msg: dissonance.Message) => {
         // In the background, update the the user information for this user.
-        User
-            .query()
-            .where("snowflake", msg.author.id)
-            .update({
-                username: msg.author.username,
-                avatar: msg.author.avatar || "none"
-            })
-            .execute().catch(() => {});
+        if (msg.author && msg.author.id) {
+            User
+                .query()
+                .where("snowflake", msg.author.id)
+                .update({
+                    username: msg.author.username,
+                    avatar: msg.author.avatar || "none"
+                })
+                .execute().catch(() => {
+            });
+        }
 
         const didHandle = await this.tryMatchAndExecuteCommand({
             content: msg.content,

@@ -1,8 +1,10 @@
+import { Constants } from "eris";
 import config from "../../config";
-import { User } from "../../database";
+import { GuildMember, User } from "../../database";
 import getTranslator from "../../i18n";
 import { getCachedGuild } from "../../redis";
 import formatName from "../../util/format-name";
+import { hasPermission } from "../../util/permissions";
 import { CommandContext } from "../command";
 import { ResponseOptions } from "../response";
 
@@ -11,9 +13,19 @@ import { ResponseOptions } from "../response";
  * targeting. This looks for the first non-bot mention, or otherwise the sender
  * of the message.
  */
-export async function expectUser({ mentions, client, user, author }: CommandContext): Promise<User> {
+export async function expectUser({ content, mentions, client, user }: CommandContext): Promise<User> {
     const mentionTarget = mentions.find(x => !x.bot);
-    return mentionTarget ? client.findOrCreateUser(mentionTarget.id, author) : user();
+
+    if (!mentionTarget) {
+        // Try to find a snowflake in the message that matches one from the database.
+        const snowflakeMatch = /\b(\d){17,}\b/.exec(content);
+        if (!snowflakeMatch) return user();
+
+        const userFromSnowflake = await User.query().where("snowflake", snowflakeMatch[1]).first();
+        return userFromSnowflake || user();
+    }
+
+    return client.findOrCreateUser(mentionTarget.id, mentionTarget);
 }
 
 /**
@@ -48,9 +60,12 @@ export async function expectModerator({ ctx, error, guild, t }: CommandContext):
     if (ctx.author.id === config.discord.owner || ctx.author.id === guild.owner_id) return true;
 
     // If the user can manage messages, they are considered a moderator.
-    // TODO: Properly compute roles here based on the cached role info for the member.
-    // const member = guild.members.get(ctx.author.id);
-    // if (member && member.permissions.has("manageMessages")) return true;
+
+    // Fetch list of roles to check for permissions.
+    const guildMember = await GuildMember.query().where("guild_id", guild.id).where("user_id", ctx.author.id).first();
+    if (guildMember && await hasPermission(ctx.author.id, guildMember.roles, guild, Constants.Permissions.manageMessages)) {
+        return true;
+    }
 
     await error({
         title: t.command_error_no_permissions,
