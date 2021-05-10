@@ -18,7 +18,7 @@ export async function expectUser({ content, mentions, client, user }: CommandCon
 
     if (!mentionTarget) {
         // Try to find a snowflake in the message that matches one from the database.
-        const snowflakeMatch = /\b(\d){17,}\b/.exec(content);
+        const snowflakeMatch = /(?:^|[^@!:&#])(\d{17,})(?:[^>]|$)/.exec(content);
         if (!snowflakeMatch) return user();
 
         const userFromSnowflake = await User.query().where("snowflake", snowflakeMatch[1]).first();
