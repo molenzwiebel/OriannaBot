@@ -379,6 +379,9 @@ export default class Updater {
                 // Delete the account.
                 await account.$query().delete();
                 user.accounts.slice(user.accounts.indexOf(account), 1);
+                if (user.accounts?.length === 0) {
+                    await user.$query().patch({ has_accounts: false });
+                }
 
                 // Potentially notify the user.
                 this.ipc.notify(user.snowflake, {
