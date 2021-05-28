@@ -203,7 +203,7 @@ export async function paginateRaw<T>({ info, ctx, t }: CommandContext, elementCo
             callback: () => showPage(-1),
             style: ButtonStyle.SECONDARY
         }, {
-            emoji: "🗑",
+            emoji: "➡",
             callback: () => showPage(+1),
             style: ButtonStyle.SECONDARY
         }, deleteBtn]
