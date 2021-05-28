@@ -47,6 +47,9 @@ interface Configuration {
         accountInterval: number;
         accountAmount: number;
     };
+    flags?: {
+        enableButtons?: boolean;
+    };
     badges: { [key: string]: {
         small: string;
         big: string;

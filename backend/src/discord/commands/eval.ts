@@ -41,6 +41,7 @@ const EvalCommand: Command = {
             const evalContext = {
                 ...ctx,
                 ...db,
+                config,
                 getCachedGuild,
                 user: buildDBAccess(db.User, "[accounts]", { snowflake: author.id }),
                 role: buildDBAccess(db.Role, "[conditions]"),

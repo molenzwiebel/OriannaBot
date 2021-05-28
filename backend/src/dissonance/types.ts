@@ -172,16 +172,35 @@ namespace dissonance {
         user_id: string;
     }
 
-    export interface InteractionCreateEvent {
+    export type InteractionCreateEvent = CommandInteractionCreateEvent | ButtonInteractionCreateEvent;
+
+    export interface CommandInteractionCreateEvent {
         id: string;
         application_id: string;
-        type: InteractionType;
+        type: InteractionType.COMMAND;
         data?: ApplicationCommandInteractionData;
         guild_id?: string;
         channel_id?: string;
         member?: PartialMember & { user: User };
         user?: User;
         token: string;
+    }
+
+    export interface ButtonInteractionCreateEvent {
+        id: string;
+        application_id: string;
+        type: InteractionType.BUTTON;
+        data: {
+            custom_id: string;
+        };
+        message: {
+            id: string;
+        };
+        token: string;
+        guild_id?: string;
+        channel_id?: string;
+        user?: User;
+        member?: PartialMember & { user: User };
     }
 
     export interface ApplicationCommandInteractionData {
@@ -215,7 +234,8 @@ namespace dissonance {
 
     export const enum InteractionType {
         PING = 1,
-        COMMAND = 2
+        COMMAND = 2,
+        BUTTON = 3
     }
 
     export type ReactionEmoji =

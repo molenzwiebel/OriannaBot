@@ -59,6 +59,11 @@ export abstract class ResponseContext {
     public abstract processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void>;
 
     /**
+     * Handle the given button press event, passing it to the responses if desirable.
+     */
+    public abstract processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void>;
+
+    /**
      * Delete all of the responses sent by this context, if possible. This should
      * never error, even when deleting failed.
      */
@@ -140,7 +145,10 @@ export class ChannelResponseContext extends ResponseContext {
 
     async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
         await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
-        return Promise.resolve(undefined);
+    }
+
+    async processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void> {
+        await Promise.all(this.responses.map(x => x.processButtonEvent(event)));
     }
 }
 
@@ -221,6 +229,10 @@ export class InteractionResponseContext extends ResponseContext {
     async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
         if (this.firstResponse) await this.firstResponse.processReactionEvent(event);
         await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
-        return Promise.resolve(undefined);
+    }
+
+    async processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void> {
+        if (this.firstResponse) await this.firstResponse.processButtonEvent(event);
+        await Promise.all(this.responses.map(x => x.processButtonEvent(event)));
     }
 }

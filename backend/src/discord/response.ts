@@ -1,6 +1,8 @@
 import * as eris from "eris";
 import formatName from "../util/format-name";
 import fetch from "node-fetch";
+import * as uuid from "uuid";
+import config from "../config";
 import { createGeneratedFilePath } from "../web/generated-images";
 
 /**
@@ -28,7 +30,19 @@ export abstract class Response {
      */
     public async reply(options: ResponseOptions): Promise<this> {
         if (this.messageId) throw new Error("Cannot create initial reply twice.");
-        this.messageId = await this.create(this.buildEmbed(options), options.file);
+        this.messageId = await this.create(this.buildContent(options), options.file);
+
+        // if buttons aren't enabled, we need to mock them using reacts
+        if (options.buttons && !config.flags?.enableButtons) {
+            for (const btn of options.buttons) {
+                if (btn.authorOnly) {
+                    await this.option(btn.emoji, btn.callback);
+                } else {
+                    await this.globalOption(btn.emoji, btn.callback);
+                }
+            }
+        }
+
         return this;
     }
 
@@ -39,7 +53,7 @@ export abstract class Response {
     public async edit(options: ResponseOptions) {
         if (options.file) throw new Error("Cannot include file in edited response");
         if (!this.messageId) throw new Error("Cannot edit response if no initial reply was done.");
-        await this.update(this.buildEmbed(options));
+        await this.update(this.buildContent(options));
     }
 
     /**
@@ -96,6 +110,25 @@ export abstract class Response {
     }
 
     /**
+     * Handler for when a button is pressed by a user.
+     */
+    public readonly processButtonEvent = async (event: dissonance.ButtonInteractionCreateEvent) => {
+        if (this.messageId !== event.message.id) return;
+        if (!this.reactions.has(event.data.custom_id)) return;
+
+        const callback = this.reactions.get(event.data.custom_id)!;
+        const userId = event.member?.user.id ?? event.user!.id;
+
+        // if we have a user, it doesn't match ours, and this isn't global, ignore it.
+        if (this.user && this.user.id !== userId && !this.globalReactions.has(event.data.custom_id)) {
+            return;
+        }
+
+        // invoke the callback!
+        callback();
+    };
+
+    /**
      * Handler for reaction adding that fires an event if the user added an existing reaction.
      */
     public readonly processReactionEvent = async (event: dissonance.ReactionAddEvent) => {
@@ -124,13 +157,13 @@ export abstract class Response {
      * Create a new embed with the given content and optionally the given
      * file. Should return the message ID of the created message.
      */
-    protected abstract create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string>;
+    protected abstract create(content: eris.MessageContent, file?: { name: string, file: Buffer }): Promise<string>;
 
     /**
      * Update the message. This should update in-place and not recreate the
      * message.
      */
-    protected abstract update(newEmbed: eris.EmbedOptions): Promise<void>;
+    protected abstract update(content: eris.MessageContent): Promise<void>;
 
     /**
      * Delete the message.
@@ -159,8 +192,10 @@ export abstract class Response {
      * Helper that converts our simpler {@link ResponseOptions} format into the
      * format of embeds expected by Eris.
      */
-    private buildEmbed(options: ResponseOptions): eris.EmbedOptions {
-        let obj: eris.EmbedOptions;
+    private buildContent(options: ResponseOptions): eris.MessageContent {
+        const ret: any = {};
+
+        let obj: any; // eris.EmbedOptions;
         if (this.user) {
             obj = {
                 color: options.color,
@@ -181,11 +216,42 @@ export abstract class Response {
         if (options.thumbnail) obj.thumbnail = { url: options.thumbnail };
         if (options.author) obj.author = options.author;
 
+        if (options.buttons && config.flags?.enableButtons) {
+            // Need to have a row for every 5 buttons.
+            const components = ret.components = [] as any[];
+
+            for (let i = 0; i < options.buttons.length; i += 5) {
+                const buttonsInRow = options.buttons.slice(i, i + 5);
+                const buttonComponents = [] as any[];
+
+                for (const button of buttonsInRow) {
+                    const id = uuid.v4();
+                    this.reactions.set(id, button.callback);
+                    if (!button.authorOnly) this.globalReactions.add(id);
+
+                    buttonComponents.push({
+                        type: 2, // button
+                        style: button.style || ButtonStyle.PRIMARY,
+                        label: button.label,
+                        emoji: stringToPartialEmoji(button.emoji),
+                        custom_id: id
+                    });
+                }
+
+                components.push({
+                    type: 1, // row
+                    components: buttonComponents
+                });
+            }
+        }
+
         if (options.file) {
             obj.image = { url: "attachment://" + options.file.name };
         }
 
-        return obj;
+        ret.embed = obj;
+
+        return ret;
     }
 }
 
@@ -193,20 +259,16 @@ export abstract class Response {
  * Simple response in a text channel.
  */
 export class TextChannelResponse extends Response {
-    protected create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
-        return this.bot.createMessage(this.channelId, {
-            embed
-        }, file).then(x => x.id);
+    protected create(content: eris.MessageContent, file?: { name: string, file: Buffer }): Promise<string> {
+        return this.bot.createMessage(this.channelId, content, file).then(x => x.id);
     }
 
     protected delete(): Promise<void> {
         return this.bot.deleteMessage(this.channelId, this.messageId);
     }
 
-    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
-        await this.bot.editMessage(this.channelId, this.messageId, {
-            embed: newEmbed
-        });
+    protected async update(content: eris.MessageContent): Promise<void> {
+        await this.bot.editMessage(this.channelId, this.messageId, content);
     }
 }
 
@@ -221,9 +283,10 @@ export class InitialInteractionWebhookResponse extends Response {
         super(channelId, bot, user);
     }
 
-    protected async create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
+    protected async create(content: eris.MessageContent, file?: { name: string, file: Buffer }): Promise<string> {
         // We cannot upload files through webhook, so we need to host them locally.
-        if (file) {
+        if (file && (content as any).embed) {
+            const embed: eris.EmbedOptions = (content as any).embed;
             const path = await createGeneratedFilePath(file.name, `image-${this.interactionToken}`, async () => file.file);
 
             if (embed.image?.url === `attachment://${file.name}`) {
@@ -235,7 +298,7 @@ export class InitialInteractionWebhookResponse extends Response {
             }
         }
 
-        const response = await this.editOriginalMessage(embed);
+        const response = await this.editOriginalMessage(content);
         return response.id;
     }
 
@@ -245,19 +308,23 @@ export class InitialInteractionWebhookResponse extends Response {
         });
     }
 
-    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
-        await this.editOriginalMessage(newEmbed);
+    protected async update(content: eris.MessageContent): Promise<void> {
+        await this.editOriginalMessage(content);
     }
 
-    private async editOriginalMessage(embed: eris.EmbedOptions): Promise<any> {
+    private async editOriginalMessage(content: eris.MessageContent): Promise<any> {
+        // webhooks use an embeds array instead of a single embed
+        if (typeof content !== "string") {
+            (content as any).embeds = [content.embed];
+            delete content.embed;
+        }
+
         return await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/@original`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                embeds: [embed]
-            })
+            body: JSON.stringify(content)
         }).then(x => x.json());
     }
 }
@@ -271,9 +338,10 @@ export class EphemeralInteractionFollowupWebhookResponse extends Response {
         super(channelId, bot, user);
     }
 
-    protected async create(embed: eris.EmbedOptions, file?: { name: string, file: Buffer }): Promise<string> {
+    protected async create(content: eris.MessageContent, file?: { name: string, file: Buffer }): Promise<string> {
         // We cannot upload files through webhook, so we need to host them locally.
-        if (file) {
+        if (file && (content as any).embed) {
+            const embed: eris.EmbedOptions = (content as any).embed;
             const path = await createGeneratedFilePath(file.name, `image-${this.interactionToken}`, async () => file.file);
 
             if (embed.image?.url === `attachment://${file.name}`) {
@@ -285,13 +353,19 @@ export class EphemeralInteractionFollowupWebhookResponse extends Response {
             }
         }
 
+        // webhooks use an embeds array instead of a single embed
+        if (typeof content !== "string") {
+            (content as any).embeds = [content.embed];
+            delete content.embed;
+        }
+
         return fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                embeds: [embed],
+                ...(content as any),
                 flags: 64 // ephemeral
             })
         }).then(x => x.json()).then(x => x.id);
@@ -303,17 +377,32 @@ export class EphemeralInteractionFollowupWebhookResponse extends Response {
         });
     }
 
-    protected async update(newEmbed: eris.EmbedOptions): Promise<void> {
+    protected async update(content: eris.MessageContent): Promise<void> {
+        // webhooks use an embeds array instead of a single embed
+        if (typeof content !== "string") {
+            (content as any).embeds = [content.embed];
+            delete content.embed;
+        }
+
         await fetch(`https://discord.com/api/v9/webhooks/${this.bot.user.id}/${this.interactionToken}/messages/${this.messageId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                embeds: [newEmbed]
-            })
+            body: JSON.stringify(content)
         });
     }
+}
+
+function stringToPartialEmoji(emoji: string) {
+    if (!emoji.includes(":")) return { name: emoji };
+
+    const [id, name] = emoji.split(":");
+    return {
+        name,
+        id,
+        animated: false // can't determine whether this is animated
+    };
 }
 
 /**
@@ -335,4 +424,18 @@ export interface ResponseOptions {
         name: string,
         file: Buffer,
     };
+    buttons?: {
+        emoji: string; // used for the reaction if buttons are turned off
+        label?: string;
+        callback: () => any;
+        authorOnly?: boolean; // public by default
+        style?: ButtonStyle;
+    }[];
+}
+
+export const enum ButtonStyle {
+    PRIMARY = 1, // blurple
+    SECONDARY = 2, // gray
+    SUCCESS = 3, // green
+    DANGER = 4, // red
 }

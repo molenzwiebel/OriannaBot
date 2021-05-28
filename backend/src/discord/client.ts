@@ -22,6 +22,7 @@ import debug = require("debug");
 import randomstring = require("randomstring");
 import ChannelType = dissonance.ChannelType;
 import GuildMemberAddEvent = dissonance.GuildMemberAddEvent;
+import InteractionType = dissonance.InteractionType;
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -245,11 +246,23 @@ export default class DiscordClient {
     };
 
     /**
+     * Handle a generic interaction, which will be a slash command invocation
+     * or a button press.
+     */
+    private handleInteraction = async (ev: dissonance.InteractionCreateEvent) => {
+        if (ev.type === InteractionType.COMMAND) {
+            await this.handleCommandInteraction(ev);
+        } else {
+            await this.handleButtonInteraction(ev);
+        }
+    }
+
+    /**
      * Invoked when an interaction (a slash command) is used by a user. Attempts
      * to match the invoked command to a concrete command, then converts the
      * arguments into a text string and handles the same command logic.
      */
-    private handleInteraction = async (ev: dissonance.InteractionCreateEvent) => {
+    private handleCommandInteraction = async (ev: dissonance.CommandInteractionCreateEvent) => {
         const user = ev.user || ev.member!.user;
 
         const commandName = commandInvocationParamsToName(ev.data);
@@ -274,6 +287,27 @@ export default class DiscordClient {
             channelId: ev.channel_id!,
             guildId: ev.guild_id || undefined
         });
+    };
+
+    /**
+     * Invoked when a button is pressed. Navigates through all responses and tries
+     * to dispatch the event.
+     */
+    private handleButtonInteraction = async (ev: dissonance.ButtonInteractionCreateEvent) => {
+        // Acknowledge
+        fetch(`https://discord.com/api/v9/interactions/${ev.id}/${ev.token}/callback`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                type: 6
+            })
+        });
+
+        for (const resp of this.responseContexts) {
+            resp.processButtonEvent(ev);
+        }
     };
 
     /**
