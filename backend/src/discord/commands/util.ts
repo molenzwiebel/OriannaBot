@@ -6,7 +6,7 @@ import { getCachedGuild } from "../../redis";
 import formatName from "../../util/format-name";
 import { hasPermission } from "../../util/permissions";
 import { CommandContext } from "../command";
-import { ResponseOptions } from "../response";
+import { ButtonStyle, Response, ResponseOptions } from "../response";
 
 /**
  * Utility method that takes a command context and finds the user the message is
@@ -109,10 +109,28 @@ export async function advancedPaginate<T>({ info, t }: CommandContext, elements:
     const pages = Math.ceil(elements.length / perPage);
     let curPage = 0;
 
-    const res = await info({
+    let res: Response;
+
+    const deleteBtn = {
+        emoji: "🗑",
+        callback: () => res.remove(),
+        style: ButtonStyle.DANGER,
+        authorOnly: true
+    };
+
+    res = await info({
         ...template,
         fields: await process(elements.slice(0, perPage), 0),
-        footer: t.command_page_n_of_n({ n: 1, total: pages }) + (template.footer ? " • " + template.footer : "")
+        footer: t.command_page_n_of_n({ n: 1, total: pages }) + (template.footer ? " • " + template.footer : ""),
+        buttons: pages == 1 ? [deleteBtn] : [{
+            emoji: "⬅",
+            callback: () => showPage(-1),
+            style: ButtonStyle.SECONDARY
+        }, {
+            emoji: "➡",
+            callback: () => showPage(+1),
+            style: ButtonStyle.SECONDARY
+        }, deleteBtn]
     });
 
     const showPage = async (offset: number) => {
@@ -125,15 +143,6 @@ export async function advancedPaginate<T>({ info, t }: CommandContext, elements:
             footer: t.command_page_n_of_n({ n: curPage + 1, total: pages }) + (template.footer ? " • " + template.footer : "")
         });
     };
-
-    if (pages !== 1) {
-        await res.globalOption("⬅", () => showPage(-1));
-        await res.globalOption("➡", () => showPage(+1));
-    }
-
-    await res.option("🗑", () => {
-        res.remove();
-    });
 
     return res;
 }
@@ -155,15 +164,7 @@ export async function paginateRaw<T>({ info, ctx, t }: CommandContext, elementCo
     let curPage = 0;
     let loading = false;
 
-    const initialOptions = await process(0, curPage + 1, pages);
-    const res = await info({
-        ...initialOptions,
-        footer: t.command_page_n_of_n({
-            n: 1,
-            total: pages
-        }) + (initialOptions.footer ? " • " + initialOptions.footer : "")
-    });
-
+    let res: Response;
     const showPage = async (offset: number) => {
         if (loading) return;
         if (curPage + offset < 0 || curPage + offset >= pages) return;
@@ -183,13 +184,29 @@ export async function paginateRaw<T>({ info, ctx, t }: CommandContext, elementCo
         loading = false;
     };
 
-    if (pages !== 1) {
-        await res.globalOption("⬅", () => showPage(-1));
-        await res.globalOption("➡", () => showPage(+1));
-    }
+    const deleteBtn = {
+        emoji: "🗑",
+        callback: () => res.remove(),
+        style: ButtonStyle.DANGER,
+        authorOnly: true
+    };
 
-    await res.option("🗑", () => {
-        res.remove();
+    const initialOptions = await process(0, curPage + 1, pages);
+    res = await info({
+        ...initialOptions,
+        footer: t.command_page_n_of_n({
+            n: 1,
+            total: pages
+        }) + (initialOptions.footer ? " • " + initialOptions.footer : ""),
+        buttons: pages == 1 ? [deleteBtn] : [{
+            emoji: "⬅",
+            callback: () => showPage(-1),
+            style: ButtonStyle.SECONDARY
+        }, {
+            emoji: "🗑",
+            callback: () => showPage(+1),
+            style: ButtonStyle.SECONDARY
+        }, deleteBtn]
     });
 
     return res;

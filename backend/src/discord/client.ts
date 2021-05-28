@@ -11,7 +11,7 @@ import RiotAPI from "../riot/api";
 import formatName from "../util/format-name";
 import { Command, CommandContext, SlashCapableCommand } from "./command";
 import { emote } from "./commands/util";
-import { ResponseOptions } from "./response";
+import { ButtonStyle, MessageButton, Response, ResponseOptions } from "./response";
 import { ChannelResponseContext, InteractionResponseContext, ResponseContext } from "./response-context";
 import {
     applicationCommandToNames,
@@ -135,18 +135,15 @@ export default class DiscordClient {
      */
     public async displayHelp(t: Translator, responseContext: ResponseContext) {
         const commands = this.commands.filter(x => !x.hideFromHelp);
-        const index: ResponseOptions = {
-            color: 0x0a96de,
-            title: t.command_help_title,
-            description: t.command_help_description,
-            fields: commands.map((x, i) => ({
-                name: (i + 1) + " - " + x.name,
-                value: <string>t[x.smallDescriptionKey]
-            }))
-        };
 
-        const resp = await responseContext.createResponse(index);
-        await resp.option(HELP_INDEX_REACTION, () => resp.info(index));
+        let resp: Response;
+        let index: ResponseOptions;
+
+        const buttons: MessageButton[] = [{
+            emoji: HELP_INDEX_REACTION,
+            label: "Index",
+            callback: () => resp.info(index)
+        }];
 
         for (const cmd of commands) {
             let description = t.command_help_command_description({ description: <string>t[cmd.descriptionKey] });
@@ -169,18 +166,40 @@ export default class DiscordClient {
                 });
             }
 
-            await resp.option(decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"), () => {
-                resp.info({
-                    title: t.command_help_command_title({ name: cmd.name }),
-                    description,
-                    fields
-                });
+            buttons.push({
+                emoji: "ℹ️",
+                fallbackEmoji: decodeURIComponent((commands.indexOf(cmd) + 1) + "%E2%83%A3"),
+                label: cmd.name,
+                style: ButtonStyle.SECONDARY,
+                callback: () => {
+                    resp.info({
+                        title: t.command_help_command_title({ name: cmd.name }),
+                        description,
+                        fields
+                    });
+                }
             });
         }
 
-        await resp.option("🗑", () => {
-            resp.remove();
+        buttons.push({
+            emoji: "🗑",
+            callback: () => resp.remove(),
+            style: ButtonStyle.DANGER,
+            authorOnly: true
         });
+
+        index = {
+            color: 0x0a96de,
+            title: t.command_help_title,
+            description: t.command_help_description,
+            fields: commands.map((x, i) => ({
+                name: (i + 1) + " - " + x.name,
+                value: <string>t[x.smallDescriptionKey]
+            })),
+            buttons
+        };
+
+        resp = await responseContext.createResponse(index);
     }
 
     /**

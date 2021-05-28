@@ -36,9 +36,9 @@ export abstract class Response {
         if (options.buttons && !config.flags?.enableButtons) {
             for (const btn of options.buttons) {
                 if (btn.authorOnly) {
-                    await this.option(btn.emoji, btn.callback);
+                    await this.option(btn.fallbackEmoji || btn.emoji, btn.callback);
                 } else {
-                    await this.globalOption(btn.emoji, btn.callback);
+                    await this.globalOption(btn.fallbackEmoji || btn.emoji, btn.callback);
                 }
             }
         }
@@ -424,13 +424,16 @@ export interface ResponseOptions {
         name: string,
         file: Buffer,
     };
-    buttons?: {
-        emoji: string; // used for the reaction if buttons are turned off
-        label?: string;
-        callback: () => any;
-        authorOnly?: boolean; // public by default
-        style?: ButtonStyle;
-    }[];
+    buttons?: MessageButton[];
+}
+
+export interface MessageButton {
+    emoji: string; // used for the reaction if buttons are turned off, unless fallbackEmoji is given
+    fallbackEmoji?: string; // only used if buttons are turned off
+    label?: string;
+    callback: () => any;
+    authorOnly?: boolean; // public by default
+    style?: ButtonStyle;
 }
 
 export const enum ButtonStyle {
