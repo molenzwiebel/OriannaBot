@@ -1,12 +1,12 @@
-import { GuildMember, User, UserChampionStat } from "../../database";
+import { GuildMember, User } from "../../database";
 import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
-import redis from "../../redis";
 import formatName from "../../util/format-name";
 import { createGeneratedFilePath } from "../../web/generated-images";
 import { SlashCapableCommand } from "../command";
 import { ResponseOptions } from "../response";
 import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
-import randomstring = require("randomstring");
+import { createLeaderboardQuery } from "../../database/leaderboards";
+import { getAvatarURL } from "../../util/avatar";
 
 const TopCommand: SlashCapableCommand = {
     name: "Show Leaderboards",
@@ -97,11 +97,9 @@ const TopCommand: SlashCapableCommand = {
             if (!champ) return;
         }
 
-        // The source redis key to get our data from.
-        const sourceKey = champ ? "leaderboard:" + champ.key : "leaderboard:all";
-
-        // The redis key to pull data from.
-        let redisKey: string;
+        // The leaderboard key to get data from.
+        const key = champ ? "" + champ.key : "all";
+        let filter: number[] = [];
 
         // If we are filtering on local server, do it on redis's end by creating an intermediate key.
         // Else, just return the standard collection as the redis key.
@@ -116,70 +114,42 @@ const TopCommand: SlashCapableCommand = {
             }
             const guildMembers: { user_id: string }[] = await query;
 
-            const userIds = await User
+            filter = await User
                 .query()
                 .select("id")
                 .whereIn("snowflake", guildMembers.map(x => x.user_id))
                 .map<{ id: number }, number>(x => x.id);
-
-            const userCollection = "temporary:" + randomstring.generate({ length: 32 });
-            const intersectedCollection = "temporary:" + randomstring.generate({ length: 32 });
-
-            // Insert members of server.
-            await redis.zadd(userCollection, ...([] as string[]).concat(...userIds.map(x => ["0", "" + x])));
-
-            // Run intersection.
-            await redis.zinterstore(intersectedCollection, 2, userCollection, sourceKey);
-
-            // Ensure that the temporary keys expire after 30 minutes.
-            await redis.expire(userCollection, 30 * 60);
-            await redis.expire(intersectedCollection, 30 * 60);
-
-            redisKey = intersectedCollection;
-        } else {
-            redisKey = sourceKey;
         }
+
+        const query = createLeaderboardQuery(key, filter);
 
         // Find the user's rank, or leave it out if they have no ori account or aren't listed on that champion.
         let userRank: undefined | string = undefined;
         const user = await ctx.user();
         if (user) {
-            const rank = await redis.zrevrank(redisKey, user.id + "");
-            if (rank) {
-                userRank = t.command_top_rank({ rank: rank + 1 }); // rank is 0-indexed
+            const rank = await query.rank(user.id);
+            if (rank === false) {
+                // todo: translate
+                userRank = t.command_top_rank({ rank: ">" + t.number(10000) });
+            } else if (typeof rank === "number") {
+                userRank = t.command_top_rank({ rank });
             }
         }
 
-        const numberOfResults = await redis.zcard(redisKey);
+        const numberOfResults = await query.count();
 
         // Return paginated image.
         return paginateRaw(ctx, numberOfResults, async (offset, curPage): Promise<ResponseOptions> => {
             // Find entries at offset.
-            const userIds: string[] = await redis.zrevrange(redisKey, offset, offset + 8);
+            const entries = await query.range(offset, offset + 8);
 
             // Query more information about those players.
-            const players = await Promise.all(userIds.map(async (x, i) => {
-                let entry = allChamps
-                    ? await UserChampionStat.query().where("user_id", +x).orderBy("score", "DESC").first()
-                    : await UserChampionStat.query().where("champion_id", +champ!.key).where("user_id", +x).first();
-                const user = await User.query().where("id", +x).first();
-
-                if (!entry) {
-                    return {
-                        championAvatar: "",
-                        place: offset + i + 1,
-                        username: "Deleted Account",
-                        avatar: "",
-                        score: 0,
-                        level: 0
-                    };
-                }
-
+            const players = await Promise.all(entries.map(async (entry, i) => {
                 return {
                     championAvatar: await t.staticData.getChampionIcon(entry!.champion_id),
                     place: offset + i + 1,
-                    username: user!.username,
-                    avatar: user!.avatarURL + "?size=16",
+                    username: entry!.username,
+                    avatar: getAvatarURL(entry.snowflake, entry.avatar) + "?size=16",
                     score: entry!.score,
                     level: entry!.level
                 };

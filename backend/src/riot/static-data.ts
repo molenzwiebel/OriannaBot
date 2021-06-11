@@ -111,6 +111,14 @@ export default class StaticData {
     }
 
     /**
+     * Return the full list of all champions for this static data instance.
+     */
+    public async getAllChampions(): Promise<riot.Champion[]> {
+        await this.dataPromise;
+        return this.data;
+    }
+
+    /**
      * Tries to find a champion name in the specified string. Returns
      * null if no champion could be find, returns the champion otherwise.
      */

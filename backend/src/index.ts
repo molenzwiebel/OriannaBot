@@ -22,6 +22,8 @@ import config from "./config";
 import RiotAPI from "./riot/api";
 import DiscordClient from "./discord/client";
 import Updater from "./discord/updater";
+import { initializeLeaderboardTables } from "./database/leaderboards";
+import getTranslator from "./i18n";
 
 const info = debug("orianna");
 const error = debug("orianna:error");
@@ -62,6 +64,8 @@ process.on("unhandledRejection", (err: Error) => {
         discord.registerCommand(OtherBotsHelpfulCommand);
 
         await discord.connect();
+
+        await initializeLeaderboardTables(getTranslator("en-US").staticData);
 
         const app = createApplication(discord);
         app.listen(config.web.port);

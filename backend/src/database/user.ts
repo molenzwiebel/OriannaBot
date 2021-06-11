@@ -4,6 +4,7 @@ import * as decorators from "../util/objection";
 import omit = require("lodash.omit");
 import config from "../config";
 import { randomBytes } from "crypto";
+import { getAvatarURL } from "../util/avatar";
 
 @decorators.table("users")
 export default class User extends Model {
@@ -111,14 +112,7 @@ export default class User extends Model {
      * Returns the fully qualified URL to the avatar for this user.
      */
     get avatarURL(): string {
-        if (this.avatar === "none") return "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";
-
-        // If this is an animated avatar...
-        if (this.avatar.indexOf("a_") === 0) {
-            return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.gif`;
-        } else {
-            return `https://cdn.discordapp.com/avatars/${this.snowflake}/${this.avatar}.png`;
-        }
+        return getAvatarURL(this.snowflake, this.avatar);
     }
 
     /**

@@ -2,7 +2,7 @@ import { Model } from "objection";
 import Knex = require("knex");
 import config from "../config";
 
-const knex = Knex({
+export const knex = Knex({
     client: "postgres",
     connection: config.db
 });
