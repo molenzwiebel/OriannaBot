@@ -1,6 +1,6 @@
 import { Model, Pojo } from "objection";
 import * as decorators from "../util/objection";
-import omit = require("lodash.omit");
+import omit = require("lodash/omit");
 
 @decorators.table("league_accounts")
 export default class LeagueAccount extends Model {

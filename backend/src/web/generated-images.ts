@@ -31,7 +31,7 @@ export function createGeneratedFilePath(filenameSuffix: string, cacheKey: string
     const key = randomstring.generate({ length: 32 });
 
     const promise = generate().then(result => {
-        return new Promise(resolve => fs.writeFile(path.join(IMAGES, key + filenameSuffix), result, () => resolve()));
+        return new Promise<void>(resolve => fs.writeFile(path.join(IMAGES, key + filenameSuffix), result, () => resolve()));
     }).then(() => {
         generatingImages.delete(key);
     });

@@ -102,7 +102,7 @@ function escapePath(path: string): string {
 async function downloadFile(url: string, path: string): Promise<void> {
     const res = await fetch(url);
 
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         const fileStream = fs.createWriteStream(path);
 
         res.body.pipe(fileStream);

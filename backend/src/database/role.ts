@@ -3,7 +3,7 @@ import * as decorators from "../util/objection";
 import { evaluateRangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../types/conditions";
 import User, { UserRank } from "./user";
 import config from "../config";
-import omit = require("lodash.omit");
+import omit = require("lodash/omit");
 
 @decorators.table("roles")
 export default class Role extends Model {

@@ -19,7 +19,7 @@ export default function scheduleUpdateLoop<T>(handler: (item: T) => Promise<any>
         completed = 0;
         try {
             const items = await producer(amount);
-            const promises = items.map((item, i) => new Promise(resolve => {
+            const promises = items.map((item, i) => new Promise<void>(resolve => {
                 setTimeout(() => {
                     // We catch the error but don't handle it.
                     // This is to prevent the entire Promise.all from aborting when a single reject is received.

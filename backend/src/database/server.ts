@@ -1,5 +1,5 @@
 import { Model, Pojo } from "objection";
-import omit = require("lodash.omit");
+import omit = require("lodash/omit");
 import * as decorators from "../util/objection";
 import Role from "./role";
 

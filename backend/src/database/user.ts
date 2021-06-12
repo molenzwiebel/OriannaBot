@@ -1,7 +1,7 @@
 import { Model, Pojo } from "objection";
 import LeagueAccount from "./league_account";
 import * as decorators from "../util/objection";
-import omit = require("lodash.omit");
+import omit = require("lodash/omit");
 import config from "../config";
 import { randomBytes } from "crypto";
 import { getAvatarURL } from "../util/avatar";

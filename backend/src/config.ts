@@ -1,4 +1,3 @@
-import { ConnectionConfig } from "knex";
 import { Translator } from "./i18n";
 import callsites from "callsites";
 import { wrapCallSite } from "source-map-support";
@@ -54,7 +53,7 @@ interface Configuration {
         small: string;
         big: string;
     } };
-    db: ConnectionConfig;
+    db: any;
     ffmpeg: string;
     dblToken: string;
     traceLogLines: boolean;
