@@ -1,11 +1,11 @@
 import RiotAPI from "../riot/api";
-import { Server, User, LeagueAccount, UserRank, UserChampionStat, UserMasteryDelta } from "../database";
+import { Server, User, LeagueAccount, UserRank, UserChampionStat, UserMasteryDelta, knex } from "../database";
 import config from "../config";
 import debug = require("debug");
 import scheduleUpdateLoop from "../util/update-loop";
-import redis from "../redis";
 import createIPC from "../cluster/worker-ipc";
 import getTranslator from "../i18n";
+import maxBy = require("lodash/maxBy");
 
 const logUpdate = debug("orianna:updater:update");
 const logFetch = debug("orianna:updater:fetch");
@@ -243,7 +243,7 @@ export default class Updater {
         logMastery("Updating mastery for user %s (%s)", user.username, user.snowflake);
 
         // Create a redis pipeline for leaderboard tracking through sorted sets.
-        const pipeline = redis.pipeline();
+        const queries: any[] = [];
 
         // Sum scores and max levels for all accounts.
         const scores = new Map<number, { score: number, level: number }>();
@@ -261,17 +261,24 @@ export default class Updater {
             }
         }
 
+        let changed = false;
+
         // Remove user from Redis leaderboards if they lost their points.
         for (const stats of user.stats) {
             if (scores.has(stats.champion_id)) continue;
 
-            pipeline.zrem("leaderboard:" + stats.champion_id, "" + user.id);
+            changed = true;
+
+            queries.push(
+                knex(`leaderboard_${stats.champion_id}`)
+                    .where("user_id", user.id)
+                    .delete()
+            );
         }
 
         // Remove user from Postgres stats if they lost their points.
         await user.$relatedQuery("stats").whereNotIn("champion_id", [...scores.keys()]).delete();
 
-        let changed;
         const toInsert = [];
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
@@ -293,7 +300,17 @@ export default class Updater {
             changed = true;
 
             // Insert or update into redis.
-            pipeline.zadd("leaderboard:" + champion, "" + score.score, "" + user.id);
+            queries.push(
+                knex(`leaderboard_${champion}`)
+                    .insert({
+                        user_id: user.id,
+                        champion_id: champion,
+                        level: score.level,
+                        score: score.score
+                    })
+                    .onConflict(["user_id"])
+                    .merge()
+            );
 
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,
@@ -304,16 +321,35 @@ export default class Updater {
 
         // If we had a change, also update the leaderboard for most total score.
         if (changed) {
-            const maxScore = Math.max(...[...scores.values()].map(x => x.score));
-            pipeline.zadd("leaderboard:all", maxScore + "", "" + user.id);
+            const maxScore = maxBy([...scores.entries()], x => x[1].score);
+
+            if (!maxScore) {
+                queries.push(
+                    knex(`leaderboard_all`)
+                        .where("user_id", user.id)
+                        .delete()
+                );
+            } else {
+                queries.push(
+                    knex(`leaderboard_all`)
+                        .insert({
+                            user_id: user.id,
+                            champion_id: maxScore[0],
+                            level: maxScore[1].level,
+                            score: maxScore[1].score
+                        })
+                        .onConflict(["user_id"])
+                        .merge()
+                );
+            }
         }
 
         // If we had any changed values, we insert them all at once to avoid having a lot of
         // individual queries.
         if (toInsert.length) await UserMasteryDelta.query().insert(toInsert);
 
-        // Run redis pipeline.
-        await pipeline.exec().catch(() => {}); // ignore errors
+        // Run leaderboard updates.
+        await knex.raw(queries.join("; ")).catch(() => {});
 
         // Refetch stats now that we updated stuff.
         user.stats = await user.$relatedQuery<UserChampionStat>("stats");
