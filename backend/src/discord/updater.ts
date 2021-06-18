@@ -283,6 +283,20 @@ export default class Updater {
         for (const [champion, score] of scores) {
             // Carry over the old games played. Don't update anything if we have no need to.
             const oldScore = user.stats.find(x => x.champion_id === champion);
+
+            // Update the leaderboards.
+            queries.push(
+                knex(`leaderboard_${champion}`)
+                    .insert({
+                        user_id: user.id,
+                        champion_id: champion,
+                        level: score.level,
+                        score: score.score
+                    })
+                    .onConflict(["user_id"])
+                    .merge()
+            );
+
             if (oldScore && score.level === oldScore.level && score.score === oldScore.score) continue;
 
             // If we had an older score, we can diff the two and queue a delta for insertion.
@@ -298,19 +312,6 @@ export default class Updater {
                 await oldScore.$query().delete();
             }
             changed = true;
-
-            // Insert or update into redis.
-            queries.push(
-                knex(`leaderboard_${champion}`)
-                    .insert({
-                        user_id: user.id,
-                        champion_id: champion,
-                        level: score.level,
-                        score: score.score
-                    })
-                    .onConflict(["user_id"])
-                    .merge()
-            );
 
             await user.$relatedQuery<UserChampionStat>("stats").insert({
                 champion_id: champion,

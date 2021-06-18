@@ -24,7 +24,7 @@ const RefreshCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter " + k;
     },
-    async handler({ ctx, author, info, responseContext }) {
+    async handler({ ctx, content, author, info, responseContext }) {
         const user = await expectUser(ctx);
         if (!user) return;
 
@@ -33,6 +33,11 @@ const RefreshCommand: SlashCapableCommand = {
         const msg = await info({
             title: `<a:${loadingEmojiId}> Refreshing${user.snowflake === author.id ? " your" : ""} data...`
         });
+
+        // Debug (hidden) option: nuke all the stats before performing the refresh.
+        if (content.includes("nukestatsfirst")) {
+            await user.$relatedQuery("stats").delete();
+        }
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
