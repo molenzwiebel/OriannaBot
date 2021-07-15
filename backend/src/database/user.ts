@@ -259,13 +259,8 @@ export class UserAuthKey extends Model {
     user: User;
 }
 
-@decorators.table("user_mastery_deltas")
+@decorators.table("user_mastery_deltas_ts")
 export class UserMasteryDelta extends Model {
-    /**
-     * Unique incremented ID for this delta.
-     */
-    readonly id: number;
-
     /**
      * The user this delta belongs to.
      */
@@ -290,7 +285,7 @@ export class UserMasteryDelta extends Model {
     /**
      * Unix epoch timestamp, stored as a string (since postgres stores bigInts as strings).
      */
-    timestamp: string;
+    timestamp: Date;
 }
 
 decorators.belongsTo("user", () => User, "user_id", "id")(UserChampionStat);

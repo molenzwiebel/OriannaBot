@@ -67,7 +67,7 @@ const StatsCommand: SlashCapableCommand = {
         const win = values.filter(x => x.delta > 600).length;
         const loss = values.length - win;
         const pct = (win / values.length * 100).toFixed(2);
-        const fmtDate = (ts: string) => new Date(+ts).toISOString().slice(0, 10);
+        const fmtDate = (date: Date) => date.toISOString().slice(0, 10);
 
         // Chart resulting data.
         const chart = await generateStatsGraphic(values);

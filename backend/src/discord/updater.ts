@@ -292,7 +292,7 @@ export default class Updater {
                     champion_id: champion,
                     delta: score.score - oldScore.score,
                     value: score.score,
-                    timestamp: "" + Date.now()
+                    timestamp: new Date()
                 });
 
                 await oldScore.$query().delete();
