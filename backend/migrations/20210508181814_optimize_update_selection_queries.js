@@ -15,10 +15,8 @@ exports.up = async knex => {
 };
 
 exports.down = knex => knex.schema.alterTable("users", table => {
-    table.dropColumn("users");
-    table.dropIndex([
-        "last_score_update_timestamp_idx",
-        "last_account_update_timestamp_idx",
-        "last_rank_update_timestamp_idx"
-    ]);
+    table.dropColumn("has_accounts");
+    table.dropIndex([], "last_score_update_timestamp_idx");
+    table.dropIndex([], "last_account_update_timestamp_idx");
+    table.dropIndex([], "last_rank_update_timestamp_idx");
 });

@@ -347,7 +347,7 @@ export default class Updater {
 
         // If we had any changed values, we insert them all at once to avoid having a lot of
         // individual queries.
-        if (toInsert.length) await UserMasteryDelta.query().insert(toInsert);
+        if (toInsert.length) await UserMasteryDelta.query().insert(toInsert).returning("user_id");
 
         // Run leaderboard updates.
         await knex.raw(queries.join("; ")).catch(() => {});
