@@ -9,6 +9,7 @@ import { default as registerAuth } from "./auth-key-client";
 import { default as registerDiscordAuth } from "./discord-auth-client";
 import { default as registerDiscordInvite } from "./discord-invite-client";
 import { default as registerImages } from "./generated-images";
+import { default as registerShockwave } from "./shockwave-api";
 import * as path from "path";
 
 /**
@@ -38,6 +39,7 @@ export default function createApplication(client: DiscordClient) {
     registerReddit(app, client.riotAPI);
     registerDiscordAuth(app, client);
     registerDiscordInvite(app, client);
+    registerShockwave(app, client);
 
     // Then, default to index for anything we do not recognize, that way
     // our vue-router can catch the problem and render the appropriate page.

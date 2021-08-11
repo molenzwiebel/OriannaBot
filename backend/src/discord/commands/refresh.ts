@@ -41,7 +41,7 @@ const RefreshCommand: SlashCapableCommand = {
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
-            shockwave.fetchAndUpdateUser(user).then(x => { if (x) throw new Error("Refreshing failed."); }),
+            shockwave.fetchAndUpdateUser(user).then(x => { if (!x) throw new Error("Refreshing failed."); }),
             new Promise((_, reject) => setTimeout(reject, 20000))
         ]);
 
