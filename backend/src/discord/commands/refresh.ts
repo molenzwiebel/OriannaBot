@@ -1,4 +1,4 @@
-import * as ipc from "../../cluster/master-ipc";
+import * as shockwave from "../../shockwave";
 import { SlashCapableCommand } from "../command";
 import { expectUser, rawEmote } from "./util";
 
@@ -41,7 +41,7 @@ const RefreshCommand: SlashCapableCommand = {
 
         // Attempt to update user or time out after 20 seconds.
         await Promise.race([
-            ipc.fetchAndUpdateUser(user),
+            shockwave.fetchAndUpdateUser(user).then(x => { if (x) throw new Error("Refreshing failed."); }),
             new Promise((_, reject) => setTimeout(reject, 20000))
         ]);
 

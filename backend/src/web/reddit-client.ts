@@ -4,7 +4,7 @@ import snoowrap = require("snoowrap");
 import { requireAuth } from "./decorators";
 import config from "../config";
 import RiotAPI from "../riot/api";
-import * as ipc from "../cluster/master-ipc";
+import * as shockwave from "../shockwave";
 
 export default function register(app: express.Application, riot: RiotAPI) {
     const redirectUrl = config.web.url + "/api/v1/reddit/callback";
@@ -44,7 +44,7 @@ export default function register(app: express.Application, riot: RiotAPI) {
             }
 
             // Update data for the user after they fetched their accounts.
-            ipc.fetchAndUpdateUser(req.user);
+            shockwave.fetchAndUpdateUser(req.user);
 
             return ret({ ok: true });
         } catch (err) {

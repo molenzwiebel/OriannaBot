@@ -26,6 +26,7 @@ interface Configuration {
     web: {
         url: string;
         port: number;
+        apiKey: string;
     };
     dissonance: {
         amqpHost: string;
@@ -36,15 +37,8 @@ interface Configuration {
         host: string;
         port: number;
     };
-    updater: {
-        masteryGamesInterval: number;
-        masteryGamesAmount: number;
-
-        rankedTierInterval: number;
-        rankedTierAmount: number;
-
-        accountInterval: number;
-        accountAmount: number;
+    shockwave: {
+        url: string;
     };
     flags?: {
         enableButtons?: boolean;

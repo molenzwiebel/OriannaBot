@@ -6,7 +6,7 @@ import AMQPClient from "../dissonance/amqp-client";
 import generatePromotionGraphic from "../graphics/promotion";
 import getTranslator, { Translator } from "../i18n";
 import { getCachedGuild } from "../redis";
-import * as ipc from "../cluster/master-ipc";
+import * as shockwave from "../shockwave";
 import RiotAPI from "../riot/api";
 import formatName from "../util/format-name";
 import { Command, CommandContext, SlashCapableCommand } from "./command";
@@ -413,7 +413,7 @@ export default class DiscordClient {
         if (!oriUser) return;
 
         // This should assign new roles, if appropriate.
-        ipc.fetchAndUpdateUser(user.id);
+        shockwave.fetchAndUpdateUser(user.id);
     };
 
     /**
@@ -705,7 +705,7 @@ export default class DiscordClient {
         const t = getTranslator(server.language);
 
         // Figure out what images to show for the promotion.
-        const champion = role.findChampionFor(user);
+        const champion = role.findChampion();
 
         // Enqueue rendering of the gif.
         const image = await generatePromotionGraphic({

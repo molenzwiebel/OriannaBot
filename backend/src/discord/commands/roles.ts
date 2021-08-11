@@ -1,4 +1,5 @@
 import config from "../../config";
+import * as shockwave from "../../shockwave";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
 import { SlashCapableCommand } from "../command";
 import { emote, paginate } from "./util";
@@ -97,14 +98,16 @@ const RolesCommand: SlashCapableCommand = {
             throw new Error("Unknown combinator type: " + JSON.stringify(comb));
         };
 
-        const roleFields = [].concat(...<any>await Promise.all(server.roles!.map(async x => {
-            if (!x.conditions || !x.conditions.length) return {
-                name: x.name,
+        const userResults = await shockwave.evaluateRolesForUser(user, server);
+
+        const roleFields = [].concat(...<any>await Promise.all([...userResults.entries()].map(async ([role, applicability]) => {
+            if (!role.conditions || !role.conditions.length) return {
+                name: role.name,
                 value: t.command_roles_no_conditions
             };
 
-            const conditions = await Promise.all(x.conditions.map(async x => {
-                return sign(x.test(user)) + " " + await formatCondition(<TypedRoleCondition>x);
+            const conditions = await Promise.all([...applicability.conditions.entries()].map(async ([condition, applies]) => {
+                return sign(applies) + " " + await formatCondition(<TypedRoleCondition> condition);
             }));
 
             // Group conditions per 5, to prevent exceeding the 1024 character limit
@@ -116,10 +119,10 @@ const RolesCommand: SlashCapableCommand = {
                 const conditionLines = conditions.slice(i, i + 5);
 
                 fields.push({
-                    name: x.name + (i > 0 ? " " + t.command_roles_continued : ""),
+                    name: role.name + (i > 0 ? " " + t.command_roles_continued : ""),
                     value: i > 0
                         ? conditionLines.join("\n")
-                        : (conditionLines.length === 1 ? conditionLines[0] : (formatCombinator(x.combinator) + "\n" + conditionLines.join("\n")))
+                        : (conditionLines.length === 1 ? conditionLines[0] : (formatCombinator(role.combinator) + "\n" + conditionLines.join("\n")))
                 });
             }
 

@@ -11,7 +11,7 @@ import { REGIONS } from "../riot/api";
 import DiscordClient from "../discord/client";
 import config from "../config";
 import * as crypto from "crypto";
-import * as ipc from "../cluster/master-ipc";
+import * as shockwave from "../shockwave";
 import { default as getTranslator, getLanguages as getI18nLanguages } from "../i18n";
 
 export default class WebAPIClient {
@@ -206,7 +206,7 @@ export default class WebAPIClient {
                 has_accounts: user!.accounts!.length > 1
             });
 
-            await ipc.fetchAndUpdateUser(user!);
+            await shockwave.fetchAndUpdateUser(user!);
         }
 
         // Find the matching TFT summoner.
@@ -215,7 +215,7 @@ export default class WebAPIClient {
 
         // Add the user..
         await req.user.addAccount(summoner.region, summoner, tftSummoner);
-        ipc.fetchAndUpdateUser(req.user);
+        shockwave.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
     });
@@ -262,7 +262,7 @@ export default class WebAPIClient {
         }
 
         // Run an update in the background.
-        ipc.fetchAndUpdateUser(req.user);
+        shockwave.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
     });
@@ -303,7 +303,7 @@ export default class WebAPIClient {
 
         // Don't await so we can return without doing this.
         // TODO: Maybe instead of updating now just put it in the queue?
-        ipc.fetchAndUpdateUser(req.user);
+        shockwave.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });
     });
