@@ -65,7 +65,7 @@ async fn main() -> std::io::Result<()> {
     // Create updater instance.
     let updater = web::Data::new(SWUpdater::new(
         db_data.clone().into_inner(),
-        Client::new(std::env::var("DISCORD_TOKEN").expect("No Discord proxy URL set")),
+        Client::new(std::env::var("DISCORD_TOKEN").expect("No Discord token set")),
         riot,
     ));
 

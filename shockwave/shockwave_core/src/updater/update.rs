@@ -114,7 +114,7 @@ impl Updater {
                     .reason("Orianna: User qualifies for role")
                     .ok()?
                     .instrument(tracing::info_span!("add_guild_member_role"))
-                    .map(move |result| {
+                    .then(move |result| {
                         let succeeded = result.is_ok();
 
                         if !succeeded {
