@@ -74,12 +74,7 @@ impl Worker {
         let token = std::env::var("DISCORD_TOKEN")?;
         let cluster = Cluster::builder(token, intents)
             .shard_scheme(ShardScheme::Auto)
-            .http_client(
-                Client::builder()
-                    .proxy(std::env::var("DISCORD_PROXY")?, true)
-                    .ratelimiter(None) // proxy does rate limiting by itself already
-                    .build(),
-            )
+            .http_client(Client::new(std::env::var("DISCORD_PROXY")?))
             .build()
             .await?;
 

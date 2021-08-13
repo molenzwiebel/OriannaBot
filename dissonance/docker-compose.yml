@@ -14,13 +14,6 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: postgres
 
-  proxy:
-    image: twilightrs/http-proxy
-    ports:
-      - 3000:80
-    environment:
-      DISCORD_TOKEN: "${DISCORD_TOKEN}"
-
   redisinsight:
     image: redislabs/redisinsight:latest
     ports:
