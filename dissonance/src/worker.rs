@@ -74,7 +74,7 @@ impl Worker {
         let token = std::env::var("DISCORD_TOKEN")?;
         let cluster = Cluster::builder(token, intents)
             .shard_scheme(ShardScheme::Auto)
-            .http_client(Client::new(std::env::var("DISCORD_PROXY")?))
+            .http_client(Client::new(token))
             .build()
             .await?;
 
