@@ -1,0 +1,10 @@
+use_small_heuristics="Max"
+max_width=120
+group_imports="StdExternalCrate"
+match_arm_blocks=true
+match_block_trailing_comma=true
+overflow_delimited_expr=true
+newline_style="Unix"
+use_field_init_shorthand=true
+use_try_shorthand=true
+normalize_comments=true

@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    network_mode: host
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+      
+  proxy:
+    image: twilightrs/http-proxy
+    ports:
+      - 3000:80
+    environment:
+      DISCORD_TOKEN: "${DISCORD_TOKEN}"

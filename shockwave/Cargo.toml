@@ -1,0 +1,2 @@
+[workspace]
+members = ["shockwave_core", "shockwave_interface"]
