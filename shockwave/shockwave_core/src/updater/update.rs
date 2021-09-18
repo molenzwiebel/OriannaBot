@@ -2,7 +2,11 @@ use std::collections::HashSet;
 
 use futures::FutureExt;
 use tracing::{debug, info, instrument, warn, Instrument};
-use twilight_http::request::AuditLogReason;
+use twilight_http::{
+    api_error::{ApiError, ErrorCode, GeneralApiError},
+    error::ErrorType,
+    request::AuditLogReason,
+};
 use twilight_model::id::{GuildId, UserId};
 
 use super::{Updater, UpdaterResult};
@@ -107,26 +111,39 @@ impl Updater {
                 .expect("Role somehow does not show up in conditions.")
                 .0;
 
+            let role_id = to_be_added.parse::<u64>().ok()?.into();
+
             // ignore error, likely means something is wrong with permissions
             Some(
                 self.discord_client
-                    .add_guild_member_role(guild_id, user_id, to_be_added.parse::<u64>().ok()?.into())
+                    .add_guild_member_role(guild_id, user_id, role_id)
                     .reason("Orianna: User qualifies for role")
                     .ok()?
                     .instrument(tracing::info_span!("add_guild_member_role"))
-                    .then(move |result| {
-                        let succeeded = result.is_ok();
+                    .then(move |result| async move {
+                        match result {
+                            Ok(_) => {
+                                let _ =
+                                    self.database.insert_discord_member_role(user_id.0, guild_id.0, role_id.0).await;
 
-                        if !succeeded {
-                            warn!("Failed to give role {} to user {}: {:?}", role.snowflake, user_id, result);
+                                if role.announce {
+                                    debug!("Requesting promotion announcement for {}", role.name);
+                                    orianna::announce_promotion(ctx.user.id, role.id).await;
+                                }
+                            },
+                            Err(e)
+                                if matches!(e.kind(), ErrorType::Response {
+                                    error: ApiError::General(GeneralApiError { code: ErrorCode::UnknownRole, .. }),
+                                    ..
+                                }) =>
+                            {
+                                warn!("Role {} no longer exists", role.snowflake);
+                                let _ = self.database.clear_snowflake_for_role(role.id).await;
+                            }
+                            Err(e) => {
+                                warn!("Failed to give role {} to user {}: {:?}", role.snowflake, user_id, e);
+                            },
                         }
-
-                        if succeeded && role.announce {
-                            debug!("Requesting promotion announcement for {}", role.name);
-                            return orianna::announce_promotion(ctx.user.id, role.id).boxed();
-                        }
-
-                        return futures::future::ready(()).boxed();
                     }),
             )
         }))
