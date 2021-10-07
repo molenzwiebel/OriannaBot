@@ -103,7 +103,8 @@ export default class User extends Model {
      * Returns the fully qualified URL to the avatar for this user.
      */
     get avatarURL(): string {
-        if (this.avatar === "none") return "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";
+        if (this.avatar === "none")
+            return "https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png";
 
         // If this is an animated avatar...
         if (this.avatar.indexOf("a_") === 0) {
@@ -117,19 +118,31 @@ export default class User extends Model {
      * Omit user id and token from the JSON object.
      */
     $formatJson(json: Pojo) {
-        return omit({
-            ...super.$formatJson(json),
-            treat_as_unranked: Boolean(this.treat_as_unranked),
-            hide_accounts: Boolean(this.hide_accounts)
-        }, ["id", "token"]);
+        return omit(
+            {
+                ...super.$formatJson(json),
+                treat_as_unranked: Boolean(this.treat_as_unranked),
+                hide_accounts: Boolean(this.hide_accounts),
+            },
+            ["id", "token"]
+        );
     }
 
     /**
      * Adds a new league account to this user, provided they do not have it registered already.
      */
-    async addAccount(region: string, lolSummoner: riot.Summoner, tftSummoner: riot.Summoner) {
+    async addAccount(
+        region: string,
+        lolSummoner: riot.Summoner,
+        tftSummoner: riot.Summoner
+    ) {
         await this.$loadRelated("accounts");
-        if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
+        if (
+            this.accounts!.some(
+                (x) => x.region === region && x.summoner_id === lolSummoner.id
+            )
+        )
+            return;
 
         // this is a primary account if this is the user's first account
         const isPrimary = this.accounts!.length === 0;
@@ -145,7 +158,8 @@ export default class User extends Model {
             tft_puuid: tftSummoner.puuid,
             primary: isPrimary,
             show_in_profile: true,
-            include_region: true
+            include_region: true,
+            profile_icon_id: lolSummoner.profileIconId,
         });
     }
 
@@ -157,7 +171,7 @@ export default class User extends Model {
         const key = await UserAuthKey.query().insertAndFetch({
             user_id: this.id,
             created_at: "2100-01-01 10:10:10", // have this one never expire, just for a bit more user friendliness
-            key: randomBytes(16).toString("hex")
+            key: randomBytes(16).toString("hex"),
         });
 
         return config.web.url + "/login/" + key.key;
