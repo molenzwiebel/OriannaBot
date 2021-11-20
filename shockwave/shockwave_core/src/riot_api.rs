@@ -40,16 +40,16 @@ type Result<T = ()> = std::result::Result<T, DynError>;
 impl RiotApiInterface {
     pub fn new(lol_api_key: &str, tft_api_key: &str) -> RiotApiInterface {
         RiotApiInterface {
-            updater_lol_api_client: RiotApi::with_config(
+            updater_lol_api_client: RiotApi::new(
                 RiotApiConfig::with_key(lol_api_key).set_rate_usage_factor(UPDATER_RATE_LIMIT_PCT),
             ),
-            updater_tft_api_client: RiotApi::with_config(
+            updater_tft_api_client: RiotApi::new(
                 RiotApiConfig::with_key(tft_api_key).set_rate_usage_factor(USER_ACTION_RATE_LIMIT_PCT),
             ),
-            priority_lol_api_client: RiotApi::with_config(
+            priority_lol_api_client: RiotApi::new(
                 RiotApiConfig::with_key(lol_api_key).set_rate_usage_factor(UPDATER_RATE_LIMIT_PCT),
             ),
-            priority_tft_api_client: RiotApi::with_config(
+            priority_tft_api_client: RiotApi::new(
                 RiotApiConfig::with_key(tft_api_key).set_rate_usage_factor(USER_ACTION_RATE_LIMIT_PCT),
             ),
         }
@@ -71,7 +71,7 @@ impl RiotApiInterface {
         .await?
         .into_iter()
         .flatten()
-        .map(|x| (x.queue_type, x.tier))
+        .flat_map(|x| x.tier.map(|t| (x.queue_type, t)))
         .collect())
     }
 
