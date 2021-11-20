@@ -3,18 +3,24 @@ use std::{error::Error, sync::Arc, time::Instant};
 use dashmap::DashMap;
 use futures::StreamExt;
 use tracing::{debug, info, warn};
-use twilight_gateway::{cluster::ShardScheme, Cluster, Event, EventTypeFlags, Intents};
-use twilight_http::Client;
+use twilight_gateway::{
+    cluster::{Events, ShardScheme},
+    Cluster, Event, EventTypeFlags, Intents,
+};
 use twilight_model::{
     channel::Channel,
     gateway::{
         payload::{
-            ChannelCreate, ChannelDelete, ChannelUpdate, MemberChunk, RequestGuildMembers,
-            UpdateStatus,
+            incoming::ChannelCreate,
+            incoming::ChannelDelete,
+            incoming::ChannelUpdate,
+            incoming::MemberChunk,
+            outgoing::RequestGuildMembers,
+            outgoing::{update_presence::UpdatePresencePayload, UpdatePresence},
         },
-        presence::{Activity, ActivityType, Status},
+        presence::{Activity, ActivityType, MinimalActivity, Status},
     },
-    guild::{Guild, GuildStatus},
+    guild::Guild,
     id::GuildId,
 };
 
@@ -45,6 +51,7 @@ const STATUSES: &[(ActivityType, &'static str)] = &[
 pub(crate) struct Worker {
     db: Database,
     cluster: Cluster,
+    events: Option<Events>,
     cache: Cache,
     forwarder: Forwarder,
     outstanding_member_requests: DashMap<GuildId, Instant>,
@@ -72,9 +79,31 @@ impl Worker {
             | Intents::DIRECT_MESSAGE_REACTIONS;
 
         let token = std::env::var("DISCORD_TOKEN")?;
-        let cluster = Cluster::builder(token, intents)
+        let (cluster, events) = Cluster::builder(token, intents)
             .shard_scheme(ShardScheme::Auto)
-            .http_client(Client::new(token))
+            .presence(UpdatePresencePayload::new(
+                vec![STATUSES[0].to_activity()],
+                false,
+                None,
+                Status::Online,
+            )?)
+            .event_types(
+                EventTypeFlags::SHARD_PAYLOAD
+                    | EventTypeFlags::READY
+                    | EventTypeFlags::GUILD_CREATE
+                    | EventTypeFlags::GUILD_UPDATE
+                    | EventTypeFlags::GUILD_DELETE
+                    | EventTypeFlags::ROLE_CREATE
+                    | EventTypeFlags::ROLE_UPDATE
+                    | EventTypeFlags::ROLE_DELETE
+                    | EventTypeFlags::CHANNEL_CREATE
+                    | EventTypeFlags::CHANNEL_UPDATE
+                    | EventTypeFlags::CHANNEL_DELETE
+                    | EventTypeFlags::MEMBER_ADD
+                    | EventTypeFlags::MEMBER_UPDATE
+                    | EventTypeFlags::MEMBER_REMOVE
+                    | EventTypeFlags::MEMBER_CHUNK,
+            )
             .build()
             .await?;
 
@@ -87,30 +116,15 @@ impl Worker {
         Ok(Worker {
             db,
             cluster,
+            events: Some(events),
             cache,
             forwarder,
             outstanding_member_requests: DashMap::new(),
         })
     }
 
-    pub async fn run(self: Worker) {
-        let mut events = self.cluster.some_events(
-            EventTypeFlags::SHARD_PAYLOAD
-                | EventTypeFlags::READY
-                | EventTypeFlags::GUILD_CREATE
-                | EventTypeFlags::GUILD_UPDATE
-                | EventTypeFlags::GUILD_DELETE
-                | EventTypeFlags::ROLE_CREATE
-                | EventTypeFlags::ROLE_UPDATE
-                | EventTypeFlags::ROLE_DELETE
-                | EventTypeFlags::CHANNEL_CREATE
-                | EventTypeFlags::CHANNEL_UPDATE
-                | EventTypeFlags::CHANNEL_DELETE
-                | EventTypeFlags::MEMBER_ADD
-                | EventTypeFlags::MEMBER_UPDATE
-                | EventTypeFlags::MEMBER_REMOVE
-                | EventTypeFlags::MEMBER_CHUNK,
-        );
+    pub async fn run(mut self: Worker) {
+        let mut events = self.events.take().unwrap();
 
         let arc = Arc::new(self);
         let self_status = arc.clone();
@@ -150,16 +164,6 @@ impl Worker {
 
             Event::Ready(ready) => {
                 info!("Shard {} ready with {} guilds!", shard, ready.guilds.len());
-
-                for guild in ready.guilds {
-                    if let GuildStatus::Online(g) = guild {
-                        let worker = self.clone();
-
-                        tokio::spawn(async move {
-                            let _ = worker.handle_guild_created(&g, shard).await;
-                        });
-                    }
-                }
             }
 
             Event::GuildCreate(guild) => {
@@ -405,36 +409,15 @@ impl Worker {
     /// Infinite loop that changes the presence of the bot between a set
     /// of preconfigured presences.
     async fn presence_loop(self: Arc<Worker>) {
-        for &(ty, msg) in STATUSES.iter().cycle() {
-            let message = format!(
-                "{} \n{}Version {}",
-                msg,
-                "\u{3000}".repeat(118 - msg.len() - VERSION.len()),
-                VERSION
-            );
+        for &status in STATUSES.iter().cycle() {
+            // Wait for 10 minutes. We do this before setting a presence as we also set an initial
+            // presence when we connect to the gateway. This also works around a quirk in Twilight
+            // where we sometimes cannot send commands to shards right after connecting to them.
+            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await;
 
-            let message = UpdateStatus::new(
-                vec![Activity {
-                    application_id: None,
-                    assets: None,
-                    created_at: None,
-                    details: None,
-                    emoji: None,
-                    flags: None,
-                    id: None,
-                    instance: None,
-                    kind: ty,
-                    name: message,
-                    party: None,
-                    secrets: None,
-                    state: None,
-                    timestamps: None,
-                    url: None,
-                }],
-                false,
-                None,
-                Status::Online,
-            );
+            let message =
+                UpdatePresence::new(vec![status.to_activity()], false, None, Status::Online)
+                    .unwrap();
 
             for shard in self.cluster.shards() {
                 match shard.command(&message).await {
@@ -442,9 +425,30 @@ impl Worker {
                     _ => {}
                 }
             }
-
-            // Wait for 10 minutes.
-            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await;
         }
+    }
+}
+
+trait ToActivity {
+    fn to_activity(&self) -> Activity;
+}
+
+impl ToActivity for (ActivityType, &'static str) {
+    fn to_activity(&self) -> Activity {
+        let (ty, msg) = self;
+
+        let message = format!(
+            "{} \n{}Version {}",
+            msg,
+            "\u{3000}".repeat(118 - msg.len() - VERSION.len()),
+            VERSION
+        );
+
+        MinimalActivity {
+            kind: *ty,
+            name: message,
+            url: None,
+        }
+        .into()
     }
 }
