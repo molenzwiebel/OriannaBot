@@ -15,7 +15,8 @@ sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "postgres", "macro
 futures = "0.3"
 serde_json = "1.0.59"
 dashmap = "4.0.2"
-redis = { version = "0.20.0", features = ["tokio-comp"] }
+redis = { version = "0.21.4", features = ["tokio-comp"] }
 lapin = { version = "1.7.0", default-features = false, features = ["rustls"] }
 lazy_static = "1.4.0"
 compile-time-run = "0.2.11"
+backoff = { version = "0.4.0", features = ["futures", "tokio"] }

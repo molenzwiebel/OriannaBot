@@ -1,5 +1,10 @@
-use std::{error::Error, sync::Arc, time::Instant};
+use std::{
+    error::Error,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
+use backoff::{backoff::Backoff, ExponentialBackoffBuilder};
 use dashmap::DashMap;
 use futures::StreamExt;
 use tracing::{debug, info, warn};
@@ -66,6 +71,23 @@ macro_rules! handle_event {
             };
         });
     };
+}
+
+// helper macro that retries the given expression based
+// on the given backoff configuration
+macro_rules! retry {
+    ($backoff:expr, $body:expr) => {{
+        let mut timer = $backoff;
+        while let Err(e) = $body {
+            match timer.next_backoff() {
+                Some(d) => {
+                    debug!("Received an error: {:?}, retrying in {:?}", e, d);
+                    tokio::time::sleep(d).await
+                }
+                None => return Err(e.into()),
+            }
+        }
+    }};
 }
 
 impl Worker {
@@ -351,14 +373,26 @@ impl Worker {
         self.db.reset_guild(guild.id).await?;
 
         // Request guild members from the gateway.
-        self.cluster
-            .command(
-                shard,
-                &RequestGuildMembers::builder(guild.id)
-                    .presences(false)
-                    .query("", None),
-            )
-            .await?;
+        // Note: this occasionally seems to fail, especially right after connection.
+        // It is not entirely sure whether this is because of Twilight, internet issues,
+        // or misuse of the crate. A quick look with some twilight maintainers did not
+        // seem to yield any immediately clear issues.
+        retry!(
+            // attempt after at least 3 seconds have passed for a total of 5 minutes
+            // before giving up and returning the error
+            ExponentialBackoffBuilder::new()
+                .with_initial_interval(Duration::from_secs(3))
+                .with_max_elapsed_time(Some(Duration::from_secs(300)))
+                .build(),
+            self.cluster
+                .command(
+                    shard,
+                    &RequestGuildMembers::builder(guild.id)
+                        .presences(false)
+                        .query("", None),
+                )
+                .await
+        );
 
         // Register that we're waiting for this.
         self.outstanding_member_requests
