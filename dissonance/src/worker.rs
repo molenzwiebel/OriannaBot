@@ -1,12 +1,12 @@
 use std::{
     error::Error,
-    sync::Arc,
+    sync::{atomic::AtomicUsize, Arc},
     time::{Duration, Instant},
 };
 
-use backoff::{backoff::Backoff, ExponentialBackoffBuilder};
 use dashmap::DashMap;
-use futures::StreamExt;
+use futures::{FutureExt, StreamExt};
+use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tracing::{debug, info, warn};
 use twilight_gateway::{
     cluster::{Events, ShardScheme},
@@ -20,8 +20,9 @@ use twilight_model::{
             incoming::ChannelDelete,
             incoming::ChannelUpdate,
             incoming::MemberChunk,
-            outgoing::RequestGuildMembers,
-            outgoing::{update_presence::UpdatePresencePayload, UpdatePresence},
+            outgoing::{
+                update_presence::UpdatePresencePayload, RequestGuildMembers, UpdatePresence,
+            },
         },
         presence::{Activity, ActivityType, MinimalActivity, Status},
     },
@@ -60,6 +61,10 @@ pub(crate) struct Worker {
     cache: Cache,
     forwarder: Forwarder,
     outstanding_member_requests: DashMap<GuildId, Instant>,
+
+    outstanding_count: AtomicUsize,
+    guild_member_tx: mpsc::UnboundedSender<(u64, GuildId)>,
+    guild_member_rx: Option<mpsc::UnboundedReceiver<(u64, GuildId)>>,
 }
 
 macro_rules! handle_event {
@@ -71,23 +76,6 @@ macro_rules! handle_event {
             };
         });
     };
-}
-
-// helper macro that retries the given expression based
-// on the given backoff configuration
-macro_rules! retry {
-    ($backoff:expr, $body:expr) => {{
-        let mut timer = $backoff;
-        while let Err(e) = $body {
-            match timer.next_backoff() {
-                Some(d) => {
-                    debug!("Received an error: {:?}, retrying in {:?}", e, d);
-                    tokio::time::sleep(d).await
-                }
-                None => return Err(e.into()),
-            }
-        }
-    }};
 }
 
 impl Worker {
@@ -130,10 +118,10 @@ impl Worker {
             .await?;
 
         let db = Database::connect().await?;
-
         let cache = Cache::connect().await?;
-
         let forwarder = Forwarder::connect().await?;
+
+        let (tx, rx) = mpsc::unbounded_channel();
 
         Ok(Worker {
             db,
@@ -142,14 +130,20 @@ impl Worker {
             cache,
             forwarder,
             outstanding_member_requests: DashMap::new(),
+
+            outstanding_count: AtomicUsize::new(0),
+            guild_member_tx: tx,
+            guild_member_rx: Some(rx),
         })
     }
 
     pub async fn run(mut self: Worker) {
         let mut events = self.events.take().unwrap();
+        let member_rx = self.guild_member_rx.take().unwrap();
 
         let arc = Arc::new(self);
         let self_status = arc.clone();
+        let self_presence_requests = arc.clone();
 
         // Bring the cluster up in a different worker, since we're
         // going to be processing events before this resolves.
@@ -161,6 +155,14 @@ impl Worker {
             info!("Cluster online!");
 
             self_status.presence_loop().await;
+        });
+
+        // Within yet another worker, handle the member presence queries that will arrive
+        // in the MPSC channel. These are centralized so we can locally rate limit, since
+        // it seems either Twilight or Discord struggle if we send a request as soon as
+        // we receive the startup message.
+        tokio::spawn(async move {
+            self_presence_requests.member_request_loop(member_rx).await;
         });
 
         while let Some((shard_id, event)) = events.next().await {
@@ -360,43 +362,20 @@ impl Worker {
             return Ok(());
         }
 
+        // Queue this guild for a full member fetch.
+        let _ = self.guild_member_tx.send((shard, guild.id));
+        let new_count = self
+            .outstanding_count
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+
         debug!(
-            "Received {}/{} members in initial guild creation for {} ({})",
+            "Received {}/{} members in initial guild creation for {}. Now have {} member queries queued. ({})",
             guild.members.len(),
             guild.member_count.map(|x| x as i64).unwrap_or(-1),
             guild.name,
+            new_count,
             guild.id.0
         );
-
-        // We don't have all members yet. Clear the guild info now and request the
-        // full list from the gateway, which will be processed as they come in.
-        self.db.reset_guild(guild.id).await?;
-
-        // Request guild members from the gateway.
-        // Note: this occasionally seems to fail, especially right after connection.
-        // It is not entirely sure whether this is because of Twilight, internet issues,
-        // or misuse of the crate. A quick look with some twilight maintainers did not
-        // seem to yield any immediately clear issues.
-        retry!(
-            // attempt after at least 3 seconds have passed for a total of 5 minutes
-            // before giving up and returning the error
-            ExponentialBackoffBuilder::new()
-                .with_initial_interval(Duration::from_secs(3))
-                .with_max_elapsed_time(Some(Duration::from_secs(300)))
-                .build(),
-            self.cluster
-                .command(
-                    shard,
-                    &RequestGuildMembers::builder(guild.id)
-                        .presences(false)
-                        .query("", None),
-                )
-                .await
-        );
-
-        // Register that we're waiting for this.
-        self.outstanding_member_requests
-            .insert(guild.id, Instant::now());
 
         Ok(())
     }
@@ -459,6 +438,61 @@ impl Worker {
                     _ => {}
                 }
             }
+        }
+    }
+
+    /// Infinite loop that handles messages received in the given queue and
+    /// emits member requests to Discord for each message in the queue.
+    async fn member_request_loop(
+        self: Arc<Worker>,
+        mut rx: mpsc::UnboundedReceiver<(u64, GuildId)>,
+    ) {
+        let mut interval = tokio::time::interval(Duration::from_millis(50));
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
+
+        while let Some((shard, guild)) = rx.recv().await {
+            interval.tick().await;
+
+            let cmd = RequestGuildMembers::builder(guild)
+                .presences(false)
+                .query("", None);
+
+            // First attempt to send the request. If that fails, we will simply but it back
+            // in the queue at the end so we naturally retry it later. This should not really
+            // fail often. If it does, we should likely increase the duration above.
+            //
+            // Occasionally it also seems that shards do not respond within enough time. In that
+            // case we will abort after half a second.
+            let send_result = futures::select! {
+                send = self.cluster.command(shard, &cmd).fuse() => send.is_ok(),
+                _ = tokio::time::sleep(Duration::from_millis(500)).fuse() => false
+            };
+
+            if !send_result {
+                warn!(
+                    "Error requesting guild members for {} in shard {}, retrying later",
+                    guild, shard
+                );
+
+                let _ = self.guild_member_tx.send((shard, guild));
+                continue;
+            }
+
+            let new_count = self
+                .outstanding_count
+                .fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+            debug!(
+                "Sent member request for {}, now have {} outstanding",
+                guild, new_count
+            );
+
+            // Clear the guild info now. We will get the full list of members now that
+            // we have requested it from the gateway.
+            let _ = self.db.reset_guild(guild).await;
+
+            // Register that we're waiting for this.
+            self.outstanding_member_requests
+                .insert(guild, Instant::now());
         }
     }
 }
