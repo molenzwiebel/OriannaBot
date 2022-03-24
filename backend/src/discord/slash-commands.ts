@@ -3,15 +3,15 @@ import ApplicationCommandOptionType = dissonance.ApplicationCommandOptionType;
 
 export function commandInvocationParamsToName(inv: any): string {
     if (inv.value) return "";
-    if (!inv.options) return inv.name;
+    if (!inv.options || !inv.options.length) return inv.name;
     if (inv.options.length > 1) return inv.name;
     if (inv.options[0].value) return inv.name;
     return inv.name + "." + commandInvocationParamsToName(inv.options![0]);
 }
 
 export function commandInvocationFindParams(inv: any): { name: string, value: any }[] {
-    if (!inv.options) return [];
-    if (inv.options && inv.options.some((x: any) => x.value)) return inv.options as any;
+    if (!inv.options || !inv.options.length) return [];
+    if (inv.options.some((x: any) => x.value)) return inv.options as any;
 
     return commandInvocationFindParams(inv.options[0]);
 }
