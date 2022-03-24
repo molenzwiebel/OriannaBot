@@ -65,10 +65,7 @@ async fn main() -> std::io::Result<()> {
     // Create updater instance.
     let updater = web::Data::new(SWUpdater::new(
         db_data.clone().into_inner(),
-        Client::builder()
-            .proxy(std::env::var("DISCORD_PROXY").expect("No Discord proxy URL set"), true)
-            .ratelimiter(None) // proxy does rate limiting by itself already
-            .build(),
+        Client::new(std::env::var("DISCORD_TOKEN").expect("No Discord token set")),
         riot,
     ));
 

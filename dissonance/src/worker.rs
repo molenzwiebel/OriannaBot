@@ -1,20 +1,32 @@
-use std::{error::Error, sync::Arc, time::Instant};
+use std::{
+    error::Error,
+    sync::{atomic::AtomicUsize, Arc},
+    time::{Duration, Instant},
+};
 
 use dashmap::DashMap;
-use futures::StreamExt;
+use futures::{FutureExt, StreamExt};
+use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tracing::{debug, info, warn};
-use twilight_gateway::{cluster::ShardScheme, Cluster, Event, EventTypeFlags, Intents};
-use twilight_http::Client;
+use twilight_gateway::{
+    cluster::{Events, ShardScheme},
+    Cluster, Event, EventTypeFlags, Intents,
+};
 use twilight_model::{
     channel::Channel,
     gateway::{
         payload::{
-            ChannelCreate, ChannelDelete, ChannelUpdate, MemberChunk, RequestGuildMembers,
-            UpdateStatus,
+            incoming::ChannelCreate,
+            incoming::ChannelDelete,
+            incoming::ChannelUpdate,
+            incoming::MemberChunk,
+            outgoing::{
+                update_presence::UpdatePresencePayload, RequestGuildMembers, UpdatePresence,
+            },
         },
-        presence::{Activity, ActivityType, Status},
+        presence::{Activity, ActivityType, MinimalActivity, Status},
     },
-    guild::{Guild, GuildStatus},
+    guild::Guild,
     id::GuildId,
 };
 
@@ -45,9 +57,14 @@ const STATUSES: &[(ActivityType, &'static str)] = &[
 pub(crate) struct Worker {
     db: Database,
     cluster: Cluster,
+    events: Option<Events>,
     cache: Cache,
     forwarder: Forwarder,
     outstanding_member_requests: DashMap<GuildId, Instant>,
+
+    outstanding_count: AtomicUsize,
+    guild_member_tx: mpsc::UnboundedSender<(u64, GuildId)>,
+    guild_member_rx: Option<mpsc::UnboundedReceiver<(u64, GuildId)>>,
 }
 
 macro_rules! handle_event {
@@ -72,53 +89,61 @@ impl Worker {
             | Intents::DIRECT_MESSAGE_REACTIONS;
 
         let token = std::env::var("DISCORD_TOKEN")?;
-        let cluster = Cluster::builder(token, intents)
+        let (cluster, events) = Cluster::builder(token, intents)
             .shard_scheme(ShardScheme::Auto)
-            .http_client(
-                Client::builder()
-                    .proxy(std::env::var("DISCORD_PROXY")?, true)
-                    .ratelimiter(None) // proxy does rate limiting by itself already
-                    .build(),
+            .presence(UpdatePresencePayload::new(
+                vec![STATUSES[0].to_activity()],
+                false,
+                None,
+                Status::Online,
+            )?)
+            .event_types(
+                EventTypeFlags::SHARD_PAYLOAD
+                    | EventTypeFlags::READY
+                    | EventTypeFlags::GUILD_CREATE
+                    | EventTypeFlags::GUILD_UPDATE
+                    | EventTypeFlags::GUILD_DELETE
+                    | EventTypeFlags::ROLE_CREATE
+                    | EventTypeFlags::ROLE_UPDATE
+                    | EventTypeFlags::ROLE_DELETE
+                    | EventTypeFlags::CHANNEL_CREATE
+                    | EventTypeFlags::CHANNEL_UPDATE
+                    | EventTypeFlags::CHANNEL_DELETE
+                    | EventTypeFlags::MEMBER_ADD
+                    | EventTypeFlags::MEMBER_UPDATE
+                    | EventTypeFlags::MEMBER_REMOVE
+                    | EventTypeFlags::MEMBER_CHUNK,
             )
             .build()
             .await?;
 
         let db = Database::connect().await?;
-
         let cache = Cache::connect().await?;
-
         let forwarder = Forwarder::connect().await?;
+
+        let (tx, rx) = mpsc::unbounded_channel();
 
         Ok(Worker {
             db,
             cluster,
+            events: Some(events),
             cache,
             forwarder,
             outstanding_member_requests: DashMap::new(),
+
+            outstanding_count: AtomicUsize::new(0),
+            guild_member_tx: tx,
+            guild_member_rx: Some(rx),
         })
     }
 
-    pub async fn run(self: Worker) {
-        let mut events = self.cluster.some_events(
-            EventTypeFlags::SHARD_PAYLOAD
-                | EventTypeFlags::READY
-                | EventTypeFlags::GUILD_CREATE
-                | EventTypeFlags::GUILD_UPDATE
-                | EventTypeFlags::GUILD_DELETE
-                | EventTypeFlags::ROLE_CREATE
-                | EventTypeFlags::ROLE_UPDATE
-                | EventTypeFlags::ROLE_DELETE
-                | EventTypeFlags::CHANNEL_CREATE
-                | EventTypeFlags::CHANNEL_UPDATE
-                | EventTypeFlags::CHANNEL_DELETE
-                | EventTypeFlags::MEMBER_ADD
-                | EventTypeFlags::MEMBER_UPDATE
-                | EventTypeFlags::MEMBER_REMOVE
-                | EventTypeFlags::MEMBER_CHUNK,
-        );
+    pub async fn run(mut self: Worker) {
+        let mut events = self.events.take().unwrap();
+        let member_rx = self.guild_member_rx.take().unwrap();
 
         let arc = Arc::new(self);
         let self_status = arc.clone();
+        let self_presence_requests = arc.clone();
 
         // Bring the cluster up in a different worker, since we're
         // going to be processing events before this resolves.
@@ -130,6 +155,14 @@ impl Worker {
             info!("Cluster online!");
 
             self_status.presence_loop().await;
+        });
+
+        // Within yet another worker, handle the member presence queries that will arrive
+        // in the MPSC channel. These are centralized so we can locally rate limit, since
+        // it seems either Twilight or Discord struggle if we send a request as soon as
+        // we receive the startup message.
+        tokio::spawn(async move {
+            self_presence_requests.member_request_loop(member_rx).await;
         });
 
         while let Some((shard_id, event)) = events.next().await {
@@ -155,16 +188,6 @@ impl Worker {
 
             Event::Ready(ready) => {
                 info!("Shard {} ready with {} guilds!", shard, ready.guilds.len());
-
-                for guild in ready.guilds {
-                    if let GuildStatus::Online(g) = guild {
-                        let worker = self.clone();
-
-                        tokio::spawn(async move {
-                            let _ = worker.handle_guild_created(&g, shard).await;
-                        });
-                    }
-                }
             }
 
             Event::GuildCreate(guild) => {
@@ -339,31 +362,20 @@ impl Worker {
             return Ok(());
         }
 
+        // Queue this guild for a full member fetch.
+        let _ = self.guild_member_tx.send((shard, guild.id));
+        let new_count = self
+            .outstanding_count
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+
         debug!(
-            "Received {}/{} members in initial guild creation for {} ({})",
+            "Received {}/{} members in initial guild creation for {}. Now have {} member queries queued. ({})",
             guild.members.len(),
             guild.member_count.map(|x| x as i64).unwrap_or(-1),
             guild.name,
+            new_count,
             guild.id.0
         );
-
-        // We don't have all members yet. Clear the guild info now and request the
-        // full list from the gateway, which will be processed as they come in.
-        self.db.reset_guild(guild.id).await?;
-
-        // Request guild members from the gateway.
-        self.cluster
-            .command(
-                shard,
-                &RequestGuildMembers::builder(guild.id)
-                    .presences(false)
-                    .query("", None),
-            )
-            .await?;
-
-        // Register that we're waiting for this.
-        self.outstanding_member_requests
-            .insert(guild.id, Instant::now());
 
         Ok(())
     }
@@ -410,36 +422,15 @@ impl Worker {
     /// Infinite loop that changes the presence of the bot between a set
     /// of preconfigured presences.
     async fn presence_loop(self: Arc<Worker>) {
-        for &(ty, msg) in STATUSES.iter().cycle() {
-            let message = format!(
-                "{} \n{}Version {}",
-                msg,
-                "\u{3000}".repeat(118 - msg.len() - VERSION.len()),
-                VERSION
-            );
+        for &status in STATUSES.iter().cycle() {
+            // Wait for 10 minutes. We do this before setting a presence as we also set an initial
+            // presence when we connect to the gateway. This also works around a quirk in Twilight
+            // where we sometimes cannot send commands to shards right after connecting to them.
+            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await;
 
-            let message = UpdateStatus::new(
-                vec![Activity {
-                    application_id: None,
-                    assets: None,
-                    created_at: None,
-                    details: None,
-                    emoji: None,
-                    flags: None,
-                    id: None,
-                    instance: None,
-                    kind: ty,
-                    name: message,
-                    party: None,
-                    secrets: None,
-                    state: None,
-                    timestamps: None,
-                    url: None,
-                }],
-                false,
-                None,
-                Status::Online,
-            );
+            let message =
+                UpdatePresence::new(vec![status.to_activity()], false, None, Status::Online)
+                    .unwrap();
 
             for shard in self.cluster.shards() {
                 match shard.command(&message).await {
@@ -447,9 +438,85 @@ impl Worker {
                     _ => {}
                 }
             }
-
-            // Wait for 10 minutes.
-            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await;
         }
+    }
+
+    /// Infinite loop that handles messages received in the given queue and
+    /// emits member requests to Discord for each message in the queue.
+    async fn member_request_loop(
+        self: Arc<Worker>,
+        mut rx: mpsc::UnboundedReceiver<(u64, GuildId)>,
+    ) {
+        let mut interval = tokio::time::interval(Duration::from_millis(50));
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
+
+        while let Some((shard, guild)) = rx.recv().await {
+            interval.tick().await;
+
+            let cmd = RequestGuildMembers::builder(guild)
+                .presences(false)
+                .query("", None);
+
+            // First attempt to send the request. If that fails, we will simply but it back
+            // in the queue at the end so we naturally retry it later. This should not really
+            // fail often. If it does, we should likely increase the duration above.
+            //
+            // Occasionally it also seems that shards do not respond within enough time. In that
+            // case we will abort after half a second.
+            let send_result = futures::select! {
+                send = self.cluster.command(shard, &cmd).fuse() => send.is_ok(),
+                _ = tokio::time::sleep(Duration::from_millis(500)).fuse() => false
+            };
+
+            if !send_result {
+                warn!(
+                    "Error requesting guild members for {} in shard {}, retrying later",
+                    guild, shard
+                );
+
+                let _ = self.guild_member_tx.send((shard, guild));
+                continue;
+            }
+
+            let new_count = self
+                .outstanding_count
+                .fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+            debug!(
+                "Sent member request for {}, now have {} outstanding",
+                guild, new_count
+            );
+
+            // Clear the guild info now. We will get the full list of members now that
+            // we have requested it from the gateway.
+            let _ = self.db.reset_guild(guild).await;
+
+            // Register that we're waiting for this.
+            self.outstanding_member_requests
+                .insert(guild, Instant::now());
+        }
+    }
+}
+
+trait ToActivity {
+    fn to_activity(&self) -> Activity;
+}
+
+impl ToActivity for (ActivityType, &'static str) {
+    fn to_activity(&self) -> Activity {
+        let (ty, msg) = self;
+
+        let message = format!(
+            "{} \n{}Version {}",
+            msg,
+            "\u{3000}".repeat(118 - msg.len() - VERSION.len()),
+            VERSION
+        );
+
+        MinimalActivity {
+            kind: *ty,
+            name: message,
+            url: None,
+        }
+        .into()
     }
 }

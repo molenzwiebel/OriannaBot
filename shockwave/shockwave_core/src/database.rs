@@ -127,6 +127,15 @@ impl Database {
         Ok(())
     }
 
+    /// Clear the snowflake for the role with the given ID. We do this when we get
+    /// an error from discord stating that the role is not found. This is to prevent
+    /// other attempts from assigning the role and consistently failing.
+    pub async fn clear_snowflake_for_role(&self, role_id: i32) -> DBResult {
+        sqlx::query!("UPDATE roles SET snowflake = '' WHERE id = $1", role_id).execute(&self.0).await?;
+
+        Ok(())
+    }
+
     /// Upsert a set of champion statistics for the given user. The argument is a set
     /// of tuples that represent `(champion id, level, points)` for that champion.
     #[tracing::instrument(skip(self, user_id, stats))]
@@ -250,6 +259,22 @@ impl Database {
             .bind(queue)
             .execute(&self.0)
             .await?;
+
+        Ok(())
+    }
+
+    /// Pre-emptively insert a role for the given discord user, so that we don't
+    /// repeatedly attempt to assign roles for that user even when they already
+    /// have that role. This will only insert if there isn't already an entry.
+    #[tracing::instrument(skip(self, user_id, guild_id, role_id))]
+    #[inline]
+    pub async fn insert_discord_member_role(&self, user_id: u64, guild_id: u64, role_id: u64) -> DBResult {
+        sqlx::query(&format!(
+            "UPDATE guild_members SET roles = roles || '[\"{}\"]'::jsonb WHERE user_id = {} AND guild_id = {} AND NOT roles ? '{}'",
+            role_id, user_id, guild_id, role_id
+        ))
+        .execute(&self.0)
+        .await?;
 
         Ok(())
     }

@@ -31,7 +31,7 @@ impl Database {
             r#"
                 DELETE FROM guild_members WHERE guild_id = $1
             "#,
-            guild_id.0 as i64
+            guild_id.0.get() as i64
         )
         .execute(&self.0)
         .await?;
@@ -68,7 +68,7 @@ impl Database {
                 continue;
             }
 
-            ids.push(member.user.id.0 as i64);
+            ids.push(member.user.id.0.get() as i64);
             seen.insert(member.user.id.0);
             nicks.push(member.nick.clone());
             roles.push(Json(member.roles.clone()));
@@ -81,7 +81,7 @@ impl Database {
             ON CONFLICT (guild_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id, nickname = EXCLUDED.nickname, roles = EXCLUDED.roles
             "#
         )
-          .bind(guild.0 as i64)
+          .bind(guild.0.get() as i64)
           .bind(ids.as_slice())
           .bind(nicks.as_slice())
           .bind(roles.as_slice())
@@ -106,8 +106,8 @@ impl Database {
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (guild_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id, nickname = EXCLUDED.nickname, roles = EXCLUDED.roles
         "#,
-            guild_id.0 as i64,
-            user_id.0 as i64,
+            guild_id.0.get() as i64,
+            user_id.0.get() as i64,
             nick.clone(),
             Json(roles) as _
         ).execute(&self.0).await?;
@@ -125,8 +125,8 @@ impl Database {
             r#"
             DELETE FROM guild_members WHERE guild_id = $1 AND user_id = $2
         "#,
-            guild_id.0 as i64,
-            user_id.0 as i64,
+            guild_id.0.get() as i64,
+            user_id.0.get() as i64,
         )
         .execute(&self.0)
         .await?;
