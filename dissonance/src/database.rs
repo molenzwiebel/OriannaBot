@@ -3,7 +3,10 @@ use std::{collections::HashSet, error::Error};
 use sqlx::{postgres::PgPoolOptions, types::Json, PgPool};
 use twilight_model::{
     guild::Member,
-    id::{GuildId, RoleId, UserId},
+    id::{
+        marker::{GuildMarker, RoleMarker, UserMarker},
+        Id,
+    },
 };
 
 /// Simple Result alias that returns any error.
@@ -26,12 +29,12 @@ impl Database {
     /// Resets all stored information on the given guild. This should be invoked
     /// just before a guild upsert is done after a guild is newly received from
     /// the gateway, as we can be sure that that data is the newest available.
-    pub async fn reset_guild(self: &Database, guild_id: GuildId) -> DBResult<()> {
+    pub async fn reset_guild(self: &Database, guild_id: Id<GuildMarker>) -> DBResult<()> {
         sqlx::query!(
             r#"
                 DELETE FROM guild_members WHERE guild_id = $1
             "#,
-            guild_id.0.get() as i64
+            guild_id.get() as i64
         )
         .execute(&self.0)
         .await?;
@@ -44,7 +47,7 @@ impl Database {
     /// their values are updated instead.
     pub async fn upsert_batch_members<'a, T>(
         self: &Database,
-        guild: GuildId,
+        guild: Id<GuildMarker>,
         members: T,
     ) -> DBResult<()>
     where
@@ -64,12 +67,12 @@ impl Database {
         let mut seen = HashSet::new();
 
         for member in members {
-            if seen.contains(&member.user.id.0) {
+            if seen.contains(&member.user.id.get()) {
                 continue;
             }
 
-            ids.push(member.user.id.0.get() as i64);
-            seen.insert(member.user.id.0);
+            ids.push(member.user.id.get() as i64);
+            seen.insert(member.user.id.get());
             nicks.push(member.nick.clone());
             roles.push(Json(member.roles.clone()));
         }
@@ -81,7 +84,7 @@ impl Database {
             ON CONFLICT (guild_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id, nickname = EXCLUDED.nickname, roles = EXCLUDED.roles
             "#
         )
-          .bind(guild.0.get() as i64)
+          .bind(guild.get() as i64)
           .bind(ids.as_slice())
           .bind(nicks.as_slice())
           .bind(roles.as_slice())
@@ -95,10 +98,10 @@ impl Database {
     /// roles of the user on the given server.
     pub async fn upsert_member(
         self: &Database,
-        guild_id: GuildId,
-        user_id: UserId,
+        guild_id: Id<GuildMarker>,
+        user_id: Id<UserMarker>,
         nick: &Option<String>,
-        roles: &Vec<RoleId>,
+        roles: &Vec<Id<RoleMarker>>,
     ) -> Result<(), Box<dyn Error>> {
         sqlx::query!(
             r#"
@@ -106,8 +109,8 @@ impl Database {
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (guild_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id, nickname = EXCLUDED.nickname, roles = EXCLUDED.roles
         "#,
-            guild_id.0.get() as i64,
-            user_id.0.get() as i64,
+            guild_id.get() as i64,
+            user_id.get() as i64,
             nick.clone(),
             Json(roles) as _
         ).execute(&self.0).await?;
@@ -118,15 +121,15 @@ impl Database {
     /// Removes the membership of the given member on the given server.
     pub async fn remove_member(
         self: &Database,
-        guild_id: GuildId,
-        user_id: UserId,
+        guild_id: Id<GuildMarker>,
+        user_id: Id<UserMarker>,
     ) -> Result<(), Box<dyn Error>> {
         sqlx::query!(
             r#"
             DELETE FROM guild_members WHERE guild_id = $1 AND user_id = $2
         "#,
-            guild_id.0.get() as i64,
-            user_id.0.get() as i64,
+            guild_id.get() as i64,
+            user_id.get() as i64,
         )
         .execute(&self.0)
         .await?;

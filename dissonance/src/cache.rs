@@ -5,7 +5,9 @@ use redis::AsyncCommands;
 
 use tokio::sync::RwLock;
 use tracing::warn;
-use twilight_model::{guild::Guild, id::GuildId};
+use twilight_model::guild::Guild;
+use twilight_model::id::marker::GuildMarker;
+use twilight_model::id::Id;
 
 /// Simple Result alias that returns any error.
 type CacheResult<T> = Result<T, Box<dyn Error>>;
@@ -38,7 +40,7 @@ impl Cache {
         guild.presences = vec![];
 
         conn.set(
-            format!("dissonance:guild:{}", guild.id.0),
+            format!("dissonance:guild:{}", guild.id.get()),
             &serde_json::to_string(&guild)?,
         )
         .await?;
@@ -50,14 +52,18 @@ impl Cache {
     /// from the cache. If successful, invokes the given update function and
     /// writes the result back to the cache. If not successful, issues a
     /// warning and does nothing.
-    pub async fn update_guild<F>(self: &Cache, guild_id: GuildId, update: F) -> CacheResult<()>
+    pub async fn update_guild<F>(
+        self: &Cache,
+        guild_id: Id<GuildMarker>,
+        update: F,
+    ) -> CacheResult<()>
     where
         F: FnOnce(&mut Guild),
     {
         let mut conn = self.0.write().await;
 
         let entry = conn
-            .get::<String, String>(format!("dissonance:guild:{}", guild_id.0))
+            .get::<String, String>(format!("dissonance:guild:{}", guild_id.get()))
             .await;
 
         // Drop lock here so we don't hold it while we parse and update.
@@ -66,7 +72,7 @@ impl Cache {
         match entry {
             Err(_) => warn!(
                 "Update for guild {} failed: it was not in the cache.",
-                guild_id.0
+                guild_id.get()
             ),
             Ok(content) => {
                 let mut guild = serde_json::from_str::<Guild>(&content)?;
@@ -76,7 +82,7 @@ impl Cache {
                 let mut conn = self.0.write().await;
 
                 conn.set(
-                    format!("dissonance:guild:{}", guild.id.0),
+                    format!("dissonance:guild:{}", guild.id.get()),
                     &serde_json::to_string(&guild)?,
                 )
                 .await?;
@@ -88,10 +94,11 @@ impl Cache {
 
     /// Deletes the specified guild from the redis cache, including all
     /// channels that belonged to it.
-    pub async fn delete_guild(self: &Cache, guild_id: GuildId) -> CacheResult<()> {
+    pub async fn delete_guild(self: &Cache, guild_id: Id<GuildMarker>) -> CacheResult<()> {
         let mut conn = self.0.write().await;
 
-        conn.del(format!("dissonance:guild:{}", guild_id.0)).await?;
+        conn.del(format!("dissonance:guild:{}", guild_id.get()))
+            .await?;
 
         Ok(())
     }

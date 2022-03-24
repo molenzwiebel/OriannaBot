@@ -13,12 +13,8 @@ use twilight_gateway::{
     Cluster, Event, EventTypeFlags, Intents,
 };
 use twilight_model::{
-    channel::Channel,
     gateway::{
         payload::{
-            incoming::ChannelCreate,
-            incoming::ChannelDelete,
-            incoming::ChannelUpdate,
             incoming::MemberChunk,
             outgoing::{
                 update_presence::UpdatePresencePayload, RequestGuildMembers, UpdatePresence,
@@ -27,7 +23,7 @@ use twilight_model::{
         presence::{Activity, ActivityType, MinimalActivity, Status},
     },
     guild::Guild,
-    id::GuildId,
+    id::{marker::GuildMarker, Id},
 };
 
 use crate::{cache::Cache, database::Database, forwarder::Forwarder};
@@ -60,11 +56,11 @@ pub(crate) struct Worker {
     events: Option<Events>,
     cache: Cache,
     forwarder: Forwarder,
-    outstanding_member_requests: DashMap<GuildId, Instant>,
+    outstanding_member_requests: DashMap<Id<GuildMarker>, Instant>,
 
     outstanding_count: AtomicUsize,
-    guild_member_tx: mpsc::UnboundedSender<(u64, GuildId)>,
-    guild_member_rx: Option<mpsc::UnboundedReceiver<(u64, GuildId)>>,
+    guild_member_tx: mpsc::UnboundedSender<(u64, Id<GuildMarker>)>,
+    guild_member_rx: Option<mpsc::UnboundedReceiver<(u64, Id<GuildMarker>)>>,
 }
 
 macro_rules! handle_event {
@@ -254,39 +250,39 @@ impl Worker {
                 );
             }
 
-            Event::ChannelCreate(ChannelCreate(Channel::Guild(channel))) => {
+            Event::ChannelCreate(channel_create) if channel_create.guild_id.is_some() => {
                 handle_event!(
                     "ChannelCreate",
                     self.cache
-                        .update_guild(channel.guild_id().unwrap(), |g| {
-                            g.channels.push(channel);
+                        .update_guild(channel_create.guild_id.unwrap(), |g| {
+                            g.channels.push(channel_create.0);
                         })
                         .await
                 );
             }
 
-            Event::ChannelUpdate(ChannelUpdate(Channel::Guild(channel))) => {
+            Event::ChannelUpdate(channel_update) if channel_update.guild_id.is_some() => {
                 handle_event!(
                     "ChannelUpdate",
                     self.cache
-                        .update_guild(channel.guild_id().unwrap(), |g| {
+                        .update_guild(channel_update.guild_id.unwrap(), |g| {
                             g.channels
                                 .iter_mut()
-                                .filter(|g| g.id() == channel.id())
+                                .filter(|g| g.id == channel_update.0.id)
                                 .for_each(|c| {
-                                    *c = channel.clone();
+                                    *c = channel_update.0.clone();
                                 });
                         })
                         .await
                 );
             }
 
-            Event::ChannelDelete(ChannelDelete(Channel::Guild(channel))) => {
+            Event::ChannelDelete(channel_delete) if channel_delete.guild_id.is_some() => {
                 handle_event!(
                     "ChannelDelete",
                     self.cache
-                        .update_guild(channel.guild_id().unwrap(), |g| {
-                            g.channels.retain(|x| x.id() != channel.id());
+                        .update_guild(channel_delete.guild_id.unwrap(), |g| {
+                            g.channels.retain(|x| x.id != channel_delete.0.id);
                         })
                         .await
                 );
@@ -351,7 +347,7 @@ impl Worker {
                 "Received full set of members ({}) in initial guild creation for {} ({})",
                 guild.members.len(),
                 guild.name,
-                guild.id.0
+                guild.id.get()
             );
 
             self.db.reset_guild(guild.id).await?;
@@ -374,7 +370,7 @@ impl Worker {
             guild.member_count.map(|x| x as i64).unwrap_or(-1),
             guild.name,
             new_count,
-            guild.id.0
+            guild.id.get()
         );
 
         Ok(())
@@ -387,7 +383,7 @@ impl Worker {
         debug!(
             "Received {}-long member chunk for {}",
             chunk.members.len(),
-            chunk.guild_id.0
+            chunk.guild_id.get()
         );
 
         // if this is the last chunk, clear it from the outstanding member requests
@@ -396,7 +392,7 @@ impl Worker {
 
             debug!(
                 "Received all members for {}. Now have {} outstanding member requests that are still pending.",
-                chunk.guild_id.0,
+                chunk.guild_id.get(),
                 self.outstanding_member_requests.len()
             );
         }
@@ -410,8 +406,8 @@ impl Worker {
 
     /// Invoked on a new task whenever a guild is deleted. We clean up both the cache
     /// and the membership for the guild.
-    async fn handle_guild_deleted(self: Arc<Worker>, guild_id: GuildId) -> VoidResult {
-        debug!("Got kicked from guild {}", guild_id.0);
+    async fn handle_guild_deleted(self: Arc<Worker>, guild_id: Id<GuildMarker>) -> VoidResult {
+        debug!("Got kicked from guild {}", guild_id.get());
 
         self.cache.delete_guild(guild_id).await?;
         self.db.reset_guild(guild_id).await?;
@@ -445,7 +441,7 @@ impl Worker {
     /// emits member requests to Discord for each message in the queue.
     async fn member_request_loop(
         self: Arc<Worker>,
-        mut rx: mpsc::UnboundedReceiver<(u64, GuildId)>,
+        mut rx: mpsc::UnboundedReceiver<(u64, Id<GuildMarker>)>,
     ) {
         let mut interval = tokio::time::interval(Duration::from_millis(50));
         interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
