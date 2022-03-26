@@ -83,7 +83,7 @@
                 return "https://github.com/molenzwiebel/OriannaBot/commit/" + GIT_COMMITHASH;
             },
             gitCommit() {
-                return GIT_COMMITHASH.substr(0, 7);
+                return GIT_COMMITHASH.slice(0, 7);
             },
             gitBranch() {
                 return GIT_BRANCH;
