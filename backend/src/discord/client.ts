@@ -353,7 +353,19 @@ export default class DiscordClient {
 
         // Check if this was a help request.
         if (ev.emoji.name === HELP_REACTION && this.aliveHelpReactions.has(ev.message_id)) {
-            const ctx = new ChannelResponseContext(ev.channel_id, null, this.bot, ev.message_id);
+            let ctx = new ChannelResponseContext(ev.channel_id, null, this.bot, ev.message_id);
+
+            // if this was from a guild, we need to ensure we're not muted
+            if (ev.guild_id) {
+                const server = await this.findOrCreateServer(ev.guild_id);
+
+                // if a channel exists, change the context to respond in a DM instead
+                if (await server.$relatedQuery<BlacklistedChannel>("blacklisted_channels").where("snowflake", "=", ev.channel_id).first()) {
+                    const privateChannel = await this.bot.getDMChannel(ev.user_id);
+                    ctx = new ChannelResponseContext(privateChannel.id, null, this.bot, ev.message_id);
+                }
+            }
+
             this.trackResponseContext(ctx, ev.message_id);
 
             this.displayHelp(
