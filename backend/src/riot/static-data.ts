@@ -18,6 +18,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "fondlesticks": "Fiddlesticks",
     "fish": "Fizz",
     "gp": "Gangplank",
+    "glasc": "Renata",
     "heca": "Hecarim",
     "heim": "Heimerdinger",
     "heimer": "Heimerdinger",
@@ -60,6 +61,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "panth": "Pantheon",
     "valor": "Quinn",
     "rek": "RekSai",
+    "renata": "Renata",
     "renek": "Renekton",
     "croc": "Renekton",
     "reng": "Rengar",
@@ -67,6 +69,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "cat": "Rengar", // :^)
     "sej": "Sejuani",
     "seju": "Sejuani",
+    "sera": "Seraphine",
     "shy": "Shyvana",
     "shyv": "Shyvana",
     "raka": "Soraka",
