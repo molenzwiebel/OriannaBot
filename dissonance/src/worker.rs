@@ -33,21 +33,26 @@ type VoidResult = Result<(), Box<dyn Error>>;
 const VERSION: &str = compile_time_run::run_command_str!("git", "log", "--format=%h - %s", "-n 1");
 
 const STATUSES: &[(ActivityType, &'static str)] = &[
+    (ActivityType::Playing, "Command: Shockwave"),
     (ActivityType::Playing, "on-hit Orianna"),
     (ActivityType::Playing, "with the Ball"),
+    (ActivityType::Competing, "the LCS"),
     (ActivityType::Listening, "time ticking away"),
     (ActivityType::Watching, "my enemies shiver"),
     (ActivityType::Watching, "you"),
+    (ActivityType::Competing, "the LEC"),
     (ActivityType::Watching, "Piltovan theater"),
+    (ActivityType::Playing, "Command: Protect"),
     (ActivityType::Listening, "Running in the 90s"),
     (ActivityType::Playing, "with Stopwatch"),
-    (ActivityType::Watching, "imaqtpie"),
+    (ActivityType::Watching, "LoLEsports"),
+    (ActivityType::Competing, "the LCK"),
     (ActivityType::Listening, "them scream"),
     (ActivityType::Watching, "what makes them tick"),
     (ActivityType::Playing, "Command: Attack"),
+    (ActivityType::Competing, "the LPL"),
     (ActivityType::Playing, "Command: Dissonance"),
-    (ActivityType::Playing, "Command: Protect"),
-    (ActivityType::Playing, "Command: Shockwave"),
+    (ActivityType::Watching, "botlane feed"),
 ];
 
 pub(crate) struct Worker {
@@ -179,7 +184,13 @@ impl Worker {
     fn handle_event(self: Arc<Worker>, shard: u64, event: Event) -> VoidResult {
         match event {
             Event::ShardPayload(payload) => {
-                handle_event!("ShardPayload", self.forwarder.try_forward(payload).await);
+                let worker_clone = self.clone();
+                handle_event!(
+                    "ShardPayload",
+                    self.forwarder
+                        .try_forward(&worker_clone, shard, payload)
+                        .await
+                );
             }
 
             Event::Ready(ready) => {
@@ -325,6 +336,16 @@ impl Worker {
         Ok(())
     }
 
+    /// Queues the given guild for a full re-fetch of all members. Returns
+    /// the total number of requests currently queued.
+    pub fn queue_guild_members_fetch(&self, shard: u64, id: Id<GuildMarker>) -> usize {
+        // Queue this guild for a full member fetch.
+        let _ = self.guild_member_tx.send((shard, id));
+
+        self.outstanding_count
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst)
+    }
+
     /// Invoked on a new task whenever a guild is "created", either through startup Ready,
     /// through startup guild creation, or whenever the bot joins a new server. Ensures that
     /// we fetch the full list of members.
@@ -359,10 +380,7 @@ impl Worker {
         }
 
         // Queue this guild for a full member fetch.
-        let _ = self.guild_member_tx.send((shard, guild.id));
-        let new_count = self
-            .outstanding_count
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let new_count = self.queue_guild_members_fetch(shard, guild.id);
 
         debug!(
             "Received {}/{} members in initial guild creation for {}. Now have {} member queries queued. ({})",

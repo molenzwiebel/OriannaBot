@@ -5,8 +5,8 @@ edition = "2018"
 
 [dependencies]
 twilight-gateway = "0.10.1"
-twilight-model = "0.10.1"
-twilight-http = "0.10.1"
+twilight-model = "0.10.2"
+twilight-http = "0.10.2"
 dotenv = "0.15.0"
 tracing = "0.1.25"
 tracing-subscriber = "0.2.17"

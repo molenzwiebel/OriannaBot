@@ -1,4 +1,4 @@
-use std::{collections::HashSet, error::Error};
+use std::{collections::HashSet, error::Error, num::NonZeroU64};
 
 use lapin::{
     options::{BasicPublishOptions, ExchangeDeclareOptions, QueueBindOptions, QueueDeclareOptions},
@@ -6,6 +6,8 @@ use lapin::{
     BasicProperties, Channel, ExchangeKind,
 };
 use twilight_model::gateway::event::{shard::Payload, GatewayEventDeserializer};
+
+use crate::worker::Worker;
 
 /// Simple Result alias that returns any error.
 type ForwarderResult<T> = Result<T, Box<dyn Error>>;
@@ -27,6 +29,8 @@ lazy_static! {
 
 const EXCHANGE: &str = "dissonance";
 const TOPIC: &str = "dissonance.events";
+
+const MAGIC_REFRESH_INCANTATION: &str = "magic_incantation_for_refreshing_guild_members_";
 
 pub(crate) struct Forwarder(Channel);
 
@@ -88,7 +92,12 @@ impl Forwarder {
     /// Attempts to parse the given raw bytes received from Discord as
     /// a gateway event and forwards it through ZeroMQ if it exists in a
     /// list of events we'd like to forward.
-    pub async fn try_forward(self: &Forwarder, payload: Payload) -> ForwarderResult<()> {
+    pub async fn try_forward(
+        self: &Forwarder,
+        worker: &Worker,
+        shard_id: u64,
+        payload: Payload,
+    ) -> ForwarderResult<()> {
         let bytes = payload.bytes;
 
         // Needs to be a scope since we want to clone `ty` but keep ownership of the rest.
@@ -102,7 +111,12 @@ impl Forwarder {
             };
 
             match parsed.event_type_ref() {
-                Some(ty) => ty.to_string(),
+                Some(ty) => {
+                    let _ = self
+                        .introspect_packet(worker, shard_id, ty, json_as_str)
+                        .await;
+                    ty.to_string()
+                }
                 None => return Ok(()),
             }
         };
@@ -117,6 +131,37 @@ impl Forwarder {
                     BasicProperties::default(),
                 )
                 .await?;
+        }
+
+        Ok(())
+    }
+
+    /// Utility function that allows us to introspect an unparsed blob to
+    /// do some magic functions when encountering magic incantations in the
+    /// blob. This is quite a hack, but allows us to forego the performance
+    /// penalty of parsing every message.
+    async fn introspect_packet(
+        self: &Forwarder,
+        worker: &Worker,
+        shard_id: u64,
+        ty: &str,
+        contents: &str,
+    ) -> ForwarderResult<()> {
+        match ty {
+            "MESSAGE_CREATE" => {
+                let magic_incantation_idx = contents.find(MAGIC_REFRESH_INCANTATION);
+
+                if let Some(idx) = magic_incantation_idx {
+                    let guild_id: NonZeroU64 = contents[idx + MAGIC_REFRESH_INCANTATION.len()..]
+                        .chars()
+                        .take_while(|x| x.is_ascii_digit())
+                        .collect::<String>()
+                        .parse()?;
+
+                    worker.queue_guild_members_fetch(shard_id, guild_id.into());
+                }
+            }
+            _ => {}
         }
 
         Ok(())
