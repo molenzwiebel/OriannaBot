@@ -97,6 +97,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "xin": "XinZhao",
     "yas": "Yasuo",
     "yuu": "Yuumi",
+    "yummi": "Yuumi",
     "zil": "Zilean"
 };
 
