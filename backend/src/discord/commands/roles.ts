@@ -2,7 +2,7 @@ import config from "../../config";
 import * as shockwave from "../../shockwave";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
 import { SlashCapableCommand } from "../command";
-import { emote, paginate } from "./util";
+import { emote, expectUser, paginate } from "./util";
 
 const RolesCommand: SlashCapableCommand = {
     name: "Show Server Roles",
@@ -25,14 +25,14 @@ const RolesCommand: SlashCapableCommand = {
         if (k === "user") return `<@!${v}>`;
         throw "Unknown parameter " + k;
     },
-    async handler({ guildId, user: loadUser, server: loadServer, error, ctx, t }) {
+    async handler({ guildId, server: loadServer, error, ctx, t }) {
         if (!guildId) return error({
             title: t.command_roles_no_server_title,
             description: t.command_roles_no_server_description
         });
 
         const server = await loadServer();
-        const user = await loadUser();
+        const user = await expectUser(ctx);
         const sign = (x: boolean) => x ? "✅" : "❌";
 
         // Load data we need for showing eligibility.
