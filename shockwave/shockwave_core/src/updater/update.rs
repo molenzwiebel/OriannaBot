@@ -1,13 +1,16 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, num::NonZeroU64};
 
 use futures::FutureExt;
 use tracing::{debug, info, instrument, warn, Instrument};
 use twilight_http::{
-    api_error::{ApiError, ErrorCode, GeneralApiError},
+    api_error::{ApiError, GeneralApiError},
     error::ErrorType,
     request::AuditLogReason,
 };
-use twilight_model::id::{GuildId, UserId};
+use twilight_model::id::{
+    marker::{GuildMarker, UserMarker},
+    Id,
+};
 
 use super::{Updater, UpdaterResult};
 use crate::{db_model::ServerAndUserPresence, evaluate::EvaluationContext, orianna};
@@ -75,8 +78,8 @@ impl Updater {
         // Compute the roles we should remove.
         should_be_removed = should_be_removed.difference(&should_have).cloned().collect();
 
-        let guild_id: GuildId = membership.server.snowflake.parse::<u64>()?.into();
-        let user_id: UserId = ctx.user.snowflake.parse::<u64>()?.into();
+        let guild_id: Id<GuildMarker> = membership.server.snowflake.parse::<NonZeroU64>()?.into();
+        let user_id: Id<UserMarker> = ctx.user.snowflake.parse::<NonZeroU64>()?.into();
 
         // Remove what we shouldn't have.
         futures::future::join_all(should_be_removed.iter().filter_map(|to_be_removed| {
@@ -89,9 +92,10 @@ impl Updater {
             // ignore error, likely means something is wrong with permissions
             Some(
                 self.discord_client
-                    .remove_guild_member_role(guild_id, user_id, to_be_removed.parse::<u64>().ok()?.into())
+                    .remove_guild_member_role(guild_id, user_id, to_be_removed.parse::<NonZeroU64>().ok()?.into())
                     .reason("Orianna: User no longer qualifies for role")
                     .ok()?
+                    .exec()
                     .instrument(tracing::info_span!("remove_guild_member_role")),
             )
         }))
@@ -111,7 +115,7 @@ impl Updater {
                 .expect("Role somehow does not show up in conditions.")
                 .0;
 
-            let role_id = to_be_added.parse::<u64>().ok()?.into();
+            let role_id = to_be_added.parse::<NonZeroU64>().ok()?.into();
 
             // ignore error, likely means something is wrong with permissions
             Some(
@@ -119,12 +123,15 @@ impl Updater {
                     .add_guild_member_role(guild_id, user_id, role_id)
                     .reason("Orianna: User qualifies for role")
                     .ok()?
+                    .exec()
                     .instrument(tracing::info_span!("add_guild_member_role"))
                     .then(move |result| async move {
                         match result {
                             Ok(_) => {
-                                let _ =
-                                    self.database.insert_discord_member_role(user_id.0, guild_id.0, role_id.0).await;
+                                let _ = self
+                                    .database
+                                    .insert_discord_member_role(user_id.get(), guild_id.get(), role_id.get())
+                                    .await;
 
                                 if role.announce {
                                     debug!("Requesting promotion announcement for {}", role.name);
@@ -133,13 +140,16 @@ impl Updater {
                             },
                             Err(e)
                                 if matches!(e.kind(), ErrorType::Response {
-                                    error: ApiError::General(GeneralApiError { code: ErrorCode::UnknownRole, .. }),
+                                    error: ApiError::General(GeneralApiError {
+                                        code: 10011, // UnknownRole
+                                        ..
+                                    }),
                                     ..
                                 }) =>
                             {
                                 warn!("Role {} no longer exists", role.snowflake);
                                 let _ = self.database.clear_snowflake_for_role(role.id).await;
-                            }
+                            },
                             Err(e) => {
                                 warn!("Failed to give role {} to user {}: {:?}", role.snowflake, user_id, e);
                             },
@@ -170,8 +180,9 @@ impl Updater {
                     let _ = self
                         .discord_client
                         .update_guild_member(guild_id, user_id)
-                        .nick(target_nick)?
+                        .nick(target_nick.as_deref())?
                         .reason("Orianna: Updating nickname to match server pattern.")?
+                        .exec()
                         .instrument(tracing::info_span!("update_guild_member"))
                         .await;
                 }
@@ -187,6 +198,7 @@ impl Updater {
                         .update_guild_member(guild_id, user_id)
                         .nick(None)?
                         .reason("Orianna: Removing nickname since user has no accounts linked.")?
+                        .exec()
                         .instrument(tracing::info_span!("update_guild_member"))
                         .await;
                 }

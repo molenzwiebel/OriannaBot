@@ -160,8 +160,8 @@ impl Updater {
         let all_new_ranks: HashMap<_, _> = lol_ranks
             .into_iter()
             .chain(tft_ranks.into_iter())
-            .sorted_by_key(|x| <&'static str>::from(x.0))
-            .group_by(|x| x.0)
+            .sorted_by_key(|x| <&'static str>::from(x.clone().0))
+            .group_by(|x| x.clone().0)
             .into_iter() // group_by needs an iterator
             .map(|(k, v)| (k, v.max_by_key(|x| x.1).unwrap().1)) // for each queue, select the best object in the queue
             .collect();
