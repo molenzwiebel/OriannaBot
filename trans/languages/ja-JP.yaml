@@ -1,0 +1,309 @@
+metadata:
+  code: ja-JP
+  name: Japanese
+  ddragonLanguage: ja_JP
+empty: ""
+ranked_tier_unranked: ランクなし
+ranked_tier_iron: アイアン
+ranked_tier_bronze: ブロンズ
+ranked_tier_silver: シルバー
+ranked_tier_gold: ゴールド
+ranked_tier_platinum: プラチナ
+ranked_tier_diamond: ダイヤモンド
+ranked_tier_master: マスター
+ranked_tier_grandmaster: グランドマスター
+ranked_tier_challenger: チャレンジャー
+queue_ranked_solo: ソロキュー
+queue_ranked_flex: フレックスキュー
+queue_ranked_tft: TFT ランク
+queue_ranked_any: いずれかのキュー
+queue_ranked_highest: ソロ・フレックスのうちランクが高い方のキュー
+queue_ranked_highest_tft: TFTを含む全キューのうちランクが一番高いキュー
+time_ago_today: 今日
+time_ago_yesterday: 昨日
+time_ago_days_ago: "{days}日前"
+first_use_title: 👋 {username} さん、はじめまして！
+first_use_intro_on_join: "**{server}** へようこそ！私は **Orianna
+  Bot（オリアナボット）**、リーグ・オブ・レジェンドのランクとチャンピオンマスタリーに基づいてロールを割り当てる、Discordのボットです。"
+first_use_intro_on_command: 私のコマンドを使ったようですが、お会いしたことはありませんよね。はじめまして、私は**Oriana
+  Bot（オリアナボット）**、リーグ・オブ・レジェンドのランクとチャンピオンマスタリーに基づいてロールを割り当てる、Discordのボットです。
+first_use_intro_on_react: どうやらこの **{server}** サーバーでロールの設定をしたいようですね。私は **Orianna
+  Bot（オリアナボット）**、リーグ・オブ・レジェンドのランクとチャンピオンマスタリーに基づいてロールを割り当てる、Discordのボットです。
+first_use_message: >-
+  {intro}
+
+
+  もしあなたのランク・マスタリーを元にロールを受け取りたいのなら、LoLのアカウントを[設定パネル]({link})から私に教えてください！もしくは、DiscordやRedditのアカウントを [ChampionMains Flairs](https://flairs.championmains.com) システムから検知することができます。
+
+
+  早速使ってみましょう！以下のリンクをクリックして設定してください。
+
+  [{link}]({link})
+
+
+  もしかして困惑していますか？それとも興味津々？`@Orianna Bot help` と入力すると私のできる事をチェックできます！私の生みの親と連絡を取りたいのなら `@Orianna Bot about` と入力してください。
+command_error_title: 💥 おっと！
+command_error_description: 致命的なエラーが発生したためコマンドの実行を中止しました。もう一度試してください。もしこのエラーが出続けるようでしたら、[Orianna
+  ボットのサポートサーバー（英語）](https://discord.gg/bfxdsRC)までご連絡ください。
+command_muted_preamble: "{channel} チャンネルでの発言権がありませんでしたが、秘密裏にコマンドを実行できました。あなたがほしかったメッセージは次の通りです："
+promotion_title: "{username} が {role} に昇格しました！"
+transfer_title: ✈ リージョンを移行しましたか？
+transfer_body: >-
+  あなたが以前登録した LoL のアカウント **{username}** ({region})
+  ですが、本日確認したところ、アカウントが存在しないことになっていました。他のリージョンにアカウントを移行しましたか？
+
+
+  LoL のアカウントと Discord の紐づけを解除しました。もしアカウントを移行している場合は、もう一度設定しなおしてください。
+command_error_no_accounts: 🔍 {user} はアカウントを紐づけていません。
+command_error_no_accounts_description: もし私があなたの事をよく知っていれば表示できたのですが、残念ながらこのユーザーはまだアカウントの紐づけを済ませていません。`@Orianna Bot
+  configure` から紐づける事ができます。
+command_error_no_permissions: ✋ ちょっと待って！
+command_error_no_permissions_description: この機能を使うには「メッセージの管理」権限が必要です :(
+command_error_no_champion: 🔎 どのチャンピオンです？
+command_error_no_champion_description: あなたのメッセージからチャンピオンを検索しましたが、見つけられませんでした。入力ミスをしているか、もしかしたら名前を覚え間違えているのかもしれません。
+command_page_n_of_n: ページ {n} / {total}
+command_about_title: 🤖 概要
+command_about_field_author: 製作者
+command_about_field_version: バージョン
+command_about_field_source: ソースコード
+command_about_field_servers: 参加サーバー数
+command_about_field_channels: チャンネル数
+command_about_field_users: ユーザー数
+command_about_field_memory_usage: メモリ使用量
+command_about_field_support: サポートサーバー
+command_about_field_vote: Orianna Bot に投票する
+command_edit_small_description: プロフィール設定ページへのリンクを送信します。
+command_edit_description: >-
+  一回限りアクセス可能な[プロフィール設定ページ](https://orianna.molenzwiebel.xyz/me)へのURLを発行し、Oriana
+  Bot が持つユーザー情報と LoL のアカウントを紐づけさせます。
+
+  コマンドの詳細やセットアップの方法については[ドキュメント（英語）](https://orianna.molenzwiebel.xyz/docs/link)をご確認ください。
+command_edit_server_title: ℹ Bot の設定方法がかわりました
+command_edit_server_description: Orianna V2 では、サーバー内での設定 URL を必要としなくなりました。そのかわりに、Discord
+  のアカウントでログインしてサーバーを選択する事で設定できます。ここで、サーバーの設定を変更するにはあなたが「サーバー管理」権限を持っている必要があるという事に注意してください。
+command_edit_dm_title: 🔗 認証 URL
+command_edit_dm_description: >-
+  アカウントを編集したり、サーバー内での個人設定をしたい場合は [Orianna Web Panel]({link}) にアクセスしてください。この URL
+  をクリックすることで自動でログインできます。この URL は**一回限り有効**です。ご注意ください。また、24時間後に URL は無効化されます。
+
+
+  [{link}]({link})
+
+
+  **⚠ この URL は絶対に他の人に共有しないでください！** 他のひとが編集できるようになってしまいます。
+command_edit_dm_failed_title: 📪 DMが許可されていません！
+command_edit_dm_failed_description: どうやらあなたは友達以外からのDMを受け取らないように設定しているようです。残念ながら現在私からあなたにDMを送ることができません。DMをサーバーメンバーから受け取るようにするには、このサーバーのアイコン右クリックし、`プライバシー設定`
+  から `このサーバーの他メンバーからのDMを許可する` をオンにしてください。
+command_help_title: 🔖 Orianna のヘルプ
+command_help_description: メンションする時に後ろにキーワードをつけることであなたが何をしたいのかを推測しています。以下は私が理解できるコマンドの一覧です。対応する番号をクリックすると、私がコマンドの使い方についてご説明します。🔖
+  を押すとこの目次が表示されます。
+command_help_command_title: 🔖 {name} のヘルプ
+command_help_command_description: |-
+  **説明**
+  {description}
+command_help_command_keywords: キーワード
+command_invite_title: 🤖 オリアナをあなたのサーバーに呼んでくれるんですか？
+command_invite_message_description: Orianna Bot をあなたの所有している Discord サーバーに招待したいのなら、[このリンク]({link})
+  をクリックしてください！Orianna Bot を選んで頂いてとても光栄です！
+command_other_bot_title: 💡ご存知でしたか？
+command_other_bot_description: "`{role}` ロールは私が管理しています。アカウントをDiscordと紐づけることで（`@Orianna Bot configure`
+  と入力すると紐付けられます！）、私がロールを自動で設定できるようにしてください。 もし既に設定している場合は、後ほど試していただくか、 `@Orianna
+  Bot refresh` と入力してください。"
+command_points_small_description: チャンピオンのマスタリー情報を表示します。
+command_points_description: >-
+  
+  ユーザーのチャンピオンのマスタリー情報を表示します。
+
+
+  チャンピオンは、ただ単にチャンピオンの名前か[エイリアス](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92)をメッセージに含めることで指定できます。
+
+  チャンピオンが指定されていない場合、オリアナはサーバー内で設定されているデフォルトのチャンピオンのマスタリーを参照しようとします。デフォルトのチャンピオンが設定されていない場合、オリアナはエラーメッセージを出します。
+
+
+  同時にユーザーをメンションすると、代わりにそのユーザーのマスタリーを表示します。
+
+
+  使用例：
+
+  - `@Orianna Bot points mf` - ミスフォーチュンのマスタリーを表示します。
+
+  - `@Orianna Bot score lee @molenzwiebel` - molenzwiebel のリー・シンのスコアを表示します。
+
+  - `@Orianna Bot mastery` - デフォルトのチャンピオンのマスタリーを表示します。
+command_points_message_title: 📖 マスタリースコア
+command_points_message_description: "{user} が使う {champion} のマスタリースコアは **{points} ポイント** です。"
+command_profile_small_description: ユーザーの LoL のアカウントの統計やプロフィール情報を表示します。
+command_profile_description: >-
+  Oriana Bot に登録した全アカウントからデータを収集して表示します。
+
+
+  自分のプロフィールを表示するには、`Orianna Bot profile` と入力してください。
+
+  メッセージ内で他のユーザーをメンションすると、代わりにそのユーザーのプロフィールが表示されます。
+
+
+  ランク情報や所有するアカウントのユーザー名を非表示にしたい場合、[ダッシュボード](https://orianna.molenzwiebel.xyz/me)から変更できます。
+
+
+  使用例：
+
+  - `@Orianna Bot profile` - あなたのプロフィールを表示する
+
+  - `@Orianna Bot profile @molenzwiebel` - molenzwiebel のプロフィールを表示する。
+command_profile_title: 📖 {name} のプロフィール
+command_profile_top_champions: お気に入り
+command_profile_statistics: マスタリー情報
+command_profile_statistics_total_points: "**合計マスタリースコア** {amount}"
+command_profile_statistics_avg_champ: "**平均マスタリースコア** {amount}"
+command_profile_recently_played: 直近
+command_profile_recently_played_no_games: _記録されているゲームはありません_
+command_profile_ranked_tiers: ランク
+command_profile_account: アカウント
+command_profile_accounts: アカウント
+command_refresh_small_description: 情報を更新し、ロールの再付与を行います。
+command_refresh_description: >-
+  このコマンドを実行すると、リンクしているすべてのアカウントのマスタリーおよびランクが手動で更新されます。具体的には、以下の情報を再取得します。
+
+  - 名前・地域の変更についてのチェック
+
+  - ランク情報の再取得
+
+  - チャンピオンマスタリー・マスタリースコアの更新
+
+
+  情報を再取得した後、Oriana Bot を使用していてあなたが参加しているサーバーをすべて確認して、各サーバーで必要に応じてロールの付与・削除を行います。
+
+
+  **手動で更新する必要はない**という事に留意してください。Oriana は定期的にランク・マスタリー情報を更新しています。このコマンドは今すぐ情報を更新した時にのみ使用してください。
+
+
+  名前を後ろにつけることで、他のユーザーの情報を更新することができます。
+
+
+  もし他のユーザーのスコアを更新したい場合は、コマンドを実行する際にそのユーザーの名前を以下のように書いてください：`@Orianna Bot refresh @b1nzy#0001`
+command_roles_small_description: 現在サーバーで設定されているロール一覧を表示します。
+command_roles_description: >-
+  サーバーでオリアナによって設定されている全ロールと付与条件を表示します。
+
+  これは全ロールの一覧を表示するもので、更にあなたが付与条件を満たしているかも表示されます。
+
+
+  注意：同じロールに複数の付与条件が設定されている場合は、複数回同じロールが表示されます。この中で1つでもあなたが満たしていれば、オリアナはロールを付与します。
+
+
+  ロールの条件や仕組みについては、[ドキュメント](https://orianna.molenzwiebel.xyz/docs/conditions)をご確認ください。
+command_roles_no_server_title: 🛑 サーバーが見つかりません
+command_roles_no_server_description: このコマンドは文字通り**サーバー**で使うものですが、本当にDMで使いたいのですか？とても正気とは思えません。
+command_roles_no_roles_title: 🔍 なんにもなさそうです…
+command_roles_no_roles_description: 現在サーバーで設定されているロールはないようです。
+command_roles_at_least: "{value} 以上"
+command_roles_at_most: "{value} 以下"
+command_roles_exactly: ちょうど {value}
+command_roles_between: "{min} 以上 {max} 以下"
+command_roles_ranked_tier_equal: "{queue}のランクが{tier}"
+command_roles_ranked_tier_lower: "{queue}のランクが{tier}より低い"
+command_roles_ranked_tier_higher: "{queue}のランクが{tier}より高い"
+command_roles_mastery_level: "{champion}のマスタリーレベルが{range}"
+command_roles_total_mastery_level: Have a total mastery level {range}
+command_roles_mastery_score: "{champion}のマスタリースコアが{range}"
+command_roles_total_mastery_score: 合計マスタリースコアが{range}
+command_roles_ranked_tier: "{ranked}"
+command_roles_region: "{region} のアカウントを所有している"
+command_roles_all_match: "**以下のすべての条件を満たす**"
+command_roles_any_match: "**1つ以上の条件を満たす**"
+command_roles_at_least_n: "**{amount}以上の条件を満たす**"
+command_roles_no_conditions: _条件なし_
+command_roles_continued: (continued)
+command_roles_message_title: 📖 サーバーのロール一覧
+command_roles_message_description: Oriana Bot で設定されているロールは次の通りです。
+command_stats_small_description: チャンピオンマスタリーの履歴を表示します。
+command_stats_description: |-
+  Orianna Bot が収集したデータをもとに、マスタリーの履歴を表示します。
+  注意：Orianna Bot にアカウントを登録してからのデータのみが表示されます。
+
+  特定のチャンピオンのグラフを表示したい場合は、チャンピオン名をメッセージに含めてください。
+  他のユーザーのメンションをメッセージに含めることで、他ユーザーのマスタリーを確認できます。
+
+  注意：表示される勝率などのデータは、マッチ毎に獲得したマスタリーポイントから推測したデータです。正確ではない可能性があります。
+
+  使用例：
+  - `@Orianna Bot chart my annie progression`
+  - `@Orianna Bot chart @molenzwiebel`
+  - `@Orianna Bot show @molenzwiebel's stats on annie`
+command_stats_no_values_title: 🔍 なんにもなさそうです…
+command_stats_no_values_description: "{user} の {champion} の使用データが見つかりませんでした。数試合プレイしてからもう一度お試しください。"
+command_stats_message_title: 📈 マスタリースコア - {name} の {champion}
+command_stats_message_data: データ
+command_stats_message_data_value: |-
+  記録されたゲーム数：**{numGames}**
+  最初のゲーム：**{firstGameDate}**
+  直近のゲーム：**{lastGameDate}**
+command_stats_message_games: Games
+command_stats_message_games_value: |-
+  勝利：**{win}**
+  敗北：**{loss}**
+  勝率：**{winrate}%**
+command_top_small_description: リーダーボードや、各種統計を表示します。
+command_top_description: >-
+  Oriana Bot に紐づいているすべてのアカウントのスコアを元に、ランキングや各種統計を表示します。
+
+
+  **チャンピオンのランキング**
+
+  指定したチャンピオンのランキングを表示させる事ができます。チャンピオン名は日本語または[省略形](https://bit.ly/2wwGVMi)を指定できます。
+
+
+  チャンピオンが指定されていない場合、オリアナはサーバー内で設定されているデフォルトのチャンピオンのマスタリーを参照しようとします。デフォルトのチャンピオンが設定されていない場合、オリアナはエラーメッセージを出します。
+
+
+  現在のDiscordサーバーにいる人だけでランキングを作成したい場合は、メッセージに `server` を含めてください。
+
+
+  例
+
+  - `Orianna Bot top mf` - リンクされているすべての Orianna Bot アカウントを元にしたミスフォーチュンのランキングを表示します。
+
+  - `Orianna Bot top thresh server` - サーバー内でのスレッシュのランキングを表示します。
+
+
+
+  **全チャンピオンのランキング**
+
+  真のチャンピオンマニアのランキングを得るには、チャンピオンに関係なく、チャンピオンマスタリーの最高得点のリーダーボードを得ることも可能です。これを行うには、`@Orianna Bot top all`を使用します。このコマンドは、1人のチャンピオンに何百万ポイントも投資している、真のチャンピオンマニア全員を表示します。
+
+
+  現在の Discord サーバーにいる人だけに結果を限定するには、メッセージに `server` を含めてください。
+
+
+  例
+
+  - `Orianna Bot top all champions` - 全てのチャンピオンの全ユーザーの最高得点を表示します。
+
+  - `Orianna Bot top all champions in this server` - 現在のサーバーにいる全ユーザーのトップスコアを表示します。
+
+
+  **自分のマスタリーランキング**
+
+  コマンドに `me` を追加することで、自分自身のマスタリースコアのランキングを見ることもできます。この場合、自分のチャンピオンマスタリーの一覧が表示されます。
+
+
+  他の人の名前をメッセージに含めると、他の人のマスタリーランキングが表示されます。
+
+
+  例
+
+  - `Orianna Bot top me` - 自分のマスタリースコア ランキングを表示します。
+
+  - `Orianna Bot top @molenzwiebel` - molenzwiebel のマスタリースコア ランキングを表示します。
+command_top_points: ポイント
+command_top_rank: "あなたの順位: {rank}"
+command_top_personal_title: 📊 {name} のチャンピオンランキング
+command_top_no_server_title: ❓ 一旦落ち着いてください！
+command_top_no_server_description: サーバー内でのランキングを作ろうとしているのに DM で私にメッセージを送るのはおかしいと思いませんでしたか？コマンドから `server`
+  を削除してもう一度実行してみてください。
+command_top_title: "{champ} 使いのランキング"
+command_top_server_title: "{champ} 使いのランキング（サーバー内のみ）"
+command_top_global_title: 全チャンピオンのマスタリーランキング
+command_top_global_server_title: 全チャンピオンのマスタリーランキング（サーバー内のみ）
+command_top_graphic_name: 名前
+command_top_graphic_score: スコア
