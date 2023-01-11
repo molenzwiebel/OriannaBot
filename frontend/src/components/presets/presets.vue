@@ -20,6 +20,7 @@
                         <option value="RANKED_FLEX_SR">Ranked Flex 5v5</option>
                         <option value="RANKED_FLEX_TT">Ranked Flex 3v3</option>
                         <option value="RANKED_TFT">Ranked TFT</option>
+                        <option value="RANKED_TFT_DOUBLE_UP">Ranked TFT (Double Up)</option>
                         <option value="ANY">Any Ranked Queue</option>
                         <option value="HIGHEST">Player's Highest Ranked Queue (excluding TFT)</option>
                         <option value="HIGHEST_TFT">Player's Highest Ranked Queue (including TFT)</option>

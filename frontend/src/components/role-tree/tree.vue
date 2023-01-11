@@ -132,6 +132,7 @@
                     <option value="RANKED_FLEX_SR">Ranked Flex 5v5</option>
                     <option value="RANKED_FLEX_TT">Ranked Flex 3v3</option>
                     <option value="RANKED_TFT">Ranked TFT</option>
+                    <option value="RANKED_TFT_DOUBLE_UP">Ranked TFT (Double Up)</option>
                     <option value="ANY">any ranked queue</option>
                     <option value="HIGHEST">their highest ranked queue (excluding TFT)</option>
                     <option value="HIGHEST_TFT">their highest ranked queue (including TFT)</option>
@@ -152,6 +153,11 @@
                 <option value="TR">TR</option>
                 <option value="RU">RU</option>
                 <option value="KR">KR</option>
+                <option value="PH">PH</option>
+                <option value="SG">SG</option>
+                <option value="TH">TH</option>
+                <option value="TW">TW</option>
+                <option value="VN">VN</option>
             </select>
         </template>
     </div>

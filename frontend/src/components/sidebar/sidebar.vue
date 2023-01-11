@@ -36,7 +36,7 @@
 
         <a v-if="!user" :href="signInLink" class="discord-sign-in">
             Sign In With
-            <img src="https://discordapp.com/assets/e4923594e694a21542a489471ecffa50.svg">
+            <img src="../../static/discord-logo.svg">
         </a>
 
         <template v-if="user">
@@ -167,7 +167,8 @@
             flex-direction column
 
             & > img
-                width 160px
+                width 80px
+                margin-top 10px
 
         & > .divider
             width navbar-width

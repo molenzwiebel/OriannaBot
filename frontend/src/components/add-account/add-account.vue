@@ -21,6 +21,11 @@
                             <option value="TR">TR</option>
                             <option value="RU">RU</option>
                             <option value="KR">KR</option>
+                            <option value="PH">PH</option>
+                            <option value="SG">SG</option>
+                            <option value="TH">TH</option>
+                            <option value="TW">TW</option>
+                            <option value="VN">VN</option>
                         </select>
 
                         <input :class="detailsError && 'errored'" type="text" v-model="name" placeholder="Summoner Name">
@@ -36,7 +41,7 @@
 
                         <p>
                             To verify that you own <b>{{ summoner.username }}</b>, please change your summoner icon to the following:<br>
-                            <img :src="'https://cdn.communitydragon.org/latest/profile-icon/' + summoner.targetSummonerIcon" />
+                            <img :src="'https://ddragon.leagueoflegends.com/cdn/12.21.1/img/profileicon/' + summoner.targetSummonerIcon + '.png'" />
                             <br><br>
                             After changing your icon, click <b>Validate</b> to add link your account. You can change your icon back after you have successfully verified.
                         </p>

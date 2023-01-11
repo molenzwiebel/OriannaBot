@@ -30,7 +30,7 @@ module.exports = env => ({
             test: /\.css$/,
             loader: "style-loader!css-loader"
         }, {
-            test: /\.(webm|jpg)$/,
+            test: /\.(webm|jpg|svg)$/,
             loader: "file-loader"
         }]
     },
