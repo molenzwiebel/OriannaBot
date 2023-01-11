@@ -1516,9 +1516,9 @@ dependencies = [
 
 [[package]]
 name = "riven"
-version = "2.7.1"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50a5bac05bc06eca7abc20aac5480f2cf5424e4c5b8a7b158543103a9681bd10"
+checksum = "593c9933ddbde0187e7833541cb11aa0f1afed6bbd392236dbe552031219770e"
 dependencies = [
  "lazy_static",
  "log",

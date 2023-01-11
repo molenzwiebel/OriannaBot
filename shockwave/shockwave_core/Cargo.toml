@@ -21,6 +21,6 @@ futures = "0.3"
 serde_json = "1.0.59"
 serde = "1.0.126"
 itertools = "0.10.0"
-riven = { version = "2.7.1", default-features = false, features = ["rustls-tls", "tracing"] }
+riven = { version = "2.11.0", default-features = false, features = ["rustls-tls", "tracing"] }
 reqwest = { version = "0.11", default-features = false, features = ["rustls-tls", "gzip", "json" ] }
 lazy_static = "1.4"

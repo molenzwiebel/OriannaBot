@@ -1,3 +1,4 @@
+use riven::consts::PlatformRoute;
 use sqlx::{postgres::PgRow, types::Json, Row};
 
 use crate::role_model::RoleCombinator;
@@ -92,4 +93,21 @@ pub struct LeagueAccount {
     pub tft_account_id: String,
     pub primary: bool,
     pub include_region: bool,
+}
+
+impl LeagueAccount {
+    /// Convert the string representation of this account's region to a PlatformRoute.
+    pub fn route(&self) -> Option<PlatformRoute> {
+        let region = self.region.to_uppercase();
+        let region = match region.as_str() {
+            "PH" => "PH2",
+            "SG" => "SG2",
+            "TH" => "TH2",
+            "TW" => "TW2",
+            "VN" => "VN2",
+            x => x,
+        };
+
+        region.parse().ok()
+    }
 }

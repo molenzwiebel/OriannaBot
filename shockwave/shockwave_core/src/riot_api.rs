@@ -1,6 +1,6 @@
 use futures::{future, FutureExt};
 use riven::{
-    consts::{PlatformRoute, QueueType, Tier},
+    consts::{QueueType, Tier},
     models::{champion_mastery_v4::ChampionMastery, summoner_v4::Summoner},
     Result as RivenResult, RiotApi, RiotApiConfig,
 };
@@ -64,7 +64,7 @@ impl RiotApiInterface {
         accounts: &Vec<LeagueAccount>,
     ) -> Result<Vec<(QueueType, Tier)>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
-            account.region.to_uppercase().parse().ok().map(|region| {
+            account.route().map(|region| {
                 self.lol_client(priority).league_v4().get_league_entries_for_summoner(region, &account.summoner_id)
             })
         }))
@@ -85,7 +85,7 @@ impl RiotApiInterface {
         accounts: &Vec<LeagueAccount>,
     ) -> Result<Vec<(QueueType, Tier)>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
-            account.region.to_uppercase().parse().ok().map(|region| {
+            account.route().map(|region| {
                 self.tft_client(priority)
                     .tft_league_v1()
                     .get_league_entries_for_summoner(region, &account.tft_summoner_id)
@@ -109,7 +109,7 @@ impl RiotApiInterface {
         accounts: &Vec<LeagueAccount>,
     ) -> Result<Vec<Vec<ChampionMastery>>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
-            account.region.to_uppercase().parse().ok().map(|region| {
+            account.route().map(|region| {
                 self.lol_client(priority).champion_mastery_v4().get_all_champion_masteries(region, &account.summoner_id)
             })
         }))
@@ -122,7 +122,9 @@ impl RiotApiInterface {
     /// while the second result indicates the result of actually calling
     /// the API (we expose this for more complex logic).
     pub async fn get_summoner(&self, priority: Priority, account: &LeagueAccount) -> Result<RivenResult<Summoner>> {
-        let region: PlatformRoute = account.region.to_uppercase().parse()?;
+        let Some(region) = account.route() else {
+            return Err("Could not parse region".into());
+        };
 
         Ok(self.lol_client(priority).summoner_v4().get_by_summoner_id(region, &account.summoner_id).await)
     }
