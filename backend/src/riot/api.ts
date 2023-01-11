@@ -1,6 +1,6 @@
 import Teemo = require("teemojs");
 
-export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU", "KR"];
+export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU", "KR", "PH", "SG", "TH", "TW", "VN"];
 
 /**
  * A simple incomplete interface for the Riot Games API.
@@ -76,18 +76,6 @@ export default class RiotAPI {
     async getTFTLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
         return this.tftTeemo.get(platform(region), "tftLeague.getLeagueEntriesForSummoner", summonerId);
     }
-
-    /**
-     * Checks if the specified summoner has the specified code as their third party code.
-     */
-    async isThirdPartyCode(region: string, summonerId: string, code: string): Promise<boolean> {
-        try {
-            const currentCode = await this.lolTeemo.get(platform(region), "thirdPartyCode.getThirdPartyCodeBySummonerId", "" + summonerId);
-            return currentCode.toLowerCase() === code.toLowerCase();
-        } catch (e) {
-            return false;
-        }
-    }
 }
 
 /**
@@ -105,6 +93,11 @@ export function platform(region: string): string {
         "na": "NA1",
         "oce": "OC1",
         "tr": "TR1",
-        "ru": "RU"
+        "ru": "RU",
+        "ph": "PH2",
+        "sg": "SG2",
+        "th": "TH2",
+        "tw": "TW2",
+        "vn": "VN2"
     })[region.toLowerCase()];
 }
