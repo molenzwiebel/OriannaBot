@@ -164,6 +164,13 @@ impl TotalMasteryScoreCondition {
 
 impl RankedTierCondition {
     pub fn evaluate(&self, ctx: &EvaluationContext) -> bool {
+        // if the user has no accounts (no ranks), they should not be eligible for anything
+        // this is mostly the case for Unranked users, which should really not have a role
+        // assigned to them if they have no accounts linked
+        if ctx.ranks.is_empty() {
+            return false;
+        }
+
         match &self.queue {
             RankedTierQueue::HighestExcludingTFT | RankedTierQueue::HighestIncludingTFT => {
                 let include_tft = matches!(self.queue, RankedTierQueue::HighestIncludingTFT);
