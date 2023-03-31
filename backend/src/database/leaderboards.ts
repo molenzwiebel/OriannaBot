@@ -1,5 +1,5 @@
-import { knex } from "./index";
 import StaticData from "../riot/static-data";
+import { knex } from "./index";
 import debug = require("debug");
 
 const info = debug("orianna:database:leaderboards");
@@ -43,16 +43,30 @@ export async function initializeLeaderboardTables(data: StaticData) {
 
 /**
  * Create a leaderboard query instance for the given champion ID (or "all")
- * and the optional set of user ids to limit showing. Returns an object that
- * can be used for counting, ranks and actual lookup.
+ * and an optional guild ID to limit the results to.
  */
-export function createLeaderboardQuery(championId: string, only?: number[]) {
+export function createLeaderboardQuery(championId: string, limitToGuild: {
+    id: string;
+    requiredRoleId: string | null;
+} | null) {
     const table = `leaderboard_${championId}`;
 
-    const base = knex(table);
-    if (only && only.length) {
-        base.whereIn("user_id", only);
+    let base = knex("users");
+    if (limitToGuild) {
+        // if we're limited to a guild, join on the guild_members table and only
+        // select those that are in the guild.
+        base = base
+            .join("guild_members", { "users.snowflake": knex.raw("guild_members.user_id::text") })
+            .where("guild_members.guild_id", limitToGuild.id);
+
+        if (limitToGuild.requiredRoleId) {
+            base = base.where("guild_members.roles", "?", limitToGuild.requiredRoleId);
+        }
     }
+
+    // join from users to the leaderboard table
+    base = base
+        .join(table, { "users.id": table + ".user_id" });
 
     return {
         // Get the total number of results.
@@ -66,7 +80,9 @@ export function createLeaderboardQuery(championId: string, only?: number[]) {
             const exists = await knex(table).where("user_id", user_id).first();
             if (!exists) return null;
 
-            const whereClause = only && only.length ? `WHERE user_id IN (${only.join(", ")})` : "";
+            // enjoy the sql spaghetti
+            const whereRoleClause = limitToGuild && limitToGuild.requiredRoleId ? ` AND ('${limitToGuild.requiredRoleId}' = ANY(SELECT jsonb_array_elements_text(guild_members.roles)))` : "";
+            const whereClause = limitToGuild ? `WHERE user_id IN (SELECT users.id FROM users JOIN guild_members ON guild_members.user_id::text = users.snowflake WHERE guild_members.guild_id = '${limitToGuild.id}'${whereRoleClause})` : "";
             const result = await knex.raw(
                 `SELECT rank FROM (SELECT user_id, RANK() OVER(ORDER BY score DESC) FROM ${table} ${whereClause} LIMIT ?) x WHERE user_id = ?`,
                 [max, user_id]
@@ -94,7 +110,6 @@ export function createLeaderboardQuery(championId: string, only?: number[]) {
                 .orderBy("score", "DESC")
                 .limit(to - from)
                 .offset(from)
-                .join("users", { "users.id": table + ".user_id" })
                 .select(
                     "users.snowflake",
                     "users.username",

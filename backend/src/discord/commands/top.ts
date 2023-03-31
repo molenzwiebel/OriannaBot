@@ -99,7 +99,7 @@ const TopCommand: SlashCapableCommand = {
 
         // The leaderboard key to get data from.
         const key = champ ? "" + champ.key : "all";
-        let filter: number[] = [];
+        let filter = null;
 
         // If we are filtering on local server, do it on redis's end by creating an intermediate key.
         // Else, just return the standard collection as the redis key.
@@ -108,17 +108,10 @@ const TopCommand: SlashCapableCommand = {
             const specifiedRoleFilter = (await server()).server_leaderboard_role_requirement;
             const roleLimit = specifiedRoleFilter && guild!.roles.some(x => x.id === specifiedRoleFilter) ? specifiedRoleFilter : null;
 
-            let query = GuildMember.query().where("guild_id", guild!.id).select("user_id");
-            if (roleLimit) {
-                query = query.where("roles", "?", roleLimit);
-            }
-            const guildMembers: { user_id: string }[] = await query;
-
-            filter = await User
-                .query()
-                .select("id")
-                .whereIn("snowflake", guildMembers.map(x => x.user_id))
-                .map<{ id: number }, number>(x => x.id);
+            filter = {
+                id: guild!.id,
+                requiredRoleId: roleLimit
+            };
         }
 
         const query = createLeaderboardQuery(key, filter);
