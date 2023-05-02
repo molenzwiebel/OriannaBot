@@ -168,6 +168,7 @@ impl Updater {
                         .nickname_pattern
                         .replace("{region}", &primary_account.region)
                         .replace("{username}", &primary_account.username)
+                        .replace("{discord_username}", &ctx.user.username)
                         .chars()
                         .take(32)
                         .collect::<String>(),
