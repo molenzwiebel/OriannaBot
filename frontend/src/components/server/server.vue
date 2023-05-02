@@ -82,7 +82,8 @@
                         Orianna is able to enforce a consistent nickname pattern for everyone on your server! Users can pick a "primary"
                         account on their profile which will be used for building their nickname. Simply enter a nickname and Orianna will
                         ensure that anyone with a configured account matches the pattern. You can use <code>{region}</code> and <code>{username}</code>
-                        as placeholders for the user's account.
+                        as placeholders for the user's account. You can additionally use the <code>{discord_username}</code> placeholder to
+                        refer to the Discord username of the user.
                     </p>
 
                     <p>
