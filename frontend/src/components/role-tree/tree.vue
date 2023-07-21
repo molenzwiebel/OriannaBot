@@ -113,16 +113,17 @@
 
             <template v-if="['higher', 'lower', 'equal'].indexOf(state.compare_type) !== -1">
                 <select v-model="state.tier">
-                    <option value="0">Unranked</option>
-                    <option value="1">Iron</option>
-                    <option value="2">Bronze</option>
-                    <option value="3">Silver</option>
-                    <option value="4">Gold</option>
-                    <option value="5">Platinum</option>
-                    <option value="6">Diamond</option>
-                    <option value="7">Master</option>
-                    <option value="8">Grandmaster</option>
-                    <option value="9">Challenger</option>
+                    <option value="UNRANKED">Unranked</option>
+                    <option value="IRON">Iron</option>
+                    <option value="BRONZE">Bronze</option>
+                    <option value="SILVER">Silver</option>
+                    <option value="GOLD">Gold</option>
+                    <option value="PLATINUM">Platinum</option>
+                    <option value="EMERALD">Emerald</option>
+                    <option value="DIAMOND">Diamond</option>
+                    <option value="MASTER">Master</option>
+                    <option value="GRANDMASTER">Grandmaster</option>
+                    <option value="CHALLENGER">Challenger</option>
                 </select>
 
                 <span>in</span>
