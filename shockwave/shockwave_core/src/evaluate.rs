@@ -228,7 +228,7 @@ impl RankedTierCondition {
                 // Same thing here. Not found or specifically marked as unranked
                 // should only apply if this is an equals condition.
                 match (rank, ctx.user.treat_as_unranked) {
-                    (None, _) | (_, true) => self.compare.is_equals_zero(),
+                    (None, _) | (_, true) => self.compare.is_equals_unranked(),
                     (Some(rank), _) => self.compare.evaluate(&rank.tier),
                 }
             },
