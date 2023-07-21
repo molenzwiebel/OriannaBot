@@ -130,6 +130,7 @@ export default class User extends Model {
      * Adds a new league account to this user, provided they do not have it registered already.
      */
     async addAccount(region: string, lolSummoner: riot.Summoner, tftSummoner: riot.Summoner) {
+        if (!lolSummoner || !tftSummoner) return;
         await this.$loadRelated("accounts");
         if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
 

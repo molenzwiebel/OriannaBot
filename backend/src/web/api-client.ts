@@ -495,8 +495,8 @@ export default class WebAPIClient {
                 });
             }
         } else if (req.params.name === "rank") {
-            for (let i = 0; i <= config.riot.tiers.length; i++) {
-                const name = i === 0 ? "Unranked" : (config.riot.tiers[i - 1].charAt(0) + config.riot.tiers[i - 1].toLowerCase().slice(1));
+            for (let i = 0; i < config.riot.tiers.length; i++) {
+                const name = config.riot.tiers[i].charAt(0) + config.riot.tiers[i].toLowerCase().slice(1);
                 await server.$relatedQuery<Role>("roles").insertGraph(<any>{
                     name,
                     announce: false,
@@ -505,7 +505,7 @@ export default class WebAPIClient {
                         type: "ranked_tier",
                         options: {
                             compare_type: "equal",
-                            tier: i,
+                            tier: config.riot.tiers[i],
                             queue: req.body.queue
                         }
                     }]

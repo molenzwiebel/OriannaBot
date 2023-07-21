@@ -49,7 +49,7 @@ export interface RankedTierCondition {
     type: "ranked_tier";
     options: {
         compare_type: "higher" | "lower" | "equal";
-        tier: number;
+        tier: string;
         queue: string;
     };
 }
