@@ -83,7 +83,7 @@ impl RankedTierCompare {
             None => return false,
         };
 
-        let want_idx = match tier_to_numeric(&match *self {
+        let want_idx = match tier_to_numeric(&match self {
             RankedTierCompare::Higher(val) => val,
             RankedTierCompare::Lower(val) => val,
             RankedTierCompare::Equal(val) => val,
