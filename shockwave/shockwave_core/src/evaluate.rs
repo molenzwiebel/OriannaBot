@@ -9,14 +9,25 @@ use crate::{
     },
 };
 
-const TIERS: [&'static str; 9] =
-    ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"];
+const TIERS: [&'static str; 11] = [
+    "UNRANKED",
+    "IRON",
+    "BRONZE",
+    "SILVER",
+    "GOLD",
+    "PLATINUM",
+    "EMERALD",
+    "DIAMOND",
+    "MASTER",
+    "GRANDMASTER",
+    "CHALLENGER",
+];
 
 /// Helper function that converts the specified tier to
 /// a numeric index, where unknown tiers are mapped as -1.
 fn tier_to_numeric(tier: &str) -> i32 {
     match TIERS.iter().position(|&x| x == tier) {
-        Some(i) => (i + 1) as i32, // unranked = 0
+        Some(i) => i as i32, // unranked = 0
         None => -1,
     }
 }
@@ -67,21 +78,30 @@ impl RankedTierCompare {
     /// static list of tiers, which should rarely happen.
     pub fn evaluate(&self, tier: &str) -> bool {
         // Attempt to convert the ranked tier to an index.
-        let idx = match TIERS.iter().position(|&x| x == tier) {
-            Some(i) => (i + 1) as i32, // unranked = 0
+        let input_idx = match TIERS.iter().position(|&x| x == tier) {
+            Some(i) => i as i32, // unranked = 0
             None => return false,
         };
 
+        let want_idx = match tier_to_numeric(&match *self {
+            RankedTierCompare::Higher(val) => val,
+            RankedTierCompare::Lower(val) => val,
+            RankedTierCompare::Equal(val) => val,
+        }) {
+            -1 => return false,
+            x => x,
+        };
+
         match *self {
-            RankedTierCompare::Higher(val) => val < idx,
-            RankedTierCompare::Lower(val) => val > idx,
-            RankedTierCompare::Equal(val) => val == idx,
+            RankedTierCompare::Higher(_) => want_idx < input_idx,
+            RankedTierCompare::Lower(_) => want_idx > input_idx,
+            RankedTierCompare::Equal(_) => want_idx == input_idx,
         }
     }
 
-    /// Return whether this pattern is Equal(0)
-    pub fn is_equals_zero(&self) -> bool {
-        matches!(self, RankedTierCompare::Equal(0))
+    /// Return whether this pattern is Equal("UNRANKED")
+    pub fn is_equals_unranked(&self) -> bool {
+        matches!(self, RankedTierCompare::Equal(x) if x == "UNRANKED")
     }
 }
 
@@ -188,7 +208,7 @@ impl RankedTierCondition {
                 // higher-than comparisons (i.e. we don't want to treat it as a tier
                 // below iron).
                 match (highest, ctx.user.treat_as_unranked) {
-                    (None, _) | (_, true) => self.compare.is_equals_zero(),
+                    (None, _) | (_, true) => self.compare.is_equals_unranked(),
                     (Some(rank), _) => self.compare.evaluate(&rank.tier),
                 }
             },
@@ -196,7 +216,7 @@ impl RankedTierCondition {
                 // If the user should be treated as unranked, only apply this
                 // if we're equals(0).
                 if ctx.user.treat_as_unranked {
-                    return self.compare.is_equals_zero();
+                    return self.compare.is_equals_unranked();
                 }
 
                 // Check if any rank applies.
