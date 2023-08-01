@@ -89,9 +89,9 @@ pub enum RankedTierQueue {
 #[serde(tag = "compare_type", content = "tier")]
 #[serde(rename_all = "snake_case")]
 pub enum RankedTierCompare {
-    Higher(i32),
-    Lower(i32),
-    Equal(i32),
+    Higher(String),
+    Lower(String),
+    Equal(String),
 }
 
 #[derive(Deserialize, Debug)]
