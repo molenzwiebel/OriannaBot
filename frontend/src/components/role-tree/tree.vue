@@ -176,7 +176,7 @@
         ranked_tier: ["compare_type", "tier", "queue"],
         server: ["region"]
     };
-    const NUMBERS = ["value", "champion", "min", "max", "count", "tier"];
+    const NUMBERS = ["value", "champion", "min", "max", "count"];
 
     export default {
         props: { options: Object },
