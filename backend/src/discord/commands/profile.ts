@@ -54,6 +54,7 @@ const ProfileCommand: SlashCapableCommand = {
             "SILVER": `${emote("Silver")} ` + t.ranked_tier_silver,
             "GOLD": `${emote("Gold")} ` + t.ranked_tier_gold,
             "PLATINUM": `${emote("Platinum")} ` + t.ranked_tier_platinum,
+            "EMERALD": `${emote("Emerald")} ` + t.ranked_tier_emerald,
             "DIAMOND": `${emote("Diamond")} ` + t.ranked_tier_diamond,
             "MASTER": `${emote("Master")} ` + t.ranked_tier_master,
             "GRANDMASTER": `${emote("Grandmaster")} ` + t.ranked_tier_grandmaster,
