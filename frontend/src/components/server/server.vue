@@ -64,7 +64,7 @@
                     </p>
 
                     <p v-if="server.engagement.type === 'on_react'">
-                        With the current setting, Orianna will send a message to anyone that reacts with <span class="bold">:{{ server.engagement.emote.split(":")[0] || "emote" }}:</span> in #{{ server.discord.channels.find(x => x.id === server.engagement.channel).name }}. Usually this configuration is used with a general introduction channel where a single reaction is already added, so that a user can proceed with a single click. Orianna will automatically remove the added reaction and always send the message, regardless of whether the user already has experience with Orianna.
+                        With the current setting, Orianna will send a message to anyone that reacts with <span class="bold">:{{ server.engagement.emote.split(":")[0] || "emote" }}:</span> in #{{ (server.discord.channels.find(x => x.id === server.engagement.channel) || { name: "unknown-channel" }).name }}. Usually this configuration is used with a general introduction channel where a single reaction is already added, so that a user can proceed with a single click. Orianna will automatically remove the added reaction and always send the message, regardless of whether the user already has experience with Orianna.
                     </p>
                 </div>
 
