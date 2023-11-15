@@ -42,17 +42,17 @@ export default class LeagueAccount extends Model {
     puuid: string;
 
     /**
-     * The encrypted TFT summoner id for this league account.
+     * The encrypted TFT summoner id for this league account [DEPRECATED]
      */
     tft_summoner_id: string;
 
     /**
-     * The encrypted TFT account id for this league account.
+     * The encrypted TFT account id for this league account [DEPRECATED]
      */
     tft_account_id: string;
 
     /**
-     * Unique encrypted TFT PUUID for this league account.
+     * Unique encrypted TFT PUUID for this league account [DEPRECATED]
      */
     tft_puuid: string;
 
@@ -73,6 +73,16 @@ export default class LeagueAccount extends Model {
      * condition computation.
      */
     include_region: boolean;
+
+    /**
+     * Riot ID game name for this user, if available.
+     */
+    riot_id_game_name: string | null;
+
+    /**
+     * Riot ID tagline for this user, if available.
+     */
+    riot_id_tagline: string | null;
 
     /**
      * Omit id and user_id from the JSON object.

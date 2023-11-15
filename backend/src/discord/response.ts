@@ -182,7 +182,7 @@ export abstract class Response {
      */
     private get userAvatarURL(): string {
         if (!this.user!.avatar) {
-            return `https://cdn.discordapp.com/embed/avatars/${+this.user!.discriminator % 5}.png`
+            return `https://cdn.discordapp.com/embed/avatars/0.png`
         }
 
         return `https://cdn.discordapp.com/avatars/${this.user!.id}/${this.user!.avatar}.${this.user?.avatar?.startsWith("a_") ? "gif" : "png"}`;
