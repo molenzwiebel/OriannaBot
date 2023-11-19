@@ -1,4 +1,4 @@
-use std::{collections::HashSet, num::NonZeroU64};
+use std::{collections::HashSet, future::IntoFuture, num::NonZeroU64};
 
 use futures::FutureExt;
 use tracing::{debug, info, instrument, warn, Instrument};
@@ -95,7 +95,7 @@ impl Updater {
                     .remove_guild_member_role(guild_id, user_id, to_be_removed.parse::<NonZeroU64>().ok()?.into())
                     .reason("Orianna: User no longer qualifies for role")
                     .ok()?
-                    .exec()
+                    .into_future()
                     .instrument(tracing::info_span!("remove_guild_member_role")),
             )
         }))
@@ -123,7 +123,7 @@ impl Updater {
                     .add_guild_member_role(guild_id, user_id, role_id)
                     .reason("Orianna: User qualifies for role")
                     .ok()?
-                    .exec()
+                    .into_future()
                     .instrument(tracing::info_span!("add_guild_member_role"))
                     .then(move |result| async move {
                         match result {
@@ -183,7 +183,7 @@ impl Updater {
                         .update_guild_member(guild_id, user_id)
                         .nick(target_nick.as_deref())?
                         .reason("Orianna: Updating nickname to match server pattern.")?
-                        .exec()
+                        .into_future()
                         .instrument(tracing::info_span!("update_guild_member"))
                         .await;
                 }
@@ -199,7 +199,7 @@ impl Updater {
                         .update_guild_member(guild_id, user_id)
                         .nick(None)?
                         .reason("Orianna: Removing nickname since user has no accounts linked.")?
-                        .exec()
+                        .into_future()
                         .instrument(tracing::info_span!("update_guild_member"))
                         .await;
                 }

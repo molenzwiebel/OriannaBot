@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    json_build_object('id', role_conditions.id, 'role_id', role_id, 'type', type, 'options', options)::text as json\n                FROM role_conditions\n                WHERE role_id IN (SELECT * FROM unnest($1::int[]))\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "json",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cfbad0dbfe0db78ad951eec83511d1598ce02e718e3c570437ec086833568512"
+}

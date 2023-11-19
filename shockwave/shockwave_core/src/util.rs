@@ -16,8 +16,8 @@ where
     K: Eq + Hash,
 {
     fn difference(mut self, mut other: HashMap<K, V2>) -> (HashMap<K, V1>, HashMap<K, (V1, V2)>, HashMap<K, V2>) {
-        let only_self = self.drain_filter(|x, _| !other.contains_key(x)).collect();
-        let only_other = other.drain_filter(|x, _| !self.contains_key(x)).collect();
+        let only_self = self.extract_if(|x, _| !other.contains_key(x)).collect();
+        let only_other = other.extract_if(|x, _| !self.contains_key(x)).collect();
 
         // Remainder is only common elements.
         let mut common = HashMap::with_capacity(self.len());
@@ -39,7 +39,7 @@ mod test {
     // Sourced from https://stackoverflow.com/questions/27582739/how-do-i-create-a-hashmap-literal
     macro_rules! map {
         ($($k:expr => $v:expr),* $(,)?) => {
-            std::iter::Iterator::collect(std::array::IntoIter::new([$(($k, $v),)*]))
+            std::iter::Iterator::collect([$(($k, $v),)*].into_iter())
         }
     }
 

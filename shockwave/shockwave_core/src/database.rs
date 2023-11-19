@@ -1,5 +1,11 @@
+use std::ops::DerefMut;
+
 use itertools::Itertools;
-use sqlx::{pool::PoolConnection, postgres::PgPoolOptions, Executor, PgPool, Postgres, Row};
+use sqlx::{
+    pool::PoolConnection,
+    postgres::{PgPoolOptions, PgRow},
+    Executor, PgPool, Postgres, Row,
+};
 
 use crate::{
     db_model::{LeagueAccount, Role, ServerAndUserPresence, User, UserChampionStat, UserRank},
@@ -44,7 +50,7 @@ impl Database {
             column_name
         ))
         .bind(amount)
-        .map(|x| x.get::<i32, _>("id"))
+        .map(|x: PgRow| x.get::<i32, _>("id"))
         .fetch_all(&self.0)
         .await?)
     }
@@ -52,9 +58,9 @@ impl Database {
     /// Find amount users starting at offset, with at least one account.
     pub async fn find_users(&self, amount: u32, offset: u32) -> DBResult<Vec<i32>> {
         Ok(sqlx::query("SELECT id FROM users WHERE has_accounts=true ORDER BY id ASC NULLS LAST LIMIT $1 OFFSET $2")
-            .bind(amount)
-            .bind(offset)
-            .map(|x| x.get::<i32, _>("id"))
+            .bind(amount as i32)
+            .bind(offset as i32)
+            .map(|x: PgRow| x.get::<i32, _>("id"))
             .fetch_all(&self.0)
             .await?)
     }
@@ -84,9 +90,9 @@ impl Database {
 
         for user in users {
             ret.push(EvaluationContext {
-                accounts: accounts.drain_filter(|x| x.user_id == user.id).collect(),
-                ranks: ranks.drain_filter(|x| x.user_id == user.id).collect(),
-                stats: stats.drain_filter(|x| x.user_id == user.id).collect(),
+                accounts: accounts.extract_if(|x| x.user_id == user.id).collect(),
+                ranks: ranks.extract_if(|x| x.user_id == user.id).collect(),
+                stats: stats.extract_if(|x| x.user_id == user.id).collect(),
                 user,
             });
         }
@@ -121,7 +127,7 @@ impl Database {
             column_name
         ))
         .bind(user_id)
-        .execute(conn)
+        .execute(conn.deref_mut())
         .await?;
 
         Ok(())
@@ -162,7 +168,7 @@ impl Database {
         .bind(champs.as_slice())
         .bind(levels.as_slice())
         .bind(points.as_slice())
-        .execute(conn)
+        .execute(conn.deref_mut())
         .await?;
 
         Ok(())
@@ -196,7 +202,7 @@ impl Database {
         .bind(champs.as_slice())
         .bind(points.as_slice())
         .bind(deltas.as_slice())
-        .execute(conn)
+        .execute(conn.deref_mut())
         .await?;
 
         Ok(())
@@ -213,7 +219,7 @@ impl Database {
         sqlx::query("DELETE FROM user_champion_stats WHERE user_id = $1 AND champion_id = ANY($2)")
             .bind(user_id)
             .bind(ids)
-            .execute(conn)
+            .execute(conn.deref_mut())
             .await?;
 
         Ok(())
@@ -386,19 +392,19 @@ impl Database {
         Ok(EvaluationContext {
             user: sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1 LIMIT 1")
                 .bind(user_id)
-                .fetch_one(&mut conn)
+                .fetch_one(conn.deref_mut())
                 .await?,
             accounts: sqlx::query_as::<_, LeagueAccount>("SELECT * FROM league_accounts WHERE user_id = $1")
                 .bind(user_id)
-                .fetch_all(&mut conn)
+                .fetch_all(conn.deref_mut())
                 .await?,
             ranks: sqlx::query_as::<_, UserRank>("SELECT * FROM user_ranks WHERE user_id = $1")
                 .bind(user_id)
-                .fetch_all(&mut conn)
+                .fetch_all(conn.deref_mut())
                 .await?,
             stats: sqlx::query_as::<_, UserChampionStat>("SELECT * FROM user_champion_stats WHERE user_id = $1")
                 .bind(user_id)
-                .fetch_all(&mut conn)
+                .fetch_all(conn.deref_mut())
                 .await?,
         })
     }

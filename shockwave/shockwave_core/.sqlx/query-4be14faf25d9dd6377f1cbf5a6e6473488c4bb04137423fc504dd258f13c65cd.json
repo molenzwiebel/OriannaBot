@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE roles SET snowflake = '' WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4be14faf25d9dd6377f1cbf5a6e6473488c4bb04137423fc504dd258f13c65cd"
+}
