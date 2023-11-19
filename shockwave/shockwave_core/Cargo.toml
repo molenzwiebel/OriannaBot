@@ -24,3 +24,4 @@ itertools = "0.10.0"
 riven = { version = "2.26.0", default-features = false, features = ["rustls-tls", "tracing"] }
 reqwest = { version = "0.11", default-features = false, features = ["rustls-tls", "gzip", "json" ] }
 lazy_static = "1.4"
+rand = "0.8.5"

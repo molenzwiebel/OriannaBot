@@ -1,7 +1,8 @@
 use futures::{future, FutureExt};
+use rand::prelude::SliceRandom;
 use riven::{
-    consts::{QueueType, Tier},
-    models::{champion_mastery_v4::ChampionMastery, summoner_v4::Summoner},
+    consts::{QueueType, RegionalRoute, Tier},
+    models::{account_v1, champion_mastery_v4::ChampionMastery, summoner_v4::Summoner},
     Result as RivenResult, RiotApi, RiotApiConfig,
 };
 
@@ -127,6 +128,17 @@ impl RiotApiInterface {
         };
 
         Ok(self.lol_client(priority).summoner_v4().get_by_summoner_id(region, &account.summoner_id).await)
+    }
+
+    /// Attempt to retrieve the full Riot ID for the given account.
+    pub async fn get_riot_id(&self, priority: Priority, account: &LeagueAccount) -> RivenResult<account_v1::Account> {
+        // Select a random cluster from ["americas", "asia", "europe"] which should, over enough time,
+        // provide a roughly equal distribution of requests and as a result a roughly equal distribution
+        // of rate limit usage.
+        let mut rng = rand::thread_rng();
+        let cluster = [RegionalRoute::AMERICAS, RegionalRoute::ASIA, RegionalRoute::EUROPE].choose(&mut rng).unwrap();
+
+        self.lol_client(priority).account_v1().get_by_puuid(*cluster, &account.puuid).await
     }
 
     /// Helper function to return the appropriate LOL client for the given priority.

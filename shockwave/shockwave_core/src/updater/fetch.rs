@@ -232,9 +232,32 @@ impl Updater {
                 },
                 Ok(_) => {
                     // account still good
-                    debug!("No changes to account {}", account.username);
+                    debug!("No summoner name changes for account {}", account.username);
                 },
-            }
+            };
+
+            // and update their Riot ID name, if it has changed
+            let riot_id_data = self.riot_interface.get_riot_id(priority, account).await;
+            match riot_id_data {
+                Err(e) => continue, // riot api issue
+                Ok(data) => {
+                    if data.game_name == account.riot_id_game_name && data.tag_line == account.riot_id_tagline {
+                        debug!("No changes to Riot ID for account {}", account.username);
+                        continue;
+                    }
+
+                    debug!(
+                        "Riot ID for account {} changed from {:?}#{:?} to {:?}#{:?}",
+                        account.username,
+                        account.riot_id_game_name,
+                        account.riot_id_tagline,
+                        data.game_name,
+                        data.tag_line
+                    );
+
+                    self.database.update_account_riot_id(account.id, data.game_name, data.tag_line).await?;
+                },
+            };
         }
 
         self.database.update_fetch_timestamp(user_id, "last_account_update_timestamp").await?;

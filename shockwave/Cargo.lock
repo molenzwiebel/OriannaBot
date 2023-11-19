@@ -1830,6 +1830,7 @@ dependencies = [
  "futures",
  "itertools 0.10.5",
  "lazy_static",
+ "rand",
  "reqwest",
  "riven",
  "serde",

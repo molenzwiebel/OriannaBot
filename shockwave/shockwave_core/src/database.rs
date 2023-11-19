@@ -341,6 +341,25 @@ impl Database {
         Ok(())
     }
 
+    /// Update the stored Riot ID for the league account with the given ID.
+    #[tracing::instrument(skip(self, account_id, game_name, tagline))]
+    #[inline]
+    pub async fn update_account_riot_id(
+        &self,
+        account_id: i32,
+        game_name: Option<String>,
+        tagline: Option<String>,
+    ) -> DBResult {
+        sqlx::query("UPDATE league_accounts SET riot_id_game_name = $1, riot_id_tagline = $2 WHERE id = $3")
+            .bind(game_name)
+            .bind(tagline)
+            .bind(account_id)
+            .execute(&self.0)
+            .await?;
+
+        Ok(())
+    }
+
     /// Query all role conditions for the server with the given ID.
     #[tracing::instrument(skip(self, server_id))]
     #[inline]
