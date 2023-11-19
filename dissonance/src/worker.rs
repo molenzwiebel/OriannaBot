@@ -8,10 +8,7 @@ use dashmap::DashMap;
 use futures::{FutureExt, StreamExt};
 use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tracing::{debug, info, warn};
-use twilight_gateway::{
-    cluster::{Events, ShardScheme},
-    Cluster, Event, EventTypeFlags, Intents,
-};
+use twilight_gateway::{cluster::Events, Cluster, Event, EventTypeFlags, Intents};
 use twilight_model::{
     gateway::{
         payload::{
@@ -91,7 +88,6 @@ impl Worker {
 
         let token = std::env::var("DISCORD_TOKEN")?;
         let (cluster, events) = Cluster::builder(token, intents)
-            .shard_scheme(ShardScheme::Auto)
             .presence(UpdatePresencePayload::new(
                 vec![STATUSES[0].to_activity()],
                 false,

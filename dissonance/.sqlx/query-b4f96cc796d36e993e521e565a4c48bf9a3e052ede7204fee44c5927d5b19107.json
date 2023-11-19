@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO guild_members (guild_id, user_id, nickname, roles)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (guild_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id, nickname = EXCLUDED.nickname, roles = EXCLUDED.roles\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b4f96cc796d36e993e521e565a4c48bf9a3e052ede7204fee44c5927d5b19107"
+}

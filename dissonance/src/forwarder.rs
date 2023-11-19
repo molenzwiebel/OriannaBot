@@ -127,7 +127,7 @@ impl Forwarder {
                     "dissonance",
                     &ty,
                     BasicPublishOptions::default(),
-                    bytes,
+                    &bytes,
                     BasicProperties::default(),
                 )
                 .await?;
