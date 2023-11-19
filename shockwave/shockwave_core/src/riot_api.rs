@@ -1,5 +1,6 @@
-use futures::{future, FutureExt};
+use futures::{future, FutureExt, TryFutureExt};
 use rand::prelude::SliceRandom;
+use reqwest::StatusCode;
 use riven::{
     consts::{QueueType, RegionalRoute, Tier},
     models::{account_v1, champion_mastery_v4::ChampionMastery, summoner_v4::Summoner},
@@ -86,13 +87,29 @@ impl RiotApiInterface {
         accounts: &Vec<LeagueAccount>,
     ) -> Result<Vec<(QueueType, Tier)>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
-            account.route().map(|region| {
+            let Some(route) = account.route() else {
+                return None;
+            };
+
+            Some(
                 self.tft_client(priority)
                     .tft_league_v1()
-                    .get_league_entries_for_summoner(region, &account.tft_summoner_id)
-                    // filter out hyperroll ranks since we can't handle them right now
-                    .map(|x| x.map(|x| x.into_iter().filter(|x| x.tier.is_some()).collect::<Vec<_>>()))
-            })
+                    .get_league_entries_for_summoner(route, &account.tft_summoner_id)
+                    .or_else(move |e| {
+                        // am in the process of moving the TFT key to use the same encryption as the lol key
+                        // when riot processes the request, the tft id's will start returning 400's. In
+                        // that case, attempt to try again with the league ID. Else, forward the error as-is.
+                        if e.status_code() != Some(StatusCode::BAD_REQUEST) {
+                            return future::ready(Err(e)).boxed();
+                        }
+
+                        self.tft_client(priority)
+                            .tft_league_v1()
+                            .get_league_entries_for_summoner(route, &account.summoner_id)
+                            .boxed()
+                    })
+                    .map(|x| x.map(|x| x.into_iter().filter(|x| x.tier.is_some()).collect::<Vec<_>>())),
+            )
         }))
         .await?
         .into_iter()
