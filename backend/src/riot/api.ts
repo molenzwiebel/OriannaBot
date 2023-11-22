@@ -39,24 +39,6 @@ export default class RiotAPI {
     }
 
     /**
-     * @returns the summoner for the specified name in the specified region, or null if not found
-     */
-    async getTFTSummonerByName(region: string, name: string): Promise<riot.Summoner | null> {
-        try {
-            return await this.tftTeemo.get(platform(region), "tftSummoner.getBySummonerName", name);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    /**
-     * @returns the summoner for the specified summoner id in the specified region, or null if not found
-     */
-    async getTFTSummonerById(region: string, summonerId: string): Promise<riot.Summoner | null> {
-        return this.tftTeemo.get(platform(region), "tftSummoner.getBySummonerId", "" + summonerId);
-    }
-
-    /**
      * @returns the champion mastery for the specified summoner id
      */
     async getChampionMastery(region: string, summonerId: string): Promise<riot.ChampionMasteryInfo[]> {
@@ -68,13 +50,6 @@ export default class RiotAPI {
      */
     async getLoLLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
         return this.lolTeemo.get(platform(region), "league.getLeagueEntriesForSummoner", summonerId);
-    }
-
-    /**
-     * @returns all the league positions for the specified summoner id
-     */
-    async getTFTLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
-        return this.tftTeemo.get(platform(region), "tftLeague.getLeagueEntriesForSummoner", summonerId);
     }
 }
 

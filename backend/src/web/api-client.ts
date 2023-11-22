@@ -209,12 +209,8 @@ export default class WebAPIClient {
             await shockwave.fetchAndUpdateUser(user!);
         }
 
-        // Find the matching TFT summoner.
-        const tftSummoner = await this.client.riotAPI.getTFTSummonerByName(summoner.region, summoner.name);
-        if (!tftSummoner) throw new Error("The TFT summoner for the LoL summoner " + summoner.name + " does not exist?");
-
-        // Add the user..
-        await req.user.addAccount(summoner.region, summoner, tftSummoner);
+        // Add the user.
+        await req.user.addAccount(summoner.region, summoner);
         shockwave.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });

@@ -42,21 +42,6 @@ export default class LeagueAccount extends Model {
     puuid: string;
 
     /**
-     * The encrypted TFT summoner id for this league account [DEPRECATED]
-     */
-    tft_summoner_id: string;
-
-    /**
-     * The encrypted TFT account id for this league account [DEPRECATED]
-     */
-    tft_account_id: string;
-
-    /**
-     * Unique encrypted TFT PUUID for this league account [DEPRECATED]
-     */
-    tft_puuid: string;
-
-    /**
      * Whether this account is the primary account for the specified user.
      * Primary accounts are used for automatic nicknaming, if enabled.
      */

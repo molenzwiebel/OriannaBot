@@ -52,8 +52,7 @@ const EvalCommand: Command = {
                     (await db.User.query().where("snowflake", snowflake).first())!
                         .addAccount(
                             region,
-                            (await ctx.client.riotAPI.getLoLSummonerByName(region, username))!,
-                            (await ctx.client.riotAPI.getTFTSummonerByName(region, username))!
+                            (await ctx.client.riotAPI.getLoLSummonerByName(region, username))!
                         ),
                 StaticData
             };
