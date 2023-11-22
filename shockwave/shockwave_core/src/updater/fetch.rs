@@ -239,7 +239,7 @@ impl Updater {
             // and update their Riot ID name, if it has changed
             let riot_id_data = self.riot_interface.get_riot_id(priority, account).await;
             match riot_id_data {
-                Err(e) => continue, // riot api issue
+                Err(_) => continue, // riot api issue
                 Ok(data) => {
                     if data.game_name == account.riot_id_game_name && data.tag_line == account.riot_id_tagline {
                         debug!("No changes to Riot ID for account {}", account.username);

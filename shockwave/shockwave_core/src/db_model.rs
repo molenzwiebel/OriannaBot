@@ -90,8 +90,6 @@ pub struct LeagueAccount {
     pub summoner_id: String,
     pub account_id: String,
     pub puuid: String,
-    pub tft_summoner_id: String,
-    pub tft_account_id: String,
     pub riot_id_game_name: Option<String>,
     pub riot_id_tagline: Option<String>,
     pub primary: bool,
