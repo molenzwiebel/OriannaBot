@@ -124,7 +124,7 @@ export default class StaticData {
 
     /**
      * Tries to find a champion name in the specified string. Returns
-     * null if no champion could be find, returns the champion otherwise.
+     * null if no champion could be found, returns the champion otherwise.
      */
     public async findChampion(content: string) {
         const normalized = content.toLowerCase().replace(/['`\s".&]/g, "");
@@ -226,13 +226,6 @@ export default class StaticData {
         const skin = champion.skins[Math.floor(Math.random() * champion.skins.length)];
 
         return `https://cdn.communitydragon.org/latest/champion/${champion.key}/splash-art/centered/skin/${skin.num}`;
-    }
-
-    /**
-     * Returns a URL for the summoner icon for the specified LeagueAccount.
-     */
-    public async getUserIcon(account: LeagueAccount) {
-        return `https://avatar.leagueoflegends.com/${account.region}/${encodeURIComponent(account.username)}.png`;
     }
 
     /**

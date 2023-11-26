@@ -111,7 +111,7 @@ const ProfileCommand: SlashCapableCommand = {
         if (visibleAccounts.length) {
             // Sort user's accounts based on region. Slice to sort a copy, since sort also modifies the source.
             const sorted = visibleAccounts.slice(0).sort((a, b) => a.region.localeCompare(b.region));
-            const formatAccount = (acc: LeagueAccount) => (acc.primary ? emote("Primary_Account") + " " : "") + acc.region + "\u00a0-\u00a0" + acc.username;
+            const formatAccount = (acc: LeagueAccount) => `${acc.primary ? emote("Primary_Account") + " " : ""}${acc.region}\u00a0-\u00a0${acc.riot_id_game_name}#${acc.riot_id_tagline}`;
 
             // Split up in columns if more than two, single field else.
             if (sorted.length > 1) {

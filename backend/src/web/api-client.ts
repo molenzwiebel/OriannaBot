@@ -324,7 +324,10 @@ export default class WebAPIClient {
         return res.status(200).json(user.accounts!.filter(x => x.show_in_profile).map(x => ({
             id: crypto.createHash("md5").update(x.account_id).digest("hex"),
             region: x.region,
-            summonerName: x.username
+            riotId: {
+                gameName: x.riot_id_game_name,
+                tagline: x.riot_id_tagline
+            }
         })));
     };
 
