@@ -5,7 +5,7 @@
         </div>
 
         <div class="step-body">
-            <form-wizard ref="wizard" shape="tab" color="#3380e5" error-color="red" :next-button-text="nextButton" @on-change="handleTabChange" @on-complete="$emit('close', summoner)">
+            <form-wizard ref="wizard" shape="tab" color="#3380e5" error-color="red" :next-button-text="nextButton" @on-change="handleTabChange" @on-complete="$emit('close', pending)">
                 <tab-content title="Account" :before-change="requestSummoner">
                     <div class="details">
                         <select :class="detailsError && 'errored'" v-model="region">
@@ -28,20 +28,20 @@
                             <option value="VN">VN</option>
                         </select>
 
-                        <input :class="detailsError && 'errored'" type="text" v-model="name" placeholder="Summoner Name">
+                        <input :class="detailsError && 'errored'" type="text" v-model="name" placeholder="Game Name#tagline">
                     </div>
 
                     <span class="details-error" v-html="detailsError"></span>
                 </tab-content>
                 <tab-content title="Verification" :before-change="verifySummoner">
-                    <div class="verification-step" v-if="summoner">
-                        <span class="details-error" v-if="summoner.taken">
+                    <div class="verification-step" v-if="pending">
+                        <span class="details-error" v-if="pending.taken">
                             Warning: This account is currently linked with a different Discord account. Adding it to your account will remove it from the other account.
                         </span>
 
                         <p>
-                            To verify that you own <b>{{ summoner.username }}</b>, please change your summoner icon to the following:<br>
-                            <img :src="'https://ddragon.leagueoflegends.com/cdn/12.21.1/img/profileicon/' + summoner.targetSummonerIcon + '.png'" />
+                            To verify that you own <b>{{ pending.gameName }}#{{ pending.tagline }}</b>, please change your summoner icon to the following:<br>
+                            <img :src="'https://ddragon.leagueoflegends.com/cdn/12.21.1/img/profileicon/' + pending.targetSummonerIcon + '.png'" />
                             <br><br>
                             After changing your icon, click <b>Validate</b> to add link your account. You can change your icon back after you have successfully verified.
                         </p>
@@ -50,7 +50,7 @@
                     </div>
                 </tab-content>
                 <tab-content title="Done!">
-                    <div class="verified" v-if="summoner">
+                    <div class="verified" v-if="pending">
                         <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-coolguy.png">
                         <p><b>Account verified!</b> Your stats and roles will update momentarily.</p>
                     </div>

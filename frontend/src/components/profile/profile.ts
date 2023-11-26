@@ -3,13 +3,16 @@ import Component from "vue-class-component";
 import App from "../app/app";
 import Dialog from "../dialog/dialog.vue";
 import AddAccountComponent from "../add-account/add-account.vue";
+import { PendingAccount } from "../add-account/add-account";
 import ImportAccountsWizard from "../import-accounts/import-accounts.vue";
 
 interface UserAccount {
-    username: string;
+    riot_id_game_name: string;
+    riot_id_tagline: string;
     region: string;
     account_id: string;
     summoner_id: string;
+    puuid: string;
     primary: boolean;
     show_in_profile: boolean;
     include_region: boolean;
@@ -51,13 +54,11 @@ export default class UserProfile extends Vue {
      * list of accounts (without refreshing) if an account was added.
      */
     async addAccount() {
-        const result = await this.$root.displayModal<UserAccount>(AddAccountComponent, {});
+        const result = await this.$root.displayModal<PendingAccount>(AddAccountComponent, {});
         if (!result) return;
 
-        // Don't add if the user already added an account.
-        if (this.user.accounts.some(x => x.region === result.region && x.username === result.username)) return;
-
-        this.user.accounts.push(result);
+        // just reload, so the new account gets fetched
+        window.location.reload();
     }
 
     /**
@@ -77,7 +78,7 @@ export default class UserProfile extends Vue {
     async deleteAccount(account: UserAccount) {
         const response = await this.$root.displayModal<boolean | null>(Dialog, {
             title: "Are you sure?",
-            details: "Do you really want to remove <b>" + account.username + "</b>? You will have to reverify your account should you decide to add it again.",
+            details: "Do you really want to remove <b>" + account.riot_id_game_name + "#" + account.riot_id_tagline + "</b>? You will have to reverify your account should you decide to add it again.",
             buttons: [{
                 value: false, text: "Cancel", bg: "white", fg: "#333"
             }, {

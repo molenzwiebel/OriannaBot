@@ -3,11 +3,14 @@ import Component from "vue-class-component";
 import Verification from "../verification/verification.vue";
 import App from "../app/app";
 
-interface Summoner {
-    username: string;
-    code: string;
+export interface PendingAccount {
+    puuid: string;
+    gameName: string;
+    tagline: string;
     targetSummonerIcon: number;
     taken: boolean;
+    code: string;
+    region: string;
 }
 
 @Component({
@@ -22,15 +25,15 @@ export default class AddAccountWizard extends Vue {
 
     name: string = "";
     region: string = "disabled";
-    summoner: Summoner = <any>null;
+    pending: PendingAccount = <any>null;
 
     /**
      * Responsible for changing the text of the next button.
      */
     handleTabChange(oldIndex: number, newIndex: number) {
-        if (newIndex === 0 && this.summoner) {
+        if (newIndex === 0 && this.pending) {
             // Make sure that we can't go to step 1, change stuff, then navigate to step 2 without checking.
-            this.summoner = <any>null;
+            this.pending = <any>null;
             (<any>this.$refs["wizard"]).reset();
         }
 
@@ -46,8 +49,15 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        const summ = await this.$root.submit<Summoner>("/api/v1/summoner", "POST", {
-            username: this.name,
+        const riotIdMatch = /^([^#]+)#(.*)$/.exec(this.name);
+        if (!riotIdMatch) {
+            this.detailsError = "Invalid Riot ID. Your Riot ID must be of the format `game name#tagline` and not just your in-game name.";
+            throw new Error("");
+        }
+
+        const summ = await this.$root.submit<PendingAccount>("/api/v1/summoner", "POST", {
+            gameName: riotIdMatch[1],
+            tagline: riotIdMatch[2],
             region: this.region
         });
 
@@ -56,7 +66,7 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        this.summoner = summ;
+        this.pending = summ;
         return true;
     }
 
@@ -65,7 +75,7 @@ export default class AddAccountWizard extends Vue {
      */
     async verifySummoner() {
         const req = await this.$root.submit<{ ok: boolean }>("/api/v1/user/accounts", "POST", {
-            code: this.summoner.code
+            code: this.pending.code
         });
 
         if (!req || !req.ok) {

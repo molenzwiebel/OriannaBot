@@ -31,9 +31,8 @@
 
                 <div v-for="account in user.accounts" class="account" :key="account.region + account.summoner_id">
                     <div class="avatar-container">
-                        <img :src="`https://avatar.leagueoflegends.com/${account.region}/${encodeURIComponent(account.username)}.png`">
                     </div>
-                    <span class="username">{{ account.region }} - {{ account.username }}</span>
+                    <span class="username">{{ account.riot_id_game_name }}#{{ account.riot_id_tagline }} ({{ account.region }})</span>
                     <div class="primary">
                         <input type="checkbox" :checked="account.primary" @click="handlePrimarySet(account)" />
                     </div>
