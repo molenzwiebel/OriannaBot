@@ -7,50 +7,43 @@ export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "T
  * This only contains methods used in Orianna, and supports all platforms and rate limiting.
  */
 export default class RiotAPI {
-    private readonly lolTeemo: teemo.Teemo;
-    private readonly tftTeemo: teemo.Teemo;
+    private readonly teemo: teemo.Teemo;
 
-    constructor(lolKey: string, tftKey: string, scale: number) {
-        this.lolTeemo = Teemo(lolKey, {
-            distFactor: scale
-        });
-
-        this.tftTeemo = Teemo(tftKey, {
+    constructor(lolKey: string, scale: number) {
+        this.teemo = Teemo(lolKey, {
             distFactor: scale
         });
     }
 
     /**
-     * @returns the summoner for the specified name in the specified region, or null if not found
+     * @returns the riot account for the given gamename and tagline, or null if they don't exist
      */
-    async getLoLSummonerByName(region: string, name: string): Promise<riot.Summoner | null> {
+    async getRiotAccountByName(gamename: string, tagline: string): Promise<riot.RiotAccount | null> {
         try {
-            return await this.lolTeemo.get(platform(region), "summoner.getBySummonerName", name);
+            return await this.teemo.get(randomAccountShard(), "account.getByRiotId", gamename, tagline);
         } catch (e) {
             return null;
         }
     }
 
     /**
-     * @returns the summoner for the specified summoner id in the specified region, or null if not found
+     * @returns the summoner for the specified puuid in the specified region, or null if not found
      */
-    async getLoLSummonerById(region: string, summonerId: string): Promise<riot.Summoner | null> {
-        return this.lolTeemo.get(platform(region), "summoner.getBySummonerId", "" + summonerId);
+    async getSummonerByPUUID(region: string, puuid: string): Promise<riot.Summoner | null> {
+        try {
+            return await this.teemo.get(platform(region), "summoner.getByPUUID", puuid);
+        } catch (e) {
+            return null;
+        }
     }
+}
 
-    /**
-     * @returns the champion mastery for the specified summoner id
-     */
-    async getChampionMastery(region: string, summonerId: string): Promise<riot.ChampionMasteryInfo[]> {
-        return this.lolTeemo.get(platform(region), "championMastery.getAllChampionMasteries", summonerId);
-    }
-
-    /**
-     * @returns all the league positions for the specified summoner id
-     */
-    async getLoLLeaguePositions(region: string, summonerId: string): Promise<riot.LeagueEntry[]> {
-        return this.lolTeemo.get(platform(region), "league.getLeagueEntriesForSummoner", summonerId);
-    }
+/**
+ * @returns a random account-v1 shard to make a request to. Over a longer period of
+ * time, this should evenly distribute the load and rate limits
+ */
+function randomAccountShard(): string {
+    return ["americas", "asia", "europe"][Math.floor(Math.random() * 3)];
 }
 
 /**

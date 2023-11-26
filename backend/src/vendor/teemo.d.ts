@@ -1,14 +1,8 @@
 
 declare namespace teemo {
     class Teemo {
-        get(region: string, method: "summoner.getBySummonerName", name: string): Promise<riot.Summoner | null>;
-        get(region: string, method: "summoner.getBySummonerId", id: string): Promise<riot.Summoner | null>;
-        get(region: string, method: "championMastery.getAllChampionMasteries", id: string): Promise<riot.ChampionMasteryInfo[]>;
-        get(region: string, method: "league.getLeagueEntriesForSummoner", id: string): Promise<riot.LeagueEntry[]>;
-        get(region: string, method: "thirdPartyCode.getThirdPartyCodeBySummonerId", id: string): Promise<string>;
-        get(region: string, method: "match.getMatchlist", accountId: string, opts?: {
-            beginIndex?: number
-        }): Promise<{ matches: riot.MatchEntry[] }>;
+        get(platform: string, method: "account.getByRiotId", gamename: string, tagline: string): Promise<riot.RiotAccount | null>;
+        get(region: string, method: "summoner.getByPUUID", puuid: string): Promise<riot.Summoner | null>;
 
         config: {
             endpoints: { [key: string]: { [key: string]: string }; };

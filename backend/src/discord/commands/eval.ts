@@ -48,12 +48,14 @@ const EvalCommand: Command = {
                 account: buildDBAccess(db.LeagueAccount, "[]"),
                 server: buildDBAccess(db.Server, "[roles, roles.conditions]", { snowflake: ctx.guild && ctx.guild.id }),
                 member: buildDBAccess(db.GuildMember, "[]", { guild_id: ctx.guildId }),
-                addAccount: async (snowflake: string, region: string, username: string) =>
-                    (await db.User.query().where("snowflake", snowflake).first())!
-                        .addAccount(
-                            region,
-                            (await ctx.client.riotAPI.getLoLSummonerByName(region, username))!
-                        ),
+                addAccount: async (snowflake: string, region: string, name: string) => {
+                    const [gameName, tagLine] = name.split("#");
+                    const riotId = await ctx.client.riotAPI.getRiotAccountByName(gameName, tagLine);
+                    if (!riotId) throw new Error("Riot ID does not exist.");
+                    const summoner = await ctx.client.riotAPI.getSummonerByPUUID(region, riotId.puuid);
+                    if (!summoner) throw new Error("Riot ID exists but no summoner on the given region.");
+                    await (await db.User.query().where("snowflake", snowflake).first())!.addAccount(region, summoner, riotId);
+                },
                 StaticData
             };
 

@@ -34,7 +34,7 @@ process.on("unhandledRejection", (err: Error) => {
     info("Starting Orianna Bot - Master...");
 
     // Give the master process 10% of our rate limits.
-    const riotAPI = new RiotAPI(config.riot.lolApiKey, config.riot.tftApiKey, 0.1);
+    const riotAPI = new RiotAPI(config.riot.lolApiKey, 0.1);
 
     const discord = new DiscordClient(riotAPI);
 

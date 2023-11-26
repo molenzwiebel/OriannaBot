@@ -16,7 +16,7 @@ import { default as getTranslator, getLanguages as getI18nLanguages } from "../i
 
 export default class WebAPIClient {
     private bot: eris.Client;
-    private summoners: Map<string, riot.Summoner & { region: string, targetSummonerIcon: number }> = new Map();
+    private pendingAccounts: Map<string, { region: string, targetSummonerIcon: number, summoner: riot.Summoner, riotId: riot.RiotAccount }> = new Map();
 
     constructor(private client: DiscordClient, private app: express.Application) {
         this.bot = client.bot;
@@ -127,16 +127,21 @@ export default class WebAPIClient {
     });
 
     /**
-     * Queries for a summoner and returns the summoner data plus validation code if found.
-     * Returns null and 404 if the summoner cannot be found.
+     * Queries for a user with the given Riot ID that has a league summoner on the given region.
+     * Returns the summoner data plus validation code if found. Returns null and 404 if the summoner
+     * cannot be found.
      */
     private lookupSummoner = async (req: express.Request, res: express.Response) => {
         if (!this.validate( {
-            username: Joi.string().required(),
+            gameName: Joi.string().required(),
+            tagline: Joi.string().required(),
             region: Joi.any().valid(REGIONS)
         }, req, res)) return;
 
-        const summ = await this.client.riotAPI.getLoLSummonerByName(req.body.region, req.body.username);
+        const riotId = await this.client.riotAPI.getRiotAccountByName(req.body.gameName, req.body.tagline);
+        if (!riotId) return res.status(404).json(null);
+
+        const summ = await this.client.riotAPI.getSummonerByPUUID(req.body.region, riotId.puuid);
         if (!summ) return res.status(404).json(null);
 
         let taken = false;
@@ -158,10 +163,11 @@ export default class WebAPIClient {
             targetSummonerIcon = Math.floor(Math.random() * 28);
         } while (targetSummonerIcon === summ.profileIconId);
 
-        this.summoners.set(key,  {
-            ...summ,
+        this.pendingAccounts.set(key, {
             region: req.body.region,
-            targetSummonerIcon
+            targetSummonerIcon,
+            summoner: summ,
+            riotId
         });
 
         return res.json({
@@ -184,18 +190,18 @@ export default class WebAPIClient {
         }, req, res)) return;
 
         // Make sure that the code is valid.
-        const summoner = this.summoners.get(req.body.code);
-        if (!summoner) return res.status(400).json({ ok: false, error: "Invalid code." });
+        const pending = this.pendingAccounts.get(req.body.code);
+        if (!pending) return res.status(400).json({ ok: false, error: "Invalid code." });
 
         // Ensure that the summoner icon was updated properly.
-        const refreshedSummoner = await this.client.riotAPI.getLoLSummonerById(summoner.region, summoner.id);
-        if (!refreshedSummoner || refreshedSummoner.profileIconId !== summoner.targetSummonerIcon) {
+        const refreshedSummoner = await this.client.riotAPI.getSummonerByPUUID(pending.region, pending.riotId.puuid);
+        if (!refreshedSummoner || refreshedSummoner.profileIconId !== pending.targetSummonerIcon) {
             return res.json({ ok: false });
         }
 
         // Check if this account has been taken by someone else already.
         // If it has, remove it from the old account.
-        const oldAccount = await LeagueAccount.query().where("summoner_id", summoner.id).where("region", summoner.region).first();
+        const oldAccount = await LeagueAccount.query().where("summoner_id", pending.summoner.id).where("region", pending.region).first();
         if (oldAccount) {
             const user = await User.query().where("id", oldAccount.user_id).eager("accounts").first();
             await oldAccount.$query().delete();
@@ -210,7 +216,7 @@ export default class WebAPIClient {
         }
 
         // Add the user.
-        await req.user.addAccount(summoner.region, summoner);
+        await req.user.addAccount(pending.region, pending.summoner, pending.riotId);
         shockwave.fetchAndUpdateUser(req.user);
 
         return res.json({ ok: true });

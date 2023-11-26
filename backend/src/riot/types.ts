@@ -8,15 +8,10 @@ namespace riot {
         profileIconId: number;
     }
 
-    export interface ChampionMasteryInfo {
-        championPoints: number;
-        championId: number;
-        championLevel: number;
-    }
-
-    export interface LeagueEntry {
-        queueType: string;
-        tier: string;
+    export interface RiotAccount {
+        puuid: string;
+        gameName: string;
+        tagLine: string;
     }
 
     export interface Champion {
@@ -26,16 +21,5 @@ namespace riot {
         title: string;
         skins: { num: number }[];
         tags: string[];
-    }
-
-    export interface MatchEntry {
-        lane: string;
-        gameId: number;
-        champion: number;
-        platformId: string;
-        timestamp: number;
-        queue: number;
-        role: string;
-        season: number;
     }
 }

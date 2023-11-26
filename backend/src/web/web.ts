@@ -4,7 +4,6 @@ import cookieParser = require("cookie-parser");
 import bodyParser = require("body-parser");
 import WebAPIClient from "./api-client";
 import DiscordClient from "../discord/client";
-import { default as registerReddit } from "./reddit-client";
 import { default as registerAuth } from "./auth-key-client";
 import { default as registerDiscordAuth } from "./discord-auth-client";
 import { default as registerDiscordInvite } from "./discord-invite-client";
@@ -36,7 +35,6 @@ export default function createApplication(client: DiscordClient) {
     // Then try any API routes...
     const apiClient = new WebAPIClient(client, app);
     registerAuth(app);
-    registerReddit(app, client.riotAPI);
     registerDiscordAuth(app, client);
     registerDiscordInvite(app, client);
     registerShockwave(app, client);

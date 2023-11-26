@@ -129,8 +129,8 @@ export default class User extends Model {
     /**
      * Adds a new league account to this user, provided they do not have it registered already.
      */
-    async addAccount(region: string, lolSummoner: riot.Summoner) {
-        if (!lolSummoner) return;
+    async addAccount(region: string, lolSummoner: riot.Summoner, riotAccount: riot.RiotAccount) {
+        if (!lolSummoner || !riotAccount) return;
         await this.$loadRelated("accounts");
         if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
 
@@ -143,6 +143,8 @@ export default class User extends Model {
             summoner_id: lolSummoner.id,
             account_id: lolSummoner.accountId,
             puuid: lolSummoner.puuid,
+            riot_id_game_name: riotAccount.gameName,
+            riot_id_tagline: riotAccount.tagLine,
             primary: isPrimary,
             show_in_profile: true,
             include_region: true
