@@ -6,14 +6,13 @@
 
                 <div class="actions" v-if="user.accounts.length">
                     <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
-                    <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
                 </div>
             </div>
 
             <div class="body accounts">
                 <div class="account-list-header">
                     <div class="img" />
-                    <div class="username">Summoner Name</div>
+                    <div class="username">Account</div>
                     <div class="primary">
                         Primary
                         <i class="ion-help-circled" v-tippy title="Orianna can be configured by a server admin to automatically update your nickname on that server. Your primary account will be used for this nickname, so you're recommended to use your most played account as your primary one." />
@@ -49,10 +48,9 @@
 
                 <div class="no-accounts" v-if="!user.accounts.length">
                     <img src="https://ddragon.leagueoflegends.com/cdn/7.5.2/img/sticker/poro-question.png">
-                    <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score:</p>
+                    <p><b>You have no accounts configured.</b> Add one to begin tracking mastery score.</p>
                     <div class="actions">
-                        <a class="small-button" @click.prevent="addAccount" href="#">Add New</a>
-                        <a class="small-button" @click.prevent="importRedditAccounts" href="#">Import From <i class="ion-social-reddit-outline"></i></a>
+                        <a class="small-button" @click.prevent="addAccount" href="#">Add New Account</a>
                     </div>
                 </div>
             </div>

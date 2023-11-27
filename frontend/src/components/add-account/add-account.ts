@@ -45,11 +45,11 @@ export default class AddAccountWizard extends Vue {
      */
     async requestSummoner() {
         if (!this.name || !this.region || this.region === "disabled") {
-            this.detailsError = "Please enter your summoner name and region.";
+            this.detailsError = "Please enter your Riot ID and region.";
             throw new Error("");
         }
 
-        const riotIdMatch = /^([^#]+)#(.*)$/.exec(this.name);
+        const riotIdMatch = /^([^#]{3,16})#(.{3,5})$/.exec(this.name);
         if (!riotIdMatch) {
             this.detailsError = "Invalid Riot ID. Your Riot ID must be of the format `game name#tagline` and not just your in-game name.";
             throw new Error("");
@@ -62,7 +62,7 @@ export default class AddAccountWizard extends Vue {
         });
 
         if (!summ) {
-            this.detailsError = "Summoner not found. Make sure to use your summoner name, not your login name.";
+            this.detailsError = "Account not found. Ensure that you use the full Riot ID shown when hovering over your profile icon in the client, including #tagline.";
             throw new Error("");
         }
 
