@@ -64,8 +64,8 @@ impl Database {
         };
 
         Ok(sqlx::query(query)
-            .bind(amount as i32)
-            .bind(offset as i32)
+            .bind(amount as i64)
+            .bind(offset as i64)
             .map(|x: PgRow| x.get::<i32, _>("id"))
             .fetch_all(&self.0)
             .await?)

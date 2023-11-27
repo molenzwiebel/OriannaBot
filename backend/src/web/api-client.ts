@@ -173,9 +173,9 @@ export default class WebAPIClient {
         return res.json({
             taken,
             region: req.body.region,
-            username: summ.name,
-            account_id: summ.accountId,
-            summoner_id: summ.id,
+            gameName: riotId.gameName,
+            tagline: riotId.tagLine,
+            puuid: riotId.puuid,
             targetSummonerIcon,
             code: key
         });
