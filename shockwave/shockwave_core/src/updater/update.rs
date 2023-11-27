@@ -139,13 +139,16 @@ impl Updater {
                                 }
                             },
                             Err(e)
-                                if matches!(e.kind(), ErrorType::Response {
-                                    error: ApiError::General(GeneralApiError {
-                                        code: 10011, // UnknownRole
+                                if matches!(
+                                    e.kind(),
+                                    ErrorType::Response {
+                                        error: ApiError::General(GeneralApiError {
+                                            code: 10011, // UnknownRole
+                                            ..
+                                        }),
                                         ..
-                                    }),
-                                    ..
-                                }) =>
+                                    }
+                                ) =>
                             {
                                 warn!("Role {} no longer exists", role.snowflake);
                                 let _ = self.database.clear_snowflake_for_role(role.id).await;
@@ -168,6 +171,8 @@ impl Updater {
                         .nickname_pattern
                         .replace("{region}", &primary_account.region)
                         .replace("{username}", &primary_account.username)
+                        .replace("{gamename}", &primary_account.riot_id_game_name.clone().unwrap_or_default())
+                        .replace("{tagline}", &primary_account.riot_id_tagline.clone().unwrap_or_default())
                         .replace("{discord_username}", &ctx.user.username)
                         .chars()
                         .take(32)
