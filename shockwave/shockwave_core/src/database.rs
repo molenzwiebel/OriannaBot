@@ -334,19 +334,6 @@ impl Database {
         Ok(())
     }
 
-    /// Update the stored username for the league account with the given ID.
-    #[tracing::instrument(skip(self, account_id, new_name))]
-    #[inline]
-    pub async fn update_account_username(&self, account_id: i32, new_name: String) -> DBResult {
-        sqlx::query("UPDATE league_accounts SET username = $1 WHERE id = $2")
-            .bind(new_name)
-            .bind(account_id)
-            .execute(&self.0)
-            .await?;
-
-        Ok(())
-    }
-
     /// Update the stored Riot ID for the league account with the given ID.
     #[tracing::instrument(skip(self, account_id, game_name, tagline))]
     #[inline]

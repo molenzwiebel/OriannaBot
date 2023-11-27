@@ -224,15 +224,9 @@ impl Updater {
                     orianna::message_transfer(user_id, &account.region, &account.username).await;
                 },
                 Err(_) => continue, // riot api issue
-                Ok(data) if data.name != account.username => {
-                    // Account still exists, but the username was changed.
-                    debug!("Account {} was renamed to {}", account.username, data.name);
-
-                    self.database.update_account_username(account.id, data.name).await?;
-                },
                 Ok(_) => {
                     // account still good
-                    debug!("No summoner name changes for account {}", account.username);
+                    debug!("No summoner changes for account {}", account.username);
                 },
             };
 
