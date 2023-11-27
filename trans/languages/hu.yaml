@@ -16,21 +16,24 @@ ranked_tier_grandmaster: Nagymester
 ranked_tier_challenger: Kihívó
 queue_ranked_solo: Rangsorolt Egyéni/Páros
 queue_ranked_flex: Rangsorolt Rugalmas
-queue_ranked_tft: Rangsorolt TCH
+queue_ranked_tft: Rangsorolt TFT
 queue_ranked_any: bármely rangsorolt lista
-queue_ranked_highest: a legmagasabb rangsorolt lista (kivéve TCH)
-queue_ranked_highest_tft: a legmagasabb rangsorolt lista (beleértve TCH)
+queue_ranked_highest: a legmagasabb rangsorolt lista (kivéve TFT)
+queue_ranked_highest_tft: a legmagasabb rangsorolt lista (beleértve TFT)
 time_ago_today: Ma
 time_ago_yesterday: Tegnap
 time_ago_days_ago: "{days} napja"
 first_use_title: 👋 Szia {username}!
-first_use_intro_on_join: Üdvözlünk a/az **{server}** szerveren! **Orianna Bot** vagyok, egy Discord
+first_use_intro_on_join:
+  Üdvözlünk a/az **{server}** szerveren! **Orianna Bot** vagyok, egy Discord
   bot, aki szerverrangok kiosztására hivatott rangsorolt besorolásod és
   hősmesterség pontjaid alapján.
-first_use_intro_on_command: Épp az egyik parancsomat használtad, de nem emlékszem, hogy találkoztunk volna
+first_use_intro_on_command:
+  Épp az egyik parancsomat használtad, de nem emlékszem, hogy találkoztunk volna
   korábban. **Orianna Bot** vagyok, egy Discord bot, aki szerverrangok
   kiosztására hivatott rangsorolt besorolásod és hősmesterség pontjaid alapján.
-first_use_intro_on_react: Úgy látom szeretnél rangokat szerezni **{server}** szerveren. **Orianna Bot**
+first_use_intro_on_react:
+  Úgy látom szeretnél rangokat szerezni **{server}** szerveren. **Orianna Bot**
   vagyok, egy Discord bot, aki szerverrangok kiosztására hivatott.
 first_use_message: >-
   {intro}
@@ -46,11 +49,13 @@ first_use_message: >-
 
   Összezavarodott, izgatott, mérges, vagy épp boldog vagy? Az `@Orianna Bot help` parancs használatával tudod csekkolni az elérhető parancsaim listáját, továbbá az `@Orianna Bot about` parancs használatával léphetsz kapcsolatba gazdámmal.
 command_error_title: 💥 Ááh!
-command_error_description: Valami nagyon balul sült el, amikor végre próbáltam hajtani az általad beírt
+command_error_description:
+  Valami nagyon balul sült el, amikor végre próbáltam hajtani az általad beírt
   parancsot, kérlek, várj egy kicsit és próbáld újra! Ha folyamatosan ezzel a
   hibaüzenettel találkozol, kérlek dobj egy hibajelentést [az Orianna Bot
   támogatási szerverére](https://discord.gg/bfxdsRC).
-command_muted_preamble: "Nincs jogosultságom, hogy a {channel} csatornába írjak, de titokban
+command_muted_preamble:
+  "Nincs jogosultságom, hogy a {channel} csatornába írjak, de titokban
   végrehajthatottam a parancsot. Íme, amit kértél:"
 promotion_title: "{username} megszerezte a következő rangot: {role}!"
 transfer_title: ✈ Átköltöztetett fiók?
@@ -62,13 +67,15 @@ transfer_body: >-
 
   Lecsatlakoztattam a LoL fiókot a Discord profilodról. Ha tényleg csak egy átköltöztetés történt, egyszerűen újra hozzáadhatod a fiókodat az új régió megadásával a szokásos módon.
 command_error_no_accounts: 🔍 {user} nem rendelkezik összekapcsolt fiókkal.
-command_error_no_accounts_description: Ez a parancs sokkal nagyszerűbb, amikor van némi adat, amit kimutathatok, de
+command_error_no_accounts_description:
+  Ez a parancs sokkal nagyszerűbb, amikor van némi adat, amit kimutathatok, de
   sajnos ez a Discord felhasználó nem kapcsolt még hozzám játékosfiókot. LoL
   fiókokat az `@Orianna Bot configure` paranccsal lehet hozzám kapcsolni.
 command_error_no_permissions: ✋ Álljunk csak meg!
 command_error_no_permissions_description: Üzenetszerkesztési jogosultság szükséges, hogy működjön ez a parancs. Bocsi. :(
 command_error_no_champion: 🔎 Melyik hős?
-command_error_no_champion_description: Kerestem hősnevet az üzenetben, amit írtál, de nem találtam. Valószínűleg
+command_error_no_champion_description:
+  Kerestem hősnevet az üzenetben, amit írtál, de nem találtam. Valószínűleg
   elírtál valamit, vagy egyszerűen elfelejtettél megemlíteni egy hőst.
 command_page_n_of_n: "{n}/{total}. oldal"
 command_about_title: 🤖 Tudnivalók
@@ -91,7 +98,8 @@ command_edit_description: >-
 
   A saját profiloddal és a fiókok hozzáadásával kapcsolatos további tudnivalókért csekkold a [hasznos dokumentációk oldalt](https://orianna.molenzwiebel.xyz/docs/link).
 command_edit_server_title: ℹ A szerver szerkesztés már máshogy működik
-command_edit_server_description: Orianna v2-es verziójával nincs többé szeparált URL cím a szerver beállításaid
+command_edit_server_description:
+  Orianna v2-es verziójával nincs többé szeparált URL cím a szerver beállításaid
   szerkesztéséhez. Helyette simán be tudsz jelentkezni a saját hivatkozásoddal,
   vagy a Discord profiloddal, majd a menüből kiválaszthatod a szerveredet.
   Fontos, hogy `Szerver kezelése` jogosultság szükséges ahhoz, hogy szerkeszteni
@@ -110,14 +118,16 @@ command_edit_dm_description: >-
 
   **⚠ Senkivel se oszd meg ezt a hivatkozást, ha nem vagy teljesen biztos abban, amit csinálsz!** Ezzel a hivatkozással bárki hozzáférhet a fiókodhoz.
 command_edit_dm_failed_title: 📪 Az üzenetfalad privát!
-command_edit_dm_failed_description: Úgy tűnik a Discord fiókod úgy van beállítva, hogy csak a barátaid küldhetnek
-  neked privát üzenetet. Ez sajnos azt jelenti, hogy én nem tudok üzenetet
+command_edit_dm_failed_description:
+  Úgy tűnik a Discord fiókod jelenleg úgy van beállítva,
+  hogy csak a barátaid küldhetnek neked privát üzenetet. Így sajnos nem tudok üzenetet
   küldeni számodra. Ahhoz hogy engedélyezd a privát üzenetek fogadását az adott
-  szerverről bárkitől, jobb kattintás a szerver ikonján, válaszd az `Adatvédelmi
+  szerverről bárkitől, jobb klikkelj a szerver ikonjára, válaszd ki az `Adatvédelmi
   beállítások` opciót, majd kapcsold be a `Közvetlen üzenetek engedélyezése a
   szerver tagjaitól` lehetőséget.
 command_help_title: 🔖 Segítség Oriannához
-command_help_description: Próbálom megállapítani mire gondolsz, amikor megemlítesz engem különféle
+command_help_description:
+  Próbálom megállapítani mire gondolsz, amikor megemlítesz engem különféle
   parancsok használatával. Íme egy egyszerű lista azokról a parancsokról, amiket
   megértek. Kattints a megfelelő számra a további információért és példákért a
   parancsokról. Kattints a 🔖 reakciógombra hogy megjelenítsd az indexelést.
@@ -127,11 +137,13 @@ command_help_command_description: |-
   {description}
 command_help_command_keywords: Kulcsszavak
 command_invite_title: 🤖 Tehát meg szeretnél hívni?
-command_invite_message_description: Ahhoz, hogy hozzáadd Orianna Botot a szerveredhez, egyszerűen használd
+command_invite_message_description:
+  Ahhoz, hogy hozzáadd Orianna Botot a szerveredhez, egyszerűen használd
   [ezt]({link}) a hivatkozást. Köszönjük, ha annyira tetszik Orianna Bot, hogy
   hozzáadod saját szerveredhez!
 command_other_bot_title: 💡 Profi tipp!
-command_other_bot_description: Az adott `{role}` rangot én kezelem. A játékosfiókodat az `@Orianna Bot
+command_other_bot_description:
+  Az adott `{role}` rangot én kezelem. A játékosfiókodat az `@Orianna Bot
   configure` paranccsal tudod hozzám csatolni, hogy automatikusan rangokat
   adhassak neked Discordon. Már hozzáadtál egy fiókot? Várj egy kicsit, amíg
   frissítem a rangjaidat, vagy használd az `@Orianna Bot refresh` parancsot,
@@ -218,7 +230,8 @@ command_roles_description: >-
 
   A rangkövetelményekről és a működésükről további információt taláhatsz a [dokumentációnkban](https://orianna.molenzwiebel.xyz/docs/conditions).
 command_roles_no_server_title: 🛑 Hiányzó szerver
-command_roles_no_server_description: Ez a parancs kifejezetten utal arra, hogy _szerver_ információkat közöl, erre
+command_roles_no_server_description:
+  Ez a parancs kifejezetten utal arra, hogy _szerver_ információkat közöl, erre
   te privát üzenetben használod? Őrület.
 command_roles_no_roles_title: 🔍 Úgy tűnik, itt nincs semmi...
 command_roles_no_roles_description: A jelenlegi szerveren úgy tűnik egyetlen rang sincs beállítva.
@@ -235,8 +248,8 @@ command_roles_mastery_score: Hősmesterség pontja {range} {champion} hőssel.
 command_roles_total_mastery_score: Összesített hősmesterség pontja {range}
 command_roles_ranked_tier: Rangsorolt besorolása {ranked}
 command_roles_region: Rendelkezik fiókkal {region} régióban.
-command_roles_all_match: "**Mindegyikre megfelel:**"
-command_roles_any_match: "**Bármelyikre megfelel:**"
+command_roles_all_maTFT: "**Mindegyikre megfelel:**"
+command_roles_any_maTFT: "**Bármelyikre megfelel:**"
 command_roles_at_least_n: "**Legalább {amount} számúra megfelel:**"
 command_roles_no_conditions: _Nincsenek feltételek_
 command_roles_continued: (Folytatólagosan)
@@ -264,7 +277,8 @@ command_stats_description: >-
 
   - `@Orianna Bot show @molenzwiebel's stats on annie`
 command_stats_no_values_title: 🔍 Itt nincs semmi
-command_stats_no_values_description: "{user} felhasználónak nincsenek megfigyelt mérkőzései {champion} hőssel.
+command_stats_no_values_description:
+  "{user} felhasználónak nincsenek megfigyelt mérkőzései {champion} hőssel.
   Néhány mérkőzést le kell játszani, mielőtt kimutathatnék róluk statisztikát."
 command_stats_message_title: 📈 Hősmesterség-statisztikák - {name} - {champion}
 command_stats_message_data: Adat
@@ -334,8 +348,9 @@ command_top_description: >-
 command_top_points: Pontok
 command_top_rank: "A besorolásod: {rank}"
 command_top_personal_title: 📊 Legjobb hősök {name} számára
-command_top_no_server_title: ❓ Mit csinálsz?!
-command_top_no_server_description: Limitálni ranglistákat a szerver egyes tagjaira, miközben privát üzenetet
+command_top_no_server_title: ❓ Mi történik?!
+command_top_no_server_description:
+  Limitálni ranglistákat a szerver egyes tagjaira, miközben privát üzenetet
   küldesz nekem? Elég fura, nem gondolod?... Fontold meg a `server` rész
   eltávolítását a parancsból.
 command_top_title: "{champ} ranglista"
