@@ -49,7 +49,6 @@ impl Worker {
                     .await;
             },
             MASTERY_WORKER_CONFIG,
-            false,
         )
         .await;
     }
@@ -65,7 +64,6 @@ impl Worker {
                     .await;
             },
             RANKED_WORKER_CONFIG,
-            false,
         )
         .await;
     }
@@ -81,7 +79,6 @@ impl Worker {
                     .await;
             },
             ACCOUNT_WORKER_CONFIG,
-            true,
         )
         .await;
     }
@@ -93,11 +90,10 @@ impl Worker {
         &'a self,
         fun: &'a impl Fn(EvaluationContext) -> R,
         config: WorkerLoopConfiguration,
-        temp_hack: bool,
     ) where
         R: Future<Output = ()>,
     {
-        let stream = self.get_user_context_stream(config.query_batch_size, temp_hack);
+        let stream = self.get_user_context_stream(config.query_batch_size);
 
         let amount = Arc::new(AtomicI64::new(0));
         let amount_clone = amount.clone();
@@ -133,13 +129,13 @@ impl Worker {
 
     /// Create a new stream of evaluation contexts that endlessly
     /// returns evaluation contexts of users with at least one account.
-    fn get_user_context_stream(&self, batch_size: u32, temp_hack: bool) -> impl Stream<Item = EvaluationContext> + '_ {
+    fn get_user_context_stream(&self, batch_size: u32) -> impl Stream<Item = EvaluationContext> + '_ {
         futures::stream::unfold(0u32, move |mut offset| async move {
             // Keep attempting to find users.
             loop {
                 if let Ok(contexts) = self
                     .database
-                    .find_users(batch_size, offset, temp_hack)
+                    .find_users(batch_size, offset)
                     .and_then(|ids| self.database.get_batch_evaluation_context(ids))
                     .await
                 {

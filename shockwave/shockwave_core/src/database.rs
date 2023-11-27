@@ -56,14 +56,8 @@ impl Database {
     }
 
     /// Find amount users starting at offset, with at least one account.
-    pub async fn find_users(&self, amount: u32, offset: u32, temp_hack: bool) -> DBResult<Vec<i32>> {
-        let query = if temp_hack {
-            "SELECT user_id as id FROM temp_users ORDER BY id ASC NULLS LAST LIMIT $1 OFFSET $2"
-        } else {
-            "SELECT id FROM users WHERE has_accounts=true ORDER BY id ASC NULLS LAST LIMIT $1 OFFSET $2"
-        };
-
-        Ok(sqlx::query(query)
+    pub async fn find_users(&self, amount: u32, offset: u32) -> DBResult<Vec<i32>> {
+        Ok(sqlx::query("SELECT id FROM users WHERE has_accounts=true ORDER BY id ASC NULLS LAST LIMIT $1 OFFSET $2")
             .bind(amount as i64)
             .bind(offset as i64)
             .map(|x: PgRow| x.get::<i32, _>("id"))
