@@ -323,6 +323,8 @@ export default class ServerProfile extends Vue {
         return this.server.nickname_pattern
             .replace(/\{region\}/g, "KR")
             .replace(/\{username\}/g, "Hide on bush")
+            .replace(/\{gamename\}/g, "Hide on bush")
+            .replace(/\{tagline\}g/, "KR1")
             .replace(/\{discord_username\}/g, "T1 Faker")
             .slice(0, 32);
     }

@@ -76,19 +76,19 @@
                         <span>Have Orianna automatically assign nicknames based on the configured pattern.</span>
                     </div>
 
-                    <input v-model="server.nickname_pattern" type="text" placeholder="[{region}] {username}" :disabled="!nickEnabled" @change="updateNicknamePattern">
+                    <input v-model="server.nickname_pattern" type="text" placeholder="[{region}] {gamename}#{tagline}" :disabled="!nickEnabled" @change="updateNicknamePattern">
 
                     <p class="padded">
                         Orianna is able to enforce a consistent nickname pattern for everyone on your server! Users can pick a "primary"
                         account on their profile which will be used for building their nickname. Simply enter a nickname and Orianna will
-                        ensure that anyone with a configured account matches the pattern. You can use <code>{region}</code> and <code>{username}</code>
-                        as placeholders for the user's account. You can additionally use the <code>{discord_username}</code> placeholder to
-                        refer to the Discord username of the user.
+                        ensure that anyone with a configured account matches the pattern. You can use <code>{region}</code>, <code>{gamename}</code>,
+                        and <code>{tagline}</code> as placeholders for the user's account. You can additionally use the <code>{discord_username}</code>
+                        placeholder to refer to the Discord username of the user.
                     </p>
 
                     <p>
-                        For example, if you want everyone's nickname to follow the pattern <code>IGN: My Summoner Name Here</code>, you
-                        can use the pattern <code>IGN: {username}</code>.
+                        For example, if you want everyone's nickname to follow the pattern <code>IGN: my account#cool</code>, you
+                        can use the pattern <code>IGN: {gamename}#{tagline}</code>.
                     </p>
 
                     <p>
