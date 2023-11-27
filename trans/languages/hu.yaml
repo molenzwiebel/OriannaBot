@@ -248,8 +248,8 @@ command_roles_mastery_score: Hősmesterség pontja {range} {champion} hőssel.
 command_roles_total_mastery_score: Összesített hősmesterség pontja {range}
 command_roles_ranked_tier: Rangsorolt besorolása {ranked}
 command_roles_region: Rendelkezik fiókkal {region} régióban.
-command_roles_all_maTFT: "**Mindegyikre megfelel:**"
-command_roles_any_maTFT: "**Bármelyikre megfelel:**"
+command_roles_all_match: "**Mindegyikre megfelel:**"
+command_roles_any_match: "**Bármelyikre megfelel:**"
 command_roles_at_least_n: "**Legalább {amount} számúra megfelel:**"
 command_roles_no_conditions: _Nincsenek feltételek_
 command_roles_continued: (Folytatólagosan)
