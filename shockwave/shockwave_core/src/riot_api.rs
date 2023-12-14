@@ -114,7 +114,9 @@ impl RiotApiInterface {
     ) -> Result<Vec<Vec<ChampionMastery>>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
             account.route().map(|region| {
-                self.lol_client(priority).champion_mastery_v4().get_all_champion_masteries(region, &account.summoner_id)
+                self.lol_client(priority)
+                    .champion_mastery_v4()
+                    .get_all_champion_masteries_by_puuid(region, &account.puuid)
             })
         }))
         .await?)
