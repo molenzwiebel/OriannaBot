@@ -1,7 +1,6 @@
 // This file contains incomplete definitions for Riot API DTO's.
 namespace riot {
     export interface Summoner {
-        name: string;
         id: string;
         accountId: string;
         puuid: string;

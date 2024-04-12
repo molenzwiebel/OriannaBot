@@ -15,12 +15,6 @@ export default class LeagueAccount extends Model {
     readonly user_id: number;
 
     /**
-     * The username of this league account. May lag behind
-     * if the user changes their name.
-     */
-    username: string;
-
-    /**
      * The region for this league account. May lag behind if the
      * user transfers to another server.
      */

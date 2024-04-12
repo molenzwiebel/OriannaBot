@@ -141,7 +141,6 @@ export default class User extends Model {
         const isPrimary = this.accounts!.length === 0;
 
         await this.$relatedQuery<LeagueAccount>("accounts").insert({
-            username: lolSummoner.name, // still here for compat sake, will be a random uuid for newer accounts
             region: region,
             summoner_id: lolSummoner.id,
             account_id: lolSummoner.accountId,
