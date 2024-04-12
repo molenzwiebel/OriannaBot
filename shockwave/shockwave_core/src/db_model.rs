@@ -85,7 +85,6 @@ pub struct Role {
 pub struct LeagueAccount {
     pub id: i32,
     pub user_id: i32,
-    pub username: String,
     pub region: String,
     pub summoner_id: String,
     pub account_id: String,

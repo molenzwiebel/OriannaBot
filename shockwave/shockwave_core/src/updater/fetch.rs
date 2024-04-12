@@ -215,18 +215,24 @@ impl Updater {
         for account in &ctx.accounts {
             let account_data = self.riot_interface.get_summoner(priority, account).await?;
 
+            let name = format!(
+                "{}#{}",
+                account.riot_id_game_name.clone().unwrap_or_default(),
+                account.riot_id_tagline.clone().unwrap_or_default()
+            );
+
             match account_data {
                 Err(e) if e.status_code() == Some(StatusCode::NOT_FOUND) => {
                     // Account no longer exists, the user likely transfered.
-                    debug!("Account {} no longer exists", account.username);
+                    debug!("Account {} no longer exists", name);
 
                     self.database.remove_account(user_id, account.id).await?;
-                    orianna::message_transfer(user_id, &account.region, &account.username).await;
+                    orianna::message_transfer(user_id, &account.region, &name).await;
                 },
                 Err(_) => continue, // riot api issue
                 Ok(_) => {
                     // account still good
-                    debug!("No summoner changes for account {}", account.username);
+                    debug!("No summoner changes for account {}", name);
                 },
             };
 
@@ -236,17 +242,13 @@ impl Updater {
                 Err(_) => continue, // riot api issue
                 Ok(data) => {
                     if data.game_name == account.riot_id_game_name && data.tag_line == account.riot_id_tagline {
-                        debug!("No changes to Riot ID for account {}", account.username);
+                        debug!("No changes to Riot ID for account {}", name);
                         continue;
                     }
 
                     debug!(
                         "Riot ID for account {} changed from {:?}#{:?} to {:?}#{:?}",
-                        account.username,
-                        account.riot_id_game_name,
-                        account.riot_id_tagline,
-                        data.game_name,
-                        data.tag_line
+                        name, account.riot_id_game_name, account.riot_id_tagline, data.game_name, data.tag_line
                     );
 
                     self.database.update_account_riot_id(account.id, data.game_name, data.tag_line).await?;

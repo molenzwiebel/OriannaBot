@@ -767,6 +767,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fb8d784f27acf97159b40fc4db5ecd8aa23b9ad5ef69cdd136d3bc80665f0c0"
 
 [[package]]
+name = "gloo-timers"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbb143cf96099802033e0d4f4963b19fd2e0b728bcf076cd9cf7f6634f092994"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1540,11 +1552,12 @@ dependencies = [
 
 [[package]]
 name = "riven"
-version = "2.26.0"
+version = "2.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54ec2df16ffcfe0a2df588272433214c9e0a987943548486389bde1d7f8b5600"
+checksum = "669eb02bc70fc9029be3a1510d7494f65ea73a826b9922fc2a07c2e8e8e9366e"
 dependencies = [
- "lazy_static",
+ "futures",
+ "gloo-timers",
  "log",
  "num_enum",
  "parking_lot",
@@ -1553,10 +1566,12 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
+ "slab",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
+ "web-time",
 ]
 
 [[package]]
@@ -2694,6 +2709,16 @@ name = "web-sys"
 version = "0.3.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5db499c5f66323272151db0e666cd34f78617522fb0c1604d31a27c50c206a85"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "web-time"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
