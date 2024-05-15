@@ -72,7 +72,7 @@ const TopCommand: SlashCapableCommand = {
 
                     return {
                         name: `**${emote(champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
-                        value: `${masteryEmote(x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
+                        value: `${masteryEmote(x.level)}\u00a0Lv.\u00a0${x.level}\u00a0|\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
                         inline: true
                     };
                 }));
