@@ -46,7 +46,7 @@ const ProfileCommand: SlashCapableCommand = {
             entry.score < 10000 ? entry.score.toLocaleString() :
                 entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
                     : `${Math.round(entry.score / 10000) * 10}k`;
-        const numLevel10OrAbove = levelCounts.filter(x => x.level >= 10).reduce((a, b) => a + b.count, 0);
+        const numLevel10OrAbove = levelCounts.filter(x => x.level >= 10).reduce((a, b) => a + +b.count, 0);
         const formatRank = (rank: string) => (<any>{
             "UNRANKED": t.ranked_tier_unranked + emote("__"),
             "IRON": `${emote("Iron")} ` + t.ranked_tier_iron,
