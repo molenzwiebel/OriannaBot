@@ -517,7 +517,7 @@ export default class WebAPIClient {
                 });
             }
         } else if (req.params.name === "mastery") {
-            for (let i = 1; i <= 7; i++) {
+            for (let i = 1; i <= 9; i++) {
                 await server.$relatedQuery<Role>("roles").insertGraph(<any>{
                     name: "Level " + i,
                     announce: server.announcement_channel !== null,
@@ -527,6 +527,37 @@ export default class WebAPIClient {
                         options: {
                             compare_type: "exactly",
                             value: i,
+                            champion: +req.body.champion
+                        }
+                    }]
+                });
+            }
+
+            await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                name: "Level 10+",
+                announce: server.announcement_channel !== null,
+                snowflake: roleId("Level 10+"),
+                conditions: [{
+                    type: "mastery_level",
+                    options: {
+                        compare_type: "at_least",
+                        value: 10,
+                        champion: +req.body.champion
+                    }
+                }]
+            });
+        } else if (req.params.name === "mastery-step") {
+            for (let i = req.body.start; i <= req.body.end; i += req.body.step) {
+                await server.$relatedQuery<Role>("roles").insertGraph(<any>{
+                    name: "Level " + i,
+                    announce: server.announcement_channel !== null,
+                    snowflake: roleId("Level " + i),
+                    conditions: [{
+                        type: "mastery_level",
+                        options: {
+                            compare_type: "between",
+                            min: i,
+                            max: i + req.body.step,
                             champion: +req.body.champion
                         }
                     }]

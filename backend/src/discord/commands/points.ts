@@ -1,6 +1,6 @@
 import { badge } from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { emote, expectChampion, expectUserWithAccounts } from "./util";
+import { masteryEmote, emote, expectChampion, expectUserWithAccounts } from "./util";
 
 const PointsCommand: SlashCapableCommand = {
     name: "Show Mastery Points",
@@ -42,7 +42,7 @@ const PointsCommand: SlashCapableCommand = {
         if (!champ) return;
 
         const points = user.stats!.find(x => x.champion_id === +champ.key);
-        const text = points && points.score ? emote("Level_" + points.level) + " " + points.score.toLocaleString() : "0";
+        const text = points && points.score ? masteryEmote(points.level) + " " + points.score.toLocaleString() : "0";
 
         return ok({
             title: t.command_points_message_title,

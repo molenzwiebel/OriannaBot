@@ -213,6 +213,14 @@ export async function paginateRaw<T>({ info, ctx, t }: CommandContext, elementCo
 }
 
 /**
+ * Finds the emote corresponding to the given mastery level.
+ */
+export function masteryEmote(level: number) {
+    if (level <= 10) return emote("Level_" + level);
+    return emote("Level_10");
+}
+
+/**
  * Finds the emote with the specified name in one of the specified emote servers. If the
  * emote cannot be found, Missing_Champion is returned instead. Supplying a number or champion
  * instance will look for the emote belonging to the icon of that champion instead.

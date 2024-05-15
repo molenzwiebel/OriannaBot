@@ -4,7 +4,7 @@ import formatName from "../../util/format-name";
 import { createGeneratedFilePath } from "../../web/generated-images";
 import { SlashCapableCommand } from "../command";
 import { ResponseOptions } from "../response";
-import { emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
+import { masteryEmote, emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
 import { createLeaderboardQuery } from "../../database/leaderboards";
 import { getAvatarURL } from "../../util/avatar";
 
@@ -72,7 +72,7 @@ const TopCommand: SlashCapableCommand = {
 
                     return {
                         name: `**${emote(champion)}  ${i + 1}\u00a0-\u00a0${champion.name}**`,
-                        value: `${emote("Level_" + x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
+                        value: `${masteryEmote(x.level)}\u00a0${x.score.toLocaleString()}\u00a0` + t.command_top_points,
                         inline: true
                     };
                 }));

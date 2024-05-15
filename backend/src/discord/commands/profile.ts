@@ -46,7 +46,7 @@ const ProfileCommand: SlashCapableCommand = {
             entry.score < 10000 ? entry.score.toLocaleString() :
                 entry.score >= 1000000 ? `${(entry.score / 1000000).toFixed(2).replace(/[.,]00$/, "")}m`
                     : `${Math.round(entry.score / 10000) * 10}k`;
-        const levelCount = (level: number) => levelCounts.find(x => x.level === level) ? levelCounts.find(x => x.level === level)!.count : 0;
+        const numLevel10OrAbove = levelCounts.filter(x => x.level >= 10).reduce((a, b) => a + b.count, 0);
         const formatRank = (rank: string) => (<any>{
             "UNRANKED": t.ranked_tier_unranked + emote("__"),
             "IRON": `${emote("Iron")} ` + t.ranked_tier_iron,
@@ -79,7 +79,7 @@ const ProfileCommand: SlashCapableCommand = {
         }, {
             name: t.command_profile_statistics,
             value: [
-                `${levelCount(7)}x${emote("Level_7")}\u00a0${levelCount(6)}x${emote("Level_6")}\u00a0${levelCount(5)}x${emote("Level_5")}${emote("__")}`,
+                `${numLevel10OrAbove}x${emote("Level_10")} Level 10+${emote("__")}`,
                 t.command_profile_statistics_total_points({ amount: +totalMastery[0] }) + emote("__"),
                 t.command_profile_statistics_avg_champ({ amount: t.number(+avgMastery[0], 2) }) + emote("__"),
                 `${emote("__")}`
