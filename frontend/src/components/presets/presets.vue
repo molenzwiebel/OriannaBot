@@ -31,10 +31,19 @@
 
             <div class="preset">
                 <b>Mastery Level Roles</b>
-                <p>Just 7 different roles for every different level of champion mastery.</p>
+                <p>Unique roles for each unique mastery crest, with a single 10+ role for everyone higher than level 10.</p>
                 <div class="load">
                     <champion-dropdown v-model="masteryChampion"></champion-dropdown>
                     <button :disabled="!masteryChampion" @click.prevent="addPreset('mastery', { champion: masteryChampion })">Load</button>
+                </div>
+            </div>
+
+            <div class="preset">
+                <b>Mastery Level Increments</b>
+                <p>A unique role for every 10 mastery levels, starting at level 10 and continuing until 150.</p>
+                <div class="load">
+                    <champion-dropdown v-model="masteryChampion"></champion-dropdown>
+                    <button :disabled="!masteryChampion" @click.prevent="addPreset('mastery-step', { start: 10, end: 150, step: 10, champion: masteryChampion })">Load</button>
                 </div>
             </div>
 
