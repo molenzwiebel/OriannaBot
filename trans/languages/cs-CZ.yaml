@@ -1,0 +1,334 @@
+metadata:
+  code: cs-CZ
+  name: Čeština
+  ddragonLanguage: cs_CZ
+empty: ""
+ranked_tier_unranked: Bez hodnocení
+ranked_tier_iron: Železná
+ranked_tier_bronze: Bronzová
+ranked_tier_silver: Stříbrná
+ranked_tier_gold: Zlatá
+ranked_tier_platinum: Platinová
+ranked_tier_emerald: Smaragdová
+ranked_tier_diamond: Diamantová
+ranked_tier_master: Mistrovská
+ranked_tier_grandmaster: Velmimistrovská
+ranked_tier_challenger: Vyzyvatelská
+queue_ranked_solo: Hodnocená sólo
+queue_ranked_flex: Hodnocená flexibilní
+queue_ranked_tft: Hodnocené TFT
+queue_ranked_any: jakákoliv hodnocená fronta
+queue_ranked_highest: tvoje nejvýše hodnocená fronta (mimo TFT)
+queue_ranked_highest_tft: tvoje nejvýše hodnocená fronta (včetně TFT)
+time_ago_today: Dnes
+time_ago_yesterday: Včera
+time_ago_days_ago: před {days} dny
+first_use_title: 👋 Ahoj, {username}!
+first_use_intro_on_join: Vítej v **{server}**! Jmenuji se **Orianna bot**, jsem Discordový bot, který
+  přiřazuje role podle tvého ranku a/nebo bodů mistrovství!
+first_use_intro_on_command: Právě jsi použil jeden z mých příkazů ale myslím, že se potkáváme poprvé.
+  Jmenuji se **Orianna bot**, jsem bot, který umí přiřazovat role podle tvého
+  ranku a bodů mistrovství na jednotlivých šampionech.
+first_use_intro_on_react: Zdá se, že chceš nastavit automatické role pro server **{server}**. Jmenuji se
+  **Orianna bot**, jsem Discordový bot, který přiřazuje role podle tvého ranku
+  a/nebo bodů mistrovství!
+first_use_message: >-
+  {intro}
+
+
+  Pokud chceš, abych ti dala role, můžeš si přidat svůj LoL účet pomocí [této webové stránky]({link}). Svůj účet si můžeš též přidat pomocí Discordového a Redditového systému [ChampionMains Flairs](https://flairs.championmains.com).
+
+
+  Jestli chceš začít, klikni na odkaz níže:
+
+  [{link}]({link})
+
+
+  Zmatený, zvědavý, naštvaný či nadšený? Prohlédni si vše, co umím pomocí `@Orianna Bot help`. Mého autora můžeš kontaktovat pomoci `@Orianna Bot about`.
+command_error_title: 💥 Au!
+command_error_description: "Něco se šeredně pokazilo při provádění tohoto příkazu, zkus to, prosím,
+  později. Pokud se tato chyba několikrát opakuje, nahlaš to prosím v [serveru
+  pro podporu Orianny](https://discord.gg/bfxdsRC). Chyby lze nahlašovat pouze v
+  Angličtině.  "
+command_muted_preamble: |-
+  Nemám oprávnění psát v {channel} ale můžu provést tvůj příkaz „potají.“
+  Zde je to, o co jsi žádal:
+promotion_title: "{username} právě dosáhl nové role: {role}!"
+transfer_title: ✈ Převedl sis účet?
+transfer_body: >-
+  Před nějakou dobou sis u mne přidal LoL účet **{username}** ({region}). Když
+  jsem se dnes dívala, jestli je vše v pořádku, tak jsem zjistila, že tento účet
+  již neexistuje. Nepřevedl jsi tento účet do jiného regionu? 
+
+
+  Účet **{username}** ({region}) jsem odpojila od tvého Discord účtu. Pokud sis doopravdy převedl svůj účet, můžeš si jej znovu přídat.
+command_error_no_accounts: 🔍 {user} nemá nastavené žádné účty.
+command_error_no_accounts_description: Tento příkaz je mnohem užitečnější když mám nějaké data, co bych mohla ukázat.
+  Bohužel tento uživatel u mne nevede žádné účty. Účet lze přidat pomocí příkazu
+  `@Orianna Bot configure`.
+command_error_no_permissions: ✋ Stůj!
+command_error_no_permissions_description: Bez oprávnění spravovat zprávy nemůžeš tuto funkci použít. Promiň :(
+command_error_no_champion: 🔎 Který šampión?
+command_error_no_champion_description: "Nemohla jsem ve tvé zprávě najít žádného šampiona. Zkontroluj, zda nemáš ve
+  zprávě hrubky nebo jestli jsi nezapomněl specifikovat jméno šampiona. "
+command_page_n_of_n: Strana {n} z {total}
+command_about_title: 🤖 O Orianně
+command_about_field_author: Autor
+command_about_field_version: Verze
+command_about_field_source: Zdrojový kód
+command_about_field_servers: Serverů
+command_about_field_channels: Kanálů
+command_about_field_users: Uživatelů
+command_about_field_memory_usage: Využité paměti
+command_about_field_support: Podpora
+command_about_field_vote: Hlasuj pro Oriannu
+command_edit_small_description: Pošle ti odkaz na stránku, kde si můžeš nastavit svůj profil.
+command_edit_description: >-
+  Tento příkaz ti pošle jednorázový odkaz k nastavení tvého
+  [profilu](https://orianna.molenzwiebel.xyz/me). Pomocí něj si můžeš přidat,
+  odebrat nebo spravovat všechny LoL účty, které sis s Oriannou propojil.
+
+
+  Pro další informace ohledně tvého účtu a jak nastavit Oriannu můžeš navštívit [dokumentaci (v Angličtině)](https://orianna.molenzwiebel.xyz/docs/link).  
+command_edit_server_title: ℹ Správa serverů funguje jinak
+command_edit_server_description: "Pro správu serverů s Oriannou v2 se teď stačí jednoduše přihlásit na
+  webovkách Orianny pomocí svého Discord účtu a vybrat server, který chceš
+  spravovat, z bočního panelu. Pamatuj si, že server lze spravovat pouze pokud
+  máš na daném serveru oprávnění `Správa serveru`. "
+command_edit_dm_title: 🔗 Autentifikační odkaz
+command_edit_dm_description: >
+  Pokud chceš spravovat svoje propojené LoL účty, servery, atd., podívej se [na
+  webové stránky Orianny]({link}). Kliknutí na odkaz tě automaticky přihlásí;
+  Tento odkaz lze použít pouze jednou a vyprší za 24 hodin od vytvoření. 
+
+
+  [{link}]({link})
+
+
+  **⚠ Pozor! Pokud si nejsi na 101% jistý, že víš co děláš, nesdílej tento odkaz!** Dovolí komukoliv přístup k tvému profilu.
+command_edit_dm_failed_title: 📪 Máš vyplé přímé zprávy!
+command_edit_dm_failed_description: "Vypadá to, že máš účet nastavený tak, aby ti mohli posílat přímé zprávy pouze
+  kamarádi. To znamená, že ti nemohu posílat zprávy. Prosím, zapni si v
+  `Nastavení soukromí` přímé zprávy od ostatních členů tohoto serveru. "
+command_help_title: "🔖 Nápověda k Orianně "
+command_help_description: "Podle klíčových slov se snažím odhadnout, co po mně chceš. Zde se můžeš
+  podívat na interaktivní seznam slov (neboli příkazů), kterým rozumím. Pro
+  navigaci můžeš použít reakce (čísla) spojené s příkazem, o kterém se chceš
+  dozvédět více. Pro návrat na tento seznam použij reakci 🔖.  "
+command_help_command_title: "🔖 Nápověda pro: {name}"
+command_help_command_description: |-
+  **Popis příkazu:**
+  {description}
+command_help_command_keywords: Klíčová slova
+command_invite_title: 🤖 Chtěl bys pozvánku, jo?
+command_invite_message_description: "Pro přídání Orianny na tvůj vlastní Discord server, použij [tento]({link})
+  odkaz. Díky, že se ti Orianna líbí natolik, že si ji chceš přidat na svůj
+  server! "
+command_other_bot_title: 💡 Tip!
+command_other_bot_description: Role `{role}` je spravovaná mnou. Pomocí příkazu `@Orianna Bot configure` si
+  můžeš zapnout automatické přiřazovaní rolí. Přidal sis již účet? Počkej než ti
+  jej aktualizuji nebo použij příkaz `@Orianna Bot refresh` abych ho
+  aktualizovala okamžitě.
+command_points_small_description: Ukáže ti kolik bodů mistr. máš na šampionovi.
+command_points_description: >-
+  Tento příkaz ukáže body mistrovství pro specifikovaného šampiona.
+
+
+  Šampiona vybereš tím, že je zmíníš jménem či jejich [aliasem](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-data.ts#L4-L92) ve své zprávě. Když žádného šampióna nezmíníš, Orianna ti ukáže defaultního šampiona pro tento server, popřípadě, pokud server nemá defaultního šampiona, ti ukáže chybovou hlášku.
+
+
+  Pro zobrazení bodů mistrovství ostatních uživatelů, je stačí zmínit v příkazu.
+
+
+  Příklady:
+
+  - `@Orianna Bot points mf` - ukáže ti tvoje body mistr. pro Miss Fortune
+
+  - `@Orianna Bot score lee @molenzwiebel` - ukáže ti molenzwiebelovi body mistr. pro Lee Sina
+
+  - `@Orianna Bot mastery` - ukáže ti tvoje body mistr. pro defaultního šampiona serveru
+command_points_message_title: 📖 Body mistrovství
+command_points_message_description: "{user} má **{points} bodů** na: {champion}."
+command_profile_small_description: Ukáže ti propojené LoLkové účty a obecné statistiky vybraného Discord
+  uživatele.
+command_profile_description: >-
+  Tento příkaz ti ukáže obecný přehled tvého profilu u Orianny. Přehled je
+  vygenerovaný ze všech účtů, které máš propojené s Oriannou. Pro zobrazení
+  svého profilu, použij `@Orianna Bot profile`. 
+
+
+  Pokud se chceš podívat na profil někoho jiného, stačí je zmínit v příkaze pro Oriannu. Toto funguje jen když uživatel má nějaký propojený LoL účet s Oriannou.
+
+
+  Jestli chceš, pomocí [webových stránek Orianny](https://orianna.molenzwiebel.xyz/me) si můžeš skrýt uživatelská jména a ranky svých propojených účtů.
+
+
+  Příklady:
+
+  - `@Orianna Bot profile` - zobrazí tvůj profil
+
+  - `@Orianna Bot profile @molenzwiebel` - zobrazí molenzwiebelův profil 
+command_profile_title: 📖 {name}
+command_profile_top_champions: Nejlepší šampioni
+command_profile_statistics: Stastistiky mistrovství
+command_profile_statistics_total_points: "**Celkem** {amount} **bodů**"
+command_profile_statistics_avg_champ: "**Průměrně** {amount} **bodů/šamp.**"
+command_profile_recently_played: Nedávno hrané
+command_profile_recently_played_no_games: _Žádné nedávné hry_
+command_profile_ranked_tiers: Hodnocené fronty
+command_profile_account: Účet
+command_profile_accounts: Účty
+command_refresh_small_description: Aktualizuje tvé data a role.
+command_refresh_description: >-
+  Tento příkaz manuálně donutí Oriannu aktualizovat tvůj rank a body mistroství
+  na všech účtech, které s Oriannou máš propojené. Konkrétně tento příkaz: 
+
+  - Zkontroluje, zda sis na nějakém účtu nezměnil region či jméno.
+
+  - Aktualizuje tvůj rank v hodnocených frontách.
+
+  - Aktualizuje všechny tvoje úrovně a body mistrovství.
+
+
+  Po aktualizaci všech výše zmíněných dat ti Orianna upraví role ve všech serverech, ve kterých společně jste. 
+
+
+  Pozn.: Orianna tvoje data aktualizuje pravidelně sama. Tento příkaz bys měl použít pouze pokud chceš vidět nějakou změnu okamžitě.
+
+
+  Pokud chceš aktualizovat data někoho jiného, stačí je v příkazu zmínit (např. `@Orianna Bot refresh @b1nzy#0001`). 
+command_roles_small_description: Ukáže všechny nastavené role pro tento server
+command_roles_description: >-
+  Ukáže všechny Oriannou spravované role včetně jejich požadavků. Tento příkaz
+  ti též ukáže pro které role aktuálně splňuješ podmínky.
+
+
+  Někdy se ta stejná role může objevit v seznamu víckrát než jednou. V tomto případě stačí splnit jednu „sadu“ požadavků. 
+
+
+  Jestli máš stále nějaké nejasnosti ohledně tohoto téma, koukni na [dokumentaci (v Angličtině)](https://orianna.molenzwiebel.xyz/docs/conditions). 
+command_roles_no_server_title: 🛑 Chybí server
+command_roles_no_server_description: Příkaz jasně zmiňuje, že ukazuje informace pro _celý server_ a přesto ho
+  zkoušíš použít v SZ? Šílenče.
+command_roles_no_roles_title: 🔍 Nic tu není...
+command_roles_no_roles_description: Server zřejmě nemá žádné nastavené role.
+command_roles_at_least: aspoň {value}
+command_roles_at_most: maximálně {value}
+command_roles_exactly: přesně {value}
+command_roles_between: mezi {min} a {max}
+command_roles_ranked_tier_equal: "*{tier}* ve frontě: *{queue}*"
+command_roles_ranked_tier_lower: "*nižší než {tier}* ve frontě: *{queue}*"
+command_roles_ranked_tier_higher: "*vyšší než {tier}* ve frontě: {queue}"
+command_roles_mastery_level: "Jako {champion}, měj {range} úroveň mistrovství. "
+command_roles_total_mastery_level: Have a total mastery level {range}
+command_roles_mastery_score: "Jako {champion}, měj {range} bodů mistrovství.  "
+command_roles_total_mastery_score: Měj {range} bodů mistrovství.
+command_roles_ranked_tier: "Měj hodnocenou úroveň: {ranked}."
+command_roles_region: Měj aktivní účet na regionu {region}.
+command_roles_all_match: "**Vše musíš splňovat:**"
+command_roles_any_match: "**Musíš splňovat cokoliv:**"
+command_roles_at_least_n: "**Musíš splňovat aspoň {amount}:**"
+command_roles_no_conditions: _Bez podmínek_
+command_roles_continued: (Navazující)
+command_roles_message_title: 📖 Role
+command_roles_message_description: "Na tomto serveru jsou nastavené tyto role:"
+command_stats_small_description: Ukáže graf tvého postupu mistrovství s šampionem.
+command_stats_description: >-
+  Tento příkaz ti ukáže graf tvého postupu mistrovství podle hodnot, které
+  Orianna, za dobu co tě zná, zaznamenala. Orianna ti může ukázat pouze hry,
+  které jsi odehrál až poté, co sis s ní propojil účet.
+
+
+  Pokud chceš vidět svůj postup na specifickém šampionovi, tak ho stačí zmínit v příkaze. Pokud chceš vidět postup někoho jiného, tak je zmiň.
+
+
+  Pozn.: Některé hodnoty, které ti tento příkaz ukáže (např. poměr vítězství) jsou pouze odhady založené na počtu získaných bodů mistrovství v zápase — hodnoty nemusí být 100% přesné.
+
+
+  Příklady:
+
+  - `@Orianna Bot chart my annie progression`
+
+  - `@Orianna Bot chart @molenzwiebel`
+
+  - `@Orianna Bot show @molenzwiebel's stats on annie`
+command_stats_no_values_title: 🔍 Nic tu není!
+command_stats_no_values_description: "{user} nemá žádné hry za *{champion}*. Musí prvně odehrát pár her než budu
+  schopná ukázat nějaké statistiky."
+command_stats_message_title: 📈 Statistiky mistrovství - {name} - {champion}
+command_stats_message_data: Data
+command_stats_message_data_value: |-
+  Zaznamenaných **{numGames}** her
+  První hra: **{firstGameDate}**
+  Poslední hra: **{lastGameDate}**
+command_stats_message_games: Hry
+command_stats_message_games_value: |-
+  **{win}** vítězství
+  **{loss}** proher
+  **{winrate}%** poměr vítězství
+command_top_small_description: Ukáže žebříčky a další fajn statistiky!
+command_top_description: >-
+  Tento příkaz ti může ukázat celou řadu různých žebříčků a hodnocení, které buď
+  vychází z tvého individuálního skóre nebo ze skóre všech, kteří mají propojený
+  účet s Oriannou.
+
+
+  **Žebříčky šampionů**
+
+  Nejběžnější použití pro tento příkaz je zobrazení žebříčku nejlepších hráčů jednoho šampiona. Pro zobrazení tohoto žebříčku slouží příkaz `@Orianna Bot top <jméno šampiona>`. Místo celého jména šampiona lze použít i [zkratka](https://bit.ly/2wwGVMi)!
+
+
+  Když žádného šampiona nespecifikuješ, Orianna ti ukáže žebříčky defaultního šampiona pro tento server. Pokud server nemá žádného defaultního šampiona, Orianna ti odpoví chybovou hláškou.
+
+
+  Pokud se chceš podívat na žebříček lidí pro tento server, přidej do svého příkazu slovo `server`.
+
+
+  Příklady:
+
+  - `@Orianna Bot top mf` - ukáže ti žebříček všech MF hráčů
+
+  - `@Orianna Bot top thresh server` - ukáže ti žebříček nejlepších Thresh hráčů pro tento server
+
+
+  **Obecné žebříčky**
+
+  Můžeš si také zobrazit žebříček největších fanatiků. Tento příkaz ti ukáže hráče s nejvyšším počtem bodů mistrovství bez filtru na jednoho šampiona. Pro použití napiš `@Orianna Bot top all`.
+
+
+  Pokud se chceš podívat na žebříček lidí pro tento server, přidej do svého příkazu slovo `server`.
+
+
+  Příklady:
+
+  - `@Orianna Bot top all champions` - ukáže ti šampiona, na kterém má každý hráč nejvyšší počet bodů mistrovství
+
+  - `@Orianna Bot top all champions in this server` - ukáže ti šampiona, na kterém má každý hráč na tomto serveru nejvyšší počet bodů mistrovství
+
+
+  **Osobní žebříček**
+
+  Také se můžeš podívat na svůj vlastní žebříček, který ti ukáže na kterých šampionech máš nejvíc bodů mistrovství. Stačí do příkazu přidat slovo `me`. 
+
+
+  Pokud se chceš podívat na žebříček někoho jiného, stačí je zmínit v příkaze.
+
+
+  Examples:
+
+  - `@Orianna Bot top me` - ukáže ti tvoje nejlepší šampiony
+
+  - `@Orianna Bot top @molenzwiebel` - ukáže ti nejlepší šampiony molenzwiebela
+command_top_points: bodů
+command_top_rank: "Tvé postavení: {rank}"
+command_top_personal_title: 📊 Nejlepší šampioni uživatele {name}
+command_top_no_server_title: ❓ Co děláš?!?!
+command_top_no_server_description: "Snažíš se omezit zobrazení žebříčků na tento server. Jenže mi posíláš
+  soukromou zprávu... to je trochu divné, nemyslíš? Zkus ze svého příkazu
+  odstranit `server`. "
+command_top_title: "Žebříček pro: {champ}"
+command_top_server_title: "Serverový žebříček pro: {champ} "
+command_top_global_title: Obecný žebříček
+command_top_global_server_title: Obecný serverový žebříček
+command_top_graphic_name: JMÉNO
+command_top_graphic_score: BODY
