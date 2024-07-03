@@ -105,6 +105,7 @@ impl LeagueAccount {
             "TH" => "TH2",
             "TW" => "TW2",
             "VN" => "VN2",
+            "ME" => "ME1",
             x => x,
         };
 
