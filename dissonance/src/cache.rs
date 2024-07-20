@@ -29,12 +29,14 @@ impl Cache {
     /// serialize the Guild to JSON, with the exception of the members,
     /// presences and voice states. Note that this will also ensure
     /// upserting of individual channels.
-    pub async fn upsert_guild(self: &Cache, guild: &Guild) -> CacheResult<()> {
+    ///
+    /// `guild` should be a clone of the guild that was received from the
+    /// Discord API
+    pub async fn upsert_guild(self: &Cache, mut guild: Guild) -> CacheResult<()> {
         let mut conn = self.0.write().await;
 
-        // We need to create a copy of the guild that zeros out some of the
+        // We'll create a copy of the guild that zeros out some of the
         // stuff we're not interested in.
-        let mut guild = guild.clone();
         guild.members = vec![];
         guild.voice_states = vec![];
         guild.presences = vec![];

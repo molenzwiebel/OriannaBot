@@ -5,7 +5,7 @@ use lapin::{
     types::FieldTable,
     BasicProperties, Channel, ExchangeKind,
 };
-use twilight_model::gateway::event::{shard::Payload, GatewayEventDeserializer};
+use twilight_model::gateway::event::GatewayEventDeserializer;
 
 use crate::worker::Worker;
 
@@ -96,25 +96,19 @@ impl Forwarder {
         self: &Forwarder,
         worker: &Worker,
         shard_id: u64,
-        payload: Payload,
+        payload: &str,
     ) -> ForwarderResult<()> {
-        let bytes = payload.bytes;
-
         // Needs to be a scope since we want to clone `ty` but keep ownership of the rest.
         let ty = {
             // this has already been parsed by twilight and should be safe
-            let json_as_str = unsafe { std::str::from_utf8_unchecked(&bytes) };
-
-            let parsed = match GatewayEventDeserializer::from_json(json_as_str) {
+            let parsed = match GatewayEventDeserializer::from_json(payload) {
                 Some(ev) => ev,
                 None => return Ok(()),
             };
 
-            match parsed.event_type_ref() {
+            match parsed.event_type() {
                 Some(ty) => {
-                    let _ = self
-                        .introspect_packet(worker, shard_id, ty, json_as_str)
-                        .await;
+                    let _ = self.introspect_packet(worker, shard_id, ty, payload).await;
                     ty.to_string()
                 }
                 None => return Ok(()),
@@ -127,7 +121,7 @@ impl Forwarder {
                     "dissonance",
                     &ty,
                     BasicPublishOptions::default(),
-                    &bytes,
+                    payload.as_bytes(),
                     BasicProperties::default(),
                 )
                 .await?;

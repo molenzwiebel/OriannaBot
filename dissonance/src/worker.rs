@@ -5,10 +5,14 @@ use std::{
 };
 
 use dashmap::DashMap;
-use futures::{FutureExt, StreamExt};
+use futures::StreamExt;
 use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tracing::{debug, info, warn};
-use twilight_gateway::{cluster::Events, Cluster, Event, EventTypeFlags, Intents};
+use twilight_gateway::{
+    stream::{self, ShardMessageStream},
+    ConfigBuilder, Event, EventTypeFlags, Intents, Message, MessageSender, Shard,
+};
+use twilight_http::Client;
 use twilight_model::{
     gateway::{
         payload::{
@@ -54,8 +58,8 @@ const STATUSES: &[(ActivityType, &'static str)] = &[
 
 pub(crate) struct Worker {
     db: Database,
-    cluster: Cluster,
-    events: Option<Events>,
+    shards: Option<Vec<Shard>>,
+    shard_senders: Vec<MessageSender>,
     cache: Cache,
     forwarder: Forwarder,
     outstanding_member_requests: DashMap<Id<GuildMarker>, Instant>,
@@ -87,43 +91,38 @@ impl Worker {
             | Intents::DIRECT_MESSAGE_REACTIONS;
 
         let token = std::env::var("DISCORD_TOKEN")?;
-        let (cluster, events) = Cluster::builder(token, intents)
+        let client = Client::new(token.clone());
+        let config = ConfigBuilder::new(token, intents)
             .presence(UpdatePresencePayload::new(
                 vec![STATUSES[0].to_activity()],
                 false,
                 None,
                 Status::Online,
             )?)
-            .event_types(
-                EventTypeFlags::SHARD_PAYLOAD
-                    | EventTypeFlags::READY
-                    | EventTypeFlags::GUILD_CREATE
-                    | EventTypeFlags::GUILD_UPDATE
-                    | EventTypeFlags::GUILD_DELETE
-                    | EventTypeFlags::ROLE_CREATE
-                    | EventTypeFlags::ROLE_UPDATE
-                    | EventTypeFlags::ROLE_DELETE
-                    | EventTypeFlags::CHANNEL_CREATE
-                    | EventTypeFlags::CHANNEL_UPDATE
-                    | EventTypeFlags::CHANNEL_DELETE
-                    | EventTypeFlags::MEMBER_ADD
-                    | EventTypeFlags::MEMBER_UPDATE
-                    | EventTypeFlags::MEMBER_REMOVE
-                    | EventTypeFlags::MEMBER_CHUNK,
-            )
-            .build()
-            .await?;
+            .build();
+
+        let shards = stream::create_recommended(&client, config, |_, b| b.build())
+            .await?
+            .collect::<Vec<_>>();
+        info!("Created {} shards", shards.len());
+
+        let shard_senders = shards.iter().map(|s| s.sender()).collect();
 
         let db = Database::connect().await?;
+        info!("Connected to database");
+
         let cache = Cache::connect().await?;
+        info!("Connected to cache");
+
         let forwarder = Forwarder::connect().await?;
+        info!("Connected to forwarder");
 
         let (tx, rx) = mpsc::unbounded_channel();
 
         Ok(Worker {
             db,
-            cluster,
-            events: Some(events),
+            shards: Some(shards),
+            shard_senders,
             cache,
             forwarder,
             outstanding_member_requests: DashMap::new(),
@@ -135,22 +134,15 @@ impl Worker {
     }
 
     pub async fn run(mut self: Worker) {
-        let mut events = self.events.take().unwrap();
+        let mut shards = self.shards.take().unwrap();
         let member_rx = self.guild_member_rx.take().unwrap();
 
         let arc = Arc::new(self);
         let self_status = arc.clone();
         let self_presence_requests = arc.clone();
 
-        // Bring the cluster up in a different worker, since we're
-        // going to be processing events before this resolves.
-        //
-        // After spawn, go ahead and cycle through our presences.
+        // Start rotating presence on a separate worker.
         tokio::spawn(async move {
-            info!("Starting cluster...");
-            self_status.cluster.up().await;
-            info!("Cluster online!");
-
             self_status.presence_loop().await;
         });
 
@@ -162,11 +154,75 @@ impl Worker {
             self_presence_requests.member_request_loop(member_rx).await;
         });
 
-        while let Some((shard_id, event)) = events.next().await {
-            if let Err(e) = arc.clone().handle_event(shard_id, event) {
-                warn!("Error handling event on shard {}: {:?}", shard_id, e);
+        let mut message_stream = ShardMessageStream::new(shards.iter_mut());
+
+        while let Some((shard_id, event)) = message_stream.next().await {
+            let shard_id = shard_id.id().number();
+            match event {
+                Ok(msg) => {
+                    if let Err(e) = arc.clone().handle_message(shard_id, msg) {
+                        warn!("Error handling event on shard {}: {:?}", shard_id, e);
+                    }
+                }
+                Err(_) => {
+                    warn!("Error receiving message from shard {}", shard_id);
+                }
             }
         }
+    }
+
+    /// Handles a single message received from the gateway. A message will be forwarded
+    /// to the AMQP broker, and potentially parsed and handled on the dissonance side
+    /// as well.
+    #[inline(always)]
+    fn handle_message(self: Arc<Worker>, shard: u64, message: Message) -> VoidResult {
+        match message {
+            Message::Close(_) => {}
+            Message::Text(msg) => {
+                // forward to AMQP (if necessary)
+                let worker_clone = self.clone();
+                let forwarded_msg = msg.clone();
+                handle_event!(
+                    "ShardPayload",
+                    worker_clone
+                        .clone()
+                        .forwarder
+                        .try_forward(&worker_clone, shard, &forwarded_msg)
+                        .await
+                );
+
+                // parse, then hand off to the event handler
+                match twilight_gateway::parse(
+                    msg,
+                    EventTypeFlags::READY
+                        | EventTypeFlags::GUILD_CREATE
+                        | EventTypeFlags::GUILD_UPDATE
+                        | EventTypeFlags::GUILD_DELETE
+                        | EventTypeFlags::ROLE_CREATE
+                        | EventTypeFlags::ROLE_UPDATE
+                        | EventTypeFlags::ROLE_DELETE
+                        | EventTypeFlags::CHANNEL_CREATE
+                        | EventTypeFlags::CHANNEL_UPDATE
+                        | EventTypeFlags::CHANNEL_DELETE
+                        | EventTypeFlags::MEMBER_ADD
+                        | EventTypeFlags::MEMBER_UPDATE
+                        | EventTypeFlags::MEMBER_REMOVE
+                        | EventTypeFlags::MEMBER_CHUNK,
+                ) {
+                    Ok(Some(ev)) => {
+                        let _ = self.handle_event(shard, ev.into());
+                    }
+                    Ok(None) => {
+                        // ignore; we don't care about this event
+                    }
+                    Err(_) => {
+                        // ignore; likely an unsupported discord gateway event
+                    }
+                };
+            }
+        };
+
+        Ok(())
     }
 
     /// Handles a single event received from the gateway. Note that not all events
@@ -179,16 +235,6 @@ impl Worker {
     #[inline(always)]
     fn handle_event(self: Arc<Worker>, shard: u64, event: Event) -> VoidResult {
         match event {
-            Event::ShardPayload(payload) => {
-                let worker_clone = self.clone();
-                handle_event!(
-                    "ShardPayload",
-                    self.forwarder
-                        .try_forward(&worker_clone, shard, payload)
-                        .await
-                );
-            }
-
             Event::Ready(ready) => {
                 info!("Shard {} ready with {} guilds!", shard, ready.guilds.len());
             }
@@ -350,13 +396,17 @@ impl Worker {
             guild.members.len() >= guild.member_count.map(|x| x as usize).unwrap_or(usize::MAX);
 
         debug!(
-            "Joined guild {} with {} members.",
+            "[{shard}] Joined guild {} with {} members.",
             guild.name,
             guild.members.len()
         );
 
-        // Update cache.
-        self.cache.upsert_guild(guild).await?;
+        // Update cache. This can take a while, so we'll do it in a separate task.
+        let upsert_guild = guild.clone();
+        let upsert_self = self.clone();
+        tokio::spawn(async move {
+            let _ = upsert_self.cache.upsert_guild(upsert_guild).await;
+        });
 
         // If we already have all members, no need
         if has_all_members {
@@ -442,8 +492,8 @@ impl Worker {
                 UpdatePresence::new(vec![status.to_activity()], false, None, Status::Online)
                     .unwrap();
 
-            for shard in self.cluster.shards() {
-                match shard.command(&message).await {
+            for shard in &self.shard_senders {
+                match shard.command(&message) {
                     Err(x) => warn!("Error setting presence: {:?}", x),
                     _ => {}
                 }
@@ -467,18 +517,15 @@ impl Worker {
                 .presences(false)
                 .query("", None);
 
-            // First attempt to send the request. If that fails, we will simply but it back
-            // in the queue at the end so we naturally retry it later. This should not really
-            // fail often. If it does, we should likely increase the duration above.
-            //
-            // Occasionally it also seems that shards do not respond within enough time. In that
-            // case we will abort after half a second.
-            let send_result = futures::select! {
-                send = self.cluster.command(shard, &cmd).fuse() => send.is_ok(),
-                _ = tokio::time::sleep(Duration::from_millis(500)).fuse() => false
-            };
+            // Queue the request. Twilight doesn't really allow us to query the state of the
+            // request after queuing it, so this is the best we can do. Let's hope that twilight
+            // does not lose it somewhere along the way.
+            let send_was_successful = self.shard_senders[shard as usize]
+                .command(&cmd)
+                .map(|_| ())
+                .is_ok();
 
-            if !send_result {
+            if !send_was_successful {
                 warn!(
                     "Error requesting guild members for {} in shard {}, retrying later",
                     guild, shard
