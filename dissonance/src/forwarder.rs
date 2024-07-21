@@ -125,7 +125,10 @@ impl Forwarder {
                     BasicProperties::default(),
                 )
                 .await
-                .map_err(|_| ())?;
+                .map_err(|e| {
+                    tracing::warn!("Failed to publish message: {}", e);
+                    ()
+                })?;
         }
 
         Ok(())
