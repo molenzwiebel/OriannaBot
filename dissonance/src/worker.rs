@@ -7,6 +7,10 @@ use std::{
 use dashmap::DashMap;
 use futures::StreamExt;
 use tokio::{sync::mpsc, time::MissedTickBehavior};
+use tokio_retry::{
+    strategy::{jitter, ExponentialBackoff},
+    Retry,
+};
 use tracing::{debug, info, warn};
 use twilight_gateway::{
     stream::{self, ShardMessageStream},
@@ -61,7 +65,6 @@ pub(crate) struct Worker {
     shards: Option<Vec<Shard>>,
     shard_senders: Vec<MessageSender>,
     cache: Cache,
-    forwarder: Forwarder,
     outstanding_member_requests: DashMap<Id<GuildMarker>, Instant>,
 
     outstanding_count: AtomicUsize,
@@ -114,9 +117,6 @@ impl Worker {
         let cache = Cache::connect().await?;
         info!("Connected to cache");
 
-        let forwarder = Forwarder::connect().await?;
-        info!("Connected to forwarder");
-
         let (tx, rx) = mpsc::unbounded_channel();
 
         Ok(Worker {
@@ -124,7 +124,6 @@ impl Worker {
             shards: Some(shards),
             shard_senders,
             cache,
-            forwarder,
             outstanding_member_requests: DashMap::new(),
 
             outstanding_count: AtomicUsize::new(0),
@@ -140,6 +139,12 @@ impl Worker {
         let arc = Arc::new(self);
         let self_status = arc.clone();
         let self_presence_requests = arc.clone();
+        let self_forwarder = arc.clone();
+
+        let (forwarder_tx, forwarder_rx) = mpsc::channel(4096); // don't buffer more if lapin is being stupid
+
+        // Start forwarding presences on a separate worker.
+        tokio::spawn(forward_events(self_forwarder, forwarder_rx));
 
         // Start rotating presence on a separate worker.
         tokio::spawn(async move {
@@ -160,7 +165,7 @@ impl Worker {
             let shard_id = shard_id.id().number();
             match event {
                 Ok(msg) => {
-                    if let Err(e) = arc.clone().handle_message(shard_id, msg) {
+                    if let Err(e) = arc.clone().handle_message(&forwarder_tx, shard_id, msg) {
                         warn!("Error handling event on shard {}: {:?}", shard_id, e);
                     }
                 }
@@ -175,21 +180,18 @@ impl Worker {
     /// to the AMQP broker, and potentially parsed and handled on the dissonance side
     /// as well.
     #[inline(always)]
-    fn handle_message(self: Arc<Worker>, shard: u64, message: Message) -> VoidResult {
+    fn handle_message(
+        self: Arc<Worker>,
+        forwarder: &mpsc::Sender<(u64, String)>,
+        shard: u64,
+        message: Message,
+    ) -> VoidResult {
         match message {
             Message::Close(_) => {}
             Message::Text(msg) => {
-                // forward to AMQP (if necessary)
-                let worker_clone = self.clone();
-                let forwarded_msg = msg.clone();
-                handle_event!(
-                    "ShardPayload",
-                    worker_clone
-                        .clone()
-                        .forwarder
-                        .try_forward(&worker_clone, shard, &forwarded_msg)
-                        .await
-                );
+                // forward to AMQP; we don't care if we drop the message here
+                // if the queue is full, we have bigger problems elsewhere
+                let _ = forwarder.try_send((shard, msg.clone()));
 
                 // parse, then hand off to the event handler
                 match twilight_gateway::parse(
@@ -575,5 +577,35 @@ impl ToActivity for (ActivityType, &'static str) {
             url: None,
         }
         .into()
+    }
+}
+
+/// Given the receiving end of a message queue, attempt to forward events through
+/// RabbitMQ, using a retrying strategy if the connection fails or otherwise errors.
+async fn forward_events(worker: Arc<Worker>, mut rx: mpsc::Receiver<(u64, String)>) {
+    let retry_strategy = ExponentialBackoff::from_millis(10).max_delay(Duration::from_secs(1));
+    let connect_to_forwarder = || async {
+        Retry::spawn(retry_strategy.clone().map(jitter), || async {
+            Forwarder::connect().await.map_err(|e| {
+                warn!("Error connecting to forwarder: {:?}", e);
+                e
+            })
+        })
+        .await
+    };
+
+    let mut forwarder = connect_to_forwarder()
+        .await
+        .expect("Failed to connect to forwarder");
+    info!("Connected to forwarder");
+
+    while let Some((shard_id, payload)) = rx.recv().await {
+        while let Err(e) = forwarder.try_forward(&worker, shard_id, &payload).await {
+            warn!("Error forwarding event: {:?}", e);
+
+            forwarder = connect_to_forwarder()
+                .await
+                .expect("Failed to reconnect to forwarder");
+        }
     }
 }

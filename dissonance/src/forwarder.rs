@@ -97,7 +97,7 @@ impl Forwarder {
         worker: &Worker,
         shard_id: u64,
         payload: &str,
-    ) -> ForwarderResult<()> {
+    ) -> Result<(), ()> {
         // Needs to be a scope since we want to clone `ty` but keep ownership of the rest.
         let ty = {
             // this has already been parsed by twilight and should be safe
@@ -124,7 +124,8 @@ impl Forwarder {
                     payload.as_bytes(),
                     BasicProperties::default(),
                 )
-                .await?;
+                .await
+                .map_err(|_| ())?;
         }
 
         Ok(())
