@@ -152,8 +152,13 @@ impl Updater {
         let user_id = ctx.user.id;
         debug!("Fetching ranked tiers for user {}", user_id);
 
-        let lol_ranks = self.riot_interface.get_lol_league_entries(priority, &ctx.accounts).await?;
-        let tft_ranks = self.riot_interface.get_tft_league_entries(priority, &ctx.accounts).await?;
+        // fetch ranks in parallel
+        let (lol_ranks, tft_ranks) = tokio::join!(
+            self.riot_interface.get_lol_league_entries(priority, &ctx.accounts),
+            self.riot_interface.get_tft_league_entries(priority, &ctx.accounts)
+        );
+        let lol_ranks = lol_ranks?;
+        let tft_ranks = tft_ranks?;
 
         // Combine the LoL and TFT ranks and find the highest rank in each queue.
         // Turn that into a hashmap that maps the queue to the tier within that queue.
