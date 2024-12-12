@@ -1,0 +1,361 @@
+metadata:
+  code: sv-SE
+  name: Svenska
+  ddragonLanguage: en_US
+empty: ""
+ranked_tier_unranked: Orankad
+ranked_tier_iron: Järn
+ranked_tier_bronze: Brons
+ranked_tier_silver: Silver
+ranked_tier_gold: Guld
+ranked_tier_platinum: Platinum
+ranked_tier_emerald: Emerald
+ranked_tier_diamond: Diamant
+ranked_tier_master: Mästare
+ranked_tier_grandmaster: Världsmästare
+ranked_tier_challenger: Utmanare
+queue_ranked_solo: Rankad Solo
+queue_ranked_flex: Rankad Flex
+queue_ranked_tft: Rankad TFT
+queue_ranked_any: någon rankad kö
+queue_ranked_highest: din högsta rankade kö (förutom TFT)
+queue_ranked_highest_tft: din högsta rankade kö (inklusive TFT)
+time_ago_today: Idag
+time_ago_yesterday: IgårYesterday
+time_ago_days_ago: "{days} dagar sen"
+first_use_title: 👋 Hallå {username}!
+first_use_intro_on_join: Välkommen till **{server}**! Jag är **Orianna Bot**, en Discord-bot som
+  ansvarar för att tilldela roller baserat på dina League of Legends-rankningar
+  och behärskningspoäng.
+first_use_intro_on_command: Du använde bara mitt kommando men jag tror inte att vi har träffats förut. Jag
+  är **Orianna Bot**, en Discord-bot som ansvarar för att tilldela roller
+  baserat på dina League of Legends-rankningar och behärskningspoäng.
+first_use_intro_on_react: Det verkar som att du vill ställa in dina roller på **{server}**. Jag är
+  **Orianna Bot**, Discord-boten som ansvarar för att tilldela roller.
+first_use_message: >-
+  {intro}
+
+
+  Om du vill att jag ska spåra dig och ge dig alla de roller du förtjänar kan du lägga till ditt leaguekonto med hjälp av [onlinekonfigurationspanelen]({link}). Du kan också importera dina ligakonton från Discord och Reddit [ChampionMains Flairs](https://flairs.championmains.com)-systemet.
+
+
+  För att komma igång, klicka på länken nedan!
+
+  [{link}]({link})
+
+  Förvirrad, nyfiken, arg, glad? Kolla in alla mina tillgängliga kommandon med hjälp av `@Orianna Bot help` och kontakta min skapare med `@Orianna Bot about`.
+command_error_title: 💥 Ajj!
+command_error_description: Något gick fruktansvärt fel när kommandot utfördes, försök igen om en stund.
+  Om felet fortsätter att inträffa, skicka en buggrapport i [Orianna Bot
+  support-servern](https://discord.gg/bfxdsRC).
+command_muted_preamble: "Jag har inte behörighet att prata i {channel}, men jag kan fortfarande utföra
+  ditt kommando i hemlighet. Här är vad du begärde:"
+promotion_title: "{username} har precis blivit befordrad till {role}!"
+transfer_title: ✈ Konto överfört?
+transfer_body: >-
+  Du registrerade ditt ligakonto **{username}** ({region}) hos mig för ett tag
+  sedan. När jag kollar upp det idag verkar det som att kontot inte längre
+  existerar. Överförde du kontot till en annan region?
+
+
+  Jag har tagit bort länken till League-kontot från din Discord-profil. Om du verkligen har överfört,
+
+  du kan helt enkelt lägga till kontot igen i den nya regionen.
+command_error_no_accounts: 🔍 {user} har inga konfigurerade konton.
+command_error_no_accounts_description: Det här kommandot är mycket mer användbart om jag faktiskt har data att visa,
+  men tyvärr har den här användaren inga konton konfigurerade hos mig. Konton
+  kan läggas till med hjälp av `@Orianna Bot configure`.
+command_error_no_permissions: ✋ Stanna Där!
+command_error_no_permissions_description: Du måste kunna hantera meddelanden för att använda den här funktionen. Förlåt
+  :(
+command_error_no_champion: 🔎 Vilken Kämpe?
+command_error_no_champion_description: Jag försökte hitta namnet på en kämpe i ditt meddelande, men jag kunde inte
+  hitta något. Antingen hade du ett skrivfel någonstans eller så glömde du att
+  ange namnet på en kämpe.
+command_page_n_of_n: Sida {n} av {total}
+command_about_title: 🤖 Om
+command_about_field_author: Skapare
+command_about_field_version: Version
+command_about_field_source: Källkod
+command_about_field_servers: Servrar
+command_about_field_channels: Kanaler
+command_about_field_users: Användare
+command_about_field_memory_usage: Minnesanvändning
+command_about_field_support: Stödserver
+command_about_field_vote: Rösta för Orianna Bot
+command_edit_small_description: Skickar en länk till din personliga profilinställningssida.
+command_edit_description: >-
+  Det här kommandot skickar en engångslänk till din [sida för personliga
+  onlineinställningar](https://orianna.molenzwiebel.xyz/me) för att hantera och
+  lägga till alla leaguekonton som är länkade till din Orianna Bot-profil.
+
+
+  För mer information om din personliga profil och hur du ställer in dina League-kommandon, kolla in [relevant dokumentationssida](https://orianna.
+
+  molenzwiebel.xyz/docs/link).
+command_edit_server_title: ℹ Serverredigering fungerar annorlunda
+command_edit_server_description: Med Orianna v2 finns det inte längre en separat konfigurations-URL för
+  redigering av serverinställningar. Istället kan du helt enkelt logga in med
+  din egen länk eller Discord-konto och sedan välja din server från sidofältet.
+  Observera att du måste ha "Hantera server"-behörighet för att redigera
+  serverinställningar.
+command_edit_dm_title: 🔗 Autentiseringslänk
+command_edit_dm_description: >-
+  För att redigera konton, konfigurera dina personliga servrar och mer kan du
+  komma åt din profilsida på [Orianna webbpanel]({link}). Om du klickar på
+  länken nedan loggas du in automatiskt. Du kan bara använda denna länk _en
+  gång_ innan den löper ut. Den upphör också att gälla om du inte använder den
+  inom 24 timmar.
+
+
+  [{link}]({link})
+
+
+  **⚠ Dela inte den här länken om du inte är helt säker på vad du gör!** Alla med den här länken kommer att ha tillgång till din profil.
+command_edit_dm_failed_title: 📪 Din brevlåda är privat!
+command_edit_dm_failed_description: Du verkar ha konfigurerat ditt konto för att bara tillåta direktmeddelanden
+  från vänner. Detta innebär tyvärr att jag inte kan skicka DM till dig. För att
+  aktivera direktmeddelanden från servermedlemmar, högerklicka på den här
+  serverns ikon, välj "Sekretessinställningar" och aktivera "Tillåt
+  direktmeddelanden från servermedlemmar".
+command_help_title: 🔖 Orianna Hjälp
+command_help_description: Jag försöker avgöra vad du menar när du nämner mig med hjälp av specifika
+  sökord. Här är en enkel lista med kommandon som jag förstår. Klicka på
+  motsvarande nummer för mer information och exempel om kommandot. Klicka på 🔖
+  för att visa detta index.
+command_help_command_title: 🔖 Hjälp åt {name}
+command_help_command_description: |-
+  **Beskrivning**
+  {description}
+command_help_command_keywords: Nyckelord
+command_invite_title: 🤖 Så du vill ha en inbjudan?
+command_invite_message_description: För att lägga till Orianna Bot till din egen Discord-server, använd helt
+  enkelt [denna]({link}) länk. Tack för att du gillar Orianna Bot tillräckligt
+  för att överväga att lägga till henne på din egen server!
+command_other_bot_title: 💡 Bra Råd!
+command_other_bot_description: Rollen `{role}` hanteras av mig. Du kan konfigurera ditt konto (med `@Orianna
+  Bot configure`) för att aktivera automatisk rolltilldelning. Har du redan lagt
+  till ett konto? Vänta på att jag uppdaterar dig, eller använd `@Orianna Bot
+  refresh` för att uppdatera omedelbart.
+command_points_small_description: Visa hur många mäster-poäng du har på en mästare.
+command_points_description: >-
+  Detta kommando visar en användares behärskningspoäng på den angivna mästaren.
+
+
+  För att välja en mästare, inkludera bara ett mästarnamn eller [alias](https://github.com/molenzwiebel/OriannaBot/blob/1064ed15b326b0b918b3b3307e546977e03caf52/backend/src/riot/static-L-9s) i ditt meddelande. . Om inget mästarnamn ingår,
+
+  Orianna kommer att falla tillbaka till standardmästaren för den nuvarande Discord-servern, eller visa ett felmeddelande om det inte finns någon standardmästare konfigurerad.
+
+
+  För att se någon annans behärskning nämner du helt enkelt deras namn i kommandot.
+
+
+  Exempel:
+
+  - `@Orianna Bot points mf` - visar din behärskning på Miss Fortune
+
+  - `@Orianna Bot score lee @molenzwiebel` -
+
+  visar molenzwiebels behärskning av Lee Sin
+
+  - `@Orianna Bot mastery` - visar din bemästring på standardmästaren
+command_points_message_title: 📖 Bemästringspoäng
+command_points_message_description: "{user} har **{points} poäng** på {champion}."
+command_profile_small_description: Visa ligakonton och allmän statistik för en Discord-användare.
+command_profile_description: >-
+  Detta kommando visar dig en översikt över din Orianna Bot-profil, beräknad
+  från data som samlats in från alla konton du har länkat från Orianna. För att
+  se din egen profil, använd helt enkelt `@Orianna Bot-profil`.
+
+
+  För att se någon annans profil istället nämner du dem i meddelandet. Observera att den användaren måste ha länkade konton med Orianna.
+
+  Om du vill dölja dina rankade nivåer eller kontoanvändarnamn kan du göra det genom att ändra sekretessinställningarna i din [webbinstrumentpanel](https://orianna.molenzwiebel.xyz/me).
+
+
+  Exempel:
+
+  - `@Orianna Bot-profil` - visar din personliga profil
+
+  - `@Orianna Bot-profil @molenzwiebel` - visar molenzwiebels profil
+command_profile_title: 📖 {name}s Profil
+command_profile_top_champions: Toppkämpar
+command_profile_statistics: Bemästringsstatistik
+command_profile_statistics_total_points: "{amount} **Totala Poäng**"
+command_profile_statistics_avg_champ: "{amount} **Medel/Kämpe**"
+command_profile_recently_played: Nyligen Spelat
+command_profile_recently_played_no_games: _Inga Spårade Spel_
+command_profile_ranked_tiers: Rankade Nivåer
+command_profile_account: Konto
+command_profile_accounts: Konton
+command_refresh_small_description: Uppdatera din data och räkna om dina roller.
+command_refresh_description: >-
+  Detta kommando utlöser manuellt en fullständig uppdatering av din behärskning
+  och rankad statistik över alla dina länkade konton. I synnerhet kommer
+  följande saker att uppdateras:
+
+  - Alla dina länkade konton kommer att kontrolleras för namnändringar eller regionöverföringar.
+
+  - Alla dina rankade nivåer kommer att uppdateras.
+
+  -
+
+  Alla dina mästarmästarvärden och nivåer kommer att uppdateras.
+
+
+  Efter att ha uppdaterat alla värden kommer Orianna att beräkna om dina roller på varje server du delar med henne, och eventuellt lägga till eller ta bort roller baserat på de nya värdena.
+
+
+  Observera att du inte behöver uppdatera manuellt. Orianna kommer med jämna mellanrum att uppdatera din statistik automatiskt,
+
+  så detta kommando bör endast användas om du har några ändringar som du vill se omedelbart.
+
+
+  Om du vill uppdatera någon annans poäng, nämner du dem bara när du anropar kommandot (t.ex. `@Orianna Bot refresh @b1nzy#0001`).
+command_roles_small_description: Visar alla roller som är konfigurerade på den nuvarande servern.
+command_roles_description: >-
+  Visar alla roller och deras krav som konfigurerats på den aktuella
+  Discord-servern. Detta kommer att lista alla roller, tillsammans med en
+  indikation på om du för närvarande är kvalificerad för dem.
+
+
+  Observera att samma roll kan förekomma två gånger i listan med olika krav. Om så är fallet,
+
+  du kommer att få rollen om du är berättigad till minst en av "uppsättningarna" av villkor.
+
+
+  För mer information om rollvillkor och hur de fungerar, kolla in [dokumentationen](https://orianna.molenzwiebel.xyz/docs/conditions).
+command_roles_no_server_title: 🛑 Server Saknas
+command_roles_no_server_description: Detta kommando säger uttryckligen att det visar _server_ information, men du
+  försöker använda det i DM? Galning.
+command_roles_no_roles_title: 🔍 Verkar inte vara något här...
+command_roles_no_roles_description: Den aktuella servern verkar inte ha några roller konfigurerade.
+command_roles_at_least: av minst {value}
+command_roles_at_most: av mest {value}
+command_roles_exactly: av exakt {value}
+command_roles_between: mellan {min} och {max}
+command_roles_ranked_tier_equal: av {tier} i {queue}
+command_roles_ranked_tier_lower: lägre än {tier} i {queue}
+command_roles_ranked_tier_higher: högre än {tier} i {queue}
+command_roles_mastery_level: Ha en behärskningsnivå {range} på {champion}
+command_roles_total_mastery_level: Have a total mastery level {range}
+command_roles_mastery_score: Ha ett mästerskapsresultat {range} på {champion}
+command_roles_total_mastery_score: Ha en total behärskningspoäng {range}
+command_roles_ranked_tier: Ha en rankad nivå {ranked}
+command_roles_region: Ha ett aktivt konto på {region}
+command_roles_all_match: "**Alla måste matcha:**"
+command_roles_any_match: "**Vilken som helst måste matcha:**"
+command_roles_at_least_n: "**Minst {amount} måste matcha:**"
+command_roles_no_conditions: _Inga villkor_
+command_roles_continued: (Fortsatt)
+command_roles_message_title: 📖 Serverroller
+command_roles_message_description: "Följande roller är konfigurerade på denna server:"
+command_stats_small_description: Visar ett diagram som beskriver din behärskningsprogression på en mästare.
+command_stats_description: >-
+  Detta kommando genererar ett diagram över din behärskningsprogression baserat
+  på de värden som periodiskt observeras av Orianna Bot. Observera att endast
+  spel som spelas efter att du först registrerat dig hos Orianna Bot visas.
+
+
+  För att rita en specifik mästare, inkludera helt enkelt mästarens namn. Om du vill se statistiken för någon annan, nämn dem bara i kommandot
+
+  .
+
+
+  Notera: Vissa av värdena i det här kommandot, såsom winrate, är uppskattningar baserade på mängden mastery-poäng som tjänats in för ett spel. De kommer sannolikt inte att vara 100% korrekta.
+
+
+  Exempel:
+
+  - `@Orianna Bot kartlägger min annie progression`
+
+  - `@Orianna Bot-diagram @molenzwiebel`
+
+  - `@Orianna Bot visar @molenzwiebels statistik på annie`
+command_stats_no_values_title: 🔍 Det finns inget här!
+command_stats_no_values_description: "{user} har inga spårade spel på {champion}. Vissa spel kommer att behöva
+  spelas innan jag kan visa statistik."
+command_stats_message_title: 📈 Mästerskapsstatistik - {name} - {champion}
+command_stats_message_data: Data
+command_stats_message_data_value: |-
+  **{numGames}** Spel spårade
+  **{firstGameDate}** Första spelet
+  **{lastGameDate}** Senaste matchen
+command_stats_message_games: Spel
+command_stats_message_games_value: |-
+  **{win}** Vinster
+  **{loss}** Förluster
+  **{winrate}%** Vinstfrekvens
+command_top_small_description: Visa topplistor och annan snygg statistik!
+command_top_description: >-
+  Det här kommandot kan visa en mängd olika topplistor och rankningar, baserat
+  på antingen din individuella poäng eller alla personer som är kopplade till
+  Orianna.
+
+
+  **Champion Leaderboards**
+
+  Den vanligaste användningen är att visa en topplista över alla användares högsta poäng på en specificerad mästare. För att göra det, använd helt enkelt `@Orianna Bot top <champion name>`,
+
+  där mästarnamnet är valfri mästare eller [förkortning](https://bit.ly/2wwGVMi).
+
+
+  Om du inte anger ett mästarnamn kommer Orianna att falla tillbaka till standardmästaren på din nuvarande server, eller visa ett felmeddelande om servern inte har någon mästarinställning.
+
+
+  För att begränsa resultaten till bara personer på den aktuella Discord-servern, inkludera `server` i ditt meddelande.
+
+  Exempel:
+
+  - `@Orianna Bot top mf` - visar toppresultat på Miss Fortune för alla länkade Orianna-konton
+
+  - `@Orianna Bot top thresh server` - visar toppbetygen på Thresh för alla nuvarande servermedlemmar
+
+
+  **Övergripande topplistor**
+
+  För att få en topplista med sanna mästarfanatiker,
+
+  du kan också få en topplista över alla högsta mästarbehärskningspoäng oavsett mästare. För att göra det, använd helt enkelt `@Orianna Bot top all`. Detta kommando kommer att visa dig alla sanna mästarfanatiker, med miljontals poäng investerade i en enda mästare.
+
+
+  För att begränsa resultaten till bara personer på den aktuella Discord-servern, inkludera `server` i ditt meddelande
+
+  .
+
+
+  Exempel:
+
+  - `@Orianna Bot toppar alla mästare` - visar topppoäng för alla användare på alla mästare
+
+  - `@Orianna Bot toppar alla mästare på denna server` - visar topppoäng för alla användare på den aktuella servern
+
+
+  **Personliga toppmästare**
+
+  Du kan också se en topplista med dina egna personliga mästerskapspoäng genom att lägga till "mig" till kommandot.
+
+  Om du gör det kommer du att visa dig en lista över alla dina mästarmästarvärden.
+
+
+  För att se någon annans topplista nämner du dem helt enkelt i ditt meddelande.
+
+
+  Exempel:
+
+  - `@Orianna Bot toppar mig` - visar dina bästa mästare
+
+  - `@Orianna Bot top @molenzwiebel` - visar molenzwiebels främsta mästare
+command_top_points: Poäng
+command_top_rank: "Din Rank: {rank}"
+command_top_personal_title: 📊 Toppmästare för {name}
+command_top_no_server_title: ❓ Vad gör du?!?!
+command_top_no_server_description: Att begränsa topplistor till endast medlemmar på den aktuella servern medan du
+  skickar mig ett DM är lite konstigt, tycker du inte? Överväg att ta bort
+  `server` från ditt kommando.
+command_top_title: "{champ} Ledartavla"
+command_top_server_title: "{champ} Serverns Ledartavla"
+command_top_global_title: Global Ledartavla
+command_top_global_server_title: Globala Serverns Ledartavla
+command_top_graphic_name: NAMN
+command_top_graphic_score: POÄNG
