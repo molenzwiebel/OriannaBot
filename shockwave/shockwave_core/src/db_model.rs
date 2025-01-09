@@ -100,9 +100,10 @@ impl LeagueAccount {
     pub fn route(&self) -> Option<PlatformRoute> {
         let region = self.region.to_uppercase();
         let region = match region.as_str() {
-            "PH" => "PH2",
-            "SG" => "SG2",
-            "TH" => "TH2",
+            "SEA" => "SG2", // new name for SEA
+            "PH" => "SG2",  // merged into SG which got renamed to SEA
+            "SG" => "SG2",  // merged into SG which got renamed to SEA
+            "TH" => "SG2",  // merged into SG which got renamed to SEA
             "TW" => "TW2",
             "VN" => "VN2",
             "ME" => "ME1",
