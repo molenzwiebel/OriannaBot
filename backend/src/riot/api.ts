@@ -1,6 +1,6 @@
 import Teemo = require("teemojs");
 
-export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU", "KR", "PH", "SG", "TH", "TW", "VN", "ME"];
+export const REGIONS = ["BR", "EUNE", "EUW", "JP", "LAN", "LAS", "NA", "OCE", "TR", "RU", "KR", "SEA", "TW", "VN", "ME"];
 
 /**
  * A simple incomplete interface for the Riot Games API.
@@ -62,9 +62,10 @@ export function platform(region: string): string {
         "oce": "OC1",
         "tr": "TR1",
         "ru": "RU",
-        "ph": "PH2",
-        "sg": "SG2",
-        "th": "TH2",
+        "sea": "SG2",
+        "sg": "SG2", // merged into SG which got renamed to SEA
+        "ph": "SG2", // merged into SG which got renamed to SEA
+        "th": "SG2", // merged into SG which got renamed to SEA
         "tw": "TW2",
         "vn": "VN2",
         "me": "ME1",
