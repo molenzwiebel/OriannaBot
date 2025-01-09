@@ -154,9 +154,7 @@
                 <option value="TR">TR</option>
                 <option value="RU">RU</option>
                 <option value="KR">KR</option>
-                <option value="PH">PH</option>
-                <option value="SG">SG</option>
-                <option value="TH">TH</option>
+                <option value="SEA">SEA</option>
                 <option value="TW">TW</option>
                 <option value="VN">VN</option>
                 <option value="ME">ME</option>
