@@ -42,7 +42,7 @@ first_use_message: >-
 
   Um loszulegen, klicke auf den Link unten!
 
-  [{link}]({link})
+  {link}
 
 
   Verwirrt, fasziniert, wütend, glücklich? Schaue dir alle meine verfügbaren Befehle mit `@Orianna Bot help` an und kontaktiere meinen Entwickler mit `@Orianna Bot about`.
@@ -108,7 +108,7 @@ command_edit_dm_description: >-
   wenn du ihn nicht innerhalb von 24 Stunden benutzt.
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ Teile diesen Link nicht, wenn du dir nicht absolut sicher bist, was du tust!** Jeder mit diesem Link hat Zugriff auf dein Profil.

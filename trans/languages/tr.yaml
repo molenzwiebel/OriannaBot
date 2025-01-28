@@ -41,7 +41,7 @@ first_use_message: >-
 
   Başlamak için aşağıdaki linke tıklayın!
 
-  [{link}]({link})
+  {link}
 
 
   Kafanız mı karıştı, merak ettiğiniz bir şey mi var, sinirli veya mutlu musunuz? Tüm komutlarıma `@Orianna Bot help` ile, geliştiricime ise `@Orianna Bot about` kullanarak ulaşabilirsiniz.
@@ -102,7 +102,7 @@ command_edit_dm_description: >-
   kullanabilirsiniz. 24 saat boyunca kullanmazsanız da süresi dolar.
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ Ne yaptığınızdan emin değilseniz bu linki paylaşmayın!** Bu linke sahip olan herkes profilinize erişebilir.

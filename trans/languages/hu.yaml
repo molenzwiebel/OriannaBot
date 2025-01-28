@@ -44,7 +44,7 @@ first_use_message: >-
 
   A kezdéshez kattints az alábbi hivatkozásra!
 
-  [{link}]({link})
+  {link}
 
 
   Összezavarodott, izgatott, mérges, vagy épp boldog vagy? Az `@Orianna Bot help` parancs használatával tudod csekkolni az elérhető parancsaim listáját, továbbá az `@Orianna Bot about` parancs használatával léphetsz kapcsolatba gazdámmal.
@@ -113,7 +113,7 @@ command_edit_dm_description: >-
   automatikusan le fog járni.
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ Senkivel se oszd meg ezt a hivatkozást, ha nem vagy teljesen biztos abban, amit csinálsz!** Ezzel a hivatkozással bárki hozzáférhet a fiókodhoz.

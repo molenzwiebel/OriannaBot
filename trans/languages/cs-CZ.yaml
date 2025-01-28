@@ -41,7 +41,7 @@ first_use_message: >-
 
   Jestli chceš začít, klikni na odkaz níže:
 
-  [{link}]({link})
+  {link}
 
 
   Zmatený, zvědavý, naštvaný či nadšený? Prohlédni si vše, co umím pomocí `@Orianna Bot help`. Mého autora můžeš kontaktovat pomoci `@Orianna Bot about`.
@@ -102,7 +102,7 @@ command_edit_dm_description: >
   Tento odkaz lze použít pouze jednou a vyprší za 24 hodin od vytvoření. 
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ Pozor! Pokud si nejsi na 101% jistý, že víš co děláš, nesdílej tento odkaz!** Dovolí komukoliv přístup k tvému profilu.

@@ -41,7 +41,7 @@ first_use_message: >-
 
   För att komma igång, klicka på länken nedan!
 
-  [{link}]({link})
+  {link}
 
   Förvirrad, nyfiken, arg, glad? Kolla in alla mina tillgängliga kommandon med hjälp av `@Orianna Bot help` och kontakta min skapare med `@Orianna Bot about`.
 command_error_title: 💥 Ajj!
@@ -108,7 +108,7 @@ command_edit_dm_description: >-
   inom 24 timmar.
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ Dela inte den här länken om du inte är helt säker på vad du gör!** Alla med den här länken kommer att ha tillgång till din profil.

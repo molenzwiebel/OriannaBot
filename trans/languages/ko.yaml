@@ -41,7 +41,7 @@ first_use_message: >-
 
   시작하려면 아래 링크를 클릭하세요!
 
-  [{link}]({link})
+  {link}
 
 
   `@Orianna Bot help`를 입력하면 모든 명령어를 확인할 수 있습니다. 또 `@Orianna Bot about` 명령어로 제작자를 만나볼 수도 있어요.
@@ -94,7 +94,7 @@ command_edit_dm_description: >-
   로그인됩니다. 해당 링크는 오직 한 번만 사용 가능하며, 24시간 이내 사용하지 않으면 만료되어 사용이 불가능합니다.
 
 
-  [{link}]({link})
+  {link}
 
 
   **⚠ 다른 사람에게 링크를 공유하지 마세요!** 
