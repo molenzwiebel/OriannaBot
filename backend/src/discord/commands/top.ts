@@ -59,7 +59,7 @@ const TopCommand: SlashCapableCommand = {
         const allChamps = normalizedContent.includes(" any") || normalizedContent.includes(" all") || normalizedContent.includes(" every");
 
         // A player was mentioned, show their top.
-        if (mentions.length || normalizedContent.includes(" me")) {
+        if (mentions.length || /\bme\b/.test(normalizedContent)) {
             const user = await expectUserWithAccounts(ctx);
             if (!user) return;
 
