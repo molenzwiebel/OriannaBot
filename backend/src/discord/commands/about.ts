@@ -27,7 +27,7 @@ const AboutCommand: SlashCapableCommand = {
             title: t.command_about_title,
             fields: [{
                 name: t.command_about_field_author,
-                value: "molenzwiebel#2773 (EUW - Yahoo Answers)"
+                value: "molenzwiebel (EUW - molenzwiebel#MOLEN)"
             }, {
                 name: t.command_about_field_version,
                 value: `[${commit.shortHash} - ${commit.subject}](https://github.com/molenzwiebel/OriannaBot/commit/${commit.hash})`
@@ -48,11 +48,7 @@ const AboutCommand: SlashCapableCommand = {
                 inline: true
             }, {
                 name: t.command_about_field_support,
-                value: "[discord.gg/bfxdsRC](https://discord.gg/bfxdsRC)",
-                inline: true
-            }, {
-                name: t.command_about_field_vote,
-                value: "[discordbots.org](https://discordbots.org/bot/244234418007441408)",
+                value: "[Discord Invite](https://discord.gg/bfxdsRC)",
                 inline: true
             }]
         });
