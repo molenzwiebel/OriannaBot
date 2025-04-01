@@ -49,7 +49,7 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        const riotIdMatch = /^([^#]{3,16})#(.{3,5})$/.exec(this.name);
+        const riotIdMatch = /^([^#]{3,16})#(.{2,5})$/.exec(this.name);
         if (!riotIdMatch) {
             this.detailsError = "Invalid Riot ID. Your Riot ID must be of the format `game name#tagline` and not just your in-game name.";
             throw new Error("");
