@@ -49,7 +49,11 @@ export default class AddAccountWizard extends Vue {
             throw new Error("");
         }
 
-        const riotIdMatch = /^([^#]{3,16})#(.{2,5})$/.exec(this.name);
+        // sometimes using the copy button in the client leaves some invisible punctuation
+        // characters in the name; strip out the entire "General Punctuation" block here
+        const cleanName = this.name.trim().replace(/[\u2000-\u206F]/g, "");
+
+        const riotIdMatch = /^([^#]{3,16})#(.{2,5})$/.exec(cleanName);
         if (!riotIdMatch) {
             this.detailsError = "Invalid Riot ID. Your Riot ID must be of the format `game name#tagline` and not just your in-game name.";
             throw new Error("");
