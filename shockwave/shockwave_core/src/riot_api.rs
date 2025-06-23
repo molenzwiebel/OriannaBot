@@ -65,9 +65,9 @@ impl RiotApiInterface {
         accounts: &Vec<LeagueAccount>,
     ) -> Result<Vec<(QueueType, Tier)>> {
         Ok(future::try_join_all(accounts.iter().filter_map(|account| {
-            account.route().map(|region| {
-                self.lol_client(priority).league_v4().get_league_entries_for_summoner(region, &account.summoner_id)
-            })
+            account
+                .route()
+                .map(|region| self.lol_client(priority).league_v4().get_league_entries_by_puuid(region, &account.puuid))
         }))
         .await?
         .into_iter()
@@ -93,7 +93,7 @@ impl RiotApiInterface {
             Some(
                 self.tft_client(priority)
                     .tft_league_v1()
-                    .get_league_entries_for_summoner(route, &account.summoner_id)
+                    .get_league_entries_by_puuid(route, &account.puuid)
                     .map(|x| x.map(|x| x.into_iter().filter(|x| x.tier.is_some()).collect::<Vec<_>>())),
             )
         }))
@@ -132,7 +132,7 @@ impl RiotApiInterface {
             return Err("Could not parse region".into());
         };
 
-        Ok(self.lol_client(priority).summoner_v4().get_by_summoner_id(region, &account.summoner_id).await)
+        Ok(self.lol_client(priority).summoner_v4().get_by_puuid(region, &account.puuid).await)
     }
 
     /// Attempt to retrieve the full Riot ID for the given account.
