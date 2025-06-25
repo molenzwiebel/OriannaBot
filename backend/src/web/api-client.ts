@@ -147,7 +147,7 @@ export default class WebAPIClient {
         let taken = false;
 
         // Check if this account has been taken by someone else already.
-        if (await LeagueAccount.query().where("summoner_id", summ.id).where("region", req.body.region).first()) {
+        if (await LeagueAccount.query().where("puuid", summ.puuid).where("region", req.body.region).first()) {
             taken = true;
         }
 
@@ -201,7 +201,7 @@ export default class WebAPIClient {
 
         // Check if this account has been taken by someone else already.
         // If it has, remove it from the old account.
-        const oldAccount = await LeagueAccount.query().where("summoner_id", pending.summoner.id).where("region", pending.region).first();
+        const oldAccount = await LeagueAccount.query().where("puuid", pending.summoner.puuid).where("region", pending.region).first();
         if (oldAccount) {
             const user = await User.query().where("id", oldAccount.user_id).eager("accounts").first();
             await oldAccount.$query().delete();
@@ -274,13 +274,13 @@ export default class WebAPIClient {
      */
     private deleteUserAccount = requireAuth(async (req: express.Request, res: express.Response) => {
         if (!this.validate(Joi.object({
-            summoner_id: Joi.string(),
+            puuid: Joi.string(),
             region: Joi.any().valid(REGIONS)
         }).unknown(true), req, res)) return;
 
         await req.user.$loadRelated("accounts");
 
-        const toDelete = req.user.accounts!.find(x => x.region === req.body.region && x.summoner_id === req.body.summoner_id);
+        const toDelete = req.user.accounts!.find(x => x.region === req.body.region && x.puuid === req.body.puuid);
         if (!toDelete) return res.status(400).json(null);
 
         await toDelete.$query().delete();

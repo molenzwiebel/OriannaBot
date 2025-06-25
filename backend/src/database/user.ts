@@ -135,15 +135,15 @@ export default class User extends Model {
     async addAccount(region: string, lolSummoner: riot.Summoner, riotAccount: riot.RiotAccount) {
         if (!lolSummoner || !riotAccount) return;
         await this.$loadRelated("accounts");
-        if (this.accounts!.some(x => x.region === region && x.summoner_id === lolSummoner.id)) return;
+        if (this.accounts!.some(x => x.region === region && x.puuid === lolSummoner.puuid)) return;
 
         // this is a primary account if this is the user's first account
         const isPrimary = this.accounts!.length === 0;
 
         await this.$relatedQuery<LeagueAccount>("accounts").insert({
             region: region,
-            summoner_id: lolSummoner.id,
-            account_id: lolSummoner.accountId,
+            summoner_id: "",
+            account_id: "",
             puuid: lolSummoner.puuid,
             riot_id_game_name: riotAccount.gameName,
             riot_id_tagline: riotAccount.tagLine,

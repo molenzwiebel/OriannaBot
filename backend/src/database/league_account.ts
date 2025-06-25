@@ -21,12 +21,12 @@ export default class LeagueAccount extends Model {
     region: string;
 
     /**
-     * The encrypted LoL summoner id for this league account.
+     * The encrypted LoL summoner id for this league account. Empty after 2025/06/22.
      */
     summoner_id: string;
 
     /**
-     * The encrypted LoL account id for this league account.
+     * The encrypted LoL account id for this league account. Empty after 2025/06/22.
      */
     account_id: string;
 
