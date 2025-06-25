@@ -28,7 +28,7 @@
                     <div class="actions"></div>
                 </div>
 
-                <div v-for="account in user.accounts" class="account" :key="account.region + account.summoner_id">
+                <div v-for="account in user.accounts" class="account" :key="account.region + account.puuid">
                     <div class="avatar-container">
                     </div>
                     <span class="username">{{ account.riot_id_game_name }}#{{ account.riot_id_tagline }} ({{ account.region }})</span>
