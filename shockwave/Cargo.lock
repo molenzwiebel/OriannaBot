@@ -1582,9 +1582,9 @@ dependencies = [
 
 [[package]]
 name = "riven"
-version = "2.69.0"
+version = "2.70.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c9fae4eee584b0ae2d87a45b105adfc21011ca2c4f55d98448a511e0d189505"
+checksum = "5ab9ed7a32c90a585a897271f1705352c4412692a84ee3785e9e253808c4dd01"
 dependencies = [
  "eserde",
  "futures",
