@@ -107,13 +107,13 @@ export default class UserProfile extends Vue {
             account.primary = acc === account;
         }
 
-        this.$root.submit("/api/v1/user/account/" + acc.account_id, "PATCH", {
+        this.$root.submit("/api/v1/user/account/" + acc.puuid, "PATCH", {
             primary: true
         });
     }
 
     async handlePrivacyUpdate(acc: UserAccount) {
-        this.$root.submit("/api/v1/user/account/" + acc.account_id, "PATCH", {
+        this.$root.submit("/api/v1/user/account/" + acc.puuid, "PATCH", {
             show_in_profile: acc.show_in_profile,
             include_region: acc.include_region
         });
