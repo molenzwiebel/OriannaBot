@@ -28,7 +28,7 @@ export default class WebAPIClient {
         app.patch("/api/v1/user", swallowErrors(this.patchUserProfile));
         app.post("/api/v1/summoner", swallowErrors(this.lookupSummoner));
         app.post("/api/v1/user/accounts", swallowErrors(this.addUserAccount));
-        app.patch("/api/v1/user/account/:accountId", swallowErrors(this.updateAccountSettings));
+        app.patch("/api/v1/user/account/:puuid", swallowErrors(this.updateAccountSettings));
         app.delete("/api/v1/user/accounts", swallowErrors(this.deleteUserAccount));
 
         app.get("/api/v1/user/:id/accounts", swallowErrors(this.serveUserAccounts));
@@ -228,7 +228,7 @@ export default class WebAPIClient {
     private updateAccountSettings = requireAuth(async (req: express.Request, res: express.Response) => {
         await req.user.$loadRelated("accounts");
 
-        const target = req.user.accounts!.find(x => x.account_id === req.params.accountId);
+        const target = req.user.accounts!.find(x => x.puuid === req.params.puuid);
         if (!target) return res.status(404).json({ ok: false, error: "Unknown account" });
 
         if (!this.validate({
@@ -322,7 +322,7 @@ export default class WebAPIClient {
         }
 
         return res.status(200).json(user.accounts!.filter(x => x.show_in_profile).map(x => ({
-            id: crypto.createHash("md5").update(x.account_id).digest("hex"),
+            id: crypto.createHash("md5").update(x.puuid).digest("hex"),
             region: x.region,
             riotId: {
                 gameName: x.riot_id_game_name,
