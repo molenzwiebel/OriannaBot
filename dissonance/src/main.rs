@@ -19,11 +19,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     info!("Starting dissonance...");
 
-    let worker = Worker::new().await?;
+    let (shards, worker) = Worker::new().await?;
 
     info!("Worker successfully initialized.");
 
-    worker.run().await;
-
+    worker.run(shards).await;
     Ok(())
 }

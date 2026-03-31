@@ -7,6 +7,7 @@ use lapin::{
     types::FieldTable,
 };
 use tokio::sync::mpsc::{self, UnboundedSender};
+use twilight_gateway::ShardId;
 use twilight_model::gateway::event::GatewayEventDeserializer;
 
 use crate::worker::Worker;
@@ -54,7 +55,7 @@ impl Forwarder {
     pub async fn try_forward(
         self: &Forwarder,
         worker: &Worker,
-        shard_id: u64,
+        shard_id: ShardId,
         payload: &str,
     ) -> Result<(), ()> {
         // Needs to be a scope since we want to clone `ty` but keep ownership of the rest.
@@ -89,7 +90,7 @@ impl Forwarder {
     async fn introspect_packet(
         self: &Forwarder,
         worker: &Worker,
-        shard_id: u64,
+        shard_id: ShardId,
         ty: &str,
         contents: &str,
     ) -> ForwarderResult<()> {

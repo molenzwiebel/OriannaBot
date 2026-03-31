@@ -1,6 +1,6 @@
 use std::{
     error::Error,
-    sync::{atomic::AtomicUsize, Arc},
+    sync::{Arc, atomic::AtomicUsize},
     time::{Duration, Instant},
 };
 
@@ -8,27 +8,26 @@ use dashmap::DashMap;
 use futures::StreamExt;
 use tokio::{sync::mpsc, time::MissedTickBehavior};
 use tokio_retry::{
-    strategy::{jitter, ExponentialBackoff},
     Retry,
+    strategy::{ExponentialBackoff, jitter},
 };
 use tracing::{debug, info, warn};
 use twilight_gateway::{
-    stream::{self, ShardMessageStream},
-    ConfigBuilder, Event, EventTypeFlags, Intents, Message, MessageSender, Shard,
+    ConfigBuilder, Event, EventTypeFlags, Intents, Message, MessageSender, Shard, ShardId,
 };
 use twilight_http::Client;
 use twilight_model::{
     gateway::{
         payload::{
-            incoming::MemberChunk,
+            incoming::{GuildCreate, MemberChunk},
             outgoing::{
-                update_presence::UpdatePresencePayload, RequestGuildMembers, UpdatePresence,
+                RequestGuildMembers, UpdatePresence, update_presence::UpdatePresencePayload,
             },
         },
         presence::{Activity, ActivityType, MinimalActivity, Status},
     },
     guild::Guild,
-    id::{marker::GuildMarker, Id},
+    id::{Id, marker::GuildMarker},
 };
 
 use crate::{cache::Cache, database::Database, forwarder::Forwarder};
@@ -62,14 +61,13 @@ const STATUSES: &[(ActivityType, &'static str)] = &[
 
 pub(crate) struct Worker {
     db: Database,
-    shards: Option<Vec<Shard>>,
     shard_senders: Vec<MessageSender>,
     cache: Cache,
     outstanding_member_requests: DashMap<Id<GuildMarker>, Instant>,
 
     outstanding_count: AtomicUsize,
-    guild_member_tx: mpsc::UnboundedSender<(u64, Id<GuildMarker>)>,
-    guild_member_rx: Option<mpsc::UnboundedReceiver<(u64, Id<GuildMarker>)>>,
+    guild_member_tx: mpsc::UnboundedSender<(ShardId, Id<GuildMarker>)>,
+    guild_member_rx: Option<mpsc::UnboundedReceiver<(ShardId, Id<GuildMarker>)>>,
 }
 
 macro_rules! handle_event {
@@ -84,7 +82,7 @@ macro_rules! handle_event {
 }
 
 impl Worker {
-    pub async fn new() -> Result<Worker, Box<dyn Error>> {
+    pub async fn new() -> Result<(Vec<Shard>, Worker), Box<dyn Error>> {
         let intents = Intents::GUILDS
             | Intents::GUILD_MESSAGES
             | Intents::GUILD_MEMBERS
@@ -104,7 +102,7 @@ impl Worker {
             )?)
             .build();
 
-        let shards = stream::create_recommended(&client, config, |_, b| b.build())
+        let shards = twilight_gateway::create_recommended(&client, config, |_, b| b.build())
             .await?
             .collect::<Vec<_>>();
         info!("Created {} shards", shards.len());
@@ -119,21 +117,22 @@ impl Worker {
 
         let (tx, rx) = mpsc::unbounded_channel();
 
-        Ok(Worker {
-            db,
-            shards: Some(shards),
-            shard_senders,
-            cache,
-            outstanding_member_requests: DashMap::new(),
+        Ok((
+            shards,
+            Worker {
+                db,
+                shard_senders,
+                cache,
+                outstanding_member_requests: DashMap::new(),
 
-            outstanding_count: AtomicUsize::new(0),
-            guild_member_tx: tx,
-            guild_member_rx: Some(rx),
-        })
+                outstanding_count: AtomicUsize::new(0),
+                guild_member_tx: tx,
+                guild_member_rx: Some(rx),
+            },
+        ))
     }
 
-    pub async fn run(mut self: Worker) {
-        let mut shards = self.shards.take().unwrap();
+    pub async fn run(mut self: Worker, shards: Vec<Shard>) {
         let member_rx = self.guild_member_rx.take().unwrap();
 
         let arc = Arc::new(self);
@@ -159,10 +158,12 @@ impl Worker {
             self_presence_requests.member_request_loop(member_rx).await;
         });
 
-        let mut message_stream = ShardMessageStream::new(shards.iter_mut());
+        let mut message_stream = futures::stream::select_all(shards.into_iter().map(|e| {
+            let id = e.id();
+            e.map(move |msg| (id, msg))
+        }));
 
         while let Some((shard_id, event)) = message_stream.next().await {
-            let shard_id = shard_id.id().number();
             match event {
                 Ok(msg) => {
                     if let Err(e) = arc.clone().handle_message(&forwarder_tx, shard_id, msg) {
@@ -182,8 +183,8 @@ impl Worker {
     #[inline(always)]
     fn handle_message(
         self: Arc<Worker>,
-        forwarder: &mpsc::Sender<(u64, String)>,
-        shard: u64,
+        forwarder: &mpsc::Sender<(ShardId, String)>,
+        shard: ShardId,
         message: Message,
     ) -> VoidResult {
         match message {
@@ -235,17 +236,19 @@ impl Worker {
     /// whenever anything IO-related needs to happen. This is because this function is
     /// called inside the hot event loop and as a result needs to never block the task.
     #[inline(always)]
-    fn handle_event(self: Arc<Worker>, shard: u64, event: Event) -> VoidResult {
+    fn handle_event(self: Arc<Worker>, shard: ShardId, event: Event) -> VoidResult {
         match event {
             Event::Ready(ready) => {
                 info!("Shard {} ready with {} guilds!", shard, ready.guilds.len());
             }
 
             Event::GuildCreate(guild) => {
-                handle_event!(
-                    "GuildCreate",
-                    self.handle_guild_created(&guild, shard).await
-                );
+                if let GuildCreate::Available(guild) = *guild {
+                    handle_event!(
+                        "GuildCreate",
+                        self.handle_guild_created(&guild, shard).await
+                    );
+                }
             }
 
             Event::GuildUpdate(guild) => {
@@ -262,8 +265,8 @@ impl Worker {
                 );
             }
 
-            // If unavailable is false, it means we got kicked. Otherwise we don't care.
-            Event::GuildDelete(guild) if !guild.unavailable => {
+            // If unavailable is None, it means we got kicked. Otherwise we don't care.
+            Event::GuildDelete(guild) if guild.unavailable.is_none() => {
                 handle_event!("GuildDelete", self.handle_guild_deleted(guild.id).await);
             }
 
@@ -382,7 +385,7 @@ impl Worker {
 
     /// Queues the given guild for a full re-fetch of all members. Returns
     /// the total number of requests currently queued.
-    pub fn queue_guild_members_fetch(&self, shard: u64, id: Id<GuildMarker>) -> usize {
+    pub fn queue_guild_members_fetch(&self, shard: ShardId, id: Id<GuildMarker>) -> usize {
         // Queue this guild for a full member fetch.
         let _ = self.guild_member_tx.send((shard, id));
 
@@ -393,7 +396,7 @@ impl Worker {
     /// Invoked on a new task whenever a guild is "created", either through startup Ready,
     /// through startup guild creation, or whenever the bot joins a new server. Ensures that
     /// we fetch the full list of members.
-    async fn handle_guild_created(self: Arc<Worker>, guild: &Guild, shard: u64) -> VoidResult {
+    async fn handle_guild_created(self: Arc<Worker>, guild: &Guild, shard: ShardId) -> VoidResult {
         let has_all_members =
             guild.members.len() >= guild.member_count.map(|x| x as usize).unwrap_or(usize::MAX);
 
@@ -507,7 +510,7 @@ impl Worker {
     /// emits member requests to Discord for each message in the queue.
     async fn member_request_loop(
         self: Arc<Worker>,
-        mut rx: mpsc::UnboundedReceiver<(u64, Id<GuildMarker>)>,
+        mut rx: mpsc::UnboundedReceiver<(ShardId, Id<GuildMarker>)>,
     ) {
         let mut interval = tokio::time::interval(Duration::from_millis(50));
         interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
@@ -522,7 +525,7 @@ impl Worker {
             // Queue the request. Twilight doesn't really allow us to query the state of the
             // request after queuing it, so this is the best we can do. Let's hope that twilight
             // does not lose it somewhere along the way.
-            let send_was_successful = self.shard_senders[shard as usize]
+            let send_was_successful = self.shard_senders[shard.number() as usize]
                 .command(&cmd)
                 .map(|_| ())
                 .is_ok();
@@ -582,7 +585,7 @@ impl ToActivity for (ActivityType, &'static str) {
 
 /// Given the receiving end of a message queue, attempt to forward events through
 /// RabbitMQ, using a retrying strategy if the connection fails or otherwise errors.
-async fn forward_events(worker: Arc<Worker>, mut rx: mpsc::Receiver<(u64, String)>) {
+async fn forward_events(worker: Arc<Worker>, mut rx: mpsc::Receiver<(ShardId, String)>) {
     let retry_strategy = ExponentialBackoff::from_millis(10).max_delay(Duration::from_secs(1));
     let connect_to_forwarder = || async {
         Retry::spawn(retry_strategy.clone().map(jitter), || async {
