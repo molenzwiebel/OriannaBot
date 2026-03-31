@@ -1,13 +1,13 @@
 use std::error::Error;
 
-use redis::aio::Connection as RedisConnection;
-use redis::AsyncCommands;
+use redis::AsyncTypedCommands;
+use redis::aio::MultiplexedConnection as RedisConnection;
 
 use tokio::sync::RwLock;
 use tracing::warn;
 use twilight_model::guild::Guild;
-use twilight_model::id::marker::GuildMarker;
 use twilight_model::id::Id;
+use twilight_model::id::marker::GuildMarker;
 
 /// Simple Result alias that returns any error.
 type CacheResult<T> = Result<T, Box<dyn Error>>;
@@ -20,7 +20,7 @@ impl Cache {
     /// uses it.
     pub async fn connect() -> CacheResult<Cache> {
         let redis = redis::Client::open(format!("redis://{}/", std::env::var("REDIS_URL")?))?;
-        let conn = redis.get_async_connection().await?;
+        let conn = redis.get_multiplexed_async_connection().await?;
 
         Ok(Cache(RwLock::new(conn)))
     }
@@ -65,18 +65,18 @@ impl Cache {
         let mut conn = self.0.write().await;
 
         let entry = conn
-            .get::<String, String>(format!("dissonance:guild:{}", guild_id.get()))
+            .get(format!("dissonance:guild:{}", guild_id.get()))
             .await;
 
         // Drop lock here so we don't hold it while we parse and update.
         std::mem::drop(conn);
 
         match entry {
-            Err(_) => warn!(
+            Err(_) | Ok(None) => warn!(
                 "Update for guild {} failed: it was not in the cache.",
                 guild_id.get()
             ),
-            Ok(content) => {
+            Ok(Some(content)) => {
                 let mut guild = serde_json::from_str::<Guild>(&content)?;
                 update(&mut guild);
 

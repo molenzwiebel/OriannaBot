@@ -2,9 +2,9 @@ use std::{collections::HashSet, error::Error, num::NonZeroU64};
 
 use backoff::ExponentialBackoff;
 use lapin::{
+    BasicProperties, Channel, ExchangeKind,
     options::{BasicPublishOptions, ExchangeDeclareOptions, QueueBindOptions, QueueDeclareOptions},
     types::FieldTable,
-    BasicProperties, Channel, ExchangeKind,
 };
 use tokio::sync::mpsc::{self, UnboundedSender};
 use twilight_model::gateway::event::GatewayEventDeserializer;
@@ -127,8 +127,8 @@ impl Forwarder {
                 // attempt to publish
                 let result = channel
                     .basic_publish(
-                        EXCHANGE,
-                        topic.as_str(),
+                        EXCHANGE.into(),
+                        topic.clone().into(),
                         BasicPublishOptions::default(),
                         payload.as_bytes(),
                         BasicProperties::default(),
@@ -169,7 +169,7 @@ impl Forwarder {
 
         send_channel
             .exchange_declare(
-                EXCHANGE,
+                EXCHANGE.into(),
                 ExchangeKind::Topic,
                 ExchangeDeclareOptions {
                     passive: false,
@@ -184,7 +184,7 @@ impl Forwarder {
 
         send_channel
             .queue_declare(
-                TOPIC,
+                TOPIC.into(),
                 QueueDeclareOptions {
                     passive: false,
                     durable: false,
@@ -198,9 +198,9 @@ impl Forwarder {
 
         send_channel
             .queue_bind(
-                TOPIC,
-                EXCHANGE,
-                "#",
+                TOPIC.into(),
+                EXCHANGE.into(),
+                "#".into(),
                 QueueBindOptions::default(),
                 FieldTable::default(),
             )
