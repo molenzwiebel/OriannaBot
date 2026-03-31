@@ -14,7 +14,7 @@
     "amqplib": "^0.7.1",
     "body-parser": "^1.18.2",
     "callsites": "^3.1.0",
-    "canvas": "^2.5.0",
+    "canvas": "^3.2.3",
     "canvg": "^2.0.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
