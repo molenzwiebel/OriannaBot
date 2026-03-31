@@ -1,6 +1,3 @@
-#![feature(hash_extract_if)]
-#![feature(extract_if)]
-
 pub mod database;
 pub mod riot_api;
 pub mod updater;

@@ -90,9 +90,9 @@ impl Database {
 
         for user in users {
             ret.push(EvaluationContext {
-                accounts: accounts.extract_if(|x| x.user_id == user.id).collect(),
-                ranks: ranks.extract_if(|x| x.user_id == user.id).collect(),
-                stats: stats.extract_if(|x| x.user_id == user.id).collect(),
+                accounts: accounts.extract_if(.., |x| x.user_id == user.id).collect(),
+                ranks: ranks.extract_if(.., |x| x.user_id == user.id).collect(),
+                stats: stats.extract_if(.., |x| x.user_id == user.id).collect(),
                 user,
             });
         }

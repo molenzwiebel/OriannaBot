@@ -127,7 +127,11 @@ impl RiotApiInterface {
     /// indicate whether we could even load the summoner (region parsing),
     /// while the second result indicates the result of actually calling
     /// the API (we expose this for more complex logic).
-    pub async fn get_summoner(&self, priority: Priority, account: &LeagueAccount) -> Result<RivenResult<Summoner>> {
+    pub async fn get_summoner(
+        &self,
+        priority: Priority,
+        account: &LeagueAccount,
+    ) -> Result<RivenResult<Option<Summoner>>> {
         let Some(region) = account.route() else {
             return Err("Could not parse region".into());
         };
