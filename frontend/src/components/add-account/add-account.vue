@@ -43,6 +43,8 @@
                             <img :src="'https://ddragon.leagueoflegends.com/cdn/12.21.1/img/profileicon/' + pending.targetSummonerIcon + '.png'" />
                             <br><br>
                             After changing your icon, click <b>Validate</b> to add link your account. You can change your icon back after you have successfully verified.
+                            <br><br>
+                            <b>NOTE: </b>Summoner icon changes can occasionally take a long time (5-15 minutes) to update. You can leave this window open while you wait, and click validate periodically to check if your icon has updated. If things still don't work after more than 30 minutes, head over to the <a href="https://discord.gg/bfxdsRC">support server</a>.
                         </p>
 
                         <span class="details-error">{{ verificationError }}</span>
