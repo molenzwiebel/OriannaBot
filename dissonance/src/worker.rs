@@ -34,8 +34,6 @@ use crate::{cache::Cache, database::Database, forwarder::Forwarder};
 
 type VoidResult = Result<(), Box<dyn Error>>;
 
-const VERSION: &str = compile_time_run::run_command_str!("git", "log", "--format=%h - %s", "-n 1");
-
 const STATUSES: &[(ActivityType, &'static str)] = &[
     (ActivityType::Playing, "Command: Shockwave"),
     (ActivityType::Playing, "on-hit Orianna"),
@@ -567,11 +565,14 @@ impl ToActivity for (ActivityType, &'static str) {
     fn to_activity(&self) -> Activity {
         let (ty, msg) = self;
 
+        let version = std::env::var("SOURCE_COMMIT")
+            .map_or_else(|_| "<Unknown>".to_string(), |x| x[..8].to_string());
+
         let message = format!(
             "{} \n{}Version {}",
             msg,
-            "\u{3000}".repeat(118 - msg.len() - VERSION.len()),
-            VERSION
+            "\u{3000}".repeat(118 - msg.len() - version.len()),
+            version
         );
 
         MinimalActivity {
