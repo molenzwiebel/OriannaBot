@@ -19,10 +19,6 @@ interface Configuration {
         token: string;
         emoteServers: string[];
     };
-    reddit: {
-        clientId: string;
-        clientSecret: string;
-    };
     web: {
         url: string;
         port: number;
@@ -34,8 +30,7 @@ interface Configuration {
         queue: string;
     };
     redis: {
-        host: string;
-        port: number;
+        url: string;
     };
     shockwave: {
         url: string;

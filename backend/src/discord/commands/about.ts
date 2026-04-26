@@ -1,4 +1,3 @@
-import { Commit, getLastCommit } from "git-last-commit";
 import { GuildMember } from "../../database";
 import { dissonanceRedis } from "../../redis";
 import { SlashCapableCommand } from "../command";
@@ -18,8 +17,7 @@ const AboutCommand: SlashCapableCommand = {
     },
     convertSlashParameter: (k, v) => v,
     async handler({ info, t }) {
-        const commit = await new Promise<Commit>((res, rej) => getLastCommit((e, r) => e ? rej(e) : res(r)));
-
+        const commitHash = process.env.SOURCE_COMMIT;
         const numGuilds = (await dissonanceRedis.keys("dissonance:guild:*")).length;
         const numMembers: { count: number } = await GuildMember.query().count().first() as any;
 
@@ -30,7 +28,7 @@ const AboutCommand: SlashCapableCommand = {
                 value: "molenzwiebel (EUW - molenzwiebel#MOLEN)"
             }, {
                 name: t.command_about_field_version,
-                value: `[${commit.shortHash} - ${commit.subject}](https://github.com/molenzwiebel/OriannaBot/commit/${commit.hash})`
+                value: commitHash ? `[${commitHash.slice(0, 8)}](https://github.com/molenzwiebel/OriannaBot/commit/${commitHash})` : "Unknown"
             }, {
                 name: t.command_about_field_source,
                 value: "[Orianna Bot on Github](https://github.com/molenzwiebel/oriannabot)"

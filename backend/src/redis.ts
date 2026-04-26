@@ -1,13 +1,8 @@
 import Redis = require("ioredis");
 import config from "./config";
 
-// Connect to redis on the specified port, prefix orianna: to all keys.
-const instance = new Redis(config.redis.port, config.redis.host, {
-    keyPrefix: "orianna:"
-});
-
-// Connect to redis on the specified port, prefix orianna: to all keys.
-export const dissonanceRedis = new Redis(config.redis.port, config.redis.host, {
+// Connect to redis on the specified port, prefix dissonance: to all keys.
+export const dissonanceRedis = new Redis(config.redis.url, {
     keyPrefix: "dissonance:"
 });
 
@@ -19,5 +14,3 @@ export async function getCachedGuild(id: string): Promise<dissonance.Guild | nul
     const data = await dissonanceRedis.get(`guild:${id}`);
     return data ? JSON.parse(data) : null;
 }
-
-export default instance;
