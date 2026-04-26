@@ -11,6 +11,8 @@ import { default as registerImages } from "./generated-images";
 import { default as registerShockwave } from "./shockwave-api";
 import * as path from "path";
 
+const frontendPath = process.env.ORIANNA_FRONTEND_PATH || path.join(__dirname, "../../../frontend/dist");
+
 /**
  * Creates a new Express instance for serving the web panel. This application
  * will not attach the API routes, since they are stateful. All other routes
@@ -27,7 +29,7 @@ export default function createApplication(client: DiscordClient) {
     app.use(bodyParser.json());
 
     // First try static data.
-    app.use(express.static(path.join(__dirname, "../../../frontend/dist")));
+    app.use(express.static(frontendPath));
 
     // Then, try images that may or may not exist yet.
     registerImages(app);
@@ -43,7 +45,7 @@ export default function createApplication(client: DiscordClient) {
     // our vue-router can catch the problem and render the appropriate page.
     app.use((req, res) => {
         res.setHeader("Content-Type", "text/html");
-        res.sendFile(path.join(__dirname, "../../../frontend/dist/index.html"));
+        res.sendFile(path.join(frontendPath, "index.html"));
     });
 
     return app;

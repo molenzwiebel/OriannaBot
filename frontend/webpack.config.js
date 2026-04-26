@@ -1,8 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
-const GitRevisionPlugin = require("git-revision-webpack-plugin");
-const gitRevision = new GitRevisionPlugin({ branch: true });
 
 module.exports = env => ({
     entry: env === "prod" ? ["./src/index.ts"] : [
@@ -19,7 +17,7 @@ module.exports = env => ({
         rules: [{
             test: /\.tsx?$/,
             loader: "ts-loader",
-            options: {appendTsSuffixTo: [/\.vue$/]}
+            options: { appendTsSuffixTo: [/\.vue$/] }
         }, {
             test: /\.vue$/,
             loader: "vue-loader"
@@ -46,8 +44,8 @@ module.exports = env => ({
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
-            GIT_BRANCH: JSON.stringify(gitRevision.branch()),
-            GIT_COMMITHASH: JSON.stringify(gitRevision.commithash()),
+            GIT_BRANCH: JSON.stringify(process.env.COOLIFY_BRANCH),
+            GIT_COMMITHASH: JSON.stringify(process.env.SOURCE_COMMIT),
             ENV: JSON.stringify(env)
         }),
         new HTMLWebpackPlugin({
