@@ -76,7 +76,7 @@ async fn main() -> std::io::Result<()> {
     let webserver = HttpServer::new(move || {
         App::new().app_data(db_data.clone()).app_data(updater.clone()).service(evaluate_role).service(update_user)
     })
-    .bind(format!("127.0.0.1:{}", std::env::var("PORT").unwrap_or("8080".to_string())))?
+    .bind(format!("0.0.0.0:{}", std::env::var("PORT").unwrap_or("8080".to_string())))?
     .run()
     .unwrap_or_else(|e| panic!("Could not start web server: {:?}", e));
 
