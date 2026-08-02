@@ -59,7 +59,7 @@ impl Updater {
         // Remove leaderboard entries for stale stats.
         if !to_be_removed.is_empty() {
             for (champion_id, _) in &to_be_removed {
-                debug!("User no longer has stats on {:?}", riven::consts::Champion(*champion_id as i16).name());
+                debug!("User no longer has stats on {:?}", riven::consts::Champion(*champion_id as i32).name());
                 leaderboard_builder.remove_user_from_leaderboard(user_id, &champion_id.to_string());
             }
 
@@ -84,7 +84,7 @@ impl Updater {
 
             debug!(
                 "User points are different for {:?} (delta {})",
-                riven::consts::Champion(champ_id as i16).name(),
+                riven::consts::Champion(champ_id as i32).name(),
                 new_points - old_points
             );
 
@@ -95,7 +95,7 @@ impl Updater {
 
         // For new entries we only need to upsert values in leaderboard and stats.
         for (champ_id, (level, points)) in to_be_added {
-            debug!("User now has stats on {:?}", riven::consts::Champion(champ_id as i16).name());
+            debug!("User now has stats on {:?}", riven::consts::Champion(champ_id as i32).name());
 
             values_to_be_upserted.push((champ_id, level, points));
         }
@@ -124,7 +124,7 @@ impl Updater {
             if !old_max_entry.is_some() || old_max_entry.unwrap().score < max_entry.2 {
                 debug!(
                     "Values were updated, so updating all leaderboard to be {:?} with {} points",
-                    riven::consts::Champion(max_entry.0 as i16).name(),
+                    riven::consts::Champion(max_entry.0 as i32).name(),
                     max_entry.2
                 );
 
