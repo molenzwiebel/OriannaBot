@@ -1,5 +1,4 @@
 import fetch from "node-fetch";
-import { LeagueAccount } from "../database";
 
 const ABBREVIATIONS: { [key: string]: string } = {
     "mumu": "Amumu",
@@ -14,6 +13,7 @@ const ABBREVIATIONS: { [key: string]: string } = {
     "mundo": "DrMundo",
     "eve": "Evelynn",
     "ez": "Ezreal",
+    "feet": "Briar", // :^)
     "fiddle": "Fiddlesticks",
     "fondlesticks": "Fiddlesticks",
     "fish": "Fizz",
@@ -106,8 +106,8 @@ const ABBREVIATIONS: { [key: string]: string } = {
  * data and URLs to images.
  */
 export default class StaticData {
-    private data: riot.Champion[];
-    private version: string;
+    private data!: riot.Champion[];
+    private version!: string;
     private dataPromise: Promise<void>;
 
     constructor(language: string) {
@@ -128,10 +128,15 @@ export default class StaticData {
      */
     public async findChampion(content: string) {
         const normalized = content.toLowerCase().replace(/['`\s".&]/g, "");
+        const classic = content.toLowerCase().includes("classic");
 
         // Try normal names first.
         const valid = [];
         for (const champ of this.data) {
+            // skip classic champs unless the user explicitly requested them
+            const champIsClassic = champ.id.startsWith("Jade_");
+            if (champIsClassic !== classic) continue;
+
             if (normalized.includes(champ.name.toLowerCase().replace(/['`\s".&]/g, ""))) {
                 valid.push(champ);
             }
@@ -149,6 +154,10 @@ export default class StaticData {
         const words = content.toLowerCase().split(" ");
         for (const abbrev of Object.keys(ABBREVIATIONS)) {
             if (words.includes(abbrev)) {
+                if (classic) {
+                    return this.championByInternalName("Jade_" + ABBREVIATIONS[abbrev]) ?? null;
+                }
+
                 return this.championByInternalName(ABBREVIATIONS[abbrev]);
             }
         }
@@ -162,14 +171,6 @@ export default class StaticData {
      */
     public lazyLoad() {
         return !!this.data;
-    }
-
-    /**
-     * Finds the champion with the specified name.
-     */
-    public async championByName(name: string) {
-        await this.dataPromise;
-        return this.data.find(x => x.name === name)!;
     }
 
     /**
