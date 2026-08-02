@@ -10,7 +10,7 @@ export function ddragon() {
         });
 
     // Return default until we've loaded.
-    return "10.6.1";
+    return "16.15.1";
 }
 
 export interface Champion {

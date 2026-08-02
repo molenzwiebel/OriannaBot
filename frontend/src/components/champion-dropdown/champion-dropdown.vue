@@ -9,7 +9,7 @@
             <template v-else>
                 <option value="disabled" :disabled="!allowNull" :selected="!value">{{ allowNull ? 'None' : 'Select A Champion' }}</option>
                 <option v-if="allowNull" disabled>──────────</option>
-                <option :value="champ.id" v-for="champ in champions" :selected="value && value == champ.key">{{ champ.name }}</option>
+                <option :value="champ.id" v-for="champ in champions" :selected="value && value == champ.key">{{ champ.id.startsWith('Jade_') ? "Classic " : ""}}{{ champ.name }}</option>
             </template>
         </select>
     </div>
