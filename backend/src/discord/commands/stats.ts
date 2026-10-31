@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { UserMasteryDelta } from "../../database";
 import generateStatsGraphic from "../../graphics/stats";
 import formatName, { badge } from "../../util/format-name";
@@ -11,17 +12,17 @@ const StatsCommand: SlashCapableCommand = {
     keywords: ["stats", "graph", "chart", "progression", "progress"],
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "stats",
             description: "View your mastery as it grows and evolves over time.",
             options: [{
-                type: dissonance.ApplicationCommandOptionType.STRING,
+                type: ApplicationCommandOptionType.String,
                 name: "champion",
                 description: "The champion whose mastery progression you'd like to look up.",
                 // default: true,
                 required: true
             }, {
-                type: dissonance.ApplicationCommandOptionType.USER,
+                type: ApplicationCommandOptionType.User,
                 name: "user",
                 description: "The Discord user whose mastery progression you'd like to look up.",
             }]

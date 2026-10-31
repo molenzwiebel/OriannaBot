@@ -1,3 +1,4 @@
+import { GatewayGuildCreateDispatchData } from "discord-api-types/v10";
 import express = require("express");
 import * as eris from "eris";
 import { Constants } from "eris";
@@ -698,7 +699,7 @@ export default class WebAPIClient {
      * Checks that the requested server exists and that the current user has access. Returns a null
      * server if something went wrong, valid values otherwise.
      */
-    private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: dissonance.Guild }> {
+    private async verifyServerRequest(req: express.Request, res: express.Response): Promise<{ server: Server | null, guild: GatewayGuildCreateDispatchData }> {
         const server = await Server.query().where("snowflake", req.params.id).first();
         if (!server) {
             res.status(400).send({ ok: false, error: "Invalid server" });
@@ -722,7 +723,7 @@ export default class WebAPIClient {
     /**
      * Checks if the specified user has permissions to edit the specified server.
      */
-    private async hasAccess(user: User, guild: dissonance.Guild): Promise<boolean> {
+    private async hasAccess(user: User, guild: GatewayGuildCreateDispatchData): Promise<boolean> {
         // Owner always has access to server configs.
         if (user.snowflake === config.discord.owner) return true;
 

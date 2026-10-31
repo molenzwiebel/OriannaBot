@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import config from "../../config";
 import * as shockwave from "../../shockwave";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
@@ -11,11 +12,11 @@ const RolesCommand: SlashCapableCommand = {
     keywords: ["roles", "config", "ranks"],
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "roles",
             description: "Show all roles configured on the server and whether or not you qualify for them.",
             options: [{
-                type: dissonance.ApplicationCommandOptionType.USER,
+                type: ApplicationCommandOptionType.User,
                 name: "user",
                 description: "The user whose role eligibility should be checked."
             }]

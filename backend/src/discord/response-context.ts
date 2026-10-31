@@ -1,3 +1,4 @@
+import { APIMessageComponentButtonInteraction, APIUser, GatewayMessageReactionAddDispatchData } from "discord-api-types/v10";
 import fetch from "node-fetch";
 import {
     EphemeralInteractionFollowupWebhookResponse,
@@ -56,12 +57,12 @@ export abstract class ResponseContext {
      * Handle the given reaction add event, passing it to responses if desirable.
      * This will only be invoked if `freeResponses` has not yet been called.
      */
-    public abstract processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void>;
+    public abstract processReactionEvent(event: GatewayMessageReactionAddDispatchData): Promise<void>;
 
     /**
      * Handle the given button press event, passing it to the responses if desirable.
      */
-    public abstract processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void>;
+    public abstract processButtonEvent(event: APIMessageComponentButtonInteraction): Promise<void>;
 
     /**
      * Delete all of the responses sent by this context, if possible. This should
@@ -94,7 +95,7 @@ export abstract class ResponseContext {
 export class ChannelResponseContext extends ResponseContext {
     private responses: TextChannelResponse[] = [];
 
-    constructor(private channelId: string, private user: dissonance.User | null, private bot: eris.Client, private originalMessageId?: string) {
+    constructor(private channelId: string, private user: APIUser | null, private bot: eris.Client, private originalMessageId?: string) {
         super();
     }
 
@@ -143,11 +144,11 @@ export class ChannelResponseContext extends ResponseContext {
         this.responses = [];
     }
 
-    async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
+    async processReactionEvent(event: GatewayMessageReactionAddDispatchData): Promise<void> {
         await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
     }
 
-    async processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void> {
+    async processButtonEvent(event: APIMessageComponentButtonInteraction): Promise<void> {
         await Promise.all(this.responses.map(x => x.processButtonEvent(event)));
     }
 }
@@ -159,7 +160,7 @@ export class InteractionResponseContext extends ResponseContext {
     private firstResponse: InitialInteractionWebhookResponse | null = null;
     private responses: Response[] = [];
 
-    constructor(private channelId: string, private user: dissonance.User, private bot: eris.Client, private interactionId: string, private token: string) {
+    constructor(private channelId: string, private user: APIUser, private bot: eris.Client, private interactionId: string, private token: string) {
         super();
     }
 
@@ -226,12 +227,12 @@ export class InteractionResponseContext extends ResponseContext {
         this.responses = [];
     }
 
-    async processReactionEvent(event: dissonance.ReactionAddEvent): Promise<void> {
+    async processReactionEvent(event: GatewayMessageReactionAddDispatchData): Promise<void> {
         if (this.firstResponse) await this.firstResponse.processReactionEvent(event);
         await Promise.all(this.responses.map(x => x.processReactionEvent(event)));
     }
 
-    async processButtonEvent(event: dissonance.ButtonInteractionCreateEvent): Promise<void> {
+    async processButtonEvent(event: APIMessageComponentButtonInteraction): Promise<void> {
         if (this.firstResponse) await this.firstResponse.processButtonEvent(event);
         await Promise.all(this.responses.map(x => x.processButtonEvent(event)));
     }

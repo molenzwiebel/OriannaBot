@@ -1,3 +1,4 @@
+import { APIGuild } from "discord-api-types/v10";
 import { Constants } from "eris";
 
 /**
@@ -5,7 +6,7 @@ import { Constants } from "eris";
  * indicated by the given permission number on the guild with the given ID.
  * If the guild is not cached, we pessimistically return false.
  */
-export async function hasPermission(userId: string, userRoles: string[], guild: dissonance.Guild, permission: number): Promise<boolean> {
+export async function hasPermission(userId: string, userRoles: string[], guild: APIGuild, permission: number): Promise<boolean> {
     // Owner can do anything.
     if (userId === guild.owner_id) {
         return true;

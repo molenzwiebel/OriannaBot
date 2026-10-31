@@ -1,3 +1,4 @@
+import { APIMessageComponentButtonInteraction, APIUser, GatewayMessageReactionAddDispatchData } from "discord-api-types/v10";
 import * as eris from "eris";
 import formatName from "../util/format-name";
 import fetch from "node-fetch";
@@ -22,7 +23,7 @@ export abstract class Response {
 
     protected messageId!: string;
 
-    constructor(protected channelId: string, protected bot: eris.Client, protected user?: dissonance.User) {
+    constructor(protected channelId: string, protected bot: eris.Client, protected user?: APIUser) {
     }
 
     /**
@@ -112,7 +113,7 @@ export abstract class Response {
     /**
      * Handler for when a button is pressed by a user.
      */
-    public readonly processButtonEvent = async (event: dissonance.ButtonInteractionCreateEvent) => {
+    public readonly processButtonEvent = async (event: APIMessageComponentButtonInteraction) => {
         if (this.messageId !== event.message.id) return;
         if (!this.reactions.has(event.data.custom_id)) return;
 
@@ -131,7 +132,7 @@ export abstract class Response {
     /**
      * Handler for reaction adding that fires an event if the user added an existing reaction.
      */
-    public readonly processReactionEvent = async (event: dissonance.ReactionAddEvent) => {
+    public readonly processReactionEvent = async (event: GatewayMessageReactionAddDispatchData) => {
         if (this.messageId !== event.message_id) return; // ignore other messages
         if (event.user_id === this.bot.user.id) return; // ignore ourselves
         if (!this.reactions.has(event.emoji.name!)) return; // ignore things we don't want to see
@@ -279,7 +280,7 @@ export class TextChannelResponse extends Response {
  * need to do an edit instead of a submit for our creation.
  */
 export class InitialInteractionWebhookResponse extends Response {
-    constructor(channelId: string, bot: eris.Client, user: dissonance.User, private interactionToken: string) {
+    constructor(channelId: string, bot: eris.Client, user: APIUser, private interactionToken: string) {
         super(channelId, bot, user);
     }
 
@@ -334,7 +335,7 @@ export class InitialInteractionWebhookResponse extends Response {
  * slash-command) in response to an event triggered by a webhook.
  */
 export class EphemeralInteractionFollowupWebhookResponse extends Response {
-    constructor(channelId: string, bot: eris.Client, user: dissonance.User, private interactionToken: string) {
+    constructor(channelId: string, bot: eris.Client, user: APIUser, private interactionToken: string) {
         super(channelId, bot, user);
     }
 

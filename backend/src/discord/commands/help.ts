@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { SlashCapableCommand } from "../command";
 
 const HelpCommand: SlashCapableCommand = {
@@ -8,7 +9,7 @@ const HelpCommand: SlashCapableCommand = {
     hideFromHelp: true,
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "help",
             description: "Need help figuring out all Orianna Bot commands? Try this command.",
         };

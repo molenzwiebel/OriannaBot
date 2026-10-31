@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import config from "../../config";
 import { SlashCapableCommand } from "../command";
 
@@ -9,7 +10,7 @@ const InviteCommand: SlashCapableCommand = {
     hideFromHelp: true,
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "invite",
             description: "Want to add Orianna Bot to your own server? Just use this command.",
         };

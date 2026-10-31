@@ -1,5 +1,15 @@
 import * as amqp from "amqplib";
 import { EventEmitter } from "events";
+import {
+    APIInteraction,
+    GatewayDispatchEvents,
+    GatewayDispatchPayload,
+    GatewayGuildMemberAddDispatchData,
+    GatewayMessageCreateDispatchData,
+    GatewayMessageDeleteDispatchData,
+    GatewayMessageReactionAddDispatchData,
+    GatewayMessageUpdateDispatchData
+} from "discord-api-types/v10";
 import config from "../config";
 import debug = require("debug");
 
@@ -30,12 +40,12 @@ export default class AMQPClient extends EventEmitter {
         }, { noAck: true });
     }
 
-    public on(event: "messageCreate", handler: (msg: dissonance.Message) => any): this;
-    public on(event: "messageUpdate", handler: (msg: dissonance.Message) => any): this;
-    public on(event: "messageDelete", handler: (msg: dissonance.MessageDeleteEvent) => any): this;
-    public on(event: "messageReactionAdd", handler: (msg: dissonance.ReactionAddEvent) => any): this;
-    public on(event: "interactionCreate", handler: (msg: dissonance.InteractionCreateEvent) => any): this;
-    public on(event: "guildMemberAdd", handler: (msg: dissonance.GuildMemberAddEvent) => any): this;
+    public on(event: "messageCreate", handler: (msg: GatewayMessageCreateDispatchData) => any): this;
+    public on(event: "messageUpdate", handler: (msg: GatewayMessageUpdateDispatchData) => any): this;
+    public on(event: "messageDelete", handler: (msg: GatewayMessageDeleteDispatchData) => any): this;
+    public on(event: "messageReactionAdd", handler: (msg: GatewayMessageReactionAddDispatchData) => any): this;
+    public on(event: "interactionCreate", handler: (msg: APIInteraction) => any): this;
+    public on(event: "guildMemberAdd", handler: (msg: GatewayGuildMemberAddDispatchData) => any): this;
 
     public on(event: string | symbol, listener: (...args: any[]) => void): this {
         return super.on(event, listener);
@@ -45,18 +55,18 @@ export default class AMQPClient extends EventEmitter {
      * Handles a message received by the AMQP events channel, which should be
      * an event as emitted through Dissonance by the Discord gateway.
      */
-    private handleMessage(message: dissonance.GatewayEvent) {
-        if (message.t === "MESSAGE_CREATE") {
+    private handleMessage(message: GatewayDispatchPayload) {
+        if (message.t === GatewayDispatchEvents.MessageCreate) {
             this.emit("messageCreate", message.d);
-        } else if (message.t === "MESSAGE_UPDATE") {
+        } else if (message.t === GatewayDispatchEvents.MessageUpdate) {
             this.emit("messageUpdate", message.d);
-        } else if (message.t === "MESSAGE_DELETE") {
+        } else if (message.t === GatewayDispatchEvents.MessageDelete) {
             this.emit("messageDelete", message.d);
-        } else if (message.t === "MESSAGE_REACTION_ADD") {
+        } else if (message.t === GatewayDispatchEvents.MessageReactionAdd) {
             this.emit("messageReactionAdd", message.d);
-        } else if (message.t === "INTERACTION_CREATE") {
+        } else if (message.t === GatewayDispatchEvents.InteractionCreate) {
             this.emit("interactionCreate", message.d);
-        } else if (message.t === "GUILD_MEMBER_ADD") {
+        } else if (message.t === GatewayDispatchEvents.GuildMemberAdd) {
             this.emit("guildMemberAdd", message.d);
         } else {
             log("Unknown gateway event received: %O", message as any);

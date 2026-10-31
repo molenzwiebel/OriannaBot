@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { differenceInDays } from "date-fns";
 import { UserChampionStat, UserMasteryDelta, UserRank } from "../../database";
 import LeagueAccount from "../../database/league_account";
@@ -13,11 +14,11 @@ const ProfileCommand: SlashCapableCommand = {
     keywords: ["list", "accounts", "name", "show", "profile", "account", "summoner"],
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "profile",
             description: "View the mastery points, top played champions and League accounts of a Discord user.",
             options: [{
-                type: dissonance.ApplicationCommandOptionType.USER,
+                type: ApplicationCommandOptionType.User,
                 name: "user",
                 description: "The user whose profile you'd like to look up."
             }]
