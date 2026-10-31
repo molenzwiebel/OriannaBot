@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { GuildMember, User } from "../../database";
 import { generateChampionTopGraphic, generateGlobalTopGraphic } from "../../graphics/top";
 import formatName from "../../util/format-name";
@@ -15,30 +16,30 @@ const TopCommand: SlashCapableCommand = {
     keywords: ["top", "leaderboard", "leaderboards", "most", "highest"],
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             name: "top",
             description: t.command_top_small_description,
             options: [{
-                type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+                type: ApplicationCommandOptionType.Subcommand,
                 name: "champion",
                 description: "Shows the players with the top mastery on the given champion.",
                 options: [{
-                    type: dissonance.ApplicationCommandOptionType.STRING,
+                    type: ApplicationCommandOptionType.String,
                     required: true,
                     // default: true,
                     description: "The champion to show statistics for.",
                     name: "champion"
                 }, {
-                    type: dissonance.ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.Boolean,
                     name: "server-only",
                     description: "Whether to only show players on this server."
                 }]
             }, {
-                type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+                type: ApplicationCommandOptionType.Subcommand,
                 name: "user",
                 description: "Shows the top played champions for the specified user.",
                 options: [{
-                    type: dissonance.ApplicationCommandOptionType.USER,
+                    type: ApplicationCommandOptionType.User,
                     required: true,
                     name: "user",
                     // default: true,

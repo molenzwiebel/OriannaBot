@@ -1,3 +1,15 @@
+import {
+    APIChatInputApplicationCommandInteraction,
+    APIInteraction,
+    APIMessageComponentButtonInteraction,
+    APIUser,
+    ChannelType,
+    GatewayGuildMemberAddDispatchData,
+    GatewayMessageCreateDispatchData,
+    GatewayMessageReactionAddDispatchData,
+    GatewayMessageUpdateDispatchData,
+    InteractionType
+} from "discord-api-types/v10";
 import * as eris from "eris";
 import fetch from "node-fetch";
 import config from "../config";
@@ -20,9 +32,6 @@ import {
 } from "./slash-commands";
 import debug = require("debug");
 import randomstring = require("randomstring");
-import ChannelType = dissonance.ChannelType;
-import GuildMemberAddEvent = dissonance.GuildMemberAddEvent;
-import InteractionType = dissonance.InteractionType;
 
 const info = debug("orianna:discord");
 const error = debug("orianna:discord:error");
@@ -33,8 +42,8 @@ const MUTE_REACTION = "🔇";
 
 interface InvocationContext {
     content: string;
-    mentions: dissonance.User[];
-    author: dissonance.User;
+    mentions: APIUser[];
+    author: APIUser;
     responseContext: ResponseContext;
     channelId: string;
     guildId?: string;
@@ -206,7 +215,7 @@ export default class DiscordClient {
      * Invoked when a new message is created. Constructs the necessary contextual requirements
      * for the message, then forwards it to the command handling logic.
      */
-    private handleMessage = async (msg: dissonance.Message) => {
+    private handleMessage = async (msg: GatewayMessageCreateDispatchData | GatewayMessageUpdateDispatchData) => {
         // In the background, update the the user information for this user.
         if (msg.author && msg.author.id) {
             User
@@ -249,7 +258,7 @@ export default class DiscordClient {
      * Invoked when a message is edited. We treat this the same as if the user
      * had deleted their old message and just created a new one.
      */
-    private handleMessageEdit = async (msg: dissonance.Message) => {
+    private handleMessageEdit = async (msg: GatewayMessageUpdateDispatchData) => {
         if (!msg.author || !msg.content || !msg.channel_id) return; // we can receive a partial message
         this.handleMessageDelete(msg.id);
         this.handleMessage(msg);
@@ -268,11 +277,11 @@ export default class DiscordClient {
      * Handle a generic interaction, which will be a slash command invocation
      * or a button press.
      */
-    private handleInteraction = async (ev: dissonance.InteractionCreateEvent) => {
-        if (ev.type === InteractionType.COMMAND) {
-            await this.handleCommandInteraction(ev);
+    private handleInteraction = async (ev: APIInteraction) => {
+        if (ev.type === InteractionType.ApplicationCommand) {
+            await this.handleCommandInteraction(ev as APIChatInputApplicationCommandInteraction);
         } else {
-            await this.handleButtonInteraction(ev);
+            await this.handleButtonInteraction(ev as APIMessageComponentButtonInteraction);
         }
     }
 
@@ -281,7 +290,7 @@ export default class DiscordClient {
      * to match the invoked command to a concrete command, then converts the
      * arguments into a text string and handles the same command logic.
      */
-    private handleCommandInteraction = async (ev: dissonance.CommandInteractionCreateEvent) => {
+    private handleCommandInteraction = async (ev: APIChatInputApplicationCommandInteraction) => {
         const user = ev.user || ev.member!.user;
 
         const commandName = commandInvocationParamsToName(ev.data);
@@ -312,7 +321,7 @@ export default class DiscordClient {
      * Invoked when a button is pressed. Navigates through all responses and tries
      * to dispatch the event.
      */
-    private handleButtonInteraction = async (ev: dissonance.ButtonInteractionCreateEvent) => {
+    private handleButtonInteraction = async (ev: APIMessageComponentButtonInteraction) => {
         // Acknowledge
         fetch(`https://discord.com/api/v9/interactions/${ev.id}/${ev.token}/callback`, {
             method: "POST",
@@ -333,7 +342,7 @@ export default class DiscordClient {
      * Invoked when a new reaction is added to any message. Attempts to handle question
      * and mute messages, then forwards the event to all currently active response contexts.
      */
-    private handleMessageReaction = async (ev: dissonance.ReactionAddEvent) => {
+    private handleMessageReaction = async (ev: GatewayMessageReactionAddDispatchData) => {
         if (ev.user_id === this.bot.user.id) return;
 
         // Check if this was a mute.
@@ -376,8 +385,8 @@ export default class DiscordClient {
         }
 
         // If this was in a server, we need to check for engagement.
-        if (ev.guild_id && (ev.emoji as any).id) {
-            const emojiName = ev.emoji.name + ":" + (ev.emoji as any).id;
+        if (ev.guild_id && ev.emoji.id) {
+            const emojiName = ev.emoji.name + ":" + ev.emoji.id;
 
             const match = await Server
                 .query()
@@ -408,7 +417,7 @@ export default class DiscordClient {
      * Ensures that a user receives their appropriate roles when they join a server while
      * already having accounts set up.
      */
-    private handleGuildMemberAdd = async ({ user, guild_id }: GuildMemberAddEvent) => {
+    private handleGuildMemberAdd = async ({ user, guild_id }: GatewayGuildMemberAddDispatchData) => {
         // Ignore bots. We can't assign them roles anyway.
         if (user.bot) return;
 
@@ -578,7 +587,7 @@ export default class DiscordClient {
      * has previously done any introductions. The server parameter is used to dynamically
      * select which message to use.
      */
-    private async engageUser(discordUser: dissonance.User, server: Server) {
+    private async engageUser(discordUser: APIUser, server: Server) {
         const t = getTranslator(server.language); // use the language of the server
 
         const user = await this.findOrCreateUser(discordUser.id, {
@@ -608,7 +617,7 @@ export default class DiscordClient {
      * we do not share a server with them (in which case we silently fail). This
      * should be used to notify users of things that don't necessarily need interaction.
      */
-    public async notify(user: dissonance.User | string, embed: ResponseOptions) {
+    public async notify(user: APIUser | string, embed: ResponseOptions) {
         try {
             const id = typeof user === "string" ? user : user.id;
 
@@ -711,7 +720,7 @@ export default class DiscordClient {
 
         // Ensure that that channel exists.
         const announceChannel = guild.channels.find(x => x.id === announceChannelId);
-        if (!announceChannel || announceChannel.type !== ChannelType.GUILD_TEXT) return;
+        if (!announceChannel || announceChannel.type !== ChannelType.GuildText) return;
 
         // Get a translator. Note that we ignore the users preferred language here.
         const t = getTranslator(server.language);

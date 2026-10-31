@@ -1,5 +1,4 @@
-import ApplicationCommandInteractionDataOption = dissonance.ApplicationCommandInteractionDataOption;
-import ApplicationCommandOptionType = dissonance.ApplicationCommandOptionType;
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 
 export function commandInvocationParamsToName(inv: any): string {
     if (inv.value) return "";
@@ -17,8 +16,8 @@ export function commandInvocationFindParams(inv: any): { name: string, value: an
 }
 
 export function applicationCommandToNames(command: any): string[] {
-    if (command.type === ApplicationCommandOptionType.SUB_COMMAND) return [command.name];
-    if (command.type === ApplicationCommandOptionType.SUB_COMMAND_GROUP) return command.options!.map((x: any) => command.name + "." + x.name);
+    if (command.type === ApplicationCommandOptionType.Subcommand) return [command.name];
+    if (command.type === ApplicationCommandOptionType.SubcommandGroup) return command.options!.map((x: any) => command.name + "." + x.name);
 
     throw new Error("Illegal command type: " + command.type);
 }

@@ -1,10 +1,15 @@
+import {
+    APIApplicationCommandSubcommandGroupOption,
+    APIApplicationCommandSubcommandOption,
+    APIUser,
+    GatewayGuildCreateDispatchData
+} from "discord-api-types/v10";
 import * as eris from "eris";
 import { Server, User } from "../database";
 import { Translator } from "../i18n";
 import DiscordClient from "./client";
 import { Response, ResponseOptions } from "./response";
 import { ResponseContext } from "./response-context";
-import ApplicationCommandInteractionDataOption = dissonance.ApplicationCommandInteractionDataOption;
 
 export interface Command {
     /**
@@ -63,7 +68,7 @@ export interface SlashCapableCommand extends Command {
      * it cannot reasonably be represented as a command. All commands
      * are registered as a subcommand of orianna's top-level command.
      */
-    asSlashCommand: (trans: Translator) => ApplicationCommandInteractionDataOption;
+    asSlashCommand: (trans: Translator) => APIApplicationCommandSubcommandOption | APIApplicationCommandSubcommandGroupOption;
 
     /**
      * If `asSlashCommand` is implemented, this function allows for
@@ -132,12 +137,12 @@ export interface CommandContext {
      * was executed. Null if this was not executed in a guild or if there
      * is no cached information for this guild (should be exceedingly rare).
      */
-    guild?: dissonance.Guild;
+    guild?: GatewayGuildCreateDispatchData;
 
     /**
      * The author of the message/slash-command that triggered this.
      */
-    author: dissonance.User;
+    author: APIUser;
 
     /**
      * The content of the message, or the converted content if this was invoked
@@ -149,7 +154,7 @@ export interface CommandContext {
      * A list of members mentioned in the command invocation. All bots and the user
      * that invoked the command are not included in this.
      */
-    mentions: dissonance.User[];
+    mentions: APIUser[];
 
     /**
      * A promise for the User instance of the sender of the command.

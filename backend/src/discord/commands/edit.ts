@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { randomBytes } from "crypto";
 import config from "../../config";
 import { UserAuthKey } from "../../database";
@@ -11,7 +12,7 @@ const EditCommand: SlashCapableCommand = {
     noTyping: true,
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "edit",
             description: "Add, remove or edit the League accounts you've linked with Orianna Bot.",
         };

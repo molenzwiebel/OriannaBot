@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as shockwave from "../../shockwave";
 import { SlashCapableCommand } from "../command";
 import { expectUser, rawEmote } from "./util";
@@ -10,11 +11,11 @@ const RefreshCommand: SlashCapableCommand = {
     keywords: ["refresh", "reload", "update", "recalculate"],
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "refresh",
             description: "Fetch the latest statistics and update all roles for a user.",
             options: [{
-                type: dissonance.ApplicationCommandOptionType.USER,
+                type: ApplicationCommandOptionType.User,
                 name: "user",
                 description: "The user who you'd like to refresh. Defaults to yourself."
             }]

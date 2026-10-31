@@ -1,3 +1,4 @@
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { GuildMember } from "../../database";
 import { dissonanceRedis } from "../../redis";
 import { SlashCapableCommand } from "../command";
@@ -10,7 +11,7 @@ const AboutCommand: SlashCapableCommand = {
     hideFromHelp: true,
     asSlashCommand(t) {
         return {
-            type: dissonance.ApplicationCommandOptionType.SUB_COMMAND,
+            type: ApplicationCommandOptionType.Subcommand,
             name: "about",
             description: "Need help? Want to see who made Orianna Bot? This is the command for you.",
         };

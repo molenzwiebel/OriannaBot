@@ -250,7 +250,7 @@ async function loadEmotes() {
         if (!guild) continue;
 
         for (const emote of guild.emojis) {
-            emoteCache.set(emote.name, emote.name + ":" + emote.id);
+            emoteCache.set(emote.name!, emote.name + ":" + emote.id);
         }
     }
 }
