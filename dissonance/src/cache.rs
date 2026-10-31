@@ -41,7 +41,7 @@ impl Cache {
         guild.voice_states = vec![];
         guild.presences = vec![];
 
-        conn.set(
+        conn.set::<_, _, ()>(
             format!("dissonance:guild:{}", guild.id.get()),
             &serde_json::to_string(&guild)?,
         )
@@ -83,7 +83,7 @@ impl Cache {
                 // Reacquire lock.
                 let mut conn = self.0.write().await;
 
-                conn.set(
+                conn.set::<_, _, ()>(
                     format!("dissonance:guild:{}", guild.id.get()),
                     &serde_json::to_string(&guild)?,
                 )
@@ -99,7 +99,7 @@ impl Cache {
     pub async fn delete_guild(self: &Cache, guild_id: Id<GuildMarker>) -> CacheResult<()> {
         let mut conn = self.0.write().await;
 
-        conn.del(format!("dissonance:guild:{}", guild_id.get()))
+        conn.del::<_, ()>(format!("dissonance:guild:{}", guild_id.get()))
             .await?;
 
         Ok(())

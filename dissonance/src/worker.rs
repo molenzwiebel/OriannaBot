@@ -13,14 +13,13 @@ use tokio_retry::{
 };
 use tracing::{debug, info, warn};
 use twilight_gateway::{
-    stream::{self, ShardMessageStream},
     ConfigBuilder, Event, EventTypeFlags, Intents, Message, MessageSender, Shard,
 };
 use twilight_http::Client;
 use twilight_model::{
     gateway::{
         payload::{
-            incoming::MemberChunk,
+            incoming::{GuildCreate, MemberChunk},
             outgoing::{
                 update_presence::UpdatePresencePayload, RequestGuildMembers, UpdatePresence,
             },
@@ -62,7 +61,6 @@ const STATUSES: &[(ActivityType, &'static str)] = &[
 
 pub(crate) struct Worker {
     db: Database,
-    shards: Option<Vec<Shard>>,
     shard_senders: Vec<MessageSender>,
     cache: Cache,
     outstanding_member_requests: DashMap<Id<GuildMarker>, Instant>,
@@ -84,7 +82,7 @@ macro_rules! handle_event {
 }
 
 impl Worker {
-    pub async fn new() -> Result<Worker, Box<dyn Error>> {
+    pub async fn new() -> Result<(Worker, Vec<Shard>), Box<dyn Error>> {
         let intents = Intents::GUILDS
             | Intents::GUILD_MESSAGES
             | Intents::GUILD_MEMBERS
@@ -104,7 +102,7 @@ impl Worker {
             )?)
             .build();
 
-        let shards = stream::create_recommended(&client, config, |_, b| b.build())
+        let shards = twilight_gateway::create_recommended(&client, config, |_, b| b.build())
             .await?
             .collect::<Vec<_>>();
         info!("Created {} shards", shards.len());
@@ -119,9 +117,8 @@ impl Worker {
 
         let (tx, rx) = mpsc::unbounded_channel();
 
-        Ok(Worker {
+        let worker = Worker {
             db,
-            shards: Some(shards),
             shard_senders,
             cache,
             outstanding_member_requests: DashMap::new(),
@@ -129,11 +126,12 @@ impl Worker {
             outstanding_count: AtomicUsize::new(0),
             guild_member_tx: tx,
             guild_member_rx: Some(rx),
-        })
+        };
+
+        Ok((worker, shards))
     }
 
-    pub async fn run(mut self: Worker) {
-        let mut shards = self.shards.take().unwrap();
+    pub async fn run(mut self: Worker, shards: Vec<Shard>) {
         let member_rx = self.guild_member_rx.take().unwrap();
 
         let arc = Arc::new(self);
@@ -159,21 +157,34 @@ impl Worker {
             self_presence_requests.member_request_loop(member_rx).await;
         });
 
-        let mut message_stream = ShardMessageStream::new(shards.iter_mut());
+        let shard_tasks = shards
+            .into_iter()
+            .map(|mut shard| {
+                let worker = arc.clone();
+                let forwarder_tx = forwarder_tx.clone();
 
-        while let Some((shard_id, event)) = message_stream.next().await {
-            let shard_id = shard_id.id().number();
-            match event {
-                Ok(msg) => {
-                    if let Err(e) = arc.clone().handle_message(&forwarder_tx, shard_id, msg) {
-                        warn!("Error handling event on shard {}: {:?}", shard_id, e);
+                tokio::spawn(async move {
+                    let shard_id = u64::from(shard.id().number());
+
+                    while let Some(event) = shard.next().await {
+                        match event {
+                            Ok(msg) => {
+                                if let Err(e) =
+                                    worker.clone().handle_message(&forwarder_tx, shard_id, msg)
+                                {
+                                    warn!("Error handling event on shard {}: {:?}", shard_id, e);
+                                }
+                            }
+                            Err(e) => {
+                                warn!("Error receiving message from shard {}: {:?}", shard_id, e);
+                            }
+                        }
                     }
-                }
-                Err(_) => {
-                    warn!("Error receiving message from shard {}", shard_id);
-                }
-            }
-        }
+                })
+            })
+            .collect::<Vec<_>>();
+
+        futures::future::join_all(shard_tasks).await;
     }
 
     /// Handles a single message received from the gateway. A message will be forwarded
@@ -242,10 +253,12 @@ impl Worker {
             }
 
             Event::GuildCreate(guild) => {
-                handle_event!(
-                    "GuildCreate",
-                    self.handle_guild_created(&guild, shard).await
-                );
+                if let GuildCreate::Available(guild) = *guild {
+                    handle_event!(
+                        "GuildCreate",
+                        self.handle_guild_created(&guild, shard).await
+                    );
+                }
             }
 
             Event::GuildUpdate(guild) => {
@@ -262,8 +275,8 @@ impl Worker {
                 );
             }
 
-            // If unavailable is false, it means we got kicked. Otherwise we don't care.
-            Event::GuildDelete(guild) if !guild.unavailable => {
+            // If unavailable is absent, it means we got kicked. Otherwise we don't care.
+            Event::GuildDelete(guild) if guild.unavailable.is_none() => {
                 handle_event!("GuildDelete", self.handle_guild_deleted(guild.id).await);
             }
 
