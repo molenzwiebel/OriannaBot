@@ -639,7 +639,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_profile_title",
                 "args": {
                     "name": [
-                        "molenzwiebel <a:Bot_Owner:468045368517722153>"
+                        "molenzwiebel <a:Bot_Owner:1566506877485973798>"
                     ]
                 }
             }
@@ -653,7 +653,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
+                    "<:Syndra:1566507137465581728> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:1566507132105400461> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:1566507181782597833> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -665,14 +665,14 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "5x<:Level_7:411977489707958282> 6x<:Level_6:411977489351704587> 16x<:Level_5:411977803144364032><:__:447420442819690506>\n",
+                    "5x<:Level_7:1566506900126957670> 6x<:Level_6:1566506898847563937> 16x<:Level_5:1566506897673162925><:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_total_points",
                         "args": {
                             "amount": 2790473
                         }
                     },
-                    "<:__:447420442819690506>\n",
+                    "<:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_avg_champ",
                         "args": {
@@ -681,7 +681,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>"
+                    "<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -693,17 +693,17 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Amumu:411977195532189708> ", { champion: "Amumu" }, " - **",
+                    "<:Amumu:1566506923304685681> ", { champion: "Amumu" }, " - **",
                     {
                         "name": "time_ago_today",
                         "args": null
                     },
-                    "**\n<:Diana:411977428311736340> ", { champion: "Diana" }, " - **",
+                    "**\n<:Diana:1566506961455812618> ", { champion: "Diana" }, " - **",
                     {
                         "name": "time_ago_yesterday",
                         "args": null
                     },
-                    "**\n<:Leona:411977323806720011> ", { champion: "Leona" }, " - **",
+                    "**\n<:Leona:1566507031224000543> ", { champion: "Leona" }, " - **",
                     {
                         "name": "time_ago_days_ago",
                         "args": {
@@ -844,7 +844,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_error_no_accounts",
                 "args": {
                     "user": [
-                        "molenzwiebel <a:Bot_Owner:468045368517722153>"
+                        "molenzwiebel <a:Bot_Owner:1566506877485973798>"
                     ]
                 }
             }
@@ -1625,13 +1625,13 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_points_message_description",
                 "args": {
                     "user": [
-                        "<@!86540964021161984> <a:Bot_Owner:468045368517722153>"
+                        "<@!86540964021161984> <a:Bot_Owner:1566506877485973798>"
                     ],
                     "points": [
-                        "<:Level_7:411977489707958282> 787,562"
+                        "<:Level_7:1566506900126957670> 787,562"
                     ],
                     "champion": [
-                        "<:Syndra:411977428227850241> ", { champion: "Syndra" }
+                        "<:Syndra:1566507137465581728> ", { champion: "Syndra" }
                     ]
                 }
             }
@@ -1728,7 +1728,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_profile_title",
                 "args": {
                     "name": [
-                        "molenzwiebel <a:Bot_Owner:468045368517722153>"
+                        "molenzwiebel <a:Bot_Owner:1566506877485973798>"
                     ]
                 }
             }
@@ -1742,7 +1742,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
+                    "<:Syndra:1566507137465581728> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:1566507132105400461> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:1566507181782597833> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -1754,14 +1754,14 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "5x<:Level_7:411977489707958282> 6x<:Level_6:411977489351704587> 16x<:Level_5:411977803144364032><:__:447420442819690506>\n",
+                    "5x<:Level_7:1566506900126957670> 6x<:Level_6:1566506898847563937> 16x<:Level_5:1566506897673162925><:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_total_points",
                         "args": {
                             "amount": 2790473
                         }
                     },
-                    "<:__:447420442819690506>\n",
+                    "<:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_avg_champ",
                         "args": {
@@ -1770,7 +1770,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>"
+                    "<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -1782,17 +1782,17 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Amumu:411977195532189708> ", { champion: "Amumu" }, " - **",
+                    "<:Amumu:1566506923304685681> ", { champion: "Amumu" }, " - **",
                     {
                         "name": "time_ago_today",
                         "args": null
                     },
-                    "**\n<:Diana:411977428311736340> ", { champion: "Diana" }, " - **",
+                    "**\n<:Diana:1566506961455812618> ", { champion: "Diana" }, " - **",
                     {
                         "name": "time_ago_yesterday",
                         "args": null
                     },
-                    "**\n<:Leona:411977323806720011> ", { champion: "Leona" }, " - **",
+                    "**\n<:Leona:1566507031224000543> ", { champion: "Leona" }, " - **",
                     {
                         "name": "time_ago_days_ago",
                         "args": {
@@ -1815,7 +1815,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_solo",
                         "args": null
                     },
-                    ": **<:Platinum:519953533500391445> ",
+                    ": **<:Platinum:1566506906288263248> ",
                     {
                         "name": "ranked_tier_platinum",
                         "args": null
@@ -1825,7 +1825,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_flex",
                         "args": null
                     },
-                    ": **<:Diamond:519953533769089044> ",
+                    ": **<:Diamond:1566506881646731405> ",
                     {
                         "name": "ranked_tier_diamond",
                         "args": null
@@ -1835,12 +1835,12 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_tft",
                         "args": null
                     },
-                    ": **<:Iron:519953534356160532> ",
+                    ": **<:Iron:1566506888655405157> ",
                     {
                         "name": "ranked_tier_iron",
                         "args": null
                     },
-                    "**\n<:__:447420442819690506>"
+                    "**\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -1852,7 +1852,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "EUW - Yahoo Answers\n<:__:447420442819690506>"
+                    "EUW - Yahoo Answers\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             }
@@ -1872,7 +1872,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_profile_title",
                 "args": {
                     "name": [
-                        "molenzwiebel <a:Bot_Owner:468045368517722153>"
+                        "molenzwiebel <a:Bot_Owner:1566506877485973798>"
                     ]
                 }
             }
@@ -1886,7 +1886,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "<:Syndra:411977428227850241> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:411977195506892802> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:411977428718714900> ", { champion: "Xayah" }, " - **130k**"
+                    "<:Syndra:1566507137465581728> ", { champion: "Syndra" }, " - **790k**\n<:Soraka:1566507132105400461> ", { champion: "Soraka" }, " - **220k**\n<:Xayah:1566507181782597833> ", { champion: "Xayah" }, " - **130k**"
                 ],
                 "inline": true
             },
@@ -1898,14 +1898,14 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "5x<:Level_7:411977489707958282> 6x<:Level_6:411977489351704587> 16x<:Level_5:411977803144364032><:__:447420442819690506>\n",
+                    "5x<:Level_7:1566506900126957670> 6x<:Level_6:1566506898847563937> 16x<:Level_5:1566506897673162925><:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_total_points",
                         "args": {
                             "amount": 2790473
                         }
                     },
-                    "<:__:447420442819690506>\n",
+                    "<:__:1566506912294637669>\n",
                     {
                         "name": "command_profile_statistics_avg_champ",
                         "args": {
@@ -1914,7 +1914,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>\n<:__:447420442819690506>"
+                    "<:__:1566506912294637669>\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -1930,7 +1930,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "command_profile_recently_played_no_games",
                         "args": null
                     },
-                    "\n<:__:447420442819690506>"
+                    "\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -1946,7 +1946,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_solo",
                         "args": null
                     },
-                    ": **<:Platinum:519953533500391445> ",
+                    ": **<:Platinum:1566506906288263248> ",
                     {
                         "name": "ranked_tier_platinum",
                         "args": null
@@ -1956,7 +1956,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_flex",
                         "args": null
                     },
-                    ": **<:Diamond:519953533769089044> ",
+                    ": **<:Diamond:1566506881646731405> ",
                     {
                         "name": "ranked_tier_diamond",
                         "args": null
@@ -1966,12 +1966,12 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                         "name": "queue_ranked_tft",
                         "args": null
                     },
-                    ": **<:Iron:519953534356160532> ",
+                    ": **<:Iron:1566506888655405157> ",
                     {
                         "name": "ranked_tier_iron",
                         "args": null
                     },
-                    "**\n<:__:447420442819690506>"
+                    "**\n<:__:1566506912294637669>"
                 ],
                 "inline": false
             },
@@ -1983,7 +1983,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     }
                 ],
                 "value": [
-                    "EUW - Test\n<:__:447420442819690506>"
+                    "EUW - Test\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -1992,7 +1992,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                     "​"
                 ],
                 "value": [
-                    "EUW - Yahoo Answers\n<:__:447420442819690506>"
+                    "EUW - Yahoo Answers\n<:__:1566506912294637669>"
                 ],
                 "inline": true
             }
@@ -2463,7 +2463,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                                "<:Aatrox:1566506913707991143> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2487,7 +2487,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                                "<:Aatrox:1566506913707991143> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2634,7 +2634,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                                "<:Aatrox:1566506913707991143> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2659,7 +2659,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                                "<:Aatrox:1566506913707991143> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2684,7 +2684,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                                 }
                             ],
                             "champion": [
-                                "<:Aatrox:469632168130379798> ", { champion: "Aatrox" }
+                                "<:Aatrox:1566506913707991143> ", { champion: "Aatrox" }
                             ]
                         }
                     }
@@ -2794,7 +2794,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_stats_no_values_description",
                 "args": {
                     "user": [
-                        "<@!86540964021161984> <a:Bot_Owner:468045368517722153>"
+                        "<@!86540964021161984> <a:Bot_Owner:1566506877485973798>"
                     ],
                     "champion": [
                         { champion: "Syndra" }
@@ -2846,7 +2846,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>"
+                    "<:__:1566506912294637669>"
                 ],
                 "inline": true
             },
@@ -2868,7 +2868,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                             ]
                         }
                     },
-                    "<:__:447420442819690506>"
+                    "<:__:1566506912294637669>"
                 ],
                 "inline": true
             }
@@ -3007,7 +3007,7 @@ const SECTIONS: TranslationSectionDefinition[] = [{
                 "name": "command_top_personal_title",
                 "args": {
                     "name": [
-                        "molenzwiebel <a:Bot_Owner:468045368517722153>"
+                        "molenzwiebel <a:Bot_Owner:1566506877485973798>"
                     ]
                 }
             }
@@ -3015,10 +3015,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
         "fields": [
             {
                 "name": [
-                    "**<:Syndra:411977428227850241>  1 - ", { champion: "Syndra" }, "**"
+                    "**<:Syndra:1566507137465581728>  1 - ", { champion: "Syndra" }, "**"
                 ],
                 "value": [
-                    "<:Level_7:411977489707958282> 787,562 ",
+                    "<:Level_7:1566506900126957670> 787,562 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3028,10 +3028,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Soraka:411977195506892802>  2 - ", { champion: "Soraka" }, "**"
+                    "**<:Soraka:1566507132105400461>  2 - ", { champion: "Soraka" }, "**"
                 ],
                 "value": [
-                    "<:Level_7:411977489707958282> 219,149 ",
+                    "<:Level_7:1566506900126957670> 219,149 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3041,10 +3041,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Xayah:411977428718714900>  3 - ", { champion: "Xayah" }, "**"
+                    "**<:Xayah:1566507181782597833>  3 - ", { champion: "Xayah" }, "**"
                 ],
                 "value": [
-                    "<:Level_7:411977489707958282> 133,159 ",
+                    "<:Level_7:1566506900126957670> 133,159 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3054,10 +3054,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Orianna:411977322510680067>  4 - ", { champion: "Orianna" }, "**"
+                    "**<:Orianna:1566507080787959848>  4 - ", { champion: "Orianna" }, "**"
                 ],
                 "value": [
-                    "<:Level_7:411977489707958282> 85,468 ",
+                    "<:Level_7:1566506900126957670> 85,468 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3067,10 +3067,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Ashe:411977196606062602>  5 - ", { champion: "Ashe" }, "**"
+                    "**<:Ashe:1566506929629429770>  5 - ", { champion: "Ashe" }, "**"
                 ],
                 "value": [
-                    "<:Level_6:411977489351704587> 76,798 ",
+                    "<:Level_6:1566506898847563937> 76,798 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3080,10 +3080,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Lucian:411977427989037058>  6 - ", { champion: "Lucian" }, "**"
+                    "**<:Lucian:1566507043915964478>  6 - ", { champion: "Lucian" }, "**"
                 ],
                 "value": [
-                    "<:Level_6:411977489351704587> 66,328 ",
+                    "<:Level_6:1566506898847563937> 66,328 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3093,10 +3093,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Janna:411977195792105484>  7 - ", { champion: "Janna" }, "**"
+                    "**<:Janna:1566506994498543618>  7 - ", { champion: "Janna" }, "**"
                 ],
                 "value": [
-                    "<:Level_7:411977489707958282> 56,379 ",
+                    "<:Level_7:1566506900126957670> 56,379 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3106,10 +3106,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Thresh:411977428291026968>  8 - ", { champion: "Thresh" }, "**"
+                    "**<:Thresh:1566507149545316352>  8 - ", { champion: "Thresh" }, "**"
                 ],
                 "value": [
-                    "<:Level_6:411977489351704587> 48,841 ",
+                    "<:Level_6:1566506898847563937> 48,841 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3119,10 +3119,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Irelia:469632305699487755>  9 - ", { champion: "Irelia" }, "**"
+                    "**<:Irelia:1566506991524774089>  9 - ", { champion: "Irelia" }, "**"
                 ],
                 "value": [
-                    "<:Level_6:411977489351704587> 44,741 ",
+                    "<:Level_6:1566506898847563937> 44,741 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3132,10 +3132,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Lulu:411977323529895936>  10 - ", { champion: "Lulu" }, "**"
+                    "**<:Lulu:1566507045258006698>  10 - ", { champion: "Lulu" }, "**"
                 ],
                 "value": [
-                    "<:Level_6:411977489351704587> 44,152 ",
+                    "<:Level_6:1566506898847563937> 44,152 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3145,10 +3145,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Zyra:411977428378976286>  11 - ", { champion: "Zyra" }, "**"
+                    "**<:Zyra:1566507206801756362>  11 - ", { champion: "Zyra" }, "**"
                 ],
                 "value": [
-                    "<:Level_5:411977803144364032> 41,927 ",
+                    "<:Level_5:1566506897673162925> 41,927 ",
                     {
                         "name": "command_top_points",
                         "args": null
@@ -3158,10 +3158,10 @@ const SECTIONS: TranslationSectionDefinition[] = [{
             },
             {
                 "name": [
-                    "**<:Karma:411977195297439745>  12 - ", { champion: "Karma" }, "**"
+                    "**<:Karma:1566507008818159706>  12 - ", { champion: "Karma" }, "**"
                 ],
                 "value": [
-                    "<:Level_5:411977803144364032> 37,420 ",
+                    "<:Level_5:1566506897673162925> 37,420 ",
                     {
                         "name": "command_top_points",
                         "args": null
