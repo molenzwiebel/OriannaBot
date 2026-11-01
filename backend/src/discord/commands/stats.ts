@@ -3,7 +3,8 @@ import { UserMasteryDelta } from "../../database";
 import generateStatsGraphic from "../../graphics/stats";
 import formatName, { badge } from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { emote, expectChampion, expectUser } from "./util";
+import { emote } from "../emotes";
+import { expectChampion, expectUser } from "./util";
 
 const StatsCommand: SlashCapableCommand = {
     name: "Show Stats",

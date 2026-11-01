@@ -85,6 +85,13 @@ export function getLanguages() {
 }
 
 /**
+ * Loads the static data of every language again if DDragon has a newer version.
+ */
+export async function reloadStaticData() {
+    await Promise.all([...translators.values()].map(x => x.staticData.reload()));
+}
+
+/**
  * Returns the translator for the specified language code, or en_US if none match.
  */
 export default function getTranslator(code: string): Translator {

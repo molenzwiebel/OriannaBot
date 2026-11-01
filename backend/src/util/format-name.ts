@@ -1,5 +1,6 @@
 import { APIUser } from "discord-api-types/v10";
 import config from "../config";
+import { replaceEmoteNames } from "../discord/emotes";
 import { User } from "../database";
 
 /**
@@ -13,7 +14,7 @@ export default function formatName(subject: APIUser | User, small = false): stri
 
     const username = (subject as APIUser).username || (subject as User).username;
     const badge = config.badges[id];
-    if (badge) return username + " " + (small ? badge.small : badge.big);
+    if (badge) return username + " " + replaceEmoteNames(small ? badge.small : badge.big);
 
     return username;
 }
@@ -29,7 +30,7 @@ export function badge(subject: APIUser | User, small = false): string {
     if (subject instanceof User) id = subject.snowflake;
 
     const badge = config.badges[id];
-    if (badge) return " " + (small ? badge.small : badge.big);
+    if (badge) return " " + replaceEmoteNames(small ? badge.small : badge.big);
     return "";
 }
 

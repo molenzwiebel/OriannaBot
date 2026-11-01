@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { badge } from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { masteryEmote, emote, expectChampion, expectUserWithAccounts } from "./util";
+import { masteryEmote, emote } from "../emotes";
+import { expectChampion, expectUserWithAccounts } from "./util";
 
 const PointsCommand: SlashCapableCommand = {
     name: "Show Mastery Points",

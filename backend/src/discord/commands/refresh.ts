@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import * as shockwave from "../../shockwave";
 import { SlashCapableCommand } from "../command";
-import { expectUser, rawEmote } from "./util";
+import { emote } from "../emotes";
+import { expectUser } from "./util";
 
 const RefreshCommand: SlashCapableCommand = {
     name: "Refresh",
@@ -29,10 +30,8 @@ const RefreshCommand: SlashCapableCommand = {
         const user = await expectUser(ctx);
         if (!user) return;
 
-        const loadingEmojiId = rawEmote("Refreshing")!;
-
         const msg = await info({
-            title: `<a:${loadingEmojiId}> Refreshing${user.snowflake === author.id ? " your" : ""} data...`
+            title: `${emote("Refreshing")} Refreshing${user.snowflake === author.id ? " your" : ""} data...`
         });
 
         // Debug (hidden) option: nuke all the stats before performing the refresh.

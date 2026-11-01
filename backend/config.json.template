@@ -16,8 +16,7 @@
         "clientId": "<<discord application client id>>",
         "clientSecret": "<<discord application client secret>>",
         "owner": "<<discord user id of the owner of the bot (your own id)>>",
-        "token": "<<discord bot token>>",
-        "emoteServers": ["<<potential list of discord server ids where to find bot servers. leave as an empty array to disable emotes completely>>"]
+        "token": "<<discord bot token>>"
     },
     "reddit": {
         "clientId": "<<reddit client id>>",

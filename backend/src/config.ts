@@ -17,7 +17,6 @@ interface Configuration {
         clientSecret: string;
         owner: string;
         token: string;
-        emoteServers: string[];
     };
     reddit: {
         clientId: string;
@@ -43,6 +42,10 @@ interface Configuration {
     flags?: {
         enableButtons?: boolean;
     };
+    /**
+     * Badges shown after the name of a user, keyed by Discord user ID. A `:name:`
+     * in a badge is replaced by the emote with that name.
+     */
     badges: { [key: string]: {
         small: string;
         big: string;

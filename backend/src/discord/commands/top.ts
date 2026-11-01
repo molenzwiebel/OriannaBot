@@ -5,7 +5,8 @@ import formatName from "../../util/format-name";
 import { createGeneratedFilePath } from "../../web/generated-images";
 import { SlashCapableCommand } from "../command";
 import { ResponseOptions } from "../response";
-import { masteryEmote, emote, expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
+import { masteryEmote, emote } from "../emotes";
+import { expectChampion, expectUserWithAccounts, paginate, paginateRaw } from "./util";
 import { createLeaderboardQuery } from "../../database/leaderboards";
 import { getAvatarURL } from "../../util/avatar";
 
