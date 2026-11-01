@@ -22,7 +22,7 @@ import * as shockwave from "../shockwave";
 import RiotAPI from "../riot/api";
 import formatName from "../util/format-name";
 import { Command, CommandContext, SlashCapableCommand } from "./command";
-import { emote } from "./commands/util";
+import { startEmoteSync } from "./emotes";
 import { ButtonStyle, MessageButton, Response, ResponseOptions } from "./response";
 import { ChannelResponseContext, InteractionResponseContext, ResponseContext } from "./response-context";
 import {
@@ -96,8 +96,7 @@ export default class DiscordClient {
         this.amqpClient.on("interactionCreate", this.handleInteraction);
         this.amqpClient.on("guildMemberAdd", this.handleGuildMemberAdd);
 
-        // Fire off an emote request so we pull the information from redis.
-        emote("Missing_Champion");
+        await startEmoteSync();
     }
 
     /**

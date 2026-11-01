@@ -5,7 +5,8 @@ import LeagueAccount from "../../database/league_account";
 import generateProfileGraphic from "../../graphics/profile";
 import formatName from "../../util/format-name";
 import { SlashCapableCommand } from "../command";
-import { emote, expectUserWithAccounts } from "./util";
+import { emote } from "../emotes";
+import { expectUserWithAccounts } from "./util";
 
 const ProfileCommand: SlashCapableCommand = {
     name: "Show User Profile",

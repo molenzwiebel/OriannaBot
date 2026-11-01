@@ -3,7 +3,8 @@ import config from "../../config";
 import * as shockwave from "../../shockwave";
 import { RangeCondition, RankedTierCondition, RoleCombinator, TypedRoleCondition } from "../../types/conditions";
 import { SlashCapableCommand } from "../command";
-import { emote, expectUser, paginate } from "./util";
+import { emote } from "../emotes";
+import { expectUser, paginate } from "./util";
 
 const RolesCommand: SlashCapableCommand = {
     name: "Show Server Roles",

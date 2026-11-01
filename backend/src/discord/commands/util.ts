@@ -2,7 +2,6 @@ import { Constants } from "eris";
 import config from "../../config";
 import { GuildMember, User } from "../../database";
 import getTranslator from "../../i18n";
-import { getCachedGuild } from "../../redis";
 import formatName from "../../util/format-name";
 import { hasPermission } from "../../util/permissions";
 import { CommandContext } from "../command";
@@ -210,71 +209,4 @@ export async function paginateRaw<T>({ info, ctx, t }: CommandContext, elementCo
     });
 
     return res;
-}
-
-/**
- * Finds the emote corresponding to the given mastery level.
- */
-export function masteryEmote(level: number) {
-    if (level <= 10) return emote("Level_" + level);
-    return emote("Level_10");
-}
-
-/**
- * Finds the emote with the specified name in one of the specified emote servers. If the
- * emote cannot be found, Missing_Champion is returned instead. Supplying a number or champion
- * instance will look for the emote belonging to the icon of that champion instead.
- */
-export function emote(name: string | riot.Champion) {
-    const raw = rawEmote(name);
-
-    if (raw) {
-        return "<:" + raw + ">";
-    } else {
-        // Most likely the emote servers are down. Return
-        // something so we don't crash.
-        return "❓";
-    }
-}
-
-let emoteCache: Map<string, string> | null = null;
-
-/**
- * Loads emotes from the redis guild cache.
- */
-async function loadEmotes() {
-    emoteCache = new Map();
-
-    for (const id of config.discord.emoteServers) {
-        const guild = await getCachedGuild(id);
-        if (!guild) continue;
-
-        for (const emote of guild.emojis) {
-            emoteCache.set(emote.name!, emote.name + ":" + emote.id);
-        }
-    }
-}
-
-/**
- * Returns the "raw" emote name for the specified name, which can be used to react to a message.
- * Note that this is a sync operation. It will return none in case emotes are not cached (which
- * happens the first time this is invoked).
- */
-export function rawEmote(name: string | riot.Champion) {
-    if (!emoteCache) {
-        loadEmotes();
-        return null;
-    }
-
-    if (typeof name !== "string") {
-        // We have to translate to english as the emotes are in english.
-        const en = getTranslator("en-US");
-        if (!en.staticData.lazyLoad()) {
-            name = "Missing_Champion";
-        } else {
-            name = en.staticData.championByInternalNameSync(name.id).name.replace(/\W/g, "");
-        }
-    }
-
-    return emoteCache.get(name) ?? emoteCache.get("Missing_Champion") ?? null;
 }

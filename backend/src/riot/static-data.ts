@@ -110,8 +110,20 @@ export default class StaticData {
     private version!: string;
     private dataPromise: Promise<void>;
 
-    constructor(language: string) {
-        this.dataPromise = this.fetchData(language);
+    constructor(private language: string) {
+        this.dataPromise = this.fetchData();
+    }
+
+    /**
+     * Loads the champion data again if DDragon has a newer version. Calls
+     * that run before the load finishes use the old data.
+     */
+    public async reload() {
+        const version = await fetchLatestVersion();
+        if (version === this.version) return;
+
+        await this.fetchData(version);
+        this.dataPromise = Promise.resolve();
     }
 
     /**
@@ -230,16 +242,24 @@ export default class StaticData {
     }
 
     /**
-     * Loads the champion data if it is not already loaded.
+     * Loads the champion data for the specified DDragon version, or the latest version if not specified.
      */
-    private async fetchData(language: string) {
-        const versionReq = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
-        const versions = await versionReq.json();
+    private async fetchData(version?: string) {
+        if (!version) version = await fetchLatestVersion();
 
-        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/${language}/championFull.json`);
+        const dataReq = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/${this.language}/championFull.json`);
         const data = await dataReq.json();
 
         this.version = data.version;
         this.data = Object.values(data.data);
     }
+}
+
+/**
+ * Returns the newest DDragon version.
+ */
+async function fetchLatestVersion(): Promise<string> {
+    const versionReq = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
+    const versions = await versionReq.json();
+    return versions[0];
 }
