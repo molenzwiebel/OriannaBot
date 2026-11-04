@@ -9,14 +9,14 @@
             <template v-else>
                 <option value="disabled" :disabled="!allowNull" :selected="!value">{{ allowNull ? 'None' : 'Select A Champion' }}</option>
                 <option v-if="allowNull" disabled>──────────</option>
-                <option :value="champ.id" v-for="champ in champions" :selected="value && value == champ.key">{{ champ.id.startsWith('Jade_') ? "Classic " : ""}}{{ champ.name }}</option>
+                <option :value="champ.id" v-for="champ in champions" :selected="value && value == champ.key">{{ champ.id.startsWith(CLASSIC_ID_PREFIX) ? "Classic " : ""}}{{ champ.name }}</option>
             </template>
         </select>
     </div>
 </template>
 
 <script lang="ts">
-    import { Champion, champions, ddragon } from "../../config";
+    import { Champion, championIcon, champions, CLASSIC_ID_PREFIX } from "../../config";
 
     export default {
         props: {
@@ -24,7 +24,7 @@
             allowNull: { default: false, type: Boolean }
         },
         data() {
-            return { champions: [] };
+            return { champions: [], CLASSIC_ID_PREFIX };
         },
         methods: {
             update() {
@@ -41,7 +41,7 @@
                 if (!this.value || !this.champions.length) return "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png";
 
                 const champ = this.champions.find((x: Champion) => x.key == this.value);
-                return "https://ddragon.leagueoflegends.com/cdn/" + ddragon() + "/img/champion/" + champ.id + ".png";
+                return championIcon(champ);
             }
         }
     };
