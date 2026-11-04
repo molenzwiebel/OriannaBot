@@ -2,9 +2,8 @@
  * Emotes are Discord application emojis of the bot. The sync makes the
  * application emojis match the files in `assets/emotes` plus one icon per
  * DDragon champion, named after the English champion name without non-word
- * characters. A classic champion uses the emote of the normal champion. To
- * upload a new version of an emote, delete it on Discord and the next sync
- * uploads it again.
+ * characters. A classic champion is named "<name>Classic". To upload a new
+ * version of an emote, delete it on Discord and the next sync uploads it again.
  */
 import {
     APIApplicationEmoji,
@@ -17,7 +16,6 @@ import fetch from "node-fetch";
 import * as path from "path";
 import config from "../config";
 import getTranslator, { reloadStaticData } from "../i18n";
-import { isClassicChampion } from "../riot/static-data";
 import debug = require("debug");
 
 const info = debug("orianna:emotes");
@@ -48,7 +46,7 @@ export function emote(name: string | riot.Champion) {
         // Emote names use the English champion names.
         const en = getTranslator("en-US").staticData;
         name = en.lazyLoad()
-            ? championEmoteName(en.baseChampion(en.championByInternalNameSync(name.id)))
+            ? championEmoteName(en.championByInternalNameSync(name.id))
             : MISSING_CHAMPION;
     }
 
@@ -152,8 +150,6 @@ async function getEmoteSources() {
 
     const staticData = getTranslator("en-US").staticData;
     for (const champion of await staticData.getAllChampions()) {
-        if (isClassicChampion(champion)) continue;
-
         sources.set(championEmoteName(champion), async () => {
             const res = await fetch(await staticData.getChampionIcon(champion));
             if (!res.ok) throw new Error(`Fetching icon of ${champion.id} returned ${res.status}`);

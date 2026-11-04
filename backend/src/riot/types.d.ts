@@ -16,7 +16,7 @@ declare namespace riot {
         key: string;
         name: string;
         title: string;
-        skins: { num: number }[];
+        skins: { num: number, parentSkin?: number }[];
         tags: string[];
     }
 }
