@@ -1,8 +1,6 @@
 import * as d3 from "d3";
-import { JSDOM } from "jsdom";
-import * as canvg from "canvg";
-import { createCanvas } from "./tools";
-import { Image } from "canvas";
+import { parseHTML } from "linkedom";
+import { renderSvg } from "./tools";
 
 export interface ProfileGraphicValue {
     champion: string;
@@ -10,12 +8,14 @@ export interface ProfileGraphicValue {
     score: number;
 }
 
+/**
+ * Renders a bar chart of the specified champion scores. The first value must have the highest score.
+ */
 export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
-    const { document } = new JSDOM(`<svg id="svg" width="399" height="240"></svg>`).window;
-    (<any>global).document = document; // d3 expects this
+    const { document } = parseHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="399" height="240"></svg>`);
 
     // Find SVG element, width, height.
-    const svg = d3.select("svg");
+    const svg = d3.select(document.querySelector("svg") as unknown as SVGSVGElement);
     const margin = { top: 4, right: 0, bottom: 65, left: 44 };
     const width = +svg.attr("width") - margin.left - margin.right;
     const height = +svg.attr("height") - margin.top - margin.bottom;
@@ -38,16 +38,16 @@ export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
         .attr("transform", "rotate(-40)")
         .attr("text-anchor", "end")
         .attr("fill", "#88939c")
-        .attr("font", "13px \"Noto Sans KR\", \"Noto Sans\"")
-        .attr("style", "font-size: 13px");
+        .attr("font-family", "Noto Sans KR, Noto Sans")
+        .attr("font-size", 13);
 
     // Create our Y-axis.
     g.append("g")
         .call(d3.axisLeft(y).ticks(7, "s"))
         .selectAll("text")
         .attr("fill", "#88939c")
-        .attr("font", "13px \"Noto Sans KR\", \"Noto Sans\"")
-        .attr("style", "font-size: 13px");
+        .attr("font-family", "Noto Sans KR, Noto Sans")
+        .attr("font-size", 13);
 
     // Create our actual bars.
     g.selectAll(".bar")
@@ -61,16 +61,8 @@ export default function generateProfileGraphic(values: ProfileGraphicValue[]) {
         .attr("width", x.bandwidth())
         .attr("height", d => height - y(d.score));
 
-    // We need to do this to have the tick lines show up.
-    // For some reason d3 doesn't really have a good way to make this work.
-    Array.from(document.querySelectorAll(".domain")).forEach(x => x.setAttribute("stroke", "#595d61"));
-    Array.from(document.querySelectorAll(".tick > line")).forEach(x => x.setAttribute("stroke", "#595d61"));
+    // d3 draws the axis lines in currentColor, which has no value outside a page.
+    svg.selectAll(".domain, .tick > line").attr("stroke", "#595d61");
 
-    // Render to the canvas.
-    const canvas: any = createCanvas(399, 240);
-    canvg(canvas, document.body.innerHTML, <any>{ ignoreMouse: true, ignoreAnimation: true, ImageClass: Image });
-
-    delete (<any>global).document; // clean up after ourselves
-
-    return canvas.toBuffer("image/png");
+    return renderSvg(svg.node()!.outerHTML, 399, 240);
 }

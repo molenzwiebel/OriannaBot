@@ -7,9 +7,11 @@
         "experimentalDecorators": true,
         "sourceMap": true,
         "outDir": "dist",
-        "module": "commonjs",
+        "module": "node20",
+        "moduleResolution": "node16",
         "target": "es2017",
         "lib": ["es2017", "dom"],
+        "jsx": "react-jsx",
         "skipLibCheck": true
     },
     "include": ["src/**/*"],
