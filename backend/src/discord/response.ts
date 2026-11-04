@@ -33,15 +33,20 @@ export abstract class Response {
         if (this.messageId) throw new Error("Cannot create initial reply twice.");
         this.messageId = await this.create(this.buildContent(options), options.file);
 
-        // if buttons aren't enabled, we need to mock them using reacts
+        // If buttons aren't enabled, we need to mock them using reacts. The reactions are added in the
+        // background, so the caller gets the response before a user can press one. Button callbacks
+        // often refer to that response.
         if (options.buttons && !config.flags?.enableButtons) {
-            for (const btn of options.buttons) {
-                if (btn.authorOnly) {
-                    await this.option(btn.fallbackEmoji || btn.emoji, btn.callback);
-                } else {
-                    await this.globalOption(btn.fallbackEmoji || btn.emoji, btn.callback);
+            const buttons = options.buttons;
+            (async () => {
+                for (const btn of buttons) {
+                    if (btn.authorOnly) {
+                        await this.option(btn.fallbackEmoji || btn.emoji, btn.callback);
+                    } else {
+                        await this.globalOption(btn.fallbackEmoji || btn.emoji, btn.callback);
+                    }
                 }
-            }
+            })().catch(() => { /* Ignored, we probably don't have permissions. */ });
         }
 
         return this;

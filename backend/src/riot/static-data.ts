@@ -1,5 +1,10 @@
 import fetch from "node-fetch";
 
+// Classic champions have the id of the normal champion with this prefix, and the key of the
+// normal champion plus this offset.
+const CLASSIC_ID_PREFIX = "Jade_";
+const CLASSIC_KEY_OFFSET = 60000;
+
 const ABBREVIATIONS: { [key: string]: string } = {
     "mumu": "Amumu",
     "ali": "Alistar",
@@ -146,10 +151,9 @@ export default class StaticData {
         const valid = [];
         for (const champ of this.data) {
             // skip classic champs unless the user explicitly requested them
-            const champIsClassic = champ.id.startsWith("Jade_");
-            if (champIsClassic !== classic) continue;
+            if (isClassicChampion(champ) !== classic) continue;
 
-            if (normalized.includes(champ.name.toLowerCase().replace(/['`\s".&]/g, ""))) {
+            if (normalized.includes(this.baseChampion(champ).name.toLowerCase().replace(/['`\s".&]/g, ""))) {
                 valid.push(champ);
             }
         }
@@ -159,7 +163,7 @@ export default class StaticData {
             // Give a bonus to names that appear standalone (prefer **Jax** progression over jax progres*sion*).
             const computeValue = (x: string) => x.length + (new RegExp("\\b" + x + "\\b", "i").test(content) ? 1000 : 0);
 
-            return valid.sort((a, b) => computeValue(b.name) - computeValue(a.name))[0];
+            return valid.sort((a, b) => computeValue(this.baseChampion(b).name) - computeValue(this.baseChampion(a).name))[0];
         }
 
         // If that doesn't work, try abbreviations.
@@ -167,7 +171,7 @@ export default class StaticData {
         for (const abbrev of Object.keys(ABBREVIATIONS)) {
             if (words.includes(abbrev)) {
                 if (classic) {
-                    return this.championByInternalName("Jade_" + ABBREVIATIONS[abbrev]) ?? null;
+                    return this.championByInternalName(CLASSIC_ID_PREFIX + ABBREVIATIONS[abbrev]) ?? null;
                 }
 
                 return this.championByInternalName(ABBREVIATIONS[abbrev]);
@@ -202,6 +206,14 @@ export default class StaticData {
     }
 
     /**
+     * Returns the normal champion for a classic champion, or the champion itself if it isn't classic.
+     * This will crash if data has not yet been loaded.
+     */
+    public baseChampion(champion: riot.Champion): riot.Champion {
+        return isClassicChampion(champion) ? this.championByInternalNameSync(champion.id.slice(CLASSIC_ID_PREFIX.length)) : champion;
+    }
+
+    /**
      * Finds the champion with the specified numeric id.
      */
     public async championById(id: number | string) {
@@ -210,35 +222,39 @@ export default class StaticData {
     }
 
     /**
-     * Returns a URL for the icon for the specified champion or champion id.
+     * Returns a URL for the icon for the specified champion or champion id. A classic
+     * champion uses the icon of the normal champion.
      */
     public async getChampionIcon(champion: riot.Champion | number) {
         if (typeof champion === "number") champion = await this.championById(champion);
 
         await this.dataPromise;
-        return `https://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${champion.id}.png`;
+        return `https://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${this.baseChampion(champion).id}.png`;
     }
 
     /**
-     * Returns a URL for the splash art for the specified champion or champion id.
+     * Returns a URL for the splash art for the specified champion or champion id. A classic
+     * champion uses the splash art of the normal champion.
      */
     public async getChampionSplash(champion: riot.Champion | number) {
         if (typeof champion === "number") champion = await this.championById(champion);
 
         await this.dataPromise;
-        return `http://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champion.id}_0.jpg`;
+        return `http://ddragon.leagueoflegends.com/cdn/img/champion/splash/${this.baseChampion(champion).id}_0.jpg`;
     }
 
     /**
      * Returns a URL for a random centered splash for one of the skins of the specified champion.
+     * A classic champion uses the skins of the normal champion.
      */
     public async getRandomCenteredSplash(champion: riot.Champion | number) {
         if (typeof champion === "number") champion = await this.championById(champion);
 
         await this.dataPromise;
-        const skin = champion.skins[Math.floor(Math.random() * champion.skins.length)];
+        const base = this.baseChampion(champion);
+        const skin = base.skins[Math.floor(Math.random() * base.skins.length)];
 
-        return `https://cdn.communitydragon.org/latest/champion/${champion.key}/splash-art/centered/skin/${skin.num}`;
+        return `https://cdn.communitydragon.org/latest/champion/${base.key}/splash-art/centered/skin/${skin.num}`;
     }
 
     /**
@@ -251,8 +267,25 @@ export default class StaticData {
         const data = await dataReq.json();
 
         this.version = data.version;
-        this.data = Object.values(data.data);
+
+        // DDragon doesn't list classic champions, but the mastery API returns them with the id of
+        // the normal champion plus CLASSIC_KEY_OFFSET. Add a classic copy of every champion for them.
+        const champions: riot.Champion[] = Object.values(data.data);
+        this.data = [...champions, ...champions.map(champion => ({
+            ...champion,
+            id: CLASSIC_ID_PREFIX + champion.id,
+            key: String(CLASSIC_KEY_OFFSET + +champion.key),
+            name: champion.name + " (Classic)"
+        }))];
     }
+}
+
+/**
+ * Returns whether the champion is a classic champion, which is a copy that StaticData adds
+ * for every DDragon champion.
+ */
+export function isClassicChampion(champion: riot.Champion) {
+    return champion.id.startsWith(CLASSIC_ID_PREFIX);
 }
 
 /**

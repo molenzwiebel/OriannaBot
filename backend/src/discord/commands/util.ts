@@ -109,6 +109,16 @@ export async function advancedPaginate<T>({ info, t }: CommandContext, elements:
     let curPage = 0;
 
     let res: Response;
+    const showPage = async (offset: number) => {
+        if (curPage + offset < 0 || curPage + offset >= pages) return;
+        curPage += offset;
+
+        res.info({
+            ...template,
+            fields: await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage),
+            footer: t.command_page_n_of_n({ n: curPage + 1, total: pages }) + (template.footer ? " • " + template.footer : "")
+        });
+    };
 
     const deleteBtn = {
         emoji: "🗑",
@@ -131,17 +141,6 @@ export async function advancedPaginate<T>({ info, t }: CommandContext, elements:
             style: ButtonStyle.SECONDARY
         }, deleteBtn]
     });
-
-    const showPage = async (offset: number) => {
-        if (curPage + offset < 0 || curPage + offset >= pages) return;
-        curPage += offset;
-
-        res.info({
-            ...template,
-            fields: await process(elements.slice(curPage * perPage, (curPage + 1) * perPage), curPage * perPage),
-            footer: t.command_page_n_of_n({ n: curPage + 1, total: pages }) + (template.footer ? " • " + template.footer : "")
-        });
-    };
 
     return res;
 }
