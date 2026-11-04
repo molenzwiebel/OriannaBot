@@ -118,6 +118,9 @@ const TopCommand: SlashCapableCommand = {
 
         const query = createLeaderboardQuery(key, filter);
 
+        // The count doesn't depend on the rank, so it runs while the rank is looked up.
+        const numberOfResultsPromise = query.count();
+
         // Find the user's rank, or leave it out if they have no ori account or aren't listed on that champion.
         let userRank: undefined | string = undefined;
         const user = await ctx.user();
@@ -131,7 +134,7 @@ const TopCommand: SlashCapableCommand = {
             }
         }
 
-        const numberOfResults = await query.count();
+        const numberOfResults = await numberOfResultsPromise;
 
         // Return paginated image.
         return paginateRaw(ctx, numberOfResults, async (offset, curPage): Promise<ResponseOptions> => {

@@ -28,17 +28,17 @@ const imageCache = new ExpiringMap<string, string>(5 * 60 * 1000); // 5 minutes
 export function createGeneratedFilePath(filenameSuffix: string, cacheKey: string, generate: () => Promise<Buffer>): string {
     if (imageCache.has(cacheKey)) return imageCache.get(cacheKey);
 
-    const key = randomstring.generate({ length: 32 });
+    const file = randomstring.generate({ length: 32 }) + filenameSuffix;
 
     const promise = generate().then(result => {
-        return new Promise<void>(resolve => fs.writeFile(path.join(IMAGES, key + filenameSuffix), result, () => resolve()));
+        return new Promise<void>(resolve => fs.writeFile(path.join(IMAGES, file), result, () => resolve()));
     }).then(() => {
-        generatingImages.delete(key);
+        generatingImages.delete(file);
     });
 
-    const url = config.web.url + "/img/generated/" + key + filenameSuffix;
+    const url = config.web.url + "/img/generated/" + file;
 
-    generatingImages.set(key + filenameSuffix, promise);
+    generatingImages.set(file, promise);
     imageCache.set(cacheKey, url);
 
     return url;

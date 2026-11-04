@@ -71,7 +71,10 @@ export function createLeaderboardQuery(championId: string, limitToGuild: {
     return {
         // Get the total number of results.
         async count(): Promise<number> {
-            return base.clone().count().then(x => x[0].count as number);
+            // Every row belongs to a user, so without a guild filter the join to users doesn't change
+            // the count. Leaving it out avoids a scan over all users.
+            const query = limitToGuild ? base.clone() : knex(table);
+            return query.count().then(x => +x[0].count);
         },
         // Get the rank of the user. Returns null if
         // they are not in the table, or returns false
