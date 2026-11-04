@@ -7,9 +7,15 @@ use std::{
 };
 
 use futures::{Future, Stream, StreamExt, TryFutureExt};
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::{database::Database, evaluate::EvaluationContext, riot_api::Priority, updater::Updater};
+
+// A database connection whose server went away without closing it can make a query wait forever.
+// These timeouts stop a loop from waiting on such a query. Dropping the query makes the pool test
+// the connection, which closes it if it is broken.
+const USER_BATCH_TIMEOUT: Duration = Duration::from_secs(60);
+const USER_UPDATE_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 #[derive(Copy, Clone)]
 struct WorkerLoopConfiguration {
@@ -119,7 +125,10 @@ impl Worker {
                 let amnt_clone = amount.clone();
 
                 async move {
-                    fun(ctx).await;
+                    let user_id = ctx.user.id;
+                    if tokio::time::timeout(USER_UPDATE_TIMEOUT, fun(ctx)).await.is_err() {
+                        warn!("Updating {} for user {} timed out", config.name, user_id);
+                    }
 
                     amnt_clone.fetch_add(1, Ordering::SeqCst);
                 }
@@ -133,21 +142,25 @@ impl Worker {
         futures::stream::unfold(0u32, move |mut offset| async move {
             // Keep attempting to find users.
             loop {
-                if let Ok(contexts) = self
+                let batch = self
                     .database
                     .find_users(batch_size, offset)
-                    .and_then(|ids| self.database.get_batch_evaluation_context(ids))
-                    .await
-                {
-                    // If we received less than `batch_size` contexts, it means
-                    // that we reached the end and need to loop around to the start.
-                    if contexts.len() < batch_size as usize {
-                        offset = 0;
-                    } else {
-                        offset += batch_size;
-                    }
+                    .and_then(|ids| self.database.get_batch_evaluation_context(ids));
 
-                    return Some((futures::stream::iter(contexts), offset));
+                match tokio::time::timeout(USER_BATCH_TIMEOUT, batch).await {
+                    Ok(Ok(contexts)) => {
+                        // If we received less than `batch_size` contexts, it means
+                        // that we reached the end and need to loop around to the start.
+                        if contexts.len() < batch_size as usize {
+                            offset = 0;
+                        } else {
+                            offset += batch_size;
+                        }
+
+                        return Some((futures::stream::iter(contexts), offset));
+                    }
+                    Ok(Err(error)) => warn!("Loading users at offset {} failed: {}", offset, error),
+                    Err(_) => warn!("Loading users at offset {} timed out", offset),
                 }
 
                 // Wait for a second and then retry.
